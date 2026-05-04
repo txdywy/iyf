@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-05-04T11:11:14.424Z",
+  "lastUpdated": "2026-05-04T11:14:51.160Z",
   "stats": {
     "koreanDramas": 29,
-    "chineseVariety": 23,
+    "chineseVariety": 22,
     "otherDramas": 14,
-    "totalScraped": 41
+    "totalScraped": 39
   },
   "koreanDramas": [
     {
@@ -31,7 +31,7 @@
       "isClassic": false,
       "recommendScore": 245,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E8%83%8C%E7%9D%80%E5%96%84%E5%AE%B0%E8%B7%91"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E8%83%8C%E7%9D%80%E5%96%84%E5%AE%B0%E8%B7%91&cat=1002"
     },
     {
       "id": "seed_kd_2025_03",
@@ -57,7 +57,7 @@
       "isClassic": false,
       "recommendScore": 238,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%87%8C%E6%99%A8%E4%B8%A4%E7%82%B9%E7%9A%84%E7%81%B0%E5%A7%91%E5%A8%98"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%87%8C%E6%99%A8%E4%B8%A4%E7%82%B9%E7%9A%84%E7%81%B0%E5%A7%91%E5%A8%98&cat=1002"
     },
     {
       "id": "seed_kd_2025_05",
@@ -83,7 +83,7 @@
       "isClassic": false,
       "recommendScore": 196,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%88%91%E7%9A%84%E5%AE%8C%E7%BE%8E%E7%A7%98%E4%B9%A6"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%88%91%E7%9A%84%E5%AE%8C%E7%BE%8E%E7%A7%98%E4%B9%A6&cat=1002"
     },
     {
       "id": "seed_kd_c04",
@@ -109,7 +109,7 @@
       "isLive": false,
       "recommendScore": 195,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%AD%A4%E5%8D%95%E5%8F%88%E7%81%BF%E7%83%82%E7%9A%84%E7%A5%9E-%E9%AC%BC%E6%80%AA"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%AD%A4%E5%8D%95%E5%8F%88%E7%81%BF%E7%83%82%E7%9A%84%E7%A5%9E-%E9%AC%BC%E6%80%AA&cat=1002"
     },
     {
       "id": "seed_kd_c13",
@@ -135,7 +135,7 @@
       "isClassic": false,
       "recommendScore": 194,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E9%85%92%E9%AC%BC%E9%83%BD%E5%B8%82%E7%94%B7%E5%A5%B3"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E9%85%92%E9%AC%BC%E9%83%BD%E5%B8%82%E7%94%B7%E5%A5%B3&cat=1002"
     },
     {
       "id": "seed_kd_2026_01",
@@ -161,7 +161,7 @@
       "isClassic": false,
       "recommendScore": 191,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%8B%9C%E6%89%98%E4%BA%86%E8%80%81%E6%9D%BF"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%8B%9C%E6%89%98%E4%BA%86%E8%80%81%E6%9D%BF&cat=1002"
     },
     {
       "id": "seed_kd_c03",
@@ -187,7 +187,7 @@
       "isLive": false,
       "recommendScore": 187,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%9C%BA%E6%99%BA%E7%9A%84%E7%9B%91%E7%8B%B1%E7%94%9F%E6%B4%BB"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%9C%BA%E6%99%BA%E7%9A%84%E7%9B%91%E7%8B%B1%E7%94%9F%E6%B4%BB&cat=1002"
     },
     {
       "id": "seed_kd_c16",
@@ -213,7 +213,7 @@
       "isClassic": false,
       "recommendScore": 184,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E9%97%AA%E4%BA%AE%E7%9A%84%E8%A5%BF%E7%93%9C"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E9%97%AA%E4%BA%AE%E7%9A%84%E8%A5%BF%E7%93%9C&cat=1002"
     },
     {
       "id": "seed_kd_c14",
@@ -239,7 +239,7 @@
       "isClassic": false,
       "recommendScore": 179,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%B5%B7%E5%B2%B8%E6%9D%91%E6%81%B0%E6%81%B0%E6%81%B0"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%B5%B7%E5%B2%B8%E6%9D%91%E6%81%B0%E6%81%B0%E6%81%B0&cat=1002"
     },
     {
       "id": "seed_kd_c02",
@@ -265,7 +265,7 @@
       "isLive": false,
       "recommendScore": 178,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%9C%BA%E6%99%BA%E7%9A%84%E5%8C%BB%E7%94%9F%E7%94%9F%E6%B4%BB"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%9C%BA%E6%99%BA%E7%9A%84%E5%8C%BB%E7%94%9F%E7%94%9F%E6%B4%BB&cat=1002"
     },
     {
       "id": "seed_kd_2025_02",
@@ -291,7 +291,7 @@
       "isClassic": false,
       "recommendScore": 177,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%A6%88%E5%A6%88%E6%9C%8B%E5%8F%8B%E7%9A%84%E5%84%BF%E5%AD%90"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%A6%88%E5%A6%88%E6%9C%8B%E5%8F%8B%E7%9A%84%E5%84%BF%E5%AD%90&cat=1002"
     },
     {
       "id": "seed_kd_c05",
@@ -317,7 +317,7 @@
       "isLive": false,
       "recommendScore": 173,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%A4%A7%E5%8A%9B%E5%A5%B3%E9%83%BD%E5%A5%89%E9%A1%BA"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%A4%A7%E5%8A%9B%E5%A5%B3%E9%83%BD%E5%A5%89%E9%A1%BA&cat=1002"
     },
     {
       "id": "seed_kd_c17",
@@ -343,7 +343,7 @@
       "isClassic": false,
       "recommendScore": 165,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%AC%A2%E8%BF%8E%E6%9D%A5%E5%88%B0%E7%8E%8B%E4%B9%8B%E5%9B%BD"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%AC%A2%E8%BF%8E%E6%9D%A5%E5%88%B0%E7%8E%8B%E4%B9%8B%E5%9B%BD&cat=1002"
     },
     {
       "id": "seed_kd_c06",
@@ -369,7 +369,7 @@
       "isLive": false,
       "recommendScore": 158,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E4%B8%BE%E9%87%8D%E5%A6%96%E7%B2%BE%E9%87%91%E7%A6%8F%E7%8F%A0"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E4%B8%BE%E9%87%8D%E5%A6%96%E7%B2%BE%E9%87%91%E7%A6%8F%E7%8F%A0&cat=1002"
     },
     {
       "id": "seed_kd_2025_04",
@@ -395,7 +395,7 @@
       "isClassic": false,
       "recommendScore": 154,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E9%97%AE%E9%97%AE%E6%98%9F%E6%98%9F%E5%90%A7"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E9%97%AE%E9%97%AE%E6%98%9F%E6%98%9F%E5%90%A7&cat=1002"
     },
     {
       "id": "seed_kd_c01",
@@ -421,7 +421,7 @@
       "isLive": false,
       "recommendScore": 154,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E8%AF%B7%E5%9B%9E%E7%AD%941988"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E8%AF%B7%E5%9B%9E%E7%AD%941988&cat=1002"
     },
     {
       "id": "seed_kd_c15",
@@ -447,7 +447,7 @@
       "isClassic": false,
       "recommendScore": 153,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E9%9D%9E%E5%B8%B8%E5%BE%8B%E5%B8%88%E7%A6%B9%E8%8B%B1%E7%A6%91"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E9%9D%9E%E5%B8%B8%E5%BE%8B%E5%B8%88%E7%A6%B9%E8%8B%B1%E7%A6%91&cat=1002"
     },
     {
       "id": "seed_kd_2025_06",
@@ -473,7 +473,7 @@
       "isClassic": false,
       "recommendScore": 152,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA&cat=1002"
     },
     {
       "id": "seed_kd_c18",
@@ -499,7 +499,7 @@
       "isClassic": false,
       "recommendScore": 148,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%AD%BB%E6%9C%9F%E5%B0%86%E8%87%B3"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%AD%BB%E6%9C%9F%E5%B0%86%E8%87%B3&cat=1002"
     },
     {
       "id": "seed_kd_c10",
@@ -525,7 +525,7 @@
       "isClassic": false,
       "recommendScore": 147,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E9%87%91%E7%A7%98%E4%B9%A6%E4%B8%BA%E4%BD%95%E9%82%A3%E6%A0%B7"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E9%87%91%E7%A7%98%E4%B9%A6%E4%B8%BA%E4%BD%95%E9%82%A3%E6%A0%B7&cat=1002"
     },
     {
       "id": "seed_kd_c12",
@@ -551,7 +551,7 @@
       "isClassic": false,
       "recommendScore": 147,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E7%A4%BE%E5%86%85%E7%9B%B8%E4%BA%B2"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E7%A4%BE%E5%86%85%E7%9B%B8%E4%BA%B2&cat=1002"
     },
     {
       "id": "seed_kd_c07",
@@ -577,7 +577,7 @@
       "isLive": false,
       "recommendScore": 133,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%96%87%E6%A3%AE%E4%BD%90"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%96%87%E6%A3%AE%E4%BD%90&cat=1002"
     },
     {
       "id": "seed_kd_s03",
@@ -603,7 +603,7 @@
       "isClassic": false,
       "recommendScore": 133,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%A5%87%E6%80%AA%E7%9A%84%E5%BE%8B%E5%B8%88%E7%A6%B9%E8%8B%B1%E7%A6%91"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%A5%87%E6%80%AA%E7%9A%84%E5%BE%8B%E5%B8%88%E7%A6%B9%E8%8B%B1%E7%A6%91&cat=1002"
     },
     {
       "id": "seed_kd_c09",
@@ -629,7 +629,7 @@
       "isClassic": false,
       "recommendScore": 130,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%88%91%E7%9A%84ID%E6%98%AF%E6%B1%9F%E5%8D%97%E7%BE%8E%E4%BA%BA"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%88%91%E7%9A%84ID%E6%98%AF%E6%B1%9F%E5%8D%97%E7%BE%8E%E4%BA%BA&cat=1002"
     },
     {
       "id": "seed_kd_2026_02",
@@ -655,7 +655,7 @@
       "isClassic": false,
       "recommendScore": 125,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%9E%E4%BA%89"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%9E%E4%BA%89&cat=1002"
     },
     {
       "id": "seed_kd_c11",
@@ -681,7 +681,7 @@
       "isClassic": false,
       "recommendScore": 116,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E8%A7%A6%E5%8F%8A%E7%9C%9F%E5%BF%83"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E8%A7%A6%E5%8F%8A%E7%9C%9F%E5%BF%83&cat=1002"
     },
     {
       "id": "seed_kd_s01",
@@ -707,7 +707,7 @@
       "isClassic": false,
       "recommendScore": 111,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E4%BF%A1%E5%8F%B7"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E4%BF%A1%E5%8F%B7&cat=1002"
     },
     {
       "id": "seed_kd_s02",
@@ -733,7 +733,7 @@
       "isClassic": false,
       "recommendScore": 111,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E7%A7%98%E5%AF%86%E6%A3%AE%E6%9E%97"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E7%A7%98%E5%AF%86%E6%A3%AE%E6%9E%97&cat=1002"
     },
     {
       "id": "seed_kd_c08",
@@ -759,7 +759,7 @@
       "isLive": false,
       "recommendScore": 92,
       "category": "korean_drama",
-      "url": "https://www.yfsp.tv/search/%E6%9C%AA%E7%94%9F"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%9C%AA%E7%94%9F&cat=1002"
     }
   ],
   "chineseVariety": [
@@ -786,7 +786,7 @@
       "isClassic": false,
       "recommendScore": 146,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E7%AC%AC5%E5%AD%A3"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E5%93%88%E7%AC%AC5%E5%AD%A3&cat=1002"
     },
     {
       "id": "seed_var_2026_05",
@@ -811,7 +811,7 @@
       "isClassic": false,
       "recommendScore": 140,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E5%AF%86%E5%AE%A4%E5%A4%A7%E9%80%83%E8%84%B12026"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%AF%86%E5%AE%A4%E5%A4%A7%E9%80%83%E8%84%B12026&cat=1002"
     },
     {
       "id": "YbbTMTCTNL7",
@@ -821,7 +821,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.1,
-      "playCount": 1060671,
+      "playCount": 1060774,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "秦昊,伊能静,李纯,马頔,金莎",
@@ -836,7 +836,7 @@
       "publishTime": "2026-05-01T04:36:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/YbbTMTCTNL7",
-      "scrapedAt": "2026-05-04T11:10:49.875Z",
+      "scrapedAt": "2026-05-04T11:14:35.893Z",
       "isLive": true,
       "recommendScore": 136,
       "category": "chinese_variety"
@@ -865,7 +865,7 @@
       "isClassic": false,
       "recommendScore": 128,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E5%A5%94%E8%B7%91%E5%90%A72026"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%A5%94%E8%B7%91%E5%90%A72026&cat=1002"
     },
     {
       "id": "9Qw3cljKhk7",
@@ -875,7 +875,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.4,
-      "playCount": 595196,
+      "playCount": 595234,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "夏之光,蒋敦豪,余承恩,王瀚哲,齐思钧,陆虎,小鹿,靳梦佳,李松蔚",
@@ -890,7 +890,7 @@
       "publishTime": "2026-05-03T04:35:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/9Qw3cljKhk7",
-      "scrapedAt": "2026-05-04T11:10:54.322Z",
+      "scrapedAt": "2026-05-04T11:14:28.536Z",
       "isLive": true,
       "recommendScore": 122,
       "category": "chinese_variety"
@@ -903,7 +903,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9,
-      "playCount": 1239861,
+      "playCount": 1239894,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "沈月,王鹤棣,秦岚,徐志胜,张宸逍",
@@ -918,7 +918,7 @@
       "publishTime": "2026-05-02T04:54:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/nyi2RoPNIDI",
-      "scrapedAt": "2026-05-04T11:10:49.076Z",
+      "scrapedAt": "2026-05-04T11:14:43.224Z",
       "isLive": true,
       "recommendScore": 120,
       "category": "chinese_variety"
@@ -931,7 +931,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.7,
-      "playCount": 711768,
+      "playCount": 711824,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "曾志伟,郝蕾,何赛飞,刘涛,刘晓庆",
@@ -946,7 +946,7 @@
       "publishTime": "2026-05-04T10:23:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/tpJGaYBzSyS",
-      "scrapedAt": "2026-05-04T11:11:02.424Z",
+      "scrapedAt": "2026-05-04T11:14:30.188Z",
       "isLive": true,
       "recommendScore": 119,
       "category": "chinese_variety"
@@ -975,7 +975,7 @@
       "isClassic": false,
       "recommendScore": 119,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E7%8E%8B%E7%89%8C%E5%AF%B9%E7%8E%8B%E7%89%8C2026"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E7%8E%8B%E7%89%8C%E5%AF%B9%E7%8E%8B%E7%89%8C2026&cat=1002"
     },
     {
       "id": "seed_var_2026_06",
@@ -1000,7 +1000,7 @@
       "isClassic": false,
       "recommendScore": 117,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E5%90%91%E5%BE%80%E7%9A%84%E7%94%9F%E6%B4%BB2026"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%90%91%E5%BE%80%E7%9A%84%E7%94%9F%E6%B4%BB2026&cat=1002"
     },
     {
       "id": "seed_var_2026_03",
@@ -1025,7 +1025,7 @@
       "isClassic": false,
       "recommendScore": 111,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%982026"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%9E%81%E9%99%90%E6%8C%91%E6%88%982026&cat=1002"
     },
     {
       "id": "YM0c26sGJQ3",
@@ -1035,7 +1035,7 @@
       "regional": "韩国",
       "lang": "韩语",
       "score": 8.8,
-      "playCount": 19804,
+      "playCount": 19809,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "张度妍,李多熙,崔丹尼尔,张根硕,安宰贤,景收真",
@@ -1050,7 +1050,7 @@
       "publishTime": "2026-04-27T13:14:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/YM0c26sGJQ3",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 109,
       "category": "chinese_variety"
@@ -1078,7 +1078,7 @@
       "publishTime": "2025-12-01T09:24:00Z",
       "year": 2025,
       "url": "https://www.yfsp.tv/play/dC8GmJK3nv8",
-      "scrapedAt": "2026-05-04T11:10:51.497Z",
+      "scrapedAt": "2026-05-04T11:14:27.698Z",
       "isLive": true,
       "recommendScore": 108,
       "category": "chinese_variety"
@@ -1091,7 +1091,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.2,
-      "playCount": 710264,
+      "playCount": 710283,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "李维嘉,杨迪,大张伟,戴军,高进,龚琳娜,黄龄,蒋敦豪,吉克隽逸,张小婉,张宇,王蓉",
@@ -1106,7 +1106,7 @@
       "publishTime": "2026-05-01T17:49:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/3kQCEECh4ZD",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
+      "scrapedAt": "2026-05-04T11:14:34.261Z",
       "isLive": true,
       "recommendScore": 106,
       "category": "chinese_variety"
@@ -1134,7 +1134,7 @@
       "isLive": false,
       "recommendScore": 105,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E6%98%8E%E6%98%9F%E5%A4%A7%E4%BE%A6%E6%8E%A2"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%98%8E%E6%98%9F%E5%A4%A7%E4%BE%A6%E6%8E%A2&cat=1002"
     },
     {
       "id": "N9hkWToXJRB",
@@ -1144,7 +1144,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.5,
-      "playCount": 78698,
+      "playCount": 78708,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "段奥娟,代露娃,高瑞璇,希林娜依·高,康子奇,鹭卓,马小宇,欧阳娣娣,邵子恒,王安宇,吴俊霆,王晓赟子,王翊恩,谢可寅,许馨文,徐艺洋,颜安,杨博睿,姚弛,余宇涵,袁一琦,钟辰乐,张新成,张颜齐,张郁梓,赵兆",
@@ -1159,7 +1159,7 @@
       "publishTime": "2026-05-03T04:30:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/N9hkWToXJRB",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 103,
       "category": "chinese_variety"
@@ -1172,7 +1172,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.6,
-      "playCount": 2839040,
+      "playCount": 2839099,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "",
@@ -1187,37 +1187,9 @@
       "publishTime": "2026-04-30T10:07:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/PIIuQT8AFB0",
-      "scrapedAt": "2026-05-04T11:10:50.685Z",
+      "scrapedAt": "2026-05-04T11:14:35.076Z",
       "isLive": true,
       "recommendScore": 103,
-      "category": "chinese_variety"
-    },
-    {
-      "id": "hIZ5ifLbCbF",
-      "title": "哈哈哈哈哈第6季",
-      "mediaType": "综艺",
-      "type": 5,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 8.1,
-      "playCount": 1521453,
-      "contentType": "真人秀",
-      "cidMapper": "真人秀",
-      "actor": "邓超,陈赫,鹿晗,范志毅,王勉",
-      "description": "《哈哈哈哈哈》第六季邓超、陈赫、鹿晗铁三角重聚，与范志毅、王勉一同开启本季旅程。他们将一路走南闯北，来到未曾去过的全新地点，不断拓展行走版图，解锁更多地域风貌。",
-      "coverImg": "https://static.yfsp.tv/upload/user/202604101843074333607.jpg",
-      "updateStatus": "更新到20260504(第5期加更)",
-      "updateMsg": "周六",
-      "isSerial": true,
-      "totalEpisodes": 0,
-      "currentEpisode": 5,
-      "isComplete": false,
-      "publishTime": "2026-05-04T08:12:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/hIZ5ifLbCbF",
-      "scrapedAt": "2026-05-04T11:10:57.535Z",
-      "isLive": true,
-      "recommendScore": 101,
       "category": "chinese_variety"
     },
     {
@@ -1243,7 +1215,7 @@
       "isLive": false,
       "recommendScore": 98,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E8%84%B1%E5%8F%A3%E7%A7%80%E5%A4%A7%E4%BC%9A"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E8%84%B1%E5%8F%A3%E7%A7%80%E5%A4%A7%E4%BC%9A&cat=1002"
     },
     {
       "id": "seed_var_c02",
@@ -1268,7 +1240,7 @@
       "isLive": false,
       "recommendScore": 96,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98%E7%AC%AC%E4%B8%80%E5%AD%A3"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98%E7%AC%AC%E4%B8%80%E5%AD%A3&cat=1002"
     },
     {
       "id": "cDta4dCa3lC",
@@ -1278,7 +1250,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 6.5,
-      "playCount": 124027,
+      "playCount": 124032,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "陈赫,邓超,秦海璐,五百,李木戈",
@@ -1293,7 +1265,7 @@
       "publishTime": "2026-05-03T03:33:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/cDta4dCa3lC",
-      "scrapedAt": "2026-05-04T11:11:11.406Z",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 93,
       "category": "chinese_variety"
@@ -1321,7 +1293,7 @@
       "isLive": false,
       "recommendScore": 89,
       "category": "chinese_variety",
-      "url": "https://www.yfsp.tv/search/%E5%A5%94%E8%B7%91%E5%90%A7%E5%85%84%E5%BC%9F"
+      "url": "https://search.douban.com/movie/subject_search?search_text=%E5%A5%94%E8%B7%91%E5%90%A7%E5%85%84%E5%BC%9F&cat=1002"
     },
     {
       "id": "MHEZKd7uvbB",
@@ -1331,7 +1303,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 0,
-      "playCount": 15366,
+      "playCount": 15401,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "伊能静,董璇,余宇涵,乔杉,李嘉格",
@@ -1346,7 +1318,7 @@
       "publishTime": "2026-05-04T04:52:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/MHEZKd7uvbB",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 50,
       "category": "chinese_variety"
@@ -1359,7 +1331,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 0,
-      "playCount": 21170,
+      "playCount": 21196,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "王欣怡,徐子萱,伍睿,代佳莉,张新宇",
@@ -1374,237 +1346,13 @@
       "publishTime": "2026-05-04T04:44:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/17PzNR1AcVN",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 50,
       "category": "chinese_variety"
     }
   ],
   "otherDramas": [
-    {
-      "id": "jQvUieeHBdE",
-      "title": "佳偶天成",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 8.5,
-      "playCount": 2393116,
-      "contentType": "爱情",
-      "cidMapper": "爱情·古装·奇幻",
-      "actor": "任嘉伦,王鹤润,张凯莹,王以纶,黄羿,付伟伦,孙泽源,张祎格,丁笑滢,肖顺尧",
-      "description": "战鬼人陆千乔为了摆脱诅咒，借贪官陆槐的身份，与想要破除克夫命格的人族修仙者辛湄结成夫妻。这本是一场交易，各取所需，互利互惠。没想到正义感爆棚的新媳妇误以为他受冤枉死后，毅然杀上京城为夫报仇，引来...",
-      "coverImg": "https://static.yfsp.tv/upload/user/202604251038223808304.jpg",
-      "updateStatus": "更新到24",
-      "updateMsg": "",
-      "isSerial": true,
-      "totalEpisodes": 0,
-      "currentEpisode": 24,
-      "isComplete": false,
-      "publishTime": "2026-05-04T10:01:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/jQvUieeHBdE",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "OzevFOY7rmU",
-      "title": "宿敌恋人",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "泰国",
-      "lang": "泰国语",
-      "score": 0,
-      "playCount": 3236,
-      "contentType": "同性",
-      "cidMapper": "同性·爱情·剧情",
-      "actor": "普洛伊湘普·素帕莎,芭莉雅皮·余,查亚功·朱塔玛斯,兰达娜瓦迪·望同",
-      "description": "拉琳（Lalrarin，Jan Ployshompoo 饰）是公司雷厉风行的销售部主管，维塔卡（Wetaka，Jingjing Yu 饰）则是锱铢必较的会计部主管，两人是职场上水火不容的死对头，...",
-      "coverImg": "https://static.yfsp.tv/upload/video/202605031849024982221.jpg",
-      "updateStatus": "更新到01",
-      "updateMsg": "周日",
-      "isSerial": true,
-      "totalEpisodes": 0,
-      "currentEpisode": 1,
-      "isComplete": false,
-      "publishTime": "2026-05-03T16:57:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/OzevFOY7rmU",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "JYeeXczoME0",
-      "title": "深夜航班第2季",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "英国",
-      "lang": "英语",
-      "score": 0,
-      "playCount": 14977,
-      "contentType": "惊悚",
-      "cidMapper": "惊悚",
-      "actor": "马丁·康普斯顿,陆思敬,拉塞尔·巴洛格,贝恩·科拉科,汤姆·福布斯",
-      "description": "马修诺兰医生在北京参加医学会议后，遭遇严重车祸险些丧命。当他身心俱疲地返回伦敦希思罗机场时，等待他的不是休整，而是突如其来的逮捕他被指控谋杀了车祸中同车的一名女性。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202605031330583062223.gif",
-      "updateStatus": "6集全",
-      "updateMsg": "周日",
-      "isSerial": false,
-      "totalEpisodes": 6,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-05-03T12:42:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/JYeeXczoME0",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "dkwK1MTi1Y3",
-      "title": "良陈美锦",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 7.7,
-      "playCount": 217018,
-      "contentType": "古装",
-      "cidMapper": "古装·爱情",
-      "actor": "任敏,此沙,董思成,黄羿",
-      "description": "讲述了顾锦朝因被算命先生说与父亲仕途相冲，从小寄养在外祖家，受外祖母宠爱，性格肆无忌惮。回顾家后，她以强硬姿态应对各种人和事。她的生命力吸引了内阁权臣陈三爷、世子爷叶限和端方君子陈玄青，最终她选...",
-      "coverImg": "https://static.yfsp.tv/upload/video/202605030604270450616.gif",
-      "updateStatus": "更新到06",
-      "updateMsg": "",
-      "isSerial": true,
-      "totalEpisodes": 0,
-      "currentEpisode": 6,
-      "isComplete": false,
-      "publishTime": "2026-05-04T04:51:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/dkwK1MTi1Y3",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "LRqgarqwtH9",
-      "title": "怒火救援",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "欧美",
-      "lang": "英语",
-      "score": 7.9,
-      "playCount": 45240,
-      "contentType": "剧情",
-      "cidMapper": "剧情·动作",
-      "actor": "叶海亚·阿卜杜勒-迈丁,亚历克斯·奥泽罗夫,亚瑟·亚历山大",
-      "description": "《怒火救援》改编自 AJ奎内尔的系列小说，讲述了约翰克雷西的故事。克雷西曾是一名身手不凡、技艺精湛的特种部队雇佣兵，因其能在最绝望的情况下生还而闻名。如今，他却饱受创伤后应激障碍的折磨。为了克服...",
-      "coverImg": "https://static.yfsp.tv/upload/video/202604301719001916407.gif",
-      "updateStatus": "7集全",
-      "updateMsg": "周四",
-      "isSerial": false,
-      "totalEpisodes": 7,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-04-30T16:06:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/LRqgarqwtH9",
-      "scrapedAt": "2026-05-04T11:10:48.249Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "APFJyjxLyQa",
-      "title": "隐身的名字",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 7.3,
-      "playCount": 2850233,
-      "contentType": "悬疑",
-      "cidMapper": "悬疑·家庭",
-      "actor": "倪妮,闫妮,刘雅瑟,刘敏涛,保剑锋,董洁,王圣迪,韩昊霖,娜一,周游,屈菁菁",
-      "description": "任小名在遭遇丈夫剽窃作品准备夺回版权时，因一桩跨越二十年的藏尸案，牵扯出母亲任美艳、闺蜜柏庶、老师周芸等众多女性间的秘密纠葛，尘封20年的秘密逐渐浮出水面",
-      "coverImg": "https://static.yfsp.tv/upload/user/202603181436063682800.jpg",
-      "updateStatus": "31集全",
-      "updateMsg": "",
-      "isSerial": false,
-      "totalEpisodes": 31,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-03-30T22:06:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/APFJyjxLyQa",
-      "scrapedAt": "2026-05-04T11:10:49.076Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "SWdQaEXMUx4",
-      "title": "月鳞绮纪",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 6.6,
-      "playCount": 4045937,
-      "contentType": "古装",
-      "cidMapper": "古装·奇幻·爱情",
-      "actor": "鞠婧祎,曾舜晞,陈都灵,田嘉瑞,闫桉,饶嘉迪,高嘉妍,左宸易",
-      "description": "露芜衣是神秘组织无相月最小的九尾狐，在与姐姐雾妄言寻找在逃狐妖小唯的任务中，她潜入洛安城韦府，同时潜入韦府的还有身负血海深仇的武拾光、侍鳞宗法师寄灵与厉劫。在找寻真相的过程中，他们既有试探也有合...",
-      "coverImg": "https://static.yfsp.tv/upload/user/202604020003380316801.jpg",
-      "updateStatus": "28集全",
-      "updateMsg": "",
-      "isSerial": false,
-      "totalEpisodes": 28,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-04-17T08:00:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/SWdQaEXMUx4",
-      "scrapedAt": "2026-05-04T11:10:49.875Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "FAnfX66lqm1",
-      "title": "白日提灯",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 7.8,
-      "playCount": 6274071,
-      "contentType": "爱情",
-      "cidMapper": "爱情·古装·奇幻",
-      "actor": "迪丽热巴,陈飞宇,魏哲鸣,张俪,高鹤元,杨肸子",
-      "description": "天赋卓然的万灵之主贺思慕，在休沐觅食时意外遇见了小将军段胥。携带着她故人之物的这个小将军似乎并非真正的段胥？两人你来我往互相试探，贺思慕终于了解了段胥黑暗的过往以及心中的志向，而段胥也发现了贺思...",
-      "coverImg": "https://static.yfsp.tv/upload/user/202603281152435273887.jpg",
-      "updateStatus": "40集全",
-      "updateMsg": "",
-      "isSerial": false,
-      "totalEpisodes": 40,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-04-16T10:24:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/FAnfX66lqm1",
-      "scrapedAt": "2026-05-04T11:10:50.685Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
     {
       "id": "ThbgN3zrEu8",
       "title": "家事法庭",
@@ -1613,7 +1361,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.4,
-      "playCount": 1752322,
+      "playCount": 1752348,
       "contentType": "剧情",
       "cidMapper": "剧情",
       "actor": "龚俊,任敏,黄璐,高鑫,韩云云,张帆,张承,邹元清,王宫良,周杨洋,李诚儒,包贝尔",
@@ -1628,7 +1376,119 @@
       "publishTime": "2026-04-08T13:13:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/ThbgN3zrEu8",
-      "scrapedAt": "2026-05-04T11:10:52.301Z",
+      "scrapedAt": "2026-05-04T11:14:26.880Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "OzevFOY7rmU",
+      "title": "宿敌恋人",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "泰国",
+      "lang": "泰国语",
+      "score": 0,
+      "playCount": 3248,
+      "contentType": "同性",
+      "cidMapper": "同性·爱情·剧情",
+      "actor": "普洛伊湘普·素帕莎,芭莉雅皮·余,查亚功·朱塔玛斯,兰达娜瓦迪·望同",
+      "description": "拉琳（Lalrarin，Jan Ployshompoo 饰）是公司雷厉风行的销售部主管，维塔卡（Wetaka，Jingjing Yu 饰）则是锱铢必较的会计部主管，两人是职场上水火不容的死对头，...",
+      "coverImg": "https://static.yfsp.tv/upload/video/202605031849024982221.jpg",
+      "updateStatus": "更新到01",
+      "updateMsg": "周日",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 1,
+      "isComplete": false,
+      "publishTime": "2026-05-03T16:57:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/OzevFOY7rmU",
+      "scrapedAt": "2026-05-04T11:14:26.880Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "JYeeXczoME0",
+      "title": "深夜航班第2季",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "英国",
+      "lang": "英语",
+      "score": 0,
+      "playCount": 15024,
+      "contentType": "惊悚",
+      "cidMapper": "惊悚",
+      "actor": "马丁·康普斯顿,陆思敬,拉塞尔·巴洛格,贝恩·科拉科,汤姆·福布斯",
+      "description": "马修诺兰医生在北京参加医学会议后，遭遇严重车祸险些丧命。当他身心俱疲地返回伦敦希思罗机场时，等待他的不是休整，而是突如其来的逮捕他被指控谋杀了车祸中同车的一名女性。",
+      "coverImg": "https://static.yfsp.tv/upload/video/202605031330583062223.gif",
+      "updateStatus": "6集全",
+      "updateMsg": "周日",
+      "isSerial": false,
+      "totalEpisodes": 6,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-05-03T12:42:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/JYeeXczoME0",
+      "scrapedAt": "2026-05-04T11:14:26.880Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "dkwK1MTi1Y3",
+      "title": "良陈美锦",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 7.7,
+      "playCount": 217712,
+      "contentType": "古装",
+      "cidMapper": "古装·爱情",
+      "actor": "任敏,此沙,董思成,黄羿",
+      "description": "讲述了顾锦朝因被算命先生说与父亲仕途相冲，从小寄养在外祖家，受外祖母宠爱，性格肆无忌惮。回顾家后，她以强硬姿态应对各种人和事。她的生命力吸引了内阁权臣陈三爷、世子爷叶限和端方君子陈玄青，最终她选...",
+      "coverImg": "https://static.yfsp.tv/upload/video/202605030604270450616.gif",
+      "updateStatus": "更新到06",
+      "updateMsg": "",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 6,
+      "isComplete": false,
+      "publishTime": "2026-05-04T04:51:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/dkwK1MTi1Y3",
+      "scrapedAt": "2026-05-04T11:14:26.880Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "LRqgarqwtH9",
+      "title": "怒火救援",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "欧美",
+      "lang": "英语",
+      "score": 7.9,
+      "playCount": 45256,
+      "contentType": "剧情",
+      "cidMapper": "剧情·动作",
+      "actor": "叶海亚·阿卜杜勒-迈丁,亚历克斯·奥泽罗夫,亚瑟·亚历山大",
+      "description": "《怒火救援》改编自 AJ奎内尔的系列小说，讲述了约翰克雷西的故事。克雷西曾是一名身手不凡、技艺精湛的特种部队雇佣兵，因其能在最绝望的情况下生还而闻名。如今，他却饱受创伤后应激障碍的折磨。为了克服...",
+      "coverImg": "https://static.yfsp.tv/upload/video/202604301719001916407.gif",
+      "updateStatus": "7集全",
+      "updateMsg": "周四",
+      "isSerial": false,
+      "totalEpisodes": 7,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-04-30T16:06:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/LRqgarqwtH9",
+      "scrapedAt": "2026-05-04T11:14:26.881Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama"
@@ -1641,7 +1501,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9,
-      "playCount": 4148167,
+      "playCount": 4148276,
       "contentType": "剧情",
       "cidMapper": "剧情",
       "actor": "孙俪,吴慷仁,王戈,陈玺旭,陶慧",
@@ -1656,7 +1516,35 @@
       "publishTime": "2026-04-07T11:31:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/AVUJMzIcf5T",
-      "scrapedAt": "2026-05-04T11:10:55.937Z",
+      "scrapedAt": "2026-05-04T11:14:27.698Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "jQvUieeHBdE",
+      "title": "佳偶天成",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 8.5,
+      "playCount": 2394462,
+      "contentType": "爱情",
+      "cidMapper": "爱情·古装·奇幻",
+      "actor": "任嘉伦,王鹤润,张凯莹,王以纶,黄羿,付伟伦,孙泽源,张祎格,丁笑滢,肖顺尧",
+      "description": "战鬼人陆千乔为了摆脱诅咒，借贪官陆槐的身份，与想要破除克夫命格的人族修仙者辛湄结成夫妻。这本是一场交易，各取所需，互利互惠。没想到正义感爆棚的新媳妇误以为他受冤枉死后，毅然杀上京城为夫报仇，引来...",
+      "coverImg": "https://static.yfsp.tv/upload/user/202604251038223808304.jpg",
+      "updateStatus": "更新到24",
+      "updateMsg": "",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 24,
+      "isComplete": false,
+      "publishTime": "2026-05-04T10:01:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/jQvUieeHBdE",
+      "scrapedAt": "2026-05-04T11:14:28.536Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama"
@@ -1669,7 +1557,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 6,
-      "playCount": 997240,
+      "playCount": 997260,
       "contentType": "悬疑",
       "cidMapper": "悬疑",
       "actor": "刘烨,聂远,王佳佳,李健,冯兵,王梓薇,董可飞,冷纪元,刘俊孝",
@@ -1684,35 +1572,7 @@
       "publishTime": "2026-04-10T18:25:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/T20HWLyzztT0",
-      "scrapedAt": "2026-05-04T11:10:59.178Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama"
-    },
-    {
-      "id": "E4si52uysIH",
-      "title": "逐玉",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 8.7,
-      "playCount": 32781474,
-      "contentType": "剧情",
-      "cidMapper": "剧情·爱情·古装",
-      "actor": "田曦薇,张凌赫,任豪,孔雪儿,邓凯",
-      "description": "该剧改编自晋江文学城团子来袭的小说《逐玉》。讲述了屠户女樊长玉（田曦薇 饰）与落难侯爷谢征（张凌赫 饰）于困境中相遇，一个父母双亡为了保住家产，一个死里逃生隐姓埋名，二人一拍即合决定成婚。先婚后...",
-      "coverImg": "https://static.yfsp.tv/upload/user/202603071126472637384.jpg",
-      "updateStatus": "40集全",
-      "updateMsg": "",
-      "isSerial": false,
-      "totalEpisodes": 40,
-      "currentEpisode": 0,
-      "isComplete": true,
-      "publishTime": "2026-03-21T16:39:00Z",
-      "year": 2026,
-      "url": "https://www.yfsp.tv/play/E4si52uysIH",
-      "scrapedAt": "2026-05-04T11:11:03.238Z",
+      "scrapedAt": "2026-05-04T11:14:29.367Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama"
@@ -1740,7 +1600,91 @@
       "publishTime": "2026-04-30T11:46:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/sCANqga0LA7",
-      "scrapedAt": "2026-05-04T11:11:04.992Z",
+      "scrapedAt": "2026-05-04T11:14:31.014Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "APFJyjxLyQa",
+      "title": "隐身的名字",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 7.3,
+      "playCount": 2850260,
+      "contentType": "悬疑",
+      "cidMapper": "悬疑·家庭",
+      "actor": "倪妮,闫妮,刘雅瑟,刘敏涛,保剑锋,董洁,王圣迪,韩昊霖,娜一,周游,屈菁菁",
+      "description": "任小名在遭遇丈夫剽窃作品准备夺回版权时，因一桩跨越二十年的藏尸案，牵扯出母亲任美艳、闺蜜柏庶、老师周芸等众多女性间的秘密纠葛，尘封20年的秘密逐渐浮出水面",
+      "coverImg": "https://static.yfsp.tv/upload/user/202603181436063682800.jpg",
+      "updateStatus": "31集全",
+      "updateMsg": "",
+      "isSerial": false,
+      "totalEpisodes": 31,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-03-30T22:06:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/APFJyjxLyQa",
+      "scrapedAt": "2026-05-04T11:14:31.818Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "FAnfX66lqm1",
+      "title": "白日提灯",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 7.8,
+      "playCount": 6274201,
+      "contentType": "爱情",
+      "cidMapper": "爱情·古装·奇幻",
+      "actor": "迪丽热巴,陈飞宇,魏哲鸣,张俪,高鹤元,杨肸子",
+      "description": "天赋卓然的万灵之主贺思慕，在休沐觅食时意外遇见了小将军段胥。携带着她故人之物的这个小将军似乎并非真正的段胥？两人你来我往互相试探，贺思慕终于了解了段胥黑暗的过往以及心中的志向，而段胥也发现了贺思...",
+      "coverImg": "https://static.yfsp.tv/upload/user/202603281152435273887.jpg",
+      "updateStatus": "40集全",
+      "updateMsg": "",
+      "isSerial": false,
+      "totalEpisodes": 40,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-04-16T10:24:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/FAnfX66lqm1",
+      "scrapedAt": "2026-05-04T11:14:32.641Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "SWdQaEXMUx4",
+      "title": "月鳞绮纪",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 6.6,
+      "playCount": 4046041,
+      "contentType": "古装",
+      "cidMapper": "古装·奇幻·爱情",
+      "actor": "鞠婧祎,曾舜晞,陈都灵,田嘉瑞,闫桉,饶嘉迪,高嘉妍,左宸易",
+      "description": "露芜衣是神秘组织无相月最小的九尾狐，在与姐姐雾妄言寻找在逃狐妖小唯的任务中，她潜入洛安城韦府，同时潜入韦府的还有身负血海深仇的武拾光、侍鳞宗法师寄灵与厉劫。在找寻真相的过程中，他们既有试探也有合...",
+      "coverImg": "https://static.yfsp.tv/upload/user/202604020003380316801.jpg",
+      "updateStatus": "28集全",
+      "updateMsg": "",
+      "isSerial": false,
+      "totalEpisodes": 28,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-04-17T08:00:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/SWdQaEXMUx4",
+      "scrapedAt": "2026-05-04T11:14:34.261Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama"
@@ -1753,7 +1697,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.1,
-      "playCount": 2491715,
+      "playCount": 2491732,
       "contentType": "都市",
       "cidMapper": "都市·剧情",
       "actor": "马思纯,宁理,袁姗姗,翟子路,章涛,范湉湉,张维伊,柳小海,焦钰",
@@ -1768,7 +1712,35 @@
       "publishTime": "2026-03-27T20:27:00Z",
       "year": 2026,
       "url": "https://www.yfsp.tv/play/FlEkczcnzlC",
-      "scrapedAt": "2026-05-04T11:11:06.187Z",
+      "scrapedAt": "2026-05-04T11:14:35.076Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama"
+    },
+    {
+      "id": "E4si52uysIH",
+      "title": "逐玉",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 8.7,
+      "playCount": 32781842,
+      "contentType": "剧情",
+      "cidMapper": "剧情·爱情·古装",
+      "actor": "田曦薇,张凌赫,任豪,孔雪儿,邓凯",
+      "description": "该剧改编自晋江文学城团子来袭的小说《逐玉》。讲述了屠户女樊长玉（田曦薇 饰）与落难侯爷谢征（张凌赫 饰）于困境中相遇，一个父母双亡为了保住家产，一个死里逃生隐姓埋名，二人一拍即合决定成婚。先婚后...",
+      "coverImg": "https://static.yfsp.tv/upload/user/202603071126472637384.jpg",
+      "updateStatus": "40集全",
+      "updateMsg": "",
+      "isSerial": false,
+      "totalEpisodes": 40,
+      "currentEpisode": 0,
+      "isComplete": true,
+      "publishTime": "2026-03-21T16:39:00Z",
+      "year": 2026,
+      "url": "https://www.yfsp.tv/play/E4si52uysIH",
+      "scrapedAt": "2026-05-04T11:14:37.478Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama"
