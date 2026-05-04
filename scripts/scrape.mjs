@@ -257,7 +257,7 @@ async function main() {
       const show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
       show.recommendScore = scoreKDrama(show);
       show.category = 'korean_drama';
-      show.url = `https://www.yfsp.tv/search?keyword=${encodeURIComponent(s.title)}`;
+      show.url = `https://www.yfsp.tv/search/${encodeURIComponent(s.title)}`;
       kdramaMap.set(s.id, show);
     }
   }
@@ -285,7 +285,7 @@ async function main() {
       const show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
       show.recommendScore = scoreVariety(show);
       show.category = 'chinese_variety';
-      show.url = `https://www.yfsp.tv/search?keyword=${encodeURIComponent(s.title)}`;
+      show.url = `https://www.yfsp.tv/search/${encodeURIComponent(s.title)}`;
       varietyMap.set(s.id, show);
     }
   }
@@ -397,7 +397,7 @@ const TITLE_EN_MAP = {
   '善意的竞争': 'Friendly Rivalry',
   '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
   '我的完美秘书': 'The Queen Who Crowns',
-  '未生': 'Misaeng: Incomplete Life',
+  '未生': '미생',
   '极限挑战第一季': '极限挑战',
   '王牌对王牌2026': '王牌对王牌',
   '极限挑战2026': '极限挑战',
