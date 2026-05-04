@@ -432,6 +432,18 @@ async function searchTMDBImage(title, isKorean) {
       clearTimeout(t);
       if (!resp.ok) continue;
       const data = await resp.json();
+      // 验证第一个结果是否真正匹配(比较中文名/原始名)
+      for (const r of (data.results || [])) {
+        if (!r.poster_path) continue;
+        const names = [r.name, r.original_name].filter(Boolean);
+        const titleClean = title.replace(/\d{4}$/, '').replace(/第.季$/, '').trim();
+        const isMatch = names.some(n =>
+          n.includes(titleClean) || titleClean.includes(n) ||
+          n.replace(/\s/g, '') === titleClean.replace(/\s/g, '')
+        );
+        if (isMatch) return `${TMDB_IMG_BASE}${r.poster_path}`;
+      }
+      // 如果没有精确匹配,用第一个有海报的结果(降级)
       if (data.results?.length > 0 && data.results[0].poster_path) {
         return `${TMDB_IMG_BASE}${data.results[0].poster_path}`;
       }

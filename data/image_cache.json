@@ -15,8 +15,6 @@
   "seed_kd_c13": "https://image.tmdb.org/t/p/w500/1rl0scPhDL4qe3oPoBegtxlUOnC.jpg",
   "seed_kd_s03": "https://image.tmdb.org/t/p/w500/wsLQqi4ds6ONFDgJT9SO3qi6kTP.jpg",
   "seed_var_2026_03": "https://image.tmdb.org/t/p/w500/nYsiHMplUCBFazdAOVr1gQaGy34.jpg",
-  "seed_var_2026_04": "https://image.tmdb.org/t/p/w500/p5hdtnMhYYwnsLcffQD7ViMu1BU.jpg",
-  "seed_var_2026_05": "https://image.tmdb.org/t/p/w500/b6jkd4wdUZNX5wGN3HBIaG1bNpk.jpg",
   "seed_var_2026_06": "https://image.tmdb.org/t/p/w500/vyKJRdzZaOyWTJt62O3vBTbdz96.jpg",
   "seed_var_c01": "https://image.tmdb.org/t/p/w500/jOl12DTFiMcp9ga2KaEKwt5H8oo.jpg",
   "seed_var_c03": "https://image.tmdb.org/t/p/w500/dmWr4vJgvGMH8m60fuTh0wzYGde.jpg",
@@ -37,5 +35,7 @@
   "seed_kd_s02": "https://image.tmdb.org/t/p/w500/98pJM1e8S5SbPt7V5H9b1ZLrQdj.jpg",
   "seed_var_2026_02": "https://image.tmdb.org/t/p/w500/dJLq9SHSJ04sVghgStXR1ypGHDA.jpg",
   "seed_kd_2025_02": "https://image.tmdb.org/t/p/w500/9GyKqh5vK9pm65uJQVQ3VMSMPEM.jpg",
-  "seed_var_2026_01": "https://image.tmdb.org/t/p/w500/jOl12DTFiMcp9ga2KaEKwt5H8oo.jpg"
+  "seed_var_2026_01": "https://image.tmdb.org/t/p/w500/jOl12DTFiMcp9ga2KaEKwt5H8oo.jpg",
+  "seed_var_2026_04": "https://image.tmdb.org/t/p/w500/p5hdtnMhYYwnsLcffQD7ViMu1BU.jpg",
+  "seed_var_2026_05": "https://image.tmdb.org/t/p/w500/b6jkd4wdUZNX5wGN3HBIaG1bNpk.jpg"
 }
