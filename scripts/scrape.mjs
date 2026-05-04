@@ -257,7 +257,7 @@ async function main() {
       const show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
       show.recommendScore = scoreKDrama(show);
       show.category = 'korean_drama';
-      show.url = `https://www.yfsp.tv/search/${encodeURIComponent(s.title)}`;
+      show.url = `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(s.title)}&cat=1002`;
       kdramaMap.set(s.id, show);
     }
   }
@@ -285,7 +285,7 @@ async function main() {
       const show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
       show.recommendScore = scoreVariety(show);
       show.category = 'chinese_variety';
-      show.url = `https://www.yfsp.tv/search/${encodeURIComponent(s.title)}`;
+      show.url = `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(s.title)}&cat=1002`;
       varietyMap.set(s.id, show);
     }
   }
@@ -393,7 +393,7 @@ const TITLE_EN_MAP = {
   '问问星星吧': 'When the Stars Gossip',
   '我的完美秘书': '나의 완벽한 비서',
   '法官大人': 'Your Honor',
-  '拜托了老板': 'Dear Hyeri',
+  '拜托了老板': '致我的解离',
   '善意的竞争': '善意的竞争',
   '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
   // 综艺 - 直接用中文搜索

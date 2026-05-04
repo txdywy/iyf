@@ -1,5 +1,4 @@
 {
-  "seed_kd_2026_01": "https://image.tmdb.org/t/p/w500/jeVRiEhJOdS8sh76sQuIvTeY5v7.jpg",
   "seed_kd_2025_01": "https://image.tmdb.org/t/p/w500/tHwUooE44ZgxC9pvxBPZ6j6Xedw.jpg",
   "seed_kd_2025_02": "https://image.tmdb.org/t/p/w500/9GyKqh5vK9pm65uJQVQ3VMSMPEM.jpg",
   "seed_kd_2025_03": "https://image.tmdb.org/t/p/w500/eC3SXK8ZgdLrMmNQmZOR1hvyGr9.jpg",
@@ -37,5 +36,6 @@
   "seed_kd_c18": "https://image.tmdb.org/t/p/w500/26QWmR3TsNZWbXSY0fBFfD21HAI.jpg",
   "seed_kd_c02": "https://image.tmdb.org/t/p/w500/zYBo8ASGhGtkF6fTY0zrJzOQtLt.jpg",
   "seed_kd_c09": "https://image.tmdb.org/t/p/w500/iMTuaQNukHwZi4oTOzrJvpsLO7L.jpg",
-  "seed_kd_c17": "https://image.tmdb.org/t/p/w500/tckOpJTeJW7jKaWlZQ4osvmWFGo.jpg"
+  "seed_kd_c17": "https://image.tmdb.org/t/p/w500/tckOpJTeJW7jKaWlZQ4osvmWFGo.jpg",
+  "seed_kd_2026_01": "https://image.tmdb.org/t/p/w500/jeVRiEhJOdS8sh76sQuIvTeY5v7.jpg"
 }
