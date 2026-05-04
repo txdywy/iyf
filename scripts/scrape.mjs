@@ -446,20 +446,25 @@ async function searchTMDBImage(title, isKorean) {
 async function fetchMissingCovers(shows) {
   const cache = loadImageCache();
   let fetched = 0;
-  const toFetch = shows.filter(s => !s.coverImg && !cache[s.id]);
+
+  // 1. 先从缓存回填图片
+  for (const show of shows) {
+    if (!show.coverImg && cache[show.id] && cache[show.id] !== 'NOT_FOUND') {
+      show.coverImg = cache[show.id];
+    }
+  }
+
+  // 2. 找出仍缺图片的节目
+  const toFetch = shows.filter(s => !s.coverImg && (!cache[s.id] || cache[s.id] === 'NOT_FOUND'));
 
   if (toFetch.length === 0) {
-    console.log('  所有节目已有封面图');
+    console.log('  所有节目已有封面图(缓存)');
     return;
   }
 
   console.log(`  从 TMDB 抓取 ${toFetch.length} 个节目的封面图...`);
 
   for (const show of toFetch) {
-    if (cache[show.id]) {
-      show.coverImg = cache[show.id];
-      continue;
-    }
     const isK = show.regional === '韩国';
     const imgUrl = await searchTMDBImage(show.title, isK);
     if (imgUrl) {
@@ -468,17 +473,10 @@ async function fetchMissingCovers(shows) {
       fetched++;
       console.log(`    ✓ ${show.title}`);
     } else {
-      cache[show.id] = '';
+      cache[show.id] = 'NOT_FOUND';
       console.log(`    ✗ ${show.title}`);
     }
     await sleep(300);
-  }
-
-  // 回填已缓存的图片
-  for (const show of shows) {
-    if (!show.coverImg && cache[show.id]) {
-      show.coverImg = cache[show.id];
-    }
   }
 
   saveImageCache(cache);
