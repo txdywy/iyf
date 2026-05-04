@@ -145,14 +145,6 @@
 
     empty.style.display = 'none';
     grid.innerHTML = shows.map((show, i) => renderCard(show, i)).join('');
-
-    // 绑定点击事件
-    grid.querySelectorAll('.show-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const url = card.dataset.url;
-        if (url) window.open(url, '_blank', 'noopener');
-      });
-    });
   }
 
   function renderCard(show, index) {
@@ -198,8 +190,10 @@
 
     const recommendWidth = Math.min(100, (show.recommendScore || 0) / 1.5);
 
+    const url = show.url || '#';
+
     return `
-      <article class="show-card" data-url="${escapeHtml(show.url || '')}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+      <a class="show-card" href="${escapeHtml(url)}" target="_blank" rel="noopener" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
           ${posterContent}
           <div class="card-badges">${badges.join('')}</div>
@@ -216,7 +210,7 @@
             ${viewsText ? `<span class="card-views">👁 ${viewsText}</span>` : ''}
           </div>
         </div>
-      </article>
+      </a>
     `;
   }
 
