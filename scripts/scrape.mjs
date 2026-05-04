@@ -182,8 +182,8 @@ function buildDoubanSubjectUrl(title) {
 function attachLinkFields(show, yfspUrl = '', doubanUrl = '') {
   show.yfspUrl = yfspUrl || show.yfspUrl || '';
   show.doubanUrl = doubanUrl || show.doubanUrl || buildDoubanSubjectUrl(show.title);
-  show.primaryUrl = show.yfspUrl || show.tmdbUrl || show.imdbUrl || show.doubanUrl || '';
-  show.primaryUrlSource = show.yfspUrl ? 'yfsp' : show.tmdbUrl ? 'tmdb' : show.imdbUrl ? 'imdb' : show.doubanUrl ? 'douban' : '';
+  show.primaryUrl = show.tmdbUrl || show.doubanUrl || show.wikipediaUrl || show.imdbUrl || '';
+  show.primaryUrlSource = show.tmdbUrl ? 'tmdb' : show.doubanUrl ? 'douban' : show.wikipediaUrl ? 'wikipedia' : show.imdbUrl ? 'imdb' : '';
   show.url = show.primaryUrl;
   return show;
 }
@@ -567,9 +567,7 @@ async function enrichMissingYfspLinks(shows) {
     const verified = found?.url ? await verifyYfspUrl(show, found.url) : false;
     if (verified) {
       show.yfspUrl = found.url;
-      show.primaryUrl = found.url;
-      show.primaryUrlSource = 'yfsp';
-      show.url = found.url;
+      attachLinkFields(show, found.url, show.doubanUrl);
       show.linkMatchedTitle = found.title;
       if (!show.coverImg && found.coverImg) {
         show.coverImg = found.coverImg;
@@ -600,8 +598,9 @@ async function enrichMissingYfspLinks(shows) {
 const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNGM0MmEzMGUwNWFiMWZjYzMyN2JhZjlkMDZhOTcyYyIsIm5iZiI6MTc3Njk0NTcxNS43NTIsInN1YiI6IjY5ZWEwYTMzMTA4MTAyMGE4MjMzNDJhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wqiFXZTy6XeHmb_-_LuXk3VkUcP4bjJH3KPuxAqOxlU';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w780';
 const TMDB_WEB_BASE = 'https://www.themoviedb.org';
+const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
-const COVER_CACHE_VERSION = 6;
+const COVER_CACHE_VERSION = 7;
 
 function loadImageCache() {
   if (existsSync(IMAGE_CACHE_FILE)) {
@@ -674,6 +673,31 @@ async function fetchTMDBJSON(path) {
   } finally { clearTimeout(t); }
 }
 
+async function fetchWikidataLinks(wikidataId) {
+  if (!wikidataId) return {};
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const resp = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${wikidataId}.json`, {
+      headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
+      signal: ctrl.signal,
+    });
+    if (!resp.ok) return {};
+    const entity = (await resp.json())?.entities?.[wikidataId];
+    const sitelinks = entity?.sitelinks || {};
+    const doubanId = entity?.claims?.P4529?.[0]?.mainsnak?.datavalue?.value;
+    const imdbId = entity?.claims?.P345?.[0]?.mainsnak?.datavalue?.value;
+    return {
+      doubanUrl: doubanId ? `${DOUBAN_MOVIE_BASE}/${doubanId}/` : '',
+      wikipediaUrl: sitelinks.zhwiki?.url || sitelinks.enwiki?.url || sitelinks.kowiki?.url || '',
+      imdbUrl: imdbId ? `https://www.imdb.com/title/${imdbId}/` : '',
+    };
+  } catch (e) {
+    console.warn(`  [WARN] Wikidata lookup failed for "${wikidataId}": ${e.message}`);
+    return {};
+  } finally { clearTimeout(t); }
+}
+
 async function searchTMDBImage(show) {
   const isKorean = show.regional === '韩国';
   const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
@@ -701,10 +725,14 @@ async function searchTMDBImage(show) {
           );
           if (isMatch) {
             const external = await fetchTMDBJSON(`${mediaKind}/${r.id}/external_ids`);
+            const wikidata = await fetchWikidataLinks(external?.wikidata_id);
             return {
               url: `${TMDB_IMG_BASE}${r.poster_path}`,
               tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${r.id}`,
-              imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : '',
+              doubanUrl: wikidata.doubanUrl || '',
+              wikipediaUrl: wikidata.wikipediaUrl || '',
+              imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
+              wikidataId: external?.wikidata_id || '',
               matchedTitle: r.name || r.original_name || '',
               tmdbId: r.id,
               mediaKind,
@@ -734,7 +762,10 @@ async function enrichCoversFromTMDB(shows) {
         show.coverImg = cached.url;
         show.coverSource = 'tmdb';
         show.tmdbUrl = cached.tmdbUrl || '';
+        show.doubanUrl = cached.doubanUrl || show.doubanUrl || '';
+        show.wikipediaUrl = cached.wikipediaUrl || '';
         show.imdbUrl = cached.imdbUrl || '';
+        show.wikidataId = cached.wikidataId || '';
       } else if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
         show.coverImg = show.yfspCoverImg;
         show.coverSource = 'yfsp';
@@ -767,13 +798,19 @@ async function enrichCoversFromTMDB(shows) {
         matchedTitle: img.matchedTitle,
         tmdbId: img.tmdbId,
         tmdbUrl: img.tmdbUrl,
+        doubanUrl: img.doubanUrl,
+        wikipediaUrl: img.wikipediaUrl,
         imdbUrl: img.imdbUrl,
+        wikidataId: img.wikidataId,
         cachedAt: new Date().toISOString(),
       };
       show.coverImg = img.url;
       show.coverSource = 'tmdb';
       show.tmdbUrl = img.tmdbUrl;
+      show.doubanUrl = img.doubanUrl || show.doubanUrl || '';
+      show.wikipediaUrl = img.wikipediaUrl || '';
       show.imdbUrl = img.imdbUrl;
+      show.wikidataId = img.wikidataId || '';
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
