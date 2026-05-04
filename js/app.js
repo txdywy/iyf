@@ -190,10 +190,10 @@
 
     const recommendWidth = Math.min(100, (show.recommendScore || 0) / 1.5);
 
-    const url = show.url || '#';
+    const actions = renderCardActions(show);
 
     return `
-      <a class="show-card" href="${escapeHtml(url)}" target="_blank" rel="noopener" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+      <article class="show-card" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
           ${posterContent}
           <div class="card-badges">${badges.join('')}</div>
@@ -209,9 +209,26 @@
             <span class="card-status ${statusClass}">${escapeHtml(statusText)}</span>
             ${viewsText ? `<span class="card-views">👁 ${viewsText}</span>` : ''}
           </div>
+          <div class="card-actions">
+            ${actions}
+          </div>
         </div>
-      </a>
+      </article>
     `;
+  }
+
+  function renderCardActions(show) {
+    const actions = [];
+    if (show.yfspUrl) {
+      actions.push(`<a class="card-action primary" href="${escapeHtml(show.yfspUrl)}" target="_blank" rel="noopener">爱壹帆播放</a>`);
+    }
+    if (show.doubanUrl) {
+      actions.push(`<a class="card-action" href="${escapeHtml(show.doubanUrl)}" target="_blank" rel="noopener">豆瓣资料</a>`);
+    }
+    if (!actions.length) {
+      actions.push('<span class="card-action disabled">待匹配链接</span>');
+    }
+    return actions.join('');
   }
 
   function updateStats(shows) {

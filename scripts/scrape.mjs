@@ -18,6 +18,7 @@ const HISTORY_FILE = join(DATA_DIR, 'history.json');
 
 const API_BASE = 'https://api.yfsp.tv';
 const API_PATH = '/api/list/index';
+const YFSP_RANK_BASE = 'https://rankv21.yfsp.tv';
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Referer': 'https://www.yfsp.tv/',
@@ -62,6 +63,7 @@ function extractShows(raw) {
 
 function normalizeItem(it) {
   const ui = parseUpdateStatus(it.updateStatus || '');
+  const url = it.mediaKey ? `https://www.yfsp.tv/play/${it.mediaKey}` : '';
   return {
     id: it.mediaKey || it.episodeKey || '',
     title: it.title || '',
@@ -82,7 +84,11 @@ function normalizeItem(it) {
     ...ui,
     publishTime: it.publishTime || '',
     year: extractYear(it.publishTime || it.date || ''),
-    url: `https://www.yfsp.tv/play/${it.mediaKey || ''}`,
+    url,
+    primaryUrl: url,
+    primaryUrlSource: url ? 'yfsp' : '',
+    yfspUrl: url,
+    doubanUrl: '',
     scrapedAt: new Date().toISOString(),
     isLive: true,
   };
@@ -111,6 +117,95 @@ function extractYear(d) {
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function normalizeTitle(title = '') {
+  return title
+    .toLowerCase()
+    .replace(/[^\p{Script=Han}\p{Letter}\p{Number}]/gu, '')
+    .replace(/第[一二三四五六七八九十\d]+季$/u, '')
+    .replace(/20\d{2}$/u, '')
+    .replace(/吧$/u, '')
+    .trim();
+}
+
+function titleMatches(a, b) {
+  const na = normalizeTitle(a);
+  const nb = normalizeTitle(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const minLen = Math.min(na.length, nb.length);
+  const maxLen = Math.max(na.length, nb.length);
+  return minLen >= 4 && maxLen - minLen <= 2 && (na.includes(nb) || nb.includes(na));
+}
+
+const DOUBAN_SUBJECT_URLS = {
+};
+
+function buildDoubanSubjectUrl(title) {
+  return DOUBAN_SUBJECT_URLS[title] || '';
+}
+
+function attachLinkFields(show, yfspUrl = '', doubanUrl = '') {
+  show.yfspUrl = yfspUrl || show.yfspUrl || '';
+  show.doubanUrl = doubanUrl || show.doubanUrl || buildDoubanSubjectUrl(show.title);
+  show.primaryUrl = show.yfspUrl || show.doubanUrl || '';
+  show.primaryUrlSource = show.yfspUrl ? 'yfsp' : show.doubanUrl ? 'douban' : '';
+  show.url = show.primaryUrl;
+  return show;
+}
+
+function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
+  const candidates = [...liveShows.values()].filter(s =>
+    s.mediaType === mediaType &&
+    (!regionMatcher || regionMatcher(s)) &&
+    titleMatches(seed.title, s.title)
+  );
+  return candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0] || null;
+}
+
+function applyLiveFields(seedShow, liveMatch) {
+  if (!liveMatch) return seedShow;
+  return {
+    ...seedShow,
+    id: liveMatch.id || seedShow.id,
+    title: liveMatch.title || seedShow.title,
+    coverImg: liveMatch.coverImg || seedShow.coverImg,
+    updateStatus: liveMatch.updateStatus || seedShow.updateStatus || '',
+    updateMsg: liveMatch.updateMsg || seedShow.updateMsg || '',
+    publishTime: liveMatch.publishTime || seedShow.publishTime || '',
+    scrapedAt: liveMatch.scrapedAt || seedShow.scrapedAt || '',
+    isLive: true,
+    yfspUrl: liveMatch.yfspUrl || liveMatch.url || '',
+  };
+}
+
+async function searchYfspTitle(title, mediaType) {
+  const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(title)}&star=&director=&page=1&size=8&orderby=0&desc=0`;
+  try {
+    const data = await fetchJSON(url);
+    const results = data?.data?.info?.[0]?.result || [];
+    const match = results.find(r =>
+      titleMatches(title, r.title) &&
+      (!mediaType || r.atypeName === mediaType)
+    );
+    if (!match?.contxt) return null;
+    return {
+      title: match.title || title,
+      url: `https://www.yfsp.tv/play/${match.contxt}`,
+      coverImg: match.imgPath || '',
+      score: parseFloat(match.score) || 0,
+      playCount: match.hot || 0,
+      actor: match.starring || '',
+      regional: match.regional || '',
+      lang: match.lang || '',
+      publishTime: match.postTime || '',
+      updateStatus: match.lastName || '',
+    };
+  } catch (e) {
+    console.warn(`  [WARN] yfsp search failed for "${title}": ${e.message}`);
+    return null;
+  }
+}
 
 // ════════════════════════════════════════════════════════════════
 // 推荐算法
@@ -249,17 +344,20 @@ async function main() {
     if (s.regional === '韩国' && s.mediaType === '电视剧') {
       s.recommendScore = scoreKDrama(s);
       s.category = 'korean_drama';
+      attachLinkFields(s, s.yfspUrl || s.url);
       kdramaMap.set(s.id, s);
     }
   }
   for (const s of SEED_KDRAMAS) {
-    if (!kdramaMap.has(s.id)) {
-      const show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
-      show.recommendScore = scoreKDrama(show);
-      show.category = 'korean_drama';
-      show.url = `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(s.title)}&cat=1002`;
-      kdramaMap.set(s.id, show);
-    }
+    const liveMatch = findLiveTitleMatch(s, liveShows, '电视剧', show => show.regional === '韩国');
+    const existingKey = liveMatch?.id || s.id;
+    if (kdramaMap.has(existingKey)) continue;
+    let show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
+    show = applyLiveFields(show, liveMatch);
+    show.recommendScore = scoreKDrama(show);
+    show.category = 'korean_drama';
+    attachLinkFields(show, show.yfspUrl, buildDoubanSubjectUrl(show.title));
+    kdramaMap.set(existingKey, show);
   }
 
   // ── 3. 构建综艺列表 ──
@@ -270,6 +368,7 @@ async function main() {
       if (vsc >= 0) {
         s.recommendScore = vsc;
         s.category = 'chinese_variety';
+        attachLinkFields(s, s.yfspUrl || s.url);
         varietyMap.set(s.id, s);
       }
     }
@@ -277,17 +376,20 @@ async function main() {
     if (s.regional === '韩国' && s.mediaType === '综艺') {
       s.recommendScore = scoreVariety(s);
       s.category = 'chinese_variety';
+      attachLinkFields(s, s.yfspUrl || s.url);
       varietyMap.set(s.id, s);
     }
   }
   for (const s of SEED_VARIETY) {
-    if (!varietyMap.has(s.id)) {
-      const show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
-      show.recommendScore = scoreVariety(show);
-      show.category = 'chinese_variety';
-      show.url = `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(s.title)}&cat=1002`;
-      varietyMap.set(s.id, show);
-    }
+    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
+    const existingKey = liveMatch?.id || s.id;
+    if (varietyMap.has(existingKey)) continue;
+    let show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
+    show = applyLiveFields(show, liveMatch);
+    show.recommendScore = scoreVariety(show);
+    show.category = 'chinese_variety';
+    attachLinkFields(show, show.yfspUrl, buildDoubanSubjectUrl(show.title));
+    varietyMap.set(existingKey, show);
   }
 
   // ── 4. 其他电视剧 ──
@@ -296,12 +398,14 @@ async function main() {
     if (s.mediaType === '电视剧' && s.regional !== '韩国' && !['恐怖'].includes(s.contentType)) {
       s.recommendScore = 0;
       s.category = 'other_drama';
+      attachLinkFields(s, s.yfspUrl || s.url);
       otherDramas.push(s);
     }
   }
 
-  // ── 5. 从豆瓣抓取缺失的封面图 ──
+  // ── 5. 为种子内容补齐站内具体页,再抓取缺失封面 ──
   const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
+  await enrichMissingYfspLinks(allShowsList);
   await fetchMissingCovers(allShowsList);
 
   // ── 6. 排序 ──
@@ -345,6 +449,39 @@ function saveHistory(output) {
   writeFileSync(HISTORY_FILE, JSON.stringify(h, null, 2), 'utf-8');
 }
 
+async function enrichMissingYfspLinks(shows) {
+  const targets = shows.filter(s => !s.yfspUrl && s.title);
+  if (!targets.length) return;
+
+  console.log(`  为 ${targets.length} 个种子节目查询爱壹帆具体页...`);
+  let matched = 0;
+  for (const show of targets) {
+    const found = await searchYfspTitle(show.title, show.mediaType);
+    if (found?.url) {
+      show.yfspUrl = found.url;
+      show.primaryUrl = found.url;
+      show.primaryUrlSource = 'yfsp';
+      show.url = found.url;
+      show.linkMatchedTitle = found.title;
+      if (!show.coverImg && found.coverImg) show.coverImg = found.coverImg;
+      if (!show.publishTime && found.publishTime) show.publishTime = found.publishTime;
+      if (!show.updateStatus && found.updateStatus) show.updateStatus = found.updateStatus;
+      if (!show.actor && found.actor) show.actor = found.actor;
+      if (!show.regional && found.regional) show.regional = found.regional;
+      if (!show.lang && found.lang) show.lang = found.lang;
+      if (!show.score && found.score) show.score = found.score;
+      if (!show.playCount && found.playCount) show.playCount = found.playCount;
+      matched++;
+      console.log(`    ✓ ${show.title} → ${found.title}`);
+    } else {
+      attachLinkFields(show, '', show.doubanUrl || buildDoubanSubjectUrl(show.title));
+      console.log(`    ✗ ${show.title}`);
+    }
+    await sleep(250);
+  }
+  console.log(`  匹配到 ${matched} 个爱壹帆具体页`);
+}
+
 // ════════════════════════════════════════════════════════════════
 // TMDB 封面抓取
 // ════════════════════════════════════════════════════════════════
@@ -352,6 +489,7 @@ function saveHistory(output) {
 const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNGM0MmEzMGUwNWFiMWZjYzMyN2JhZjlkMDZhOTcyYyIsIm5iZiI6MTc3Njk0NTcxNS43NTIsInN1YiI6IjY5ZWEwYTMzMTA4MTAyMGE4MjMzNDJhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wqiFXZTy6XeHmb_-_LuXk3VkUcP4bjJH3KPuxAqOxlU';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
+const COVER_CACHE_VERSION = 2;
 
 function loadImageCache() {
   if (existsSync(IMAGE_CACHE_FILE)) {
@@ -393,7 +531,6 @@ const TITLE_EN_MAP = {
   '问问星星吧': 'When the Stars Gossip',
   '我的完美秘书': '나의 완벽한 비서',
   '法官大人': 'Your Honor',
-  '拜托了老板': '致我的解离',
   '善意的竞争': '善意的竞争',
   '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
   // 综艺 - 直接用中文搜索
@@ -435,20 +572,22 @@ async function searchTMDBImage(title, isKorean) {
       clearTimeout(t);
       if (!resp.ok) continue;
       const data = await resp.json();
-      // 验证第一个结果是否真正匹配(比较中文名/原始名)
+      // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
       for (const r of (data.results || [])) {
         if (!r.poster_path) continue;
+        if (isKorean && r.origin_country?.length && !r.origin_country.includes('KR')) continue;
         const names = [r.name, r.original_name].filter(Boolean);
-        const titleClean = title.replace(/\d{4}$/, '').replace(/第.季$/, '').trim();
-        const isMatch = names.some(n =>
-          n.includes(titleClean) || titleClean.includes(n) ||
-          n.replace(/\s/g, '') === titleClean.replace(/\s/g, '')
+        const expected = [title, enTitle, query].filter(Boolean);
+        const isMatch = names.some(name =>
+          expected.some(value => titleMatches(name, value))
         );
-        if (isMatch) return `${TMDB_IMG_BASE}${r.poster_path}`;
-      }
-      // 如果没有精确匹配,用第一个有海报的结果(降级)
-      if (data.results?.length > 0 && data.results[0].poster_path) {
-        return `${TMDB_IMG_BASE}${data.results[0].poster_path}`;
+        if (isMatch) {
+          return {
+            url: `${TMDB_IMG_BASE}${r.poster_path}`,
+            matchedTitle: r.name || r.original_name || '',
+            query,
+          };
+        }
       }
     } catch (e) {
       console.warn(`  [WARN] TMDB search failed for "${query}": ${e.message}`);
@@ -464,13 +603,22 @@ async function fetchMissingCovers(shows) {
 
   // 1. 先从缓存回填图片
   for (const show of shows) {
-    if (!show.coverImg && cache[show.id] && cache[show.id] !== 'NOT_FOUND') {
-      show.coverImg = cache[show.id];
+    const cached = cache[show.id];
+    if (!show.coverImg && cached && cached !== 'NOT_FOUND') {
+      if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.url && cached.title === show.title) {
+        show.coverImg = cached.url;
+      } else if (!show.id?.startsWith('seed_') && typeof cached === 'string') {
+        show.coverImg = cached;
+      }
     }
   }
 
   // 2. 找出仍缺图片的节目
-  const toFetch = shows.filter(s => !s.coverImg && (!cache[s.id] || cache[s.id] === 'NOT_FOUND'));
+  const toFetch = shows.filter(s => {
+    const cached = cache[s.id];
+    const invalidCachedObject = typeof cached === 'object' && cached?.version !== COVER_CACHE_VERSION;
+    return !s.coverImg && (!cached || cached === 'NOT_FOUND' || typeof cached === 'string' || invalidCachedObject);
+  });
 
   if (toFetch.length === 0) {
     console.log('  所有节目已有封面图(缓存)');
@@ -481,12 +629,20 @@ async function fetchMissingCovers(shows) {
 
   for (const show of toFetch) {
     const isK = show.regional === '韩国';
-    const imgUrl = await searchTMDBImage(show.title, isK);
-    if (imgUrl) {
-      cache[show.id] = imgUrl;
-      show.coverImg = imgUrl;
+    const img = await searchTMDBImage(show.title, isK);
+    if (img?.url) {
+      cache[show.id] = {
+        title: show.title,
+        url: img.url,
+        source: 'tmdb',
+        version: COVER_CACHE_VERSION,
+        query: img.query,
+        matchedTitle: img.matchedTitle,
+        cachedAt: new Date().toISOString(),
+      };
+      show.coverImg = img.url;
       fetched++;
-      console.log(`    ✓ ${show.title}`);
+      console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
       cache[show.id] = 'NOT_FOUND';
       console.log(`    ✗ ${show.title}`);
