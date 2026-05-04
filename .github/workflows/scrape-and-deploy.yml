@@ -52,15 +52,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Clean up non-site files
+        run: |
+          rm -rf .github scripts .git data/history.json .gitignore
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-          exclude: |
-            .github/**
-            scripts/**
-            .git/**
-            data/history.json
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -300,11 +300,15 @@ async function main() {
     }
   }
 
-  // ── 5. 排序 ──
+  // ── 5. 从豆瓣抓取缺失的封面图 ──
+  const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
+  await fetchMissingCovers(allShowsList);
+
+  // ── 6. 排序 ──
   const koreanDramas = [...kdramaMap.values()].sort((a, b) => b.recommendScore - a.recommendScore);
   const chineseVariety = [...varietyMap.values()].sort((a, b) => b.recommendScore - a.recommendScore);
 
-  // ── 6. 输出 ──
+  // ── 7. 输出 ──
   const output = {
     lastUpdated: new Date().toISOString(),
     stats: {
@@ -339,6 +343,146 @@ function saveHistory(output) {
   const keys = Object.keys(h).sort();
   while (keys.length > 30) delete h[keys.shift()];
   writeFileSync(HISTORY_FILE, JSON.stringify(h, null, 2), 'utf-8');
+}
+
+// ════════════════════════════════════════════════════════════════
+// TMDB 封面抓取
+// ════════════════════════════════════════════════════════════════
+
+const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNGM0MmEzMGUwNWFiMWZjYzMyN2JhZjlkMDZhOTcyYyIsIm5iZiI6MTc3Njk0NTcxNS43NTIsInN1YiI6IjY5ZWEwYTMzMTA4MTAyMGE4MjMzNDJhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wqiFXZTy6XeHmb_-_LuXk3VkUcP4bjJH3KPuxAqOxlU';
+const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
+const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
+
+function loadImageCache() {
+  if (existsSync(IMAGE_CACHE_FILE)) {
+    try { return JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8')); } catch {}
+  }
+  return {};
+}
+
+function saveImageCache(cache) {
+  writeFileSync(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+}
+
+// 韩剧/综艺标题 → TMDB 搜索用英文名映射(提高命中率)
+const TITLE_EN_MAP = {
+  '请回答1988': 'Reply 1988',
+  '机智的医生生活': 'Hospital Playlist',
+  '机智的监狱生活': 'Prison Playbook',
+  '孤单又灿烂的神-鬼怪': 'Guardian: The Lonely and Great God',
+  '大力女都奉顺': 'Strong Woman Do Bong Soon',
+  '举重妖精金福珠': 'Weightlifting Fairy Kim Bok-joo',
+  '文森佐': 'Vincenzo',
+  '未生': 'Misaeng',
+  '我的ID是江南美人': 'My ID is Gangnam Beauty',
+  '金秘书为何那样': "What's Wrong with Secretary Kim",
+  '触及真心': 'Touch Your Heart',
+  '社内相亲': 'Business Proposal',
+  '酒鬼都市男女': 'Work Later, Drink Now',
+  '海岸村恰恰恰': 'Hometown Cha-Cha-Cha',
+  '非常律师禹英禑': 'Extraordinary Attorney Woo',
+  '闪亮的西瓜': 'Twinkling Watermelon',
+  '欢迎来到王之国': 'King the Land',
+  '死期将至': 'Death\'s Game',
+  '信号': 'Signal',
+  '秘密森林': 'Stranger',
+  '背着善宰跑': 'Lovely Runner',
+  '妈妈朋友的儿子': 'Love Next Door',
+  '凌晨两点的灰姑娘': 'Cinderella at 2 AM',
+  '问问星星吧': 'When the Stars Gossip',
+  '我的完美秘书': 'My Perfect Secretary',
+  '法官大人': 'Your Honor',
+  '拜托了老板': 'Dear Hyeri',
+  '善意的竞争': 'Friendly Rivalry',
+  '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
+  '我的完美秘书': 'The Queen Who Crowns',
+  '未生': 'Misaeng: Incomplete Life',
+  '极限挑战第一季': 'Go Fighting',
+  '奔跑吧2026': 'Hurry Up, Brothers',
+  '王牌对王牌2026': 'Ace vs Ace',
+  '极限挑战2026': 'Go Fighting',
+  '哈哈哈哈哈第5季': 'Ha Ha Ha Ha Ha',
+  '密室大逃脱2026': 'Great Escape',
+  '向往的生活2026': 'Back to Field',
+};
+
+async function searchTMDBImage(title, isKorean) {
+  // 优先用英文名搜索(命中率更高)
+  const enTitle = TITLE_EN_MAP[title];
+  const queries = enTitle ? [enTitle] : [title];
+
+  // 对韩剧额外尝试英文搜索
+  if (!enTitle && isKorean) {
+    queries.push(title.replace(/\d{4}$/, '').trim());
+  }
+
+  for (const query of queries) {
+    const endpoint = isKorean ? 'search/tv' : 'search/tv';
+    const url = `https://api.themoviedb.org/3/${endpoint}?query=${encodeURIComponent(query)}&language=zh-CN&page=1`;
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 10000);
+      const resp = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${TMDB_TOKEN}`,
+          'Accept': 'application/json',
+        },
+        signal: ctrl.signal,
+      });
+      clearTimeout(t);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data.results?.length > 0 && data.results[0].poster_path) {
+        return `${TMDB_IMG_BASE}${data.results[0].poster_path}`;
+      }
+    } catch (e) {
+      console.warn(`  [WARN] TMDB search failed for "${query}": ${e.message}`);
+    }
+    await sleep(250);
+  }
+  return null;
+}
+
+async function fetchMissingCovers(shows) {
+  const cache = loadImageCache();
+  let fetched = 0;
+  const toFetch = shows.filter(s => !s.coverImg && !cache[s.id]);
+
+  if (toFetch.length === 0) {
+    console.log('  所有节目已有封面图');
+    return;
+  }
+
+  console.log(`  从 TMDB 抓取 ${toFetch.length} 个节目的封面图...`);
+
+  for (const show of toFetch) {
+    if (cache[show.id]) {
+      show.coverImg = cache[show.id];
+      continue;
+    }
+    const isK = show.regional === '韩国';
+    const imgUrl = await searchTMDBImage(show.title, isK);
+    if (imgUrl) {
+      cache[show.id] = imgUrl;
+      show.coverImg = imgUrl;
+      fetched++;
+      console.log(`    ✓ ${show.title}`);
+    } else {
+      cache[show.id] = '';
+      console.log(`    ✗ ${show.title}`);
+    }
+    await sleep(300);
+  }
+
+  // 回填已缓存的图片
+  for (const show of shows) {
+    if (!show.coverImg && cache[show.id]) {
+      show.coverImg = cache[show.id];
+    }
+  }
+
+  saveImageCache(cache);
+  console.log(`  新增 ${fetched} 个封面图`);
 }
 
 main().catch(e => { console.error('[SCRAPER] Fatal:', e); process.exit(1); });
