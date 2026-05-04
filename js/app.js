@@ -222,6 +222,11 @@
     if (show.yfspUrl) {
       actions.push(`<a class="card-action primary" href="${escapeHtml(show.yfspUrl)}" target="_blank" rel="noopener">爱壹帆播放</a>`);
     }
+    if (show.tmdbUrl) {
+      actions.push(`<a class="card-action" href="${escapeHtml(show.tmdbUrl)}" target="_blank" rel="noopener">TMDB资料</a>`);
+    } else if (show.imdbUrl) {
+      actions.push(`<a class="card-action" href="${escapeHtml(show.imdbUrl)}" target="_blank" rel="noopener">IMDb资料</a>`);
+    }
     if (show.doubanUrl) {
       actions.push(`<a class="card-action" href="${escapeHtml(show.doubanUrl)}" target="_blank" rel="noopener">豆瓣资料</a>`);
     }

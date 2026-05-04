@@ -128,13 +128,47 @@ function normalizeTitle(title = '') {
     .trim();
 }
 
+const TITLE_ALIAS_MAP = {
+  '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
+  '金秘书为何那样': ['金秘书为什么那样', '金秘书为何这样'],
+  '酒鬼都市男女': ['酒鬼都市女人们', '酒鬼都市女人们第1季', 'Work Later Drink Now'],
+  '奇怪的律师禹英禑': ['非常律师禹英禑', 'Extraordinary Attorney Woo'],
+  '非常律师禹英禑': ['奇怪的律师禹英禑', 'Extraordinary Attorney Woo'],
+  '信号': ['Signal信号', '시그널'],
+  '文森佐': ['黑道律师文森佐', 'Vincenzo'],
+};
+
+function titleCandidates(title = '') {
+  return [title, ...(TITLE_ALIAS_MAP[title] || [])].filter(Boolean);
+}
+
+function editDistance(a, b) {
+  const aa = [...a];
+  const bb = [...b];
+  const dp = Array.from({ length: aa.length + 1 }, () => Array(bb.length + 1).fill(0));
+  for (let i = 0; i <= aa.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= bb.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= aa.length; i++) {
+    for (let j = 1; j <= bb.length; j++) {
+      const cost = aa[i - 1] === bb[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  }
+  return dp[aa.length][bb.length];
+}
+
 function titleMatches(a, b) {
+  return titleCandidates(a).some(ta => titleCandidates(b).some(tb => normalizedTitleMatches(ta, tb)));
+}
+
+function normalizedTitleMatches(a, b) {
   const na = normalizeTitle(a);
   const nb = normalizeTitle(b);
   if (!na || !nb) return false;
   if (na === nb) return true;
   const minLen = Math.min(na.length, nb.length);
   const maxLen = Math.max(na.length, nb.length);
+  if (minLen >= 5 && maxLen - minLen <= 1 && editDistance(na, nb) <= 1) return true;
   return minLen >= 4 && maxLen - minLen <= 2 && (na.includes(nb) || nb.includes(na));
 }
 
@@ -148,8 +182,8 @@ function buildDoubanSubjectUrl(title) {
 function attachLinkFields(show, yfspUrl = '', doubanUrl = '') {
   show.yfspUrl = yfspUrl || show.yfspUrl || '';
   show.doubanUrl = doubanUrl || show.doubanUrl || buildDoubanSubjectUrl(show.title);
-  show.primaryUrl = show.yfspUrl || show.doubanUrl || '';
-  show.primaryUrlSource = show.yfspUrl ? 'yfsp' : show.doubanUrl ? 'douban' : '';
+  show.primaryUrl = show.yfspUrl || show.tmdbUrl || show.imdbUrl || show.doubanUrl || '';
+  show.primaryUrlSource = show.yfspUrl ? 'yfsp' : show.tmdbUrl ? 'tmdb' : show.imdbUrl ? 'imdb' : show.doubanUrl ? 'douban' : '';
   show.url = show.primaryUrl;
   return show;
 }
@@ -179,32 +213,79 @@ function applyLiveFields(seedShow, liveMatch) {
   };
 }
 
-async function searchYfspTitle(title, mediaType) {
-  const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(title)}&star=&director=&page=1&size=8&orderby=0&desc=0`;
-  try {
-    const data = await fetchJSON(url);
-    const results = data?.data?.info?.[0]?.result || [];
-    const match = results.find(r =>
-      titleMatches(title, r.title) &&
-      (!mediaType || r.atypeName === mediaType)
-    );
-    if (!match?.contxt) return null;
-    return {
-      title: match.title || title,
-      url: `https://www.yfsp.tv/play/${match.contxt}`,
-      coverImg: match.imgPath || '',
-      score: parseFloat(match.score) || 0,
-      playCount: match.hot || 0,
-      actor: match.starring || '',
-      regional: match.regional || '',
-      lang: match.lang || '',
-      publishTime: match.postTime || '',
-      updateStatus: match.lastName || '',
-    };
-  } catch (e) {
-    console.warn(`  [WARN] yfsp search failed for "${title}": ${e.message}`);
-    return null;
+function scoreYfspCandidate(show, result) {
+  if (!titleMatches(show.title, result.title)) return -1;
+  const showYearInTitle = show.title.match(/20\d{2}/)?.[0];
+  if (showYearInTitle && !result.title.includes(showYearInTitle)) return -1;
+  let score = 0;
+  if (result.atypeName === show.mediaType) score += 40;
+  if (show.regional && result.regional === show.regional) score += 20;
+  if (show.year && result.postTime?.includes(String(show.year))) score += 8;
+  if (!/第[一二三四五六七八九十\d]+季/u.test(show.title) && /第[一二三四五六七八九十\d]+季/u.test(result.title)) score -= 15;
+  if (result.isIndex) score += 5;
+  score += Math.min(10, Math.floor((result.hot || 0) / 300000));
+  return score;
+}
+
+async function searchYfspTitle(show) {
+  for (const query of titleCandidates(show.title)) {
+    const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
+    try {
+      const data = await fetchJSON(url);
+      const results = data?.data?.info?.[0]?.result || [];
+      const match = results
+        .map(r => ({ result: r, score: scoreYfspCandidate(show, r) }))
+        .filter(x => x.score >= 0)
+        .sort((a, b) => b.score - a.score)[0]?.result;
+      if (match?.contxt) {
+        return {
+          title: match.title || show.title,
+          url: `https://www.yfsp.tv/play/${match.contxt}`,
+          coverImg: match.imgPath || '',
+          score: parseFloat(match.score) || 0,
+          playCount: match.hot || 0,
+          actor: match.starring || '',
+          regional: match.regional || '',
+          lang: match.lang || '',
+          publishTime: match.postTime || '',
+          updateStatus: match.lastName || '',
+        };
+      }
+    } catch (e) {
+      console.warn(`  [WARN] yfsp search failed for "${query}": ${e.message}`);
+    }
+    await sleep(150);
   }
+  return null;
+}
+
+async function verifyYfspUrl(show, url) {
+  if (!url) return false;
+  try {
+    const html = await fetchText(url);
+    const title = html.match(/<meta\s+(?:name|property)=["'](?:title|og:title)["']\s+content=["']([^"']+)/i)?.[1]
+      || html.match(/<title>([^<]+)/i)?.[1]
+      || '';
+    if (!title || title.includes('爱壹帆国际版-海量')) return false;
+    const cleanTitle = title
+      .replace(/-免费在线观看.*$/u, '')
+      .replace(/-爱壹帆国际版.*$/u, '')
+      .trim();
+    return titleMatches(show.title, cleanTitle);
+  } catch (e) {
+    console.warn(`  [WARN] yfsp verify failed for "${show.title}": ${e.message}`);
+    return false;
+  }
+}
+
+async function fetchText(url) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const r = await fetch(url, { headers: HEADERS, signal: ctrl.signal });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.text();
+  } finally { clearTimeout(t); }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -403,14 +484,19 @@ async function main() {
     }
   }
 
-  // ── 5. 为种子内容补齐站内具体页,再抓取缺失封面 ──
+  // ── 5. 优先补齐 TMDB 高清封面/具体页,再验证爱壹帆具体页 ──
   const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
+  await enrichCoversFromTMDB(allShowsList);
   await enrichMissingYfspLinks(allShowsList);
-  await fetchMissingCovers(allShowsList);
+  for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
 
   // ── 6. 排序 ──
-  const koreanDramas = [...kdramaMap.values()].sort((a, b) => b.recommendScore - a.recommendScore);
-  const chineseVariety = [...varietyMap.values()].sort((a, b) => b.recommendScore - a.recommendScore);
+  const dropped = allShowsList.filter(s => !isRenderableShow(s));
+  if (dropped.length) console.log(`  丢弃 ${dropped.length} 个缺少有效图片或具体链接的节目: ${dropped.map(s => s.title).join(', ')}`);
+
+  const koreanDramas = [...kdramaMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
+  const chineseVariety = [...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
+  const renderableOtherDramas = otherDramas.filter(isRenderableShow);
 
   // ── 7. 输出 ──
   const output = {
@@ -418,19 +504,23 @@ async function main() {
     stats: {
       koreanDramas: koreanDramas.length,
       chineseVariety: chineseVariety.length,
-      otherDramas: otherDramas.length,
+      otherDramas: renderableOtherDramas.length,
       totalScraped: liveShows.size,
     },
     koreanDramas,
     chineseVariety,
-    otherDramas,
+    otherDramas: renderableOtherDramas,
   };
 
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
   writeFileSync(SHOWS_FILE, JSON.stringify(output, null, 2), 'utf-8');
   saveHistory(output);
 
-  console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${otherDramas.length}`);
+  console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${renderableOtherDramas.length}`);
+}
+
+function isRenderableShow(show) {
+  return !!show.coverImg && !!show.primaryUrl;
 }
 
 function saveHistory(output) {
@@ -450,20 +540,41 @@ function saveHistory(output) {
 }
 
 async function enrichMissingYfspLinks(shows) {
+  const existing = shows.filter(s => s.yfspUrl && s.title);
+  if (existing.length) {
+    console.log(`  验证 ${existing.length} 个爱壹帆具体页...`);
+    let invalid = 0;
+    for (const show of existing) {
+      const ok = await verifyYfspUrl(show, show.yfspUrl);
+      if (!ok) {
+        show.yfspUrl = '';
+        invalid++;
+        attachLinkFields(show, '', show.doubanUrl);
+        console.log(`    ✗ ${show.title}`);
+      }
+      await sleep(120);
+    }
+    console.log(`  移除 ${invalid} 个无效爱壹帆链接`);
+  }
+
   const targets = shows.filter(s => !s.yfspUrl && s.title);
   if (!targets.length) return;
 
   console.log(`  为 ${targets.length} 个种子节目查询爱壹帆具体页...`);
   let matched = 0;
   for (const show of targets) {
-    const found = await searchYfspTitle(show.title, show.mediaType);
-    if (found?.url) {
+    const found = await searchYfspTitle(show);
+    const verified = found?.url ? await verifyYfspUrl(show, found.url) : false;
+    if (verified) {
       show.yfspUrl = found.url;
       show.primaryUrl = found.url;
       show.primaryUrlSource = 'yfsp';
       show.url = found.url;
       show.linkMatchedTitle = found.title;
-      if (!show.coverImg && found.coverImg) show.coverImg = found.coverImg;
+      if (!show.coverImg && found.coverImg) {
+        show.coverImg = found.coverImg;
+        show.coverSource = 'yfsp';
+      }
       if (!show.publishTime && found.publishTime) show.publishTime = found.publishTime;
       if (!show.updateStatus && found.updateStatus) show.updateStatus = found.updateStatus;
       if (!show.actor && found.actor) show.actor = found.actor;
@@ -487,9 +598,10 @@ async function enrichMissingYfspLinks(shows) {
 // ════════════════════════════════════════════════════════════════
 
 const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNGM0MmEzMGUwNWFiMWZjYzMyN2JhZjlkMDZhOTcyYyIsIm5iZiI6MTc3Njk0NTcxNS43NTIsInN1YiI6IjY5ZWEwYTMzMTA4MTAyMGE4MjMzNDJhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wqiFXZTy6XeHmb_-_LuXk3VkUcP4bjJH3KPuxAqOxlU';
-const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w500';
+const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w780';
+const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
-const COVER_CACHE_VERSION = 2;
+const COVER_CACHE_VERSION = 6;
 
 function loadImageCache() {
   if (existsSync(IMAGE_CACHE_FILE)) {
@@ -530,8 +642,8 @@ const TITLE_EN_MAP = {
   '凌晨两点的灰姑娘': 'Cinderella at 2AM',
   '问问星星吧': 'When the Stars Gossip',
   '我的完美秘书': '나의 완벽한 비서',
-  '法官大人': 'Your Honor',
-  '善意的竞争': '善意的竞争',
+  '法官大人': '유어 아너',
+  '善意的竞争': 'Friendly Rivalry',
   '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
@@ -546,90 +658,105 @@ const TITLE_EN_MAP = {
   '奔跑吧2026': '奔跑吧',
 };
 
-async function searchTMDBImage(title, isKorean) {
-  // 优先用英文名搜索(命中率更高)
-  const enTitle = TITLE_EN_MAP[title];
-  const queries = enTitle ? [enTitle] : [title];
+async function fetchTMDBJSON(path) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const resp = await fetch(`https://api.themoviedb.org/3/${path}`, {
+      headers: {
+        'Authorization': `Bearer ${TMDB_TOKEN}`,
+        'Accept': 'application/json',
+      },
+      signal: ctrl.signal,
+    });
+    if (!resp.ok) return null;
+    return await resp.json();
+  } finally { clearTimeout(t); }
+}
 
-  // 对韩剧额外尝试英文搜索
-  if (!enTitle && isKorean) {
-    queries.push(title.replace(/\d{4}$/, '').trim());
-  }
+async function searchTMDBImage(show) {
+  const isKorean = show.regional === '韩国';
+  const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
+  const enTitle = TITLE_EN_MAP[show.title];
+  const queries = [...new Set([...titleCandidates(show.title), enTitle].filter(Boolean))];
+  const shouldRetryWithoutYear = show.year && !/20\d{2}|第[一二三四五六七八九十\d]+季/u.test(show.title);
 
   for (const query of queries) {
-    const endpoint = isKorean ? 'search/tv' : 'search/tv';
-    const url = `https://api.themoviedb.org/3/${endpoint}?query=${encodeURIComponent(query)}&language=zh-CN&page=1`;
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 10000);
-      const resp = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${TMDB_TOKEN}`,
-          'Accept': 'application/json',
-        },
-        signal: ctrl.signal,
-      });
-      clearTimeout(t);
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
-      for (const r of (data.results || [])) {
-        if (!r.poster_path) continue;
-        if (isKorean && r.origin_country?.length && !r.origin_country.includes('KR')) continue;
-        const names = [r.name, r.original_name].filter(Boolean);
-        const expected = [title, enTitle, query].filter(Boolean);
-        const isMatch = names.some(name =>
-          expected.some(value => titleMatches(name, value))
-        );
-        if (isMatch) {
-          return {
-            url: `${TMDB_IMG_BASE}${r.poster_path}`,
-            matchedTitle: r.name || r.original_name || '',
-            query,
-          };
+    const yearParams = [
+      show.year ? (mediaKind === 'movie' ? `&year=${show.year}` : `&first_air_date_year=${show.year}`) : '',
+      shouldRetryWithoutYear ? '' : null,
+    ].filter(v => v !== null);
+    for (const yearParam of yearParams) {
+      try {
+        const data = await fetchTMDBJSON(`search/${mediaKind}?query=${encodeURIComponent(query)}&language=zh-CN&page=1${yearParam}`);
+        if (!data) continue;
+        // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
+        for (const r of (data.results || [])) {
+          if (!r.poster_path) continue;
+          if (isKorean && r.origin_country?.length && !r.origin_country.includes('KR')) continue;
+          const names = [r.title, r.original_title, r.name, r.original_name].filter(Boolean);
+          const expected = [...titleCandidates(show.title), enTitle, query].filter(Boolean);
+          const isMatch = names.some(name =>
+            expected.some(value => titleMatches(name, value))
+          );
+          if (isMatch) {
+            const external = await fetchTMDBJSON(`${mediaKind}/${r.id}/external_ids`);
+            return {
+              url: `${TMDB_IMG_BASE}${r.poster_path}`,
+              tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${r.id}`,
+              imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : '',
+              matchedTitle: r.name || r.original_name || '',
+              tmdbId: r.id,
+              mediaKind,
+              query,
+            };
+          }
         }
+      } catch (e) {
+        console.warn(`  [WARN] TMDB search failed for "${query}": ${e.message}`);
       }
-    } catch (e) {
-      console.warn(`  [WARN] TMDB search failed for "${query}": ${e.message}`);
+      await sleep(250);
     }
-    await sleep(250);
   }
   return null;
 }
 
-async function fetchMissingCovers(shows) {
+async function enrichCoversFromTMDB(shows) {
   const cache = loadImageCache();
   let fetched = 0;
 
-  // 1. 先从缓存回填图片
+  // 1. TMDB 缓存优先。爱壹帆原图只作为 TMDB 失败时的兜底。
   for (const show of shows) {
+    if (show.coverImg) show.yfspCoverImg = show.coverImg;
     const cached = cache[show.id];
-    if (!show.coverImg && cached && cached !== 'NOT_FOUND') {
+    if (cached && cached !== 'NOT_FOUND') {
       if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.url && cached.title === show.title) {
         show.coverImg = cached.url;
-      } else if (!show.id?.startsWith('seed_') && typeof cached === 'string') {
-        show.coverImg = cached;
+        show.coverSource = 'tmdb';
+        show.tmdbUrl = cached.tmdbUrl || '';
+        show.imdbUrl = cached.imdbUrl || '';
+      } else if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
+        show.coverImg = show.yfspCoverImg;
+        show.coverSource = 'yfsp';
       }
     }
   }
 
-  // 2. 找出仍缺图片的节目
+  // 2. 所有无有效 v3 TMDB 缓存的节目都重新查,包括已有爱壹帆小图的节目。
   const toFetch = shows.filter(s => {
     const cached = cache[s.id];
-    const invalidCachedObject = typeof cached === 'object' && cached?.version !== COVER_CACHE_VERSION;
-    return !s.coverImg && (!cached || cached === 'NOT_FOUND' || typeof cached === 'string' || invalidCachedObject);
+    return !(typeof cached === 'object' && cached?.version === COVER_CACHE_VERSION && cached.title === s.title);
   });
 
   if (toFetch.length === 0) {
-    console.log('  所有节目已有封面图(缓存)');
+    console.log('  所有节目已有 TMDB 封面缓存');
     return;
   }
 
-  console.log(`  从 TMDB 抓取 ${toFetch.length} 个节目的封面图...`);
+  console.log(`  从 TMDB 优先抓取 ${toFetch.length} 个节目的高清封面...`);
 
   for (const show of toFetch) {
-    const isK = show.regional === '韩国';
-    const img = await searchTMDBImage(show.title, isK);
+    const img = await searchTMDBImage(show);
     if (img?.url) {
       cache[show.id] = {
         title: show.title,
@@ -638,20 +765,36 @@ async function fetchMissingCovers(shows) {
         version: COVER_CACHE_VERSION,
         query: img.query,
         matchedTitle: img.matchedTitle,
+        tmdbId: img.tmdbId,
+        tmdbUrl: img.tmdbUrl,
+        imdbUrl: img.imdbUrl,
         cachedAt: new Date().toISOString(),
       };
       show.coverImg = img.url;
+      show.coverSource = 'tmdb';
+      show.tmdbUrl = img.tmdbUrl;
+      show.imdbUrl = img.imdbUrl;
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
-      cache[show.id] = 'NOT_FOUND';
+      cache[show.id] = {
+        title: show.title,
+        source: 'tmdb',
+        version: COVER_CACHE_VERSION,
+        notFound: true,
+        cachedAt: new Date().toISOString(),
+      };
+      if (show.yfspCoverImg) {
+        show.coverImg = show.yfspCoverImg;
+        show.coverSource = 'yfsp';
+      }
       console.log(`    ✗ ${show.title}`);
     }
     await sleep(300);
   }
 
   saveImageCache(cache);
-  console.log(`  新增 ${fetched} 个封面图`);
+  console.log(`  新增/刷新 ${fetched} 个 TMDB 高清封面`);
 }
 
 main().catch(e => { console.error('[SCRAPER] Fatal:', e); process.exit(1); });
