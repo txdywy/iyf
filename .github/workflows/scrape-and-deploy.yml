@@ -2,8 +2,8 @@ name: Scrape & Deploy
 
 on:
   schedule:
-    # 每小时整点执行 (UTC时间)
-    - cron: '0 * * * *'
+    # 每天 4 次: 00:00/06:00/12:00/18:00 UTC (北京时间 08:00/14:00/20:00/02:00)
+    - cron: '0 0,6,12,18 * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -44,10 +44,13 @@ jobs:
           if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git pull --rebase origin main || true
             git add data/shows.json data/image_cache.json data/discovery.json
             git commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')" || true
-            git push origin main || true
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push origin main && break
+              echo "Push attempt $i failed, retrying..."
+              sleep 5
+            done
           fi
 
       - name: Setup Pages
