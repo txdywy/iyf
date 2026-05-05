@@ -563,7 +563,10 @@
     "version": 7,
     "tmdbId": 163813,
     "tmdbUrl": "https://www.themoviedb.org/tv/163813",
-    "cachedAt": "2026-05-05T05:24:34.144Z"
+    "cachedAt": "2026-05-05T05:24:34.144Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814621/",
+    "doubanId": "37814621",
+    "doubanMatchedTitle": "亲爱的客栈2026"
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
@@ -640,7 +643,10 @@
     "version": 7,
     "tmdbId": 97199,
     "tmdbUrl": "https://www.themoviedb.org/tv/97199",
-    "cachedAt": "2026-05-05T05:24:34.138Z"
+    "cachedAt": "2026-05-05T05:24:34.138Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816903/",
+    "doubanId": "37816903",
+    "doubanMatchedTitle": "妻子的浪漫旅行2026"
   },
   "dC8GmJK3nv8": {
     "title": "楼层游戏",
@@ -666,7 +672,10 @@
     "version": 7,
     "tmdbId": 216487,
     "tmdbUrl": "https://www.themoviedb.org/tv/216487",
-    "cachedAt": "2026-05-05T05:24:34.144Z"
+    "cachedAt": "2026-05-05T05:24:34.144Z",
+    "doubanUrl": "https://movie.douban.com/subject/37824707/",
+    "doubanId": "37824707",
+    "doubanMatchedTitle": "无限超越班 第四季"
   },
   "3kQCEECh4ZD": {
     "title": "魔力歌先生",
@@ -709,7 +718,10 @@
     "version": 7,
     "tmdbId": 196747,
     "tmdbUrl": "https://www.themoviedb.org/tv/196747",
-    "cachedAt": "2026-05-05T05:24:34.144Z"
+    "cachedAt": "2026-05-05T05:24:34.144Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816919/",
+    "doubanId": "37816919",
+    "doubanMatchedTitle": "我家那小子2026"
   },
   "cDta4dCa3lC": {
     "title": "奋斗吧人生-演员篇",
@@ -735,7 +747,10 @@
     "version": 7,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-05T05:25:19.951Z"
+    "cachedAt": "2026-05-05T05:25:19.951Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561280/",
+    "doubanId": "37561280",
+    "doubanMatchedTitle": "大侦探 第十一季"
   },
   "T20HWLyzztT0": {
     "title": "叵测",
@@ -1251,7 +1266,10 @@
     "version": 7,
     "tmdbId": 290758,
     "tmdbUrl": "https://www.themoviedb.org/tv/290758",
-    "cachedAt": "2026-05-05T05:25:19.957Z"
+    "cachedAt": "2026-05-05T05:25:19.957Z",
+    "doubanUrl": "https://movie.douban.com/subject/36691850/",
+    "doubanId": "36691850",
+    "doubanMatchedTitle": "权欲之巅"
   },
   "seed_kd_2026_11": {
     "title": "秒杀爱情",
