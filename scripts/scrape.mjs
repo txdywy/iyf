@@ -41,8 +41,8 @@ async function fetchJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-async function fetchPage(page) {
-  const url = `${API_BASE}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=0&isfree=-1`;
+async function fetchPage(page, isn = 0) {
+  const url = `${API_BASE}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=${isn}&isfree=-1`;
   try {
     const d = await fetchJSON(url);
     if (d?.data?.list) return d;
@@ -374,6 +374,22 @@ const SEED_KDRAMAS = [
   { id:'seed_kd_2025_04', title:'问问星星吧', year:2025, score:7.8, playCount:200000, contentType:'喜剧·爱情·科幻', actor:'李敏镐,孔晓振', description:'宇航员和妇产科医生在太空站的浪漫喜剧。韩剧史上首部太空题材,新颖有趣。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_05', title:'我的完美秘书', year:2025, score:8.1, playCount:250000, contentType:'喜剧·爱情·职场', actor:'韩志旼,李浚赫', description:'冷面女CEO和万能男秘书的反转职场恋爱。轻松搞笑,化学反应满分。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_06', title:'法官大人', year:2025, score:8.4, playCount:180000, contentType:'剧情·喜剧·法律', actor:'孙贤周,金明民', description:'严厉法官和菜鸟检察官的法庭喜剧。正义与搞笑并存,节奏明快。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_03', title:'21世纪大君夫人', year:2026, score:8.6, playCount:2128085, contentType:'喜剧·爱情·奇幻', actor:'李知恩,边佑锡,鲁常泫,孔升延', description:'IU与边佑锡主演的奇幻爱情。古代大君夫人穿越到现代,笑料不断又浪漫满分。2026年度爆款。', totalEpisodes:16, isComplete:false, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:true },
+  // ── 2024 热播韩剧 ──
+  { id:'seed_kd_2024_01', title:'泪之女王', year:2024, score:8.7, playCount:4207174, contentType:'喜剧·爱情', actor:'金秀贤,金智媛,朴成焄,郭东延', description:'金秀贤与金智媛主演的财阀爱情剧。2024年收视冠军,轻松甜蜜又有泪点。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2024_02', title:'照明商店', year:2024, score:8.9, playCount:946907, contentType:'奇幻·悬疑·剧情', actor:'朱智勋,朴宝英,严太九,金雪炫,李姃垠', description:'连接生死的神秘照明商店。奇幻悬疑剧,氛围感满分,每个故事都触动人心。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2024_03', title:'低谷医生', year:2024, score:8.3, playCount:829404, contentType:'喜剧·爱情·医疗', actor:'朴信惠,朴炯植,尹博', description:'两位失意医生相遇后互相治愈的温暖喜剧。朴信惠和朴炯植的化学反应满分。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2024_04', title:'正年', year:2024, score:8.6, playCount:329008, contentType:'剧情·喜剧·音乐', actor:'金泰梨,辛睿恩,文素利,罗美兰', description:'天才少女国乐人的成长故事。金泰梨演技炸裂,笑中带泪的女性励志剧。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2024_05', title:'贞淑的推销', year:2024, score:8.3, playCount:527698, contentType:'喜剧·剧情', actor:'金素妍,金善映,李世熙', description:'1990年代保险推销员的创业喜剧。金素妍主演,轻松有趣又充满正能量。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2024_06', title:'好或坏的东载', year:2024, score:8.9, playCount:204186, contentType:'悬疑·犯罪·剧情', actor:'李浚赫,朴成雄', description:'秘密森林衍生剧。检察官东载游走灰色地带的故事。演技派对决,节奏紧凑。', totalEpisodes:10, isComplete:true, currentEpisode:10, regional:'韩国', lang:'韩语', isSerial:false },
+  // ── 2022-2023 高口碑韩剧 ──
+  { id:'seed_kd_2023_01', title:'黑暗荣耀第2季', year:2023, score:9.5, playCount:2641606, contentType:'剧情·悬疑', actor:'宋慧乔,李到晛,林智妍,廉惠兰,朴成焄', description:'黑暗荣耀完结篇。复仇大结局震撼全球,Netflix年度现象级韩剧。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2023_02', title:'超异能族', year:2023, score:9.3, playCount:2552693, contentType:'剧情·奇幻·动作', actor:'柳承龙,韩孝周,赵寅成,车太贤,高允贞', description:'超能力家族的热血故事。Disney+口碑大爆,融合亲情与动作,笑泪交织。', totalEpisodes:20, isComplete:true, currentEpisode:20, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2022_01', title:'黑暗荣耀', year:2022, score:9.2, playCount:2776014, contentType:'剧情·悬疑', actor:'宋慧乔,李到晛,林智妍,廉惠兰,朴成焄', description:'校园暴力受害者精心布局复仇的故事。宋慧乔颠覆性演出,Netflix全球爆红。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2022_02', title:'财阀家的小儿子', year:2022, score:7.9, playCount:3300465, contentType:'剧情·奇幻·职场', actor:'宋仲基,李星民,申贤彬', description:'重生为财阀家小儿子的逆袭人生。宋仲基主演,2022年末收视爆棚。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2022_03', title:'王后伞下', year:2022, score:8.7, playCount:551312, contentType:'剧情·喜剧·古装', actor:'金惠秀,金海淑,文相敏', description:'王后为保护儿子们在宫廷中斗智斗勇。金惠秀气场全开,古装版虎妈喜剧。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  // ── 2025 新剧补充 ──
+  { id:'seed_kd_2025_07', title:'那家伙是黑炎龙', year:2025, score:8.1, playCount:661136, contentType:'喜剧·爱情', actor:'文佳煐,崔显旭,林世美', description:'游戏女主播和黑炎龙的甜蜜恋爱。电竞题材轻喜剧,轻松有趣。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   // ── 经典轻松韩剧 ──
   { id:'seed_kd_c01', title:'请回答1988', year:2015, score:9.7, playCount:999999, contentType:'剧情·喜剧·家庭', actor:'李惠利,柳俊烈,朴宝剑', description:'双门洞五家人的温暖日常。韩剧天花板,笑泪交织,百看不厌。', totalEpisodes:20, isComplete:true, currentEpisode:20, regional:'韩国', lang:'韩语', isSerial:false, isClassic:true },
   { id:'seed_kd_c02', title:'机智的医生生活', year:2020, score:9.5, playCount:800000, contentType:'剧情·喜剧·生活', actor:'曹政奭,柳演锡,郑敬淏,金大明,田美都', description:'五位医生好友的温馨日常。治愈系天花板,笑中带泪。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false, isClassic:true },
@@ -429,7 +445,7 @@ async function main() {
   for (const isn of isnValues) {
     for (const page of pages) {
       console.log(`  抓取 isn=${isn} page=${page}...`);
-      const data = await fetchPage(page);
+      const data = await fetchPage(page, isn);
       if (data) {
         for (const s of extractShows(data)) {
           const key = s.id;
@@ -515,7 +531,10 @@ async function main() {
   await enrichDoubanLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
 
-  // ── 6. 排序 ──
+  // ── 6. 新韩剧监控扫描 ──
+  await discoverNewKDramas(liveShows, kdramaMap, allShowsList);
+
+  // ── 7. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
   if (dropped.length) console.log(`  丢弃 ${dropped.length} 个缺少有效图片或具体链接的节目: ${dropped.map(s => s.title).join(', ')}`);
 
@@ -523,7 +542,7 @@ async function main() {
   const chineseVariety = [...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
   const renderableOtherDramas = otherDramas.filter(isRenderableShow);
 
-  // ── 7. 输出 ──
+  // ── 8. 输出 ──
   const output = {
     lastUpdated: new Date().toISOString(),
     stats: {
@@ -686,6 +705,72 @@ async function enrichDoubanLinks(shows) {
 }
 
 // ════════════════════════════════════════════════════════════════
+// 新韩剧监控扫描
+// ════════════════════════════════════════════════════════════════
+
+const DISCOVERY_KEYWORDS = ['韩剧', '韩剧推荐', '最新韩剧', '韩剧2026', '韩剧2025'];
+
+async function discoverNewKDramas(liveShows, kdramaMap, allShowsList) {
+  console.log('\n  ── 新韩剧监控扫描 ──');
+  const knownTitles = new Set([...kdramaMap.values()].map(s => normalizeTitle(s.title)));
+  const discovered = new Map();
+
+  // 1. 扫描 API 已抓取的数据中未收录的韩国电视剧
+  for (const s of liveShows.values()) {
+    if (s.regional === '韩国' && s.mediaType === '电视剧' && !kdramaMap.has(s.id)) {
+      const norm = normalizeTitle(s.title);
+      if (!knownTitles.has(norm) && s.title && s.score > 0) {
+        discovered.set(s.title, {
+          title: s.title, score: s.score, playCount: s.playCount,
+          year: s.year, actor: s.actor, source: 'api_index',
+          updateStatus: s.updateStatus, contentType: s.contentType,
+        });
+      }
+    }
+  }
+
+  // 2. 用关键词搜索 YFSP 发现更多新韩剧
+  for (const kw of DISCOVERY_KEYWORDS) {
+    const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`;
+    try {
+      const data = await fetchJSON(url);
+      const results = data?.data?.info?.[0]?.result || [];
+      for (const r of results) {
+        if (r.regional !== '韩国' || r.atypeName !== '电视剧') continue;
+        const norm = normalizeTitle(r.title || '');
+        if (!knownTitles.has(norm) && r.title && !discovered.has(r.title)) {
+          discovered.set(r.title, {
+            title: r.title, score: parseFloat(r.score) || 0,
+            playCount: r.hot || 0, year: extractYear(r.postTime || ''),
+            actor: r.starring || '', source: 'search',
+            updateStatus: r.lastName || '', contentType: r.tag || '',
+          });
+        }
+      }
+    } catch (e) {
+      console.warn(`  [WARN] discovery search failed for "${kw}": ${e.message}`);
+    }
+    await sleep(600);
+  }
+
+  // 3. 按热度排序输出
+  const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
+  if (sorted.length === 0) {
+    console.log('  未发现新韩剧');
+    return;
+  }
+
+  console.log(`  发现 ${sorted.length} 部未收录韩剧:`);
+  for (const s of sorted.slice(0, 30)) {
+    const score = s.score ? `评分${s.score}` : '';
+    const plays = s.playCount > 10000 ? `${(s.playCount/10000).toFixed(0)}万播放` : s.playCount > 0 ? `${s.playCount}播放` : '';
+    const eps = s.updateStatus || '';
+    const meta = [score, plays, eps, s.year ? `${s.year}年` : ''].filter(Boolean).join(' · ');
+    console.log(`    ▸ ${s.title} [${meta}]${s.actor ? ` 演员:${s.actor}` : ''}`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
 // TMDB 封面抓取
 // ════════════════════════════════════════════════════════════════
 
@@ -738,6 +823,20 @@ const TITLE_EN_MAP = {
   '法官大人': '유어 아너',
   '善意的竞争': 'Friendly Rivalry',
   '奇怪的律师禹英禑': 'Extraordinary Attorney Woo',
+  // 2022-2024 高口碑韩剧
+  '泪之女王': 'Queen of Tears',
+  '黑暗荣耀': 'The Glory',
+  '黑暗荣耀第2季': 'The Glory Part 2',
+  '超异能族': 'Moving',
+  '21世纪大君夫人': 'The Embracing Empress',
+  '照明商店': 'Light Shop',
+  '财阀家的小儿子': 'Reborn Rich',
+  '低谷医生': 'Doctor Slump',
+  '王后伞下': 'Under the Queen\'s Umbrella',
+  '正年': 'Jeong Nyeon',
+  '贞淑的推销': 'A Virtuous Business',
+  '好或坏的东载': 'Dongjae the Good or the Bad',
+  '那家伙是黑炎龙': 'Black Flame Dragon',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌2026': '王牌对王牌',
