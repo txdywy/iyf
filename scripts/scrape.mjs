@@ -873,7 +873,7 @@ const TITLE_EN_MAP = {
   // 2022-2024 高口碑韩剧
   '泪之女王': 'Queen of Tears',
   '黑暗荣耀': 'The Glory',
-  '黑暗荣耀第2季': 'The Glory Part 2',
+  '黑暗荣耀第2季': 'The Glory',
   '超异能族': 'Moving',
   '21世纪大君夫人': 'The Embracing Empress',
   '照明商店': 'Light Shop',

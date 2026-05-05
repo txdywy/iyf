@@ -379,10 +379,14 @@
   },
   "seed_var_2026_04": {
     "title": "哈哈哈哈哈第5季",
+    "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-04T17:43:01.822Z"
+    "query": "哈哈哈哈哈",
+    "matchedTitle": "哈哈哈哈哈",
+    "tmdbId": 112732,
+    "tmdbUrl": "https://www.themoviedb.org/tv/112732",
+    "cachedAt": "2026-05-05T03:29:05.524Z"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱2026",
@@ -556,13 +560,18 @@
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
+    "url": "https://image.tmdb.org/t/p/w780/gqL3kE2KohZPakjsIymWySuiRCt.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-04T17:34:44.752Z",
-    "doubanUrl": "https://movie.douban.com/subject/38208978/",
-    "doubanId": "38208978",
-    "doubanMatchedTitle": "我们的爸爸 第二季"
+    "query": "我们的爸爸",
+    "matchedTitle": "我们的爸爸",
+    "tmdbId": 283765,
+    "tmdbUrl": "https://www.themoviedb.org/tv/283765",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-05T03:29:05.524Z"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -669,13 +678,18 @@
   },
   "hIZ5ifLbCbF": {
     "title": "哈哈哈哈哈第6季",
+    "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-04T17:34:51.958Z",
-    "doubanUrl": "https://movie.douban.com/subject/37561228/",
-    "doubanId": "37561228",
-    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+    "query": "哈哈哈哈哈",
+    "matchedTitle": "哈哈哈哈哈",
+    "tmdbId": 112732,
+    "tmdbUrl": "https://www.themoviedb.org/tv/112732",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-05T03:29:05.524Z"
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子2026",
@@ -1035,13 +1049,18 @@
   },
   "seed_kd_2023_01": {
     "title": "黑暗荣耀第2季",
+    "url": "https://image.tmdb.org/t/p/w780/4ANJBZETwHOmtofE5D0QjpCWB9w.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T03:05:27.662Z",
+    "query": "黑暗荣耀",
+    "matchedTitle": "黑暗荣耀",
+    "tmdbId": 136283,
+    "tmdbUrl": "https://www.themoviedb.org/tv/136283",
     "doubanUrl": "https://movie.douban.com/subject/36193784/",
-    "doubanId": "36193784",
-    "doubanMatchedTitle": "黑暗荣耀 第二季"
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-05T03:29:05.519Z"
   },
   "seed_kd_2023_02": {
     "title": "超异能族",

@@ -1506,7 +1506,7 @@
       "isSerial": false,
       "mediaType": "电视剧",
       "type": 4,
-      "coverImg": "https://static.yfsp.tv/upload/video/202303101040034003302s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/4ANJBZETwHOmtofE5D0QjpCWB9w.jpg",
       "updateMsg": "",
       "scrapedAt": "",
       "isLive": false,
@@ -1519,11 +1519,12 @@
       "primaryUrlSource": "douban",
       "url": "https://movie.douban.com/subject/36193784/",
       "linkMatchedTitle": "黑暗荣耀第2季",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "publishTime": "2023-01-01T00:00:00",
       "updateStatus": "08集全",
       "doubanId": "36193784",
-      "doubanMatchedTitle": "黑暗荣耀 第二季"
+      "doubanMatchedTitle": "黑暗荣耀 第二季",
+      "tmdbUrl": "https://www.themoviedb.org/tv/136283"
     },
     {
       "id": "seed_kd_2022_01",
@@ -1803,7 +1804,7 @@
       "cidMapper": "真人秀",
       "actor": "邓超,陈赫,鹿晗,范志毅,王勉",
       "description": "《哈哈哈哈哈》第六季邓超、陈赫、鹿晗铁三角重聚，与范志毅、王勉一同开启本季旅程。他们将一路走南闯北，来到未曾去过的全新地点，不断拓展行走版图，解锁更多地域风貌。",
-      "coverImg": "https://static.yfsp.tv/upload/user/202604101843074333607.jpg",
+      "coverImg": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
       "updateStatus": "更新到20260504(第5期加更)",
       "updateMsg": "周六",
       "isSerial": true,
@@ -1822,9 +1823,10 @@
       "recommendScore": 100,
       "category": "chinese_variety",
       "yfspCoverImg": "https://static.yfsp.tv/upload/user/202604101843074333607.jpg",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "doubanId": "37561228",
-      "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+      "doubanMatchedTitle": "哈哈哈哈哈 第六季",
+      "tmdbUrl": "https://www.themoviedb.org/tv/112732"
     },
     {
       "id": "seed_var_c04",
@@ -1988,7 +1990,7 @@
       "cidMapper": "真人秀",
       "actor": "伊能静,董璇,余宇涵,乔杉,李嘉格",
       "description": "#我们的爸爸# 用小手和大手，共同把零碎的相处瞬间，拼成完整的童年。3月22日起每周日21:10浙江卫视21:40Z视介，精彩即将开播，一起解锁属于Ta们的独家记忆！ 　　#我们的爸爸2阵容官宣...",
-      "coverImg": "https://static.yfsp.tv/upload/video/202605031022102217857.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/gqL3kE2KohZPakjsIymWySuiRCt.jpg",
       "updateStatus": "更新到20260504(第6期家庭纯享（下）)",
       "updateMsg": "",
       "isSerial": true,
@@ -2007,9 +2009,10 @@
       "recommendScore": 50,
       "category": "chinese_variety",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202605031022102217857.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "doubanId": "38208978",
-      "doubanMatchedTitle": "我们的爸爸 第二季"
+      "doubanMatchedTitle": "我们的爸爸 第二季",
+      "tmdbUrl": "https://www.themoviedb.org/tv/283765"
     },
     {
       "id": "17PzNR1AcVN",
