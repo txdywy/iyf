@@ -567,11 +567,13 @@
     "matchedTitle": "我们的爸爸",
     "tmdbId": 283765,
     "tmdbUrl": "https://www.themoviedb.org/tv/283765",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38208978/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T03:29:05.524Z"
+    "cachedAt": "2026-05-05T03:29:05.524Z",
+    "doubanId": "38208978",
+    "doubanMatchedTitle": "我们的爸爸 第二季"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -734,11 +736,13 @@
     "matchedTitle": "叵测",
     "tmdbId": 282902,
     "tmdbUrl": "https://www.themoviedb.org/tv/282902",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36457187/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33265527/",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:35:12.790Z"
+    "cachedAt": "2026-05-04T17:35:12.790Z",
+    "doubanId": "36457187",
+    "doubanMatchedTitle": "叵测"
   },
   "UzijI9QnSfH": {
     "title": "一年时光",
