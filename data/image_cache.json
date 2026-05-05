@@ -328,11 +328,13 @@
     "matchedTitle": "那家伙是黑炎龙",
     "tmdbId": 259015,
     "tmdbUrl": "https://www.themoviedb.org/tv/259015",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36838684/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%82%A3%E5%82%A2%E4%BC%99%E6%98%AF%E9%BB%91%E7%82%8E%E9%BE%8D",
     "imdbUrl": "https://www.imdb.com/title/tt33320428/",
     "wikidataId": "Q127411915",
-    "cachedAt": "2026-05-05T06:04:03.301Z"
+    "cachedAt": "2026-05-05T06:04:03.301Z",
+    "doubanId": "36838684",
+    "doubanMatchedTitle": "那家伙是黑炎龙"
   },
   "seed_kd_2024_01": {
     "title": "泪之女王",
@@ -388,11 +390,13 @@
     "matchedTitle": "正年",
     "tmdbId": 214528,
     "tmdbUrl": "https://www.themoviedb.org/tv/214528",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35211537/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%B9%B4",
     "imdbUrl": "https://www.imdb.com/title/tt28197611/",
     "wikidataId": "Q124243610",
-    "cachedAt": "2026-05-05T06:04:11.821Z"
+    "cachedAt": "2026-05-05T06:04:11.821Z",
+    "doubanId": "35211537",
+    "doubanMatchedTitle": "正年"
   },
   "seed_kd_2024_05": {
     "title": "贞淑的推销",
@@ -431,7 +435,10 @@
     "version": 7,
     "tmdbId": 136283,
     "tmdbUrl": "https://www.themoviedb.org/tv/136283",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/36193784/",
+    "doubanId": "36193784",
+    "doubanMatchedTitle": "黑暗荣耀 第二季"
   },
   "seed_kd_2023_02": {
     "title": "超异能族",
@@ -1126,11 +1133,13 @@
     "matchedTitle": "良陈美锦",
     "tmdbId": 283952,
     "tmdbUrl": "https://www.themoviedb.org/tv/283952",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640247/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36758636/",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:55.706Z"
+    "cachedAt": "2026-05-05T06:05:55.706Z",
+    "doubanId": "36640247",
+    "doubanMatchedTitle": "良陈美锦"
   },
   "SWdQaEXMUx4": {
     "title": "月鳞绮纪",
@@ -1314,5 +1323,37 @@
     "doubanUrl": "https://movie.douban.com/subject/37824707/",
     "doubanId": "37824707",
     "doubanMatchedTitle": "无限超越班 第四季"
+  },
+  "e29GSPCy8zZ": {
+    "title": "喀什恋歌",
+    "url": "https://image.tmdb.org/t/p/w780/hUQreV2LckQi25NTSIIGTP3yiJK.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "喀什恋歌",
+    "matchedTitle": "喀什恋歌",
+    "tmdbId": 289708,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289708",
+    "doubanUrl": "https://movie.douban.com/subject/36402046/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt34992884/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-05T13:55:45.699Z",
+    "doubanId": "36402046",
+    "doubanMatchedTitle": "喀什恋歌"
+  },
+  "XIyckYw4uyZ": {
+    "title": "低智商犯罪",
+    "url": "https://image.tmdb.org/t/p/w780/e4JlZu0PAQ2Qpg4Tj4qDfD0ePO1.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "低智商犯罪",
+    "matchedTitle": "低智商犯罪",
+    "tmdbId": 272432,
+    "tmdbUrl": "https://www.themoviedb.org/tv/272432",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt32592348/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-05T13:55:46.039Z"
   }
 }
