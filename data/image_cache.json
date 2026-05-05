@@ -607,11 +607,13 @@
     "matchedTitle": "超燃青春的合唱",
     "tmdbId": 320614,
     "tmdbUrl": "https://www.themoviedb.org/tv/320614",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37332128/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:34:47.115Z"
+    "cachedAt": "2026-05-04T17:34:47.115Z",
+    "doubanId": "37332128",
+    "doubanMatchedTitle": "超燃青春的合唱"
   },
   "YbbTMTCTNL7": {
     "title": "妻子的浪漫旅行2026",
@@ -745,18 +747,23 @@
     "matchedTitle": "宿敌恋人",
     "tmdbId": 307432,
     "tmdbUrl": "https://www.themoviedb.org/tv/307432",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37434212/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Enemies_With_Benefits",
     "imdbUrl": "https://www.imdb.com/title/tt39044698/",
     "wikidataId": "Q139505893",
-    "cachedAt": "2026-05-04T17:35:07.272Z"
+    "cachedAt": "2026-05-04T17:35:07.272Z",
+    "doubanId": "37434212",
+    "doubanMatchedTitle": "宿敌恋人"
   },
   "JYeeXczoME0": {
     "title": "深夜航班第2季",
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-04T17:35:08.072Z"
+    "cachedAt": "2026-05-04T17:35:08.072Z",
+    "doubanUrl": "https://movie.douban.com/subject/37200050/",
+    "doubanId": "37200050",
+    "doubanMatchedTitle": "深夜航班 第二季"
   },
   "dkwK1MTi1Y3": {
     "title": "良陈美锦",
@@ -767,11 +774,13 @@
     "matchedTitle": "良陈美锦",
     "tmdbId": 283952,
     "tmdbUrl": "https://www.themoviedb.org/tv/283952",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640247/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36758636/",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:35:08.888Z"
+    "cachedAt": "2026-05-04T17:35:08.888Z",
+    "doubanId": "36640247",
+    "doubanMatchedTitle": "良陈美锦"
   },
   "AVUJMzIcf5T": {
     "title": "危险关系",
@@ -857,11 +866,13 @@
     "matchedTitle": "她的盛焰",
     "tmdbId": 282904,
     "tmdbUrl": "https://www.themoviedb.org/tv/282904",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36707547/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32563322/",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:35:17.406Z"
+    "cachedAt": "2026-05-04T17:35:17.406Z",
+    "doubanId": "36707547",
+    "doubanMatchedTitle": "她的盛焰"
   },
   "jQvUieeHBdE": {
     "title": "佳偶天成",
@@ -887,11 +898,13 @@
     "matchedTitle": "白日提灯​",
     "tmdbId": 258865,
     "tmdbUrl": "https://www.themoviedb.org/tv/258865",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35929169/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32330809/",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:35:15.795Z"
+    "cachedAt": "2026-05-04T17:35:15.795Z",
+    "doubanId": "35929169",
+    "doubanMatchedTitle": "白日提灯"
   },
   "E4si52uysIH": {
     "title": "逐玉",
