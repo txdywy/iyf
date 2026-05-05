@@ -697,11 +697,13 @@
     "matchedTitle": "哈哈哈哈哈",
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T03:29:05.524Z"
+    "cachedAt": "2026-05-05T03:29:05.524Z",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子2026",
@@ -825,11 +827,13 @@
     "matchedTitle": "危险关系",
     "tmdbId": 273151,
     "tmdbUrl": "https://www.themoviedb.org/tv/273151",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36866390/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt41150762/",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:35:05.374Z"
+    "cachedAt": "2026-05-04T17:35:05.374Z",
+    "doubanId": "36866390",
+    "doubanMatchedTitle": "危险关系"
   },
   "SWdQaEXMUx4": {
     "title": "月鳞绮纪",
