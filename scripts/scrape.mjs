@@ -97,7 +97,7 @@ function normalizeItem(it) {
     contentType: it.contentType || '',
     cidMapper: it.cidMapper || '',
     actor: it.actor || '',
-    description: (it.description || it.introduce || '').slice(0, 300),
+    description: it.description || it.introduce || '',
     coverImg: it.coverImgUrl || '',
     updateStatus: it.updateStatus || '',
     updateMsg: it.updateMsg || '',
@@ -788,7 +788,7 @@ async function enrichDescriptions(shows) {
     try {
       const data = await fetchTMDBJSON(`${mediaKind}/${tmdbId}?language=zh-CN`);
       if (data?.overview && data.overview.length > (show.description || '').length) {
-        show.description = data.overview.slice(0, 500);
+        show.description = data.overview;
         enriched++;
         console.log(`    ✓ ${show.title} (${data.overview.length}字)`);
       }
@@ -810,7 +810,7 @@ async function enrichDescriptions(shows) {
       if (resp.ok) {
         const data = await resp.json();
         if (data.extract && data.extract.length > (show.description || '').length) {
-          show.description = data.extract.slice(0, 500);
+          show.description = data.extract;
           enriched++;
           console.log(`    ✓ ${show.title} (Wikipedia ${data.extract.length}字)`);
         }

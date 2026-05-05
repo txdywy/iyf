@@ -358,12 +358,10 @@ a:hover { color: var(--pink); }
 .card-desc {
   font-size: 0.82rem;
   color: var(--text-dim);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.6;
   margin-bottom: 10px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .card-footer {
@@ -536,7 +534,7 @@ a:hover { color: var(--pink); }
   .show-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
   .card-body { padding: 10px; }
   .card-title { font-size: 0.88rem; }
-  .card-desc { display: none; }
+  .card-desc { font-size: 0.75rem; max-height: 120px; }
   .card-footer { align-items: flex-start; flex-direction: column; gap: 2px; }
   .card-actions { flex-direction: column; gap: 6px; margin-top: 10px; }
   .card-action { min-height: 30px; padding: 6px 8px; font-size: 0.72rem; }
