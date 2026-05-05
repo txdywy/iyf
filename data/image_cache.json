@@ -262,11 +262,13 @@
     "matchedTitle": "问问星星吧",
     "tmdbId": 154822,
     "tmdbUrl": "https://www.themoviedb.org/tv/154822",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35679693/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%95%8F%E5%95%8F%E6%98%9F%E6%98%9F%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
-    "cachedAt": "2026-05-05T06:03:53.240Z"
+    "cachedAt": "2026-05-05T06:03:53.240Z",
+    "doubanId": "35679693",
+    "doubanMatchedTitle": "问问星星吧"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -292,11 +294,13 @@
     "matchedTitle": "法官大人",
     "tmdbId": 247031,
     "tmdbUrl": "https://www.themoviedb.org/tv/247031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27121213/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-05-05T06:03:59.209Z"
+    "cachedAt": "2026-05-05T06:03:59.209Z",
+    "doubanId": "27121213",
+    "doubanMatchedTitle": "法官大人 第一季"
   },
   "seed_kd_2025_07": {
     "title": "善意的竞争",
@@ -307,11 +311,13 @@
     "matchedTitle": "善意的竞争",
     "tmdbId": 259288,
     "tmdbUrl": "https://www.themoviedb.org/tv/259288",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36782612/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%B6%E7%88%AD",
     "imdbUrl": "https://www.imdb.com/title/tt35683421/",
     "wikidataId": "Q127800838",
-    "cachedAt": "2026-05-05T06:04:01.467Z"
+    "cachedAt": "2026-05-05T06:04:01.467Z",
+    "doubanId": "36782612",
+    "doubanMatchedTitle": "善意的竞争 第一季"
   },
   "seed_kd_2025_08": {
     "title": "那家伙是黑炎龙",
@@ -1304,6 +1310,9 @@
     "version": 7,
     "tmdbId": 216487,
     "tmdbUrl": "https://www.themoviedb.org/tv/216487",
-    "cachedAt": "2026-05-05T06:31:35.580Z"
+    "cachedAt": "2026-05-05T06:31:35.580Z",
+    "doubanUrl": "https://movie.douban.com/subject/37824707/",
+    "doubanId": "37824707",
+    "doubanMatchedTitle": "无限超越班 第四季"
   }
 }
