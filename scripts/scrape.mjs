@@ -15,6 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, '..', 'data');
 const SHOWS_FILE = join(DATA_DIR, 'shows.json');
 const HISTORY_FILE = join(DATA_DIR, 'history.json');
+const DISCOVERY_FILE = join(DATA_DIR, 'discovery.json');
 
 const API_BASE = 'https://api.yfsp.tv';
 const API_PATH = '/api/list/index';
@@ -523,16 +524,19 @@ async function main() {
     }
   }
 
-  // ── 5. 优先补齐 TMDB 高清封面/具体页,再验证爱壹帆具体页 ──
+  // ── 5. 新韩剧监控扫描 (发现并自动收录高质量新剧) ──
+  const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap);
+  for (const s of discoveredShows) {
+    kdramaMap.set(s.id, s);
+  }
+
+  // ── 6. 优先补齐 TMDB 高清封面/具体页,再验证爱壹帆具体页 ──
   const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   await enrichCoversFromTMDB(allShowsList);
   await enrichMissingYfspLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
   await enrichDoubanLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
-
-  // ── 6. 新韩剧监控扫描 ──
-  await discoverNewKDramas(liveShows, kdramaMap, allShowsList);
 
   // ── 7. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
@@ -705,12 +709,14 @@ async function enrichDoubanLinks(shows) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// 新韩剧监控扫描
+// 新韩剧监控扫描 (自动发现 + 持久化 + 质量筛选)
 // ════════════════════════════════════════════════════════════════
 
 const DISCOVERY_KEYWORDS = ['韩剧', '韩剧推荐', '最新韩剧', '韩剧2026', '韩剧2025'];
+const DISCOVERY_MIN_SCORE = 6.0;
+const DISCOVERY_MIN_PLAYS = 50000;
 
-async function discoverNewKDramas(liveShows, kdramaMap, allShowsList) {
+async function discoverNewKDramas(liveShows, kdramaMap) {
   console.log('\n  ── 新韩剧监控扫描 ──');
   const knownTitles = new Set([...kdramaMap.values()].map(s => normalizeTitle(s.title)));
   const discovered = new Map();
@@ -720,11 +726,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, allShowsList) {
     if (s.regional === '韩国' && s.mediaType === '电视剧' && !kdramaMap.has(s.id)) {
       const norm = normalizeTitle(s.title);
       if (!knownTitles.has(norm) && s.title && s.score > 0) {
-        discovered.set(s.title, {
-          title: s.title, score: s.score, playCount: s.playCount,
-          year: s.year, actor: s.actor, source: 'api_index',
-          updateStatus: s.updateStatus, contentType: s.contentType,
-        });
+        discovered.set(s.title, { ...s, source: 'api_index' });
       }
     }
   }
@@ -739,11 +741,22 @@ async function discoverNewKDramas(liveShows, kdramaMap, allShowsList) {
         if (r.regional !== '韩国' || r.atypeName !== '电视剧') continue;
         const norm = normalizeTitle(r.title || '');
         if (!knownTitles.has(norm) && r.title && !discovered.has(r.title)) {
+          const sc = parseFloat(r.score) || 0;
+          const plays = r.hot || 0;
+          if (sc < DISCOVERY_MIN_SCORE && plays < DISCOVERY_MIN_PLAYS) continue;
           discovered.set(r.title, {
-            title: r.title, score: parseFloat(r.score) || 0,
-            playCount: r.hot || 0, year: extractYear(r.postTime || ''),
-            actor: r.starring || '', source: 'search',
-            updateStatus: r.lastName || '', contentType: r.tag || '',
+            id: r.contxt || `disc_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+            title: r.title, mediaType: '电视剧', type: 4,
+            score: sc, playCount: plays,
+            year: extractYear(r.postTime || ''),
+            actor: r.starring || '', regional: '韩国', lang: '韩语',
+            contentType: r.tag || '', cidMapper: '', description: '',
+            coverImg: r.imgPath || '', updateStatus: r.lastName || '',
+            updateMsg: '', isSerial: false, isComplete: false,
+            publishTime: r.postTime || '',
+            yfspUrl: r.contxt ? `https://www.yfsp.tv/play/${r.contxt}` : '',
+            scrapedAt: new Date().toISOString(), isLive: true,
+            source: 'search', isAutoDiscovered: true,
           });
         }
       }
@@ -753,21 +766,55 @@ async function discoverNewKDramas(liveShows, kdramaMap, allShowsList) {
     await sleep(600);
   }
 
-  // 3. 按热度排序输出
   const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
-  if (sorted.length === 0) {
-    console.log('  未发现新韩剧');
-    return;
+
+  // 3. 持久化发现记录到 discovery.json
+  const today = new Date().toISOString().split('T')[0];
+  let history = {};
+  if (existsSync(DISCOVERY_FILE)) {
+    try { history = JSON.parse(readFileSync(DISCOVERY_FILE, 'utf-8')); } catch {}
+  }
+  history[today] = {
+    timestamp: new Date().toISOString(),
+    totalFound: sorted.length,
+    shows: sorted.map(s => ({
+      title: s.title, score: s.score, playCount: s.playCount,
+      year: s.year, actor: s.actor, source: s.source,
+      updateStatus: s.updateStatus, contentType: s.contentType,
+    })),
+  };
+  const keys = Object.keys(history).sort();
+  while (keys.length > 60) delete history[keys.shift()];
+  writeFileSync(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+
+  // 4. 筛选满足质量门槛的节目,自动收录
+  const promoted = [];
+  const logged = [];
+  for (const s of sorted) {
+    const pass = s.score >= DISCOVERY_MIN_SCORE || s.playCount >= DISCOVERY_MIN_PLAYS;
+    if (pass) {
+      s.recommendScore = scoreKDrama(s);
+      s.category = 'korean_drama';
+      attachLinkFields(s, s.yfspUrl || s.url);
+      promoted.push(s);
+    }
+    logged.push(s);
   }
 
-  console.log(`  发现 ${sorted.length} 部未收录韩剧:`);
-  for (const s of sorted.slice(0, 30)) {
-    const score = s.score ? `评分${s.score}` : '';
-    const plays = s.playCount > 10000 ? `${(s.playCount/10000).toFixed(0)}万播放` : s.playCount > 0 ? `${s.playCount}播放` : '';
-    const eps = s.updateStatus || '';
-    const meta = [score, plays, eps, s.year ? `${s.year}年` : ''].filter(Boolean).join(' · ');
-    console.log(`    ▸ ${s.title} [${meta}]${s.actor ? ` 演员:${s.actor}` : ''}`);
+  if (logged.length === 0) {
+    console.log('  未发现新韩剧');
+  } else {
+    console.log(`  发现 ${logged.length} 部未收录韩剧,自动收录 ${promoted.length} 部:`);
+    for (const s of logged.slice(0, 30)) {
+      const sc = s.score ? `评分${s.score}` : '';
+      const plays = s.playCount > 10000 ? `${(s.playCount/10000).toFixed(0)}万播放` : s.playCount > 0 ? `${s.playCount}播放` : '';
+      const meta = [sc, plays, s.year ? `${s.year}年` : ''].filter(Boolean).join(' · ');
+      const tag = promoted.some(p => p.title === s.title) ? ' ✓自动收录' : '';
+      console.log(`    ▸ ${s.title} [${meta}]${s.actor ? ` 演员:${s.actor}` : ''}${tag}`);
+    }
   }
+
+  return promoted;
 }
 
 // ════════════════════════════════════════════════════════════════

@@ -151,6 +151,7 @@
     const badges = [];
     if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${show.score}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
+    if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.year >= new Date().getFullYear()) badges.push('<span class="badge badge-new">新剧</span>');
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');

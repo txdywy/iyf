@@ -302,6 +302,11 @@ a:hover { color: var(--pink); }
   color: #fff;
 }
 
+.badge-discovered {
+  background: rgba(0,206,209,0.9);
+  color: #fff;
+}
+
 .card-score-float {
   position: absolute;
   bottom: 10px;
