@@ -556,7 +556,10 @@
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-04T17:34:44.752Z"
+    "cachedAt": "2026-05-04T17:34:44.752Z",
+    "doubanUrl": "https://movie.douban.com/subject/38208978/",
+    "doubanId": "38208978",
+    "doubanMatchedTitle": "我们的爸爸 第二季"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -567,11 +570,13 @@
     "matchedTitle": "为爱闪耀的她",
     "tmdbId": 321537,
     "tmdbUrl": "https://www.themoviedb.org/tv/321537",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38445108/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:34:45.561Z"
+    "cachedAt": "2026-05-04T17:34:45.561Z",
+    "doubanId": "38445108",
+    "doubanMatchedTitle": "为爱闪耀的她"
   },
   "YM0c26sGJQ3": {
     "title": "旧基洞朋友们",
@@ -582,11 +587,13 @@
     "matchedTitle": "旧基洞的朋友们",
     "tmdbId": 319339,
     "tmdbUrl": "https://www.themoviedb.org/tv/319339",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38357233/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:34:46.303Z"
+    "cachedAt": "2026-05-04T17:34:46.303Z",
+    "doubanId": "38357233",
+    "doubanMatchedTitle": "旧基洞朋友们"
   },
   "N9hkWToXJRB": {
     "title": "超燃青春的合唱",
@@ -619,18 +626,23 @@
     "matchedTitle": "楼层游戏",
     "tmdbId": 303746,
     "tmdbUrl": "https://www.themoviedb.org/tv/303746",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37516944/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-04T17:39:01.304Z"
+    "cachedAt": "2026-05-04T17:39:01.304Z",
+    "doubanId": "37516944",
+    "doubanMatchedTitle": "楼层游戏"
   },
   "tpJGaYBzSyS": {
     "title": "无限超越班第4季",
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-04T17:34:48.734Z"
+    "cachedAt": "2026-05-04T17:34:48.734Z",
+    "doubanUrl": "https://movie.douban.com/subject/37824707/",
+    "doubanId": "37824707",
+    "doubanMatchedTitle": "无限超越班 第四季"
   },
   "3kQCEECh4ZD": {
     "title": "魔力歌先生",
@@ -652,7 +664,10 @@
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-04T17:34:51.958Z"
+    "cachedAt": "2026-05-04T17:34:51.958Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子2026",
