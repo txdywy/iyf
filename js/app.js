@@ -61,6 +61,9 @@
       case 'korean':
         shows = allData.koreanDramas || [];
         break;
+      case 'year2026':
+        shows = (allData.koreanDramas || []).filter(s => s.year === 2026);
+        break;
       case 'variety':
         shows = allData.chineseVariety || [];
         break;

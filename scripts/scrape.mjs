@@ -206,8 +206,8 @@ function buildDoubanSubjectUrl(title) {
 function attachLinkFields(show, yfspUrl = '', doubanUrl = '') {
   show.yfspUrl = yfspUrl || show.yfspUrl || '';
   show.doubanUrl = doubanUrl || show.doubanUrl || buildDoubanSubjectUrl(show.title);
-  show.primaryUrl = show.tmdbUrl || show.doubanUrl || show.wikipediaUrl || show.imdbUrl || '';
-  show.primaryUrlSource = show.tmdbUrl ? 'tmdb' : show.doubanUrl ? 'douban' : show.wikipediaUrl ? 'wikipedia' : show.imdbUrl ? 'imdb' : '';
+  show.primaryUrl = show.tmdbUrl || show.doubanUrl || show.wikipediaUrl || show.imdbUrl || show.yfspUrl || '';
+  show.primaryUrlSource = show.tmdbUrl ? 'tmdb' : show.doubanUrl ? 'douban' : show.wikipediaUrl ? 'wikipedia' : show.imdbUrl ? 'imdb' : show.yfspUrl ? 'yfsp' : '';
   show.url = show.primaryUrl;
   return show;
 }
@@ -366,16 +366,30 @@ function scoreVariety(s) {
 // ════════════════════════════════════════════════════════════════
 
 const SEED_KDRAMAS = [
-  // ── 2025-2026 新剧 ──
-  { id:'seed_kd_2026_01', title:'拜托了老板', year:2026, score:8.2, playCount:80000, contentType:'喜剧·爱情·职场', actor:'金永大,韩智贤', description:'菜鸟职员和傲娇老板的搞笑办公室罗曼史。轻松甜蜜,笑点密集,职场恋爱轻喜剧。', totalEpisodes:12, isComplete:false, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:true },
-  { id:'seed_kd_2026_02', title:'善意的竞争', year:2026, score:8.0, playCount:60000, contentType:'剧情·喜剧·职场', actor:'金惠奫,李伊庚', description:'两个性格截然相反的女律师搭档办案,在竞争中建立友情。节奏轻快,笑中带泪。', totalEpisodes:16, isComplete:false, currentEpisode:10, regional:'韩国', lang:'韩语', isSerial:true },
+  // ── 2026 新剧 ──
+  { id:'seed_kd_2026_01', title:'爱情怎么翻译', year:2026, score:9.5, playCount:2550623, contentType:'爱情', actor:'金宣虎,高允贞,福士苍汰,李伊潭,崔佑成', description:'跨语言爱情故事,金宣虎与高允贞主演。2026年度口碑最高韩剧。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_02', title:'21世纪大君夫人', year:2026, score:8.6, playCount:2130916, contentType:'喜剧·爱情·奇幻', actor:'李知恩,边佑锡,鲁常泫,孔升延', description:'IU与边佑锡主演的奇幻爱情。古代大君夫人穿越到现代,笑料不断又浪漫满分。2026年度爆款。', totalEpisodes:16, isComplete:false, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:true },
+  { id:'seed_kd_2026_03', title:'订阅男友', year:2026, score:8.8, playCount:519747, contentType:'喜剧·爱情', actor:'金智秀,徐仁国,孔敏晶', description:'BLACKPINK金智秀主演的浪漫喜剧。10集完结,轻松甜蜜。', totalEpisodes:10, isComplete:true, currentEpisode:10, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_04', title:'理事长和我的秘密关系', year:2026, score:8.4, playCount:857533, contentType:'爱情', actor:'崔振赫,吴涟序,洪宗玄,金多顺', description:'霸道理事长的办公室秘密恋情。12集完结,轻松甜蜜。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_05', title:'在你的灿烂季节', year:2026, score:8.4, playCount:814231, contentType:'剧情·治愈', actor:'李圣经,蔡钟协,李美淑', description:'李圣经主演的治愈系剧情剧。12集完结,温暖感人。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_06', title:'努力克服自卑的我们', year:2026, score:8.5, playCount:124774, contentType:'剧情·喜剧', actor:'具教焕,高允贞,吴正世,姜末琴', description:'具教焕与高允贞主演的成长喜剧。正在连载,口碑出色。', totalEpisodes:12, isComplete:false, currentEpisode:6, regional:'韩国', lang:'韩语', isSerial:true },
+  { id:'seed_kd_2026_07', title:'死亡之花', year:2026, score:8.6, playCount:258558, contentType:'剧情·悬疑', actor:'厉云,成东日,琴赛璐', description:'厉云与成东日主演的悬疑剧情。8集完结,口碑出色。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_08', title:'春日狂热', year:2026, score:7.9, playCount:680669, contentType:'爱情', actor:'安普贤,李主傧,车叙元', description:'安普贤主演的浪漫爱情剧。12集完结,轻松甜蜜。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_09', title:'给你宇宙', year:2026, score:7.6, playCount:813744, contentType:'剧情·青春', actor:'裴仁赫,卢正义,朴栖含', description:'裴仁赫与卢正义主演的青春剧情。12集完结,热度高。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_10', title:'权欲之巅', year:2026, score:7.9, playCount:563881, contentType:'剧情·政治', actor:'朱智勋,河智苑,林珍娜,吴正世', description:'朱智勋与河智苑主演的政治权谋剧。10集完结,演技派云集。', totalEpisodes:10, isComplete:true, currentEpisode:10, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_11', title:'秒杀爱情', year:2026, score:7.6, playCount:90543, contentType:'喜剧·爱情', actor:'安孝燮,蔡元彬,金汎,高斗心', description:'安孝燮与蔡元彬主演的浪漫喜剧。正在连载,轻松有趣。', totalEpisodes:16, isComplete:false, currentEpisode:4, regional:'韩国', lang:'韩语', isSerial:true },
+  { id:'seed_kd_2026_12', title:'赌金', year:2026, score:7.2, playCount:71886, contentType:'剧情', actor:'朴宝英,金圣喆,李光洙,金熙元', description:'朴宝英与李光洙主演的剧情剧。正在连载,阵容豪华。', totalEpisodes:16, isComplete:false, currentEpisode:2, regional:'韩国', lang:'韩语', isSerial:true },
+  { id:'seed_kd_2026_13', title:'魔女之吻', year:2026, score:6.7, playCount:356464, contentType:'爱情·奇幻', actor:'朴敏英,魏嘏隽,金正贤', description:'朴敏英与魏嘏隽主演的奇幻爱情。12集完结。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_14', title:'今天开始是人类', year:2026, score:7.2, playCount:335117, contentType:'爱情·奇幻', actor:'金惠奫,朴所罗门,张东柱', description:'金惠奫与朴所罗门主演的奇幻爱情。12集完结。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  // ── 2025 热播韩剧 ──
   { id:'seed_kd_2025_01', title:'背着善宰跑', year:2025, score:9.0, playCount:500000, contentType:'喜剧·爱情·奇幻', actor:'边佑锡,金惠奫', description:'穿越时空的甜蜜奇幻爱情,顶级偶像和铁粉的浪漫故事。2025年现象级韩剧,轻松治愈必看。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_02', title:'妈妈朋友的儿子', year:2025, score:8.3, playCount:350000, contentType:'喜剧·爱情', actor:'丁海寅,庭沼珉', description:'青梅竹马长大后的甜蜜重逢恋爱。治愈系浪漫喜剧,满满的温暖和笑料。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_03', title:'凌晨两点的灰姑娘', year:2025, score:8.5, playCount:300000, contentType:'喜剧·爱情', actor:'申铉彬,文相敏', description:'财阀千金变身灰姑娘的搞笑浪漫故事。轻松下饭,甜度超标。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_04', title:'问问星星吧', year:2025, score:7.8, playCount:200000, contentType:'喜剧·爱情·科幻', actor:'李敏镐,孔晓振', description:'宇航员和妇产科医生在太空站的浪漫喜剧。韩剧史上首部太空题材,新颖有趣。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_05', title:'我的完美秘书', year:2025, score:8.1, playCount:250000, contentType:'喜剧·爱情·职场', actor:'韩志旼,李浚赫', description:'冷面女CEO和万能男秘书的反转职场恋爱。轻松搞笑,化学反应满分。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_06', title:'法官大人', year:2025, score:8.4, playCount:180000, contentType:'剧情·喜剧·法律', actor:'孙贤周,金明民', description:'严厉法官和菜鸟检察官的法庭喜剧。正义与搞笑并存,节奏明快。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
-  { id:'seed_kd_2026_03', title:'21世纪大君夫人', year:2026, score:8.6, playCount:2128085, contentType:'喜剧·爱情·奇幻', actor:'李知恩,边佑锡,鲁常泫,孔升延', description:'IU与边佑锡主演的奇幻爱情。古代大君夫人穿越到现代,笑料不断又浪漫满分。2026年度爆款。', totalEpisodes:16, isComplete:false, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:true },
+  { id:'seed_kd_2025_07', title:'善意的竞争', year:2025, score:8.8, playCount:2033366, contentType:'剧情·喜剧·职场', actor:'李惠利,郑秀斌,姜惠元,吴友利,崔荣宰', description:'性格截然相反的女律师搭档办案,在竞争中建立友情。2025年高收视职场剧。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2025_08', title:'那家伙是黑炎龙', year:2025, score:8.1, playCount:661136, contentType:'喜剧·爱情', actor:'文佳煐,崔显旭,林世美', description:'游戏女主播和黑炎龙的甜蜜恋爱。电竞题材轻喜剧,轻松有趣。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   // ── 2024 热播韩剧 ──
   { id:'seed_kd_2024_01', title:'泪之女王', year:2024, score:8.7, playCount:4207174, contentType:'喜剧·爱情', actor:'金秀贤,金智媛,朴成焄,郭东延', description:'金秀贤与金智媛主演的财阀爱情剧。2024年收视冠军,轻松甜蜜又有泪点。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2024_02', title:'照明商店', year:2024, score:8.9, playCount:946907, contentType:'奇幻·悬疑·剧情', actor:'朱智勋,朴宝英,严太九,金雪炫,李姃垠', description:'连接生死的神秘照明商店。奇幻悬疑剧,氛围感满分,每个故事都触动人心。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
@@ -389,8 +403,6 @@ const SEED_KDRAMAS = [
   { id:'seed_kd_2022_01', title:'黑暗荣耀', year:2022, score:9.2, playCount:2776014, contentType:'剧情·悬疑', actor:'宋慧乔,李到晛,林智妍,廉惠兰,朴成焄', description:'校园暴力受害者精心布局复仇的故事。宋慧乔颠覆性演出,Netflix全球爆红。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2022_02', title:'财阀家的小儿子', year:2022, score:7.9, playCount:3300465, contentType:'剧情·奇幻·职场', actor:'宋仲基,李星民,申贤彬', description:'重生为财阀家小儿子的逆袭人生。宋仲基主演,2022年末收视爆棚。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2022_03', title:'王后伞下', year:2022, score:8.7, playCount:551312, contentType:'剧情·喜剧·古装', actor:'金惠秀,金海淑,文相敏', description:'王后为保护儿子们在宫廷中斗智斗勇。金惠秀气场全开,古装版虎妈喜剧。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
-  // ── 2025 新剧补充 ──
-  { id:'seed_kd_2025_07', title:'那家伙是黑炎龙', year:2025, score:8.1, playCount:661136, contentType:'喜剧·爱情', actor:'文佳煐,崔显旭,林世美', description:'游戏女主播和黑炎龙的甜蜜恋爱。电竞题材轻喜剧,轻松有趣。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   // ── 经典轻松韩剧 ──
   { id:'seed_kd_c01', title:'请回答1988', year:2015, score:9.7, playCount:999999, contentType:'剧情·喜剧·家庭', actor:'李惠利,柳俊烈,朴宝剑', description:'双门洞五家人的温暖日常。韩剧天花板,笑泪交织,百看不厌。', totalEpisodes:20, isComplete:true, currentEpisode:20, regional:'韩国', lang:'韩语', isSerial:false, isClassic:true },
   { id:'seed_kd_c02', title:'机智的医生生活', year:2020, score:9.5, playCount:800000, contentType:'剧情·喜剧·生活', actor:'曹政奭,柳演锡,郑敬淏,金大明,田美都', description:'五位医生好友的温馨日常。治愈系天花板,笑中带泪。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false, isClassic:true },
@@ -473,7 +485,7 @@ async function main() {
     const liveMatch = findLiveTitleMatch(s, liveShows, '电视剧', show => show.regional === '韩国');
     const existingKey = liveMatch?.id || s.id;
     if (kdramaMap.has(existingKey)) continue;
-    let show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
+    let show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
     show.recommendScore = scoreKDrama(show);
     show.category = 'korean_drama';
@@ -505,7 +517,7 @@ async function main() {
     const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
     const existingKey = liveMatch?.id || s.id;
     if (varietyMap.has(existingKey)) continue;
-    let show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false };
+    let show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
     show.recommendScore = scoreVariety(show);
     show.category = 'chinese_variety';
@@ -530,7 +542,25 @@ async function main() {
     kdramaMap.set(s.id, s);
   }
 
-  // ── 6. 优先补齐 TMDB 高清封面/具体页,再验证爱壹帆具体页 ──
+  // ── 6. 同步种子缓存 → 直播 ID (种子匹配直播节目后 ID 变了,缓存条目还在旧 ID 下) ──
+  const imgCache = loadImageCache();
+  for (const s of SEED_KDRAMAS) {
+    const liveMatch = findLiveTitleMatch(s, liveShows, '电视剧', show => show.regional === '韩国');
+    if (liveMatch && liveMatch.id !== s.id) {
+      if (imgCache[s.id] && !imgCache[liveMatch.id]) imgCache[liveMatch.id] = imgCache[s.id];
+      if (imgCache[liveMatch.id] && !imgCache[s.id]) imgCache[s.id] = imgCache[liveMatch.id];
+    }
+  }
+  for (const s of SEED_VARIETY) {
+    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
+    if (liveMatch && liveMatch.id !== s.id) {
+      if (imgCache[s.id] && !imgCache[liveMatch.id]) imgCache[liveMatch.id] = imgCache[s.id];
+      if (imgCache[liveMatch.id] && !imgCache[s.id]) imgCache[s.id] = imgCache[liveMatch.id];
+    }
+  }
+  saveImageCache(imgCache);
+
+  // ── 7. 优先补齐 TMDB 高清封面/具体页,再验证爱壹帆具体页 ──
   const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   await enrichCoversFromTMDB(allShowsList);
   await enrichMissingYfspLinks(allShowsList);
@@ -715,6 +745,8 @@ async function enrichDoubanLinks(shows) {
 const DISCOVERY_KEYWORDS = ['韩剧', '韩剧推荐', '最新韩剧', '韩剧2026', '韩剧2025'];
 const DISCOVERY_MIN_SCORE = 6.0;
 const DISCOVERY_MIN_PLAYS = 50000;
+const DISCOVERY_2026_MIN_SCORE = 4.0;
+const DISCOVERY_2026_MIN_PLAYS = 10000;
 
 async function discoverNewKDramas(liveShows, kdramaMap) {
   console.log('\n  ── 新韩剧监控扫描 ──');
@@ -743,7 +775,10 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
         if (!knownTitles.has(norm) && r.title && !discovered.has(r.title)) {
           const sc = parseFloat(r.score) || 0;
           const plays = r.hot || 0;
-          if (sc < DISCOVERY_MIN_SCORE && plays < DISCOVERY_MIN_PLAYS) continue;
+          const yr = extractYear(r.postTime || '');
+          const minSc = yr >= 2026 ? DISCOVERY_2026_MIN_SCORE : DISCOVERY_MIN_SCORE;
+          const minPlays = yr >= 2026 ? DISCOVERY_2026_MIN_PLAYS : DISCOVERY_MIN_PLAYS;
+          if (sc < minSc && plays < minPlays) continue;
           discovered.set(r.title, {
             id: r.contxt || `disc_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
             title: r.title, mediaType: '电视剧', type: 4,
@@ -791,7 +826,9 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
   const promoted = [];
   const logged = [];
   for (const s of sorted) {
-    const pass = s.score >= DISCOVERY_MIN_SCORE || s.playCount >= DISCOVERY_MIN_PLAYS;
+    const minSc2 = s.year >= 2026 ? DISCOVERY_2026_MIN_SCORE : DISCOVERY_MIN_SCORE;
+    const minPl2 = s.year >= 2026 ? DISCOVERY_2026_MIN_PLAYS : DISCOVERY_MIN_PLAYS;
+    const pass = s.score >= minSc2 || s.playCount >= minPl2;
     if (pass) {
       s.recommendScore = scoreKDrama(s);
       s.category = 'korean_drama';
@@ -884,6 +921,20 @@ const TITLE_EN_MAP = {
   '贞淑的推销': 'A Virtuous Business',
   '好或坏的东载': 'Dongjae the Good or the Bad',
   '那家伙是黑炎龙': 'Black Flame Dragon',
+  // 2026 韩剧
+  '爱情怎么翻译': 'The Art of Love',
+  '订阅男友': ' mógí Boyfriend',
+  '理事长和我的秘密关系': 'Secret Relationship with the Chairman',
+  '在你的灿烂季节': 'In Your Brilliant Season',
+  '努力克服自卑的我们': 'Our Inferiority Complex',
+  '死亡之花': 'Flower of Death',
+  '春日狂热': 'Spring Fever',
+  '给你宇宙': 'Give You the Universe',
+  '权欲之巅': 'Beyond Power',
+  '秒杀爱情': 'Love at First Sight',
+  '赌金': 'The Bet',
+  '魔女之吻': 'Witch Kiss',
+  '今天开始是人类': 'Starting Today I Am Human',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌2026': '王牌对王牌',
@@ -996,7 +1047,7 @@ async function enrichCoversFromTMDB(shows) {
   // 1. TMDB 缓存优先。爱壹帆原图只作为 TMDB 失败时的兜底。
   for (const show of shows) {
     if (show.coverImg) show.yfspCoverImg = show.coverImg;
-    const cached = cache[show.id];
+    const cached = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
     if (cached && cached !== 'NOT_FOUND') {
       if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.url && cached.title === show.title) {
         show.coverImg = cached.url;
@@ -1015,7 +1066,7 @@ async function enrichCoversFromTMDB(shows) {
 
   // 2. 所有无有效 v3 TMDB 缓存的节目都重新查,包括已有爱壹帆小图的节目。
   const toFetch = shows.filter(s => {
-    const cached = cache[s.id];
+    const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
     return !(typeof cached === 'object' && cached?.version === COVER_CACHE_VERSION && cached.title === s.title);
   });
 
@@ -1068,6 +1119,14 @@ async function enrichCoversFromTMDB(shows) {
       console.log(`    ✗ ${show.title}`);
     }
     await sleep(300);
+  }
+
+  // 同步 seedId ↔ show.id 缓存 (种子匹配到直播节目后 ID 会变)
+  for (const show of shows) {
+    if (show.seedId && show.seedId !== show.id) {
+      if (cache[show.id] && !cache[show.seedId]) cache[show.seedId] = cache[show.id];
+      if (cache[show.seedId] && !cache[show.id]) cache[show.id] = cache[show.seedId];
+    }
   }
 
   saveImageCache(cache);
