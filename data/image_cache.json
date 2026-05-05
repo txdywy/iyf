@@ -48,17 +48,19 @@
   },
   "seed_kd_2026_04": {
     "title": "理事长和我的秘密关系",
-    "source": "tmdb",
+    "url": "https://static.yfsp.tv/upload/video/202601171628322802751.jpg",
+    "source": "yfsp",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:03:18.425Z"
+    "cachedAt": "2026-05-05T06:22:36.519Z"
   },
   "seed_kd_2026_05": {
     "title": "在你的灿烂季节",
+    "url": "https://image.tmdb.org/t/p/w780/9QhrWKqeJa5w23nDbBnQ9RFhGWF.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:03:21.458Z"
+    "tmdbId": 233833,
+    "tmdbUrl": "https://www.themoviedb.org/tv/233833",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "seed_kd_2026_06": {
     "title": "努力克服自卑的我们",
@@ -130,10 +132,12 @@
   },
   "seed_kd_2026_10": {
     "title": "权欲之巅",
+    "url": "https://image.tmdb.org/t/p/w780/ruld5xeOsfDrqRD5aP8iWeuxRKw.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:03:34.182Z",
+    "tmdbId": 241860,
+    "tmdbUrl": "https://www.themoviedb.org/tv/241860",
+    "cachedAt": "2026-05-05T06:22:36.528Z",
     "doubanUrl": "https://movie.douban.com/subject/36691850/",
     "doubanId": "36691850",
     "doubanMatchedTitle": "权欲之巅"
@@ -147,11 +151,13 @@
     "matchedTitle": "秒杀爱情",
     "tmdbId": 287011,
     "tmdbUrl": "https://www.themoviedb.org/tv/287011",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37284838/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%A7%92%E6%AE%BA%E6%84%9B%E6%83%85",
     "imdbUrl": "https://www.imdb.com/title/tt39387440/",
     "wikidataId": "Q137711304",
-    "cachedAt": "2026-05-05T06:03:37.028Z"
+    "cachedAt": "2026-05-05T06:03:37.028Z",
+    "doubanId": "37284838",
+    "doubanMatchedTitle": "秒杀爱情"
   },
   "seed_kd_2026_12": {
     "title": "赌金",
@@ -162,11 +168,13 @@
     "matchedTitle": "赌金",
     "tmdbId": 278113,
     "tmdbUrl": "https://www.themoviedb.org/tv/278113",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37134823/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B3%AD%E9%87%91",
     "imdbUrl": "https://www.imdb.com/title/tt37253311/",
     "wikidataId": "Q134848097",
-    "cachedAt": "2026-05-05T06:03:39.084Z"
+    "cachedAt": "2026-05-05T06:03:39.084Z",
+    "doubanId": "37134823",
+    "doubanMatchedTitle": "赌金"
   },
   "seed_kd_2026_13": {
     "title": "魔女之吻",
@@ -177,11 +185,13 @@
     "matchedTitle": "魔女之吻",
     "tmdbId": 310800,
     "tmdbUrl": "https://www.themoviedb.org/tv/310800",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37284835/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%AD%94%E5%A5%B3%E4%B9%8B%E5%90%BB",
     "imdbUrl": "https://www.imdb.com/title/tt39303992/",
     "wikidataId": "Q137772351",
-    "cachedAt": "2026-05-05T06:03:40.799Z"
+    "cachedAt": "2026-05-05T06:03:40.799Z",
+    "doubanId": "37284835",
+    "doubanMatchedTitle": "魔女之吻"
   },
   "seed_kd_2026_14": {
     "title": "今天开始是人类",
@@ -410,10 +420,12 @@
   },
   "seed_kd_2023_01": {
     "title": "黑暗荣耀第2季",
+    "url": "https://image.tmdb.org/t/p/w780/4ANJBZETwHOmtofE5D0QjpCWB9w.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:04:18.105Z"
+    "tmdbId": 136283,
+    "tmdbUrl": "https://www.themoviedb.org/tv/136283",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "seed_kd_2023_02": {
     "title": "超异能族",
@@ -792,17 +804,21 @@
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子2026",
+    "url": "https://image.tmdb.org/t/p/w780/6a1c0PzVrJZwVWIWIoM2qMgHKFG.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:17.527Z"
+    "tmdbId": 196747,
+    "tmdbUrl": "https://www.themoviedb.org/tv/196747",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
+    "url": "https://image.tmdb.org/t/p/w780/gqL3kE2KohZPakjsIymWySuiRCt.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:18.506Z",
+    "tmdbId": 283765,
+    "tmdbUrl": "https://www.themoviedb.org/tv/283765",
+    "cachedAt": "2026-05-05T06:22:36.532Z",
     "doubanUrl": "https://movie.douban.com/subject/38208978/",
     "doubanId": "38208978",
     "doubanMatchedTitle": "我们的爸爸 第二季"
@@ -860,10 +876,12 @@
   },
   "PIIuQT8AFB0": {
     "title": "大侦探第十一季",
+    "url": "https://image.tmdb.org/t/p/w780/dmWr4vJgvGMH8m60fuTh0wzYGde.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:23.376Z",
+    "tmdbId": 74561,
+    "tmdbUrl": "https://www.themoviedb.org/tv/74561",
+    "cachedAt": "2026-05-05T06:22:36.528Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -887,13 +905,12 @@
   },
   "hIZ5ifLbCbF": {
     "title": "哈哈哈哈哈第6季",
+    "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:25.513Z",
-    "doubanUrl": "https://movie.douban.com/subject/37561228/",
-    "doubanId": "37561228",
-    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+    "tmdbId": 112732,
+    "tmdbUrl": "https://www.themoviedb.org/tv/112732",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "cDta4dCa3lC": {
     "title": "奋斗吧人生-演员篇",
@@ -914,13 +931,12 @@
   },
   "YbbTMTCTNL7": {
     "title": "妻子的浪漫旅行2026",
+    "url": "https://image.tmdb.org/t/p/w780/dx3JOkHlSMASuK4xfmQ6N7IRSdd.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:27.668Z",
-    "doubanUrl": "https://movie.douban.com/subject/37816903/",
-    "doubanId": "37816903",
-    "doubanMatchedTitle": "妻子的浪漫旅行2026"
+    "tmdbId": 97199,
+    "tmdbUrl": "https://www.themoviedb.org/tv/97199",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "dC8GmJK3nv8": {
     "title": "楼层游戏",
@@ -939,10 +955,12 @@
   },
   "nyi2RoPNIDI": {
     "title": "亲爱的客栈2026",
+    "url": "https://image.tmdb.org/t/p/w780/b43cWIC1ABkOgl4MjsqAxLaHnBL.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:30.029Z"
+    "tmdbId": 163813,
+    "tmdbUrl": "https://www.themoviedb.org/tv/163813",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "seed_var_2026_01": {
     "title": "奔跑吧2026",
@@ -1086,10 +1104,12 @@
   },
   "JYeeXczoME0": {
     "title": "深夜航班第2季",
+    "url": "https://image.tmdb.org/t/p/w780/dv4fJV7LxddrrP3UhSS0CrVsQYn.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:54.341Z"
+    "tmdbId": 247704,
+    "tmdbUrl": "https://www.themoviedb.org/tv/247704",
+    "cachedAt": "2026-05-05T06:22:36.532Z"
   },
   "dkwK1MTi1Y3": {
     "title": "良陈美锦",
@@ -1241,21 +1261,49 @@
     "wikidataId": "Q134599078",
     "cachedAt": "2026-05-05T06:06:15.681Z"
   },
-  "seed_var_2026_04": {
-    "title": "哈哈哈哈哈第6季",
+  "hfAubEqPhn4": {
+    "title": "在你的灿烂季节",
+    "url": "https://image.tmdb.org/t/p/w780/9QhrWKqeJa5w23nDbBnQ9RFhGWF.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:25.513Z",
-    "doubanUrl": "https://movie.douban.com/subject/37561228/",
-    "doubanId": "37561228",
-    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+    "tmdbId": 233833,
+    "tmdbUrl": "https://www.themoviedb.org/tv/233833",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
+  },
+  "0lVivlOc4H1": {
+    "title": "权欲之巅",
+    "url": "https://image.tmdb.org/t/p/w780/ruld5xeOsfDrqRD5aP8iWeuxRKw.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "tmdbId": 241860,
+    "tmdbUrl": "https://www.themoviedb.org/tv/241860",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
+  },
+  "GkSL9rght0A": {
+    "title": "黑暗荣耀第2季",
+    "url": "https://image.tmdb.org/t/p/w780/4ANJBZETwHOmtofE5D0QjpCWB9w.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "tmdbId": 136283,
+    "tmdbUrl": "https://www.themoviedb.org/tv/136283",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
+  },
+  "seed_var_2026_04": {
+    "title": "哈哈哈哈哈第6季",
+    "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "tmdbId": 112732,
+    "tmdbUrl": "https://www.themoviedb.org/tv/112732",
+    "cachedAt": "2026-05-05T06:22:36.528Z"
   },
   "tpJGaYBzSyS": {
     "title": "无限超越班第4季",
+    "url": "https://image.tmdb.org/t/p/w780/f2fKRnNOZXRuLnXs4WxfipA0AJ8.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:13:39.156Z"
+    "tmdbId": 216487,
+    "tmdbUrl": "https://www.themoviedb.org/tv/216487",
+    "cachedAt": "2026-05-05T06:31:35.580Z"
   }
 }

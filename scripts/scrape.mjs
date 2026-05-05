@@ -1149,9 +1149,11 @@ async function enrichCoversFromTMDB(shows) {
   }
 
   // 2. 所有无有效 v3 TMDB 缓存的节目都重新查,包括已有爱壹帆小图的节目。
+  //    已有有效 URL 的缓存条目不再重新查询 (防止覆盖手动设置的高清封面)
   const toFetch = shows.filter(s => {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
-    return !(typeof cached === 'object' && cached?.version === COVER_CACHE_VERSION && cached.title === s.title);
+    if (cached && typeof cached === 'object' && cached.url && cached.version === COVER_CACHE_VERSION) return false;
+    return !(cached && typeof cached === 'object' && cached?.version === COVER_CACHE_VERSION && cached.title === s.title);
   });
 
   if (toFetch.length === 0) {
@@ -1189,13 +1191,17 @@ async function enrichCoversFromTMDB(shows) {
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
-      cache[show.id] = {
-        title: show.title,
-        source: 'tmdb',
-        version: COVER_CACHE_VERSION,
-        notFound: true,
-        cachedAt: new Date().toISOString(),
-      };
+      // 只在没有已有有效缓存时标记 notFound,避免覆盖手动设置的 TMDB 封面
+      const existing = cache[show.id];
+      if (!existing || existing === 'NOT_FOUND' || existing.notFound) {
+        cache[show.id] = {
+          title: show.title,
+          source: 'tmdb',
+          version: COVER_CACHE_VERSION,
+          notFound: true,
+          cachedAt: new Date().toISOString(),
+        };
+      }
       if (show.yfspCoverImg) {
         show.coverImg = show.yfspCoverImg;
         show.coverSource = 'yfsp';
