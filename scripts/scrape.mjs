@@ -587,6 +587,7 @@ async function main() {
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
   await enrichDoubanLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
+  await enrichDescriptions(allShowsList);
 
   // ── 7. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
@@ -756,6 +757,69 @@ async function enrichDoubanLinks(shows) {
   }
   saveImageCache(cache);
   console.log(`  补充 ${matched} 个豆瓣具体页`);
+}
+
+// ════════════════════════════════════════════════════════════════
+// TMDB & Wikipedia 剧情介绍补全
+// ════════════════════════════════════════════════════════════════
+
+async function enrichDescriptions(shows) {
+  const cache = loadImageCache();
+  const targets = shows.filter(s => {
+    if (s.description && s.description.length > 80) return false;
+    const c = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
+    return c?.tmdbId;
+  });
+
+  if (!targets.length) {
+    console.log('  所有节目已有详细剧情介绍');
+    return;
+  }
+
+  console.log(`  为 ${targets.length} 个节目补充 TMDB 剧情介绍...`);
+  let enriched = 0;
+
+  for (const show of targets) {
+    const c = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
+    const tmdbId = c?.tmdbId;
+    const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
+    if (!tmdbId) continue;
+
+    try {
+      const data = await fetchTMDBJSON(`${mediaKind}/${tmdbId}?language=zh-CN`);
+      if (data?.overview && data.overview.length > (show.description || '').length) {
+        show.description = data.overview.slice(0, 500);
+        enriched++;
+        console.log(`    ✓ ${show.title} (${data.overview.length}字)`);
+      }
+    } catch (e) {
+      console.warn(`  [WARN] description fetch failed for "${show.title}": ${e.message}`);
+    }
+    await sleep(250);
+  }
+
+  // 补充 Wikipedia 描述 (优先中文,其次英文)
+  const wikiTargets = shows.filter(s => s.wikipediaUrl && (!s.description || s.description.length < 80));
+  for (const show of wikiTargets) {
+    try {
+      const title = decodeURIComponent(show.wikipediaUrl.split('/wiki/')[1] || '');
+      if (!title) continue;
+      const lang = show.wikipediaUrl.includes('zh.wikipedia') ? 'zh' : show.wikipediaUrl.includes('ko.wikipedia') ? 'ko' : 'en';
+      const apiUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+      const resp = await fetch(apiUrl, { headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] }, signal: AbortSignal.timeout(8000) });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.extract && data.extract.length > (show.description || '').length) {
+          show.description = data.extract.slice(0, 500);
+          enriched++;
+          console.log(`    ✓ ${show.title} (Wikipedia ${data.extract.length}字)`);
+        }
+      }
+    } catch {}
+    await sleep(300);
+  }
+
+  console.log(`  补充 ${enriched} 个剧情介绍`);
 }
 
 // ════════════════════════════════════════════════════════════════

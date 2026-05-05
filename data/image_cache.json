@@ -900,11 +900,13 @@
     "matchedTitle": "怒火救援",
     "tmdbId": 223386,
     "tmdbUrl": "https://www.themoviedb.org/tv/223386",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36338734/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%81%AB%E7%B7%9A%E6%95%91%E6%8F%B4_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt27331527/",
     "wikidataId": "Q134599078",
-    "cachedAt": "2026-05-04T17:35:11.906Z"
+    "cachedAt": "2026-05-04T17:35:11.906Z",
+    "doubanId": "36338734",
+    "doubanMatchedTitle": "怒火救援"
   },
   "FlEkczcnzlC": {
     "title": "她的盛焰",
@@ -1261,12 +1263,18 @@
   },
   "seed_kd_2026_10": {
     "title": "权欲之巅",
-    "url": "https://image.tmdb.org/t/p/w780/kLyfsdPhTfSdoXKAVsKvIpujRzm.jpg",
+    "url": "https://image.tmdb.org/t/p/w780/ruld5xeOsfDrqRD5aP8iWeuxRKw.jpg",
     "source": "tmdb",
     "version": 7,
+<<<<<<< HEAD
     "tmdbId": 290758,
     "tmdbUrl": "https://www.themoviedb.org/tv/290758",
     "cachedAt": "2026-05-05T05:25:19.957Z",
+=======
+    "tmdbId": 241860,
+    "tmdbUrl": "https://www.themoviedb.org/tv/241860",
+    "cachedAt": "2026-05-05T05:43:45.361Z",
+>>>>>>> 025b8d5 (feat: enrich show descriptions from TMDB & Wikipedia, fix 权欲之巅 HD poster)
     "doubanUrl": "https://movie.douban.com/subject/36691850/",
     "doubanId": "36691850",
     "doubanMatchedTitle": "权欲之巅"
