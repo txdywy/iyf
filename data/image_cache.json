@@ -1083,11 +1083,13 @@
     "matchedTitle": "王后伞下",
     "tmdbId": 156406,
     "tmdbUrl": "https://www.themoviedb.org/tv/156406",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35525461/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8E%8B%E5%90%8E%E5%82%98%E4%B8%8B",
     "imdbUrl": "https://www.imdb.com/title/tt22265394/",
     "wikidataId": "Q111986155",
-    "cachedAt": "2026-05-05T03:05:32.381Z"
+    "cachedAt": "2026-05-05T03:05:32.381Z",
+    "doubanId": "35525461",
+    "doubanMatchedTitle": "王后伞下"
   },
   "seed_kd_2025_07": {
     "title": "那家伙是黑炎龙",
@@ -1098,10 +1100,12 @@
     "matchedTitle": "那家伙是黑炎龙",
     "tmdbId": 259015,
     "tmdbUrl": "https://www.themoviedb.org/tv/259015",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36838684/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%82%A3%E5%82%A2%E4%BC%99%E6%98%AF%E9%BB%91%E7%82%8E%E9%BE%8D",
     "imdbUrl": "https://www.imdb.com/title/tt33320428/",
     "wikidataId": "Q127411915",
-    "cachedAt": "2026-05-05T03:05:33.551Z"
+    "cachedAt": "2026-05-05T03:05:33.551Z",
+    "doubanId": "36838684",
+    "doubanMatchedTitle": "那家伙是黑炎龙"
   }
 }
