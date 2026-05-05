@@ -136,6 +136,7 @@ const TITLE_ALIAS_MAP = {
   '非常律师禹英禑': ['奇怪的律师禹英禑', 'Extraordinary Attorney Woo'],
   '信号': ['Signal信号', '시그널'],
   '文森佐': ['黑道律师文森佐', 'Vincenzo'],
+  '机智的监狱生活': ['机智牢房生活', 'Prison Playbook'],
 };
 
 function titleCandidates(title = '') {
@@ -173,6 +174,28 @@ function normalizedTitleMatches(a, b) {
 }
 
 const DOUBAN_SUBJECT_URLS = {
+  '孤单又灿烂的神-鬼怪': 'https://movie.douban.com/subject/26761935/',
+  '酒鬼都市男女': 'https://movie.douban.com/subject/35460374/',
+  '机智的监狱生活': 'https://movie.douban.com/subject/27081753/',
+  '闪亮的西瓜': 'https://movie.douban.com/subject/36117731/',
+  '海岸村恰恰恰': 'https://movie.douban.com/subject/35296153/',
+  '机智的医生生活': 'https://movie.douban.com/subject/33464863/',
+  '大力女都奉顺': 'https://movie.douban.com/subject/26776093/',
+  '欢迎来到王之国': 'https://movie.douban.com/subject/35876191/',
+  '举重妖精金福珠': 'https://movie.douban.com/subject/26882230/',
+  '非常律师禹英禑': 'https://movie.douban.com/subject/35524446/',
+  '奇怪的律师禹英禑': 'https://movie.douban.com/subject/35524446/',
+  '死期将至': 'https://movie.douban.com/subject/35991840/',
+  '金秘书为何那样': 'https://movie.douban.com/subject/30181455/',
+  '社内相亲': 'https://movie.douban.com/subject/35400242/',
+  '文森佐': 'https://movie.douban.com/subject/35131278/',
+  '我的ID是江南美人': 'https://movie.douban.com/subject/30232208/',
+  '触及真心': 'https://movie.douban.com/subject/30304086/',
+  '秘密森林': 'https://movie.douban.com/subject/26934346/',
+  '未生': 'https://movie.douban.com/subject/25870057/',
+  '极限挑战第一季': 'https://movie.douban.com/subject/26387728/',
+  '奔跑吧兄弟': 'https://movie.douban.com/subject/25899362/',
+  '脱口秀大会': 'https://movie.douban.com/subject/27099227/',
 };
 
 function buildDoubanSubjectUrl(title) {
@@ -489,6 +512,8 @@ async function main() {
   await enrichCoversFromTMDB(allShowsList);
   await enrichMissingYfspLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
+  await enrichDoubanLinks(allShowsList);
+  for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
 
   // ── 6. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
@@ -589,6 +614,75 @@ async function enrichMissingYfspLinks(shows) {
     await sleep(250);
   }
   console.log(`  匹配到 ${matched} 个爱壹帆具体页`);
+}
+
+async function searchDoubanSubject(show) {
+  for (const query of titleCandidates(show.title)) {
+    try {
+      const results = await fetchDoubanSuggest(query);
+      if (!Array.isArray(results)) continue;
+      for (const item of results.slice(0, 8)) {
+        const names = [item.title, item.sub_title].filter(Boolean);
+        if (!names.some(name => titleMatches(show.title, name))) continue;
+        return {
+          doubanUrl: `${DOUBAN_MOVIE_BASE}/${item.id}/`,
+          doubanId: item.id,
+          doubanTitle: item.title || '',
+          doubanYear: item.year || '',
+        };
+      }
+    } catch (e) {
+      console.warn(`  [WARN] douban search failed for "${query}": ${e.message}`);
+    }
+    await sleep(900);
+  }
+  return null;
+}
+
+async function fetchDoubanSuggest(query) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const resp = await fetch(`https://movie.douban.com/j/subject_suggest?q=${encodeURIComponent(query)}`, {
+      headers: {
+        'User-Agent': HEADERS['User-Agent'],
+        'Referer': 'https://movie.douban.com/',
+        'Accept': 'application/json, text/plain, */*',
+      },
+      signal: ctrl.signal,
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } finally { clearTimeout(t); }
+}
+
+async function enrichDoubanLinks(shows) {
+  const targets = shows.filter(s => !s.doubanUrl && s.title);
+  if (!targets.length) return;
+
+  console.log(`  为 ${targets.length} 个节目补充豆瓣具体页...`);
+  const cache = loadImageCache();
+  let matched = 0;
+  for (const show of targets) {
+    const found = await searchDoubanSubject(show);
+    if (found?.doubanUrl) {
+      show.doubanUrl = found.doubanUrl;
+      show.doubanId = found.doubanId;
+      show.doubanMatchedTitle = found.doubanTitle;
+      if (cache[show.id] && typeof cache[show.id] === 'object') {
+        cache[show.id].doubanUrl = found.doubanUrl;
+        cache[show.id].doubanId = found.doubanId;
+        cache[show.id].doubanMatchedTitle = found.doubanTitle;
+      }
+      matched++;
+      console.log(`    ✓ ${show.title} → ${found.doubanTitle}`);
+    } else {
+      console.log(`    ✗ ${show.title}`);
+    }
+    await sleep(1000);
+  }
+  saveImageCache(cache);
+  console.log(`  补充 ${matched} 个豆瓣具体页`);
 }
 
 // ════════════════════════════════════════════════════════════════

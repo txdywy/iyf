@@ -53,11 +53,13 @@
     "matchedTitle": "问问星星吧",
     "tmdbId": 154822,
     "tmdbUrl": "https://www.themoviedb.org/tv/154822",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35679693/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%95%8F%E5%95%8F%E6%98%9F%E6%98%9F%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
-    "cachedAt": "2026-05-04T17:34:15.173Z"
+    "cachedAt": "2026-05-04T17:34:15.173Z",
+    "doubanId": "35679693",
+    "doubanMatchedTitle": "问问星星吧"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -83,11 +85,13 @@
     "matchedTitle": "法官大人",
     "tmdbId": 247031,
     "tmdbUrl": "https://www.themoviedb.org/tv/247031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27121213/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-05-04T17:34:17.852Z"
+    "cachedAt": "2026-05-04T17:34:17.852Z",
+    "doubanId": "27121213",
+    "doubanMatchedTitle": "法官大人 第一季"
   },
   "seed_kd_c01": {
     "title": "请回答1988",
@@ -113,11 +117,13 @@
     "matchedTitle": "机智的监狱生活",
     "tmdbId": 74821,
     "tmdbUrl": "https://www.themoviedb.org/tv/74821",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27081753/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%A9%9F%E6%99%BA%E7%89%A2%E6%88%BF%E7%94%9F%E6%B4%BB",
     "imdbUrl": "https://www.imdb.com/title/tt7622902/",
     "wikidataId": "Q39059594",
-    "cachedAt": "2026-05-04T17:34:21.073Z"
+    "cachedAt": "2026-05-04T17:34:21.073Z",
+    "doubanId": "27081753",
+    "doubanMatchedTitle": "机智牢房生活"
   },
   "seed_kd_c04": {
     "title": "孤单又灿烂的神-鬼怪",
@@ -128,11 +134,13 @@
     "matchedTitle": "孤单又灿烂的神：鬼怪",
     "tmdbId": 67915,
     "tmdbUrl": "https://www.themoviedb.org/tv/67915",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26761935/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%AD%A4%E5%96%AE%E5%8F%88%E7%87%A6%E7%88%9B%E7%9A%84%E7%A5%9E%E2%80%94%E9%AC%BC%E6%80%AA",
     "imdbUrl": "https://www.imdb.com/title/tt5994364/",
     "wikidataId": "Q24859151",
-    "cachedAt": "2026-05-04T17:34:22.190Z"
+    "cachedAt": "2026-05-04T17:34:22.190Z",
+    "doubanId": "26761935",
+    "doubanMatchedTitle": "孤单又灿烂的神：鬼怪"
   },
   "seed_kd_c05": {
     "title": "大力女都奉顺",
@@ -143,11 +151,13 @@
     "matchedTitle": "大力女子都奉顺",
     "tmdbId": 68814,
     "tmdbUrl": "https://www.themoviedb.org/tv/68814",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26815054/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A4%A7%E5%8A%9B%E5%A5%B3%E5%AD%90%E9%83%BD%E5%A5%89%E9%A0%86",
     "imdbUrl": "https://www.imdb.com/title/tt6263222/",
     "wikidataId": "Q27670382",
-    "cachedAt": "2026-05-04T17:34:23.294Z"
+    "cachedAt": "2026-05-04T17:34:23.294Z",
+    "doubanId": "26815054",
+    "doubanMatchedTitle": "大力女子都奉顺"
   },
   "seed_kd_c06": {
     "title": "举重妖精金福珠",
@@ -158,11 +168,13 @@
     "matchedTitle": "举重妖精金福珠",
     "tmdbId": 68349,
     "tmdbUrl": "https://www.themoviedb.org/tv/68349",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26836808/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%88%89%E9%87%8D%E5%A6%96%E7%B2%BE%E9%87%91%E7%A6%8F%E7%8F%A0",
     "imdbUrl": "https://www.imdb.com/title/tt6157148/",
     "wikidataId": "Q27267642",
-    "cachedAt": "2026-05-04T17:34:24.429Z"
+    "cachedAt": "2026-05-04T17:34:24.429Z",
+    "doubanId": "26836808",
+    "doubanMatchedTitle": "举重妖精金福珠"
   },
   "seed_kd_c07": {
     "title": "文森佐",
@@ -455,11 +467,13 @@
     "matchedTitle": "善意的竞争",
     "tmdbId": 259288,
     "tmdbUrl": "https://www.themoviedb.org/tv/259288",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36782612/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%B6%E7%88%AD",
     "imdbUrl": "https://www.imdb.com/title/tt35683421/",
     "wikidataId": "Q127800838",
-    "cachedAt": "2026-05-04T17:34:09.475Z"
+    "cachedAt": "2026-05-04T17:34:09.475Z",
+    "doubanId": "36782612",
+    "doubanMatchedTitle": "善意的竞争 第一季"
   },
   "seed_kd_c18": {
     "title": "死期将至",
@@ -485,11 +499,13 @@
     "matchedTitle": "机智的医生生活",
     "tmdbId": 96102,
     "tmdbUrl": "https://www.themoviedb.org/tv/96102",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/33464863/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%A9%9F%E6%99%BA%E9%86%AB%E7%94%9F%E7%94%9F%E6%B4%BB",
     "imdbUrl": "https://www.imdb.com/title/tt11769304/",
     "wikidataId": "Q83625648",
-    "cachedAt": "2026-05-04T17:34:19.965Z"
+    "cachedAt": "2026-05-04T17:34:19.965Z",
+    "doubanId": "33464863",
+    "doubanMatchedTitle": "机智医生生活"
   },
   "seed_kd_c09": {
     "title": "我的ID是江南美人",

@@ -410,12 +410,13 @@ a:hover { color: var(--pink); }
 
 .card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
 }
 
 .card-action {
-  flex: 1;
+  flex: 1 1 92px;
   min-height: 34px;
   display: inline-flex;
   align-items: center;
@@ -437,14 +438,44 @@ a:hover { color: var(--pink); }
   color: #fff;
 }
 
-.card-action.primary {
-  background: var(--accent);
+.card-action.source-tmdb {
+  background: linear-gradient(135deg, #01b4e4, #90cea1);
+  color: #071820;
+}
+
+.card-action.source-tmdb:hover {
+  background: linear-gradient(135deg, #20c6f2, #a7e5b7);
+  color: #041016;
+}
+
+.card-action.source-douban {
+  background: #2e963d;
   color: #fff;
 }
 
-.card-action.primary:hover {
-  background: var(--accent-light);
-  color: #141420;
+.card-action.source-douban:hover {
+  background: #3eb250;
+  color: #fff;
+}
+
+.card-action.source-wikipedia {
+  background: #f4f4f4;
+  color: #202122;
+}
+
+.card-action.source-wikipedia:hover {
+  background: #fff;
+  color: #000;
+}
+
+.card-action.source-imdb {
+  background: #f5c518;
+  color: #151515;
+}
+
+.card-action.source-imdb:hover {
+  background: #ffda4a;
+  color: #111;
 }
 
 .card-action.disabled {
