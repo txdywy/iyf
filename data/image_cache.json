@@ -103,11 +103,13 @@
     "matchedTitle": "春日狂热",
     "tmdbId": 280948,
     "tmdbUrl": "https://www.themoviedb.org/tv/280948",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37077593/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%A5%E6%97%A5%E7%8B%82%E7%86%B1",
     "imdbUrl": "https://www.imdb.com/title/tt39137681/",
     "wikidataId": "Q136527446",
-    "cachedAt": "2026-05-05T06:03:28.793Z"
+    "cachedAt": "2026-05-05T06:03:28.793Z",
+    "doubanId": "37077593",
+    "doubanMatchedTitle": "春日狂热"
   },
   "seed_kd_2026_09": {
     "title": "给你宇宙",
@@ -118,18 +120,23 @@
     "matchedTitle": "给你宇宙",
     "tmdbId": 297424,
     "tmdbUrl": "https://www.themoviedb.org/tv/297424",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37233532/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B5%A6%E4%BD%A0%E5%AE%87%E5%AE%99_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt39453765/",
     "wikidataId": "Q137668853",
-    "cachedAt": "2026-05-05T06:03:31.216Z"
+    "cachedAt": "2026-05-05T06:03:31.216Z",
+    "doubanId": "37233532",
+    "doubanMatchedTitle": "给你宇宙"
   },
   "seed_kd_2026_10": {
     "title": "权欲之巅",
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-05T06:03:34.182Z"
+    "cachedAt": "2026-05-05T06:03:34.182Z",
+    "doubanUrl": "https://movie.douban.com/subject/36691850/",
+    "doubanId": "36691850",
+    "doubanMatchedTitle": "权欲之巅"
   },
   "seed_kd_2026_11": {
     "title": "秒杀爱情",
@@ -795,7 +802,10 @@
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-05T06:05:18.506Z"
+    "cachedAt": "2026-05-05T06:05:18.506Z",
+    "doubanUrl": "https://movie.douban.com/subject/38208978/",
+    "doubanId": "38208978",
+    "doubanMatchedTitle": "我们的爸爸 第二季"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -806,11 +816,13 @@
     "matchedTitle": "为爱闪耀的她",
     "tmdbId": 321537,
     "tmdbUrl": "https://www.themoviedb.org/tv/321537",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38445108/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:19.856Z"
+    "cachedAt": "2026-05-05T06:05:19.856Z",
+    "doubanId": "38445108",
+    "doubanMatchedTitle": "为爱闪耀的她"
   },
   "YM0c26sGJQ3": {
     "title": "旧基洞朋友们",
@@ -821,11 +833,13 @@
     "matchedTitle": "旧基洞的朋友们",
     "tmdbId": 319339,
     "tmdbUrl": "https://www.themoviedb.org/tv/319339",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38357233/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:21.030Z"
+    "cachedAt": "2026-05-05T06:05:21.030Z",
+    "doubanId": "38357233",
+    "doubanMatchedTitle": "旧基洞朋友们"
   },
   "N9hkWToXJRB": {
     "title": "超燃青春的合唱",
@@ -836,11 +850,13 @@
     "matchedTitle": "超燃青春的合唱",
     "tmdbId": 320614,
     "tmdbUrl": "https://www.themoviedb.org/tv/320614",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37332128/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:22.400Z"
+    "cachedAt": "2026-05-05T06:05:22.400Z",
+    "doubanId": "37332128",
+    "doubanMatchedTitle": "超燃青春的合唱"
   },
   "PIIuQT8AFB0": {
     "title": "大侦探第十一季",
@@ -1224,5 +1240,22 @@
     "imdbUrl": "https://www.imdb.com/title/tt27331527/",
     "wikidataId": "Q134599078",
     "cachedAt": "2026-05-05T06:06:15.681Z"
+  },
+  "seed_var_2026_04": {
+    "title": "哈哈哈哈哈第6季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-05T06:05:25.513Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+  },
+  "tpJGaYBzSyS": {
+    "title": "无限超越班第4季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-05T06:13:39.156Z"
   }
 }
