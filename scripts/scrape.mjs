@@ -395,10 +395,26 @@ function scoreVariety(s) {
 const GITHUB_MODELS_API = 'https://models.github.ai/inference/chat/completions';
 const GITHUB_MODEL = 'openai/gpt-4.1-mini';
 const OPENROUTER_API = 'https://openrouter.ai/api/v1/chat/completions';
-const OPENROUTER_MODELS = ['google/gemma-4-31b-it:free', 'nvidia/nemotron-3-super-120b-a12b:free'];
+// 多个免费模型,按能力排序;每次随机顺序轮询,分散限流
+const OPENROUTER_MODELS = [
+  'google/gemma-4-31b-it:free',
+  'qwen/qwen3-next-80b-a3b-instruct:free',
+  'nvidia/nemotron-3-super-120b-a12b:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'nousresearch/hermes-3-llama-3.1-405b:free',
+  'google/gemma-4-26b-a4b-it:free',
+  'z-ai/glm-4.5-air:free',
+  'minimax/minimax-m2.5:free',
+];
 const AI_BATCH_SIZE = 25;
 
-async function callModelsAPI(messages, { temperature = 0.3, timeout = 30000 } = {}) {
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+async function callModelsAPI(messages, { temperature = 0.3, timeout = 45000 } = {}) {
   // 1. 优先用 GitHub Models
   const ghToken = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
   if (ghToken) {
@@ -407,13 +423,13 @@ async function callModelsAPI(messages, { temperature = 0.3, timeout = 30000 } = 
     console.log('  [AI] GitHub Models 不可用,切换 OpenRouter...');
   }
 
-  // 2. 备用: OpenRouter 免费模型
+  // 2. 备用: 随机顺序轮询 OpenRouter 免费模型(分散限流)
   const orKey = process.env.OPENROUTER_API_KEY;
   if (orKey) {
-    for (const model of OPENROUTER_MODELS) {
+    for (const model of shuffle(OPENROUTER_MODELS)) {
       const result = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout);
       if (result !== null) {
-        console.log(`  [AI] 使用 OpenRouter 模型: ${model}`);
+        console.log(`  [AI] 使用 OpenRouter: ${model}`);
         return result;
       }
     }
