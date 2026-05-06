@@ -831,53 +831,43 @@ async function main() {
   }
 
   // ── 5.5. AI 智能评分增强 ──
-  // 加载上次的 AI 评分(本次未命中的保留上次结果)
-  let prevAiScores = {};
+  // 先加载上次的 AI 评分并注入到 show 对象(让缓存过滤器识别,避免重复调用 API)
   if (existsSync(SHOWS_FILE)) {
     try {
       const prev = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
+      const prevMap = new Map();
       for (const s of [...(prev.koreanDramas || []), ...(prev.chineseVariety || []), ...(prev.otherDramas || [])]) {
-        if (s.aiScore && s.aiScoredAt) prevAiScores[s.id] = { aiScore: s.aiScore, aiReason: s.aiReason, aiScoredAt: s.aiScoredAt };
+        if (s.aiScore && s.aiScoredAt) prevMap.set(s.id, s);
       }
+      let restored = 0;
+      for (const [id, show] of [...kdramaMap, ...varietyMap]) {
+        if (!show.aiScore && prevMap.has(id)) {
+          const p = prevMap.get(id);
+          show.aiScore = p.aiScore;
+          show.aiReason = p.aiReason;
+          show.aiScoredAt = p.aiScoredAt;
+          restored++;
+        }
+      }
+      if (restored) console.log(`  [AI] 从上次结果恢复 ${restored} 部评分`);
     } catch {}
   }
 
   const allForAI = [...kdramaMap.values(), ...varietyMap.values()];
   const aiScores = await aiScoreShows(allForAI);
-  if (aiScores.size > 0) {
-    for (const show of allForAI) {
-      const ai = aiScores.get(show.id);
-      if (ai) {
-        show.aiScore = ai.score;
-        show.aiReason = ai.reason;
-        show.aiScoredAt = new Date().toISOString();
-      } else {
-        // 本次未评分 → 保留上次的 AI 评分
-        const prev = prevAiScores[show.id];
-        if (prev) {
-          show.aiScore = prev.aiScore;
-          show.aiReason = prev.aiReason;
-          show.aiScoredAt = prev.aiScoredAt;
-        }
-      }
-      // 混合评分: 规则分为主体, AI 分作为 ±25 的调整
-      if (show.aiScore != null) {
-        show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.5));
-      }
+  for (const show of allForAI) {
+    const ai = aiScores.get(show.id);
+    if (ai) {
+      show.aiScore = ai.score;
+      show.aiReason = ai.reason;
+      show.aiScoredAt = new Date().toISOString();
     }
-    console.log(`  [AI] 已为 ${aiScores.size} 部节目调整推荐分`);
-  } else {
-    // 无新 AI 数据 → 保留上次全部评分
-    for (const show of allForAI) {
-      const prev = prevAiScores[show.id];
-      if (prev) {
-        show.aiScore = prev.aiScore;
-        show.aiReason = prev.aiReason;
-        show.aiScoredAt = prev.aiScoredAt;
-        show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.5));
-      }
+    // 混合评分: 规则分为主体, AI 分作为 ±25 的调整
+    if (show.aiScore != null) {
+      show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.5));
     }
   }
+  if (aiScores.size > 0) console.log(`  [AI] 已为 ${aiScores.size} 部节目调整推荐分`);
 
   // ── 6. 同步种子缓存 → 直播 ID (种子匹配直播节目后 ID 变了,缓存条目还在旧 ID 下) ──
   const imgCache = loadImageCache();
