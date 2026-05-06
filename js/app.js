@@ -152,7 +152,7 @@
 
   function renderCard(show, index) {
     const badges = [];
-    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${show.aiScore}</span>`);
+    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${show.aiScore}/100</span>`);
     if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${show.score}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
