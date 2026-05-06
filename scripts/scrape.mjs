@@ -414,7 +414,7 @@ function shuffle(arr) {
   return a;
 }
 
-async function callModelsAPI(messages, { temperature = 0.3, timeout = 45000 } = {}) {
+async function callModelsAPI(messages, { temperature = 0.3, timeout = 60000 } = {}) {
   // 1. 优先用 GitHub Models
   const ghToken = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
   if (ghToken) {
@@ -423,42 +423,56 @@ async function callModelsAPI(messages, { temperature = 0.3, timeout = 45000 } = 
     console.log('  [AI] GitHub Models 不可用,切换 OpenRouter...');
   }
 
-  // 2. 备用: 随机顺序轮询 OpenRouter 免费模型(分散限流)
+  // 2. 备用: OpenRouter 免费模型(账号级限流,一次 429 → 等待后只试一个模型)
   const orKey = process.env.OPENROUTER_API_KEY;
   if (orKey) {
-    for (const model of shuffle(OPENROUTER_MODELS)) {
-      const result = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout);
-      if (result !== null) {
-        console.log(`  [AI] 使用 OpenRouter: ${model}`);
-        return result;
-      }
+    const models = shuffle(OPENROUTER_MODELS);
+    // 直接试第一个
+    let result = await _callEndpoint(OPENROUTER_API, models[0], orKey, messages, temperature, timeout);
+    if (result !== null) {
+      console.log(`  [AI] 使用 OpenRouter: ${models[0]}`);
+      return result;
+    }
+    // 如果 429(账号级), 等 60s 后只再试一个模型(避免逐个尝试浪费时间)
+    console.log('  [AI] OpenRouter 限流,等 60s 后重试...');
+    await sleep(60000);
+    result = await _callEndpoint(OPENROUTER_API, models[1] || models[0], orKey, messages, temperature, timeout);
+    if (result !== null) {
+      console.log(`  [AI] 使用 OpenRouter: ${models[1] || models[0]}`);
+      return result;
     }
   }
 
   return null;
 }
 
-async function _callEndpoint(url, model, token, messages, temperature, timeout) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), timeout);
-  try {
-    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-    if (url.includes('models.github.ai')) headers['X-GitHub-Api-Version'] = '2026-03-10';
-    const r = await fetch(url, {
-      method: 'POST', headers,
-      body: JSON.stringify({ model, messages, temperature }),
-      signal: ctrl.signal,
-    });
-    if (r.status === 429) { console.warn(`  [AI] ${model}: 429 限流`); return null; }
-    if (!r.ok) { console.warn(`  [AI] ${model}: HTTP ${r.status}`); return null; }
-    const data = await r.json();
-    const content = data.choices?.[0]?.message?.content || null;
-    if (!content) console.warn(`  [AI] ${model}: 空响应`);
-    return content;
-  } catch (e) {
-    console.warn(`  [AI] ${model}: ${e.message}`);
-    return null;
-  } finally { clearTimeout(t); }
+async function _callEndpoint(url, model, token, messages, temperature, timeout, retries = 1) {
+  const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+  if (url.includes('models.github.ai')) headers['X-GitHub-Api-Version'] = '2026-03-10';
+  const body = JSON.stringify({ model, messages, temperature });
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const r = await fetch(url, { method: 'POST', headers, body, signal: ctrl.signal });
+      if (r.status === 429) {
+        const retryAfter = parseInt(r.headers.get('retry-after') || '0', 10);
+        const waitSec = retryAfter > 0 ? Math.min(retryAfter, 120) : 30;
+        if (attempt < retries) {
+          console.log(`  [AI] ${model}: 429 限流,等 ${waitSec}s 后重试...`);
+          await sleep(waitSec * 1000);
+          continue;
+        }
+        return null;
+      }
+      if (!r.ok) { return null; }
+      const data = await r.json();
+      return data.choices?.[0]?.message?.content || null;
+    } catch { return null; }
+    finally { clearTimeout(t); }
+  }
+  return null;
 }
 
 const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。根据观众的实际观影偏好评估每部剧的推荐度。
