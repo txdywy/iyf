@@ -1148,7 +1148,10 @@
     "version": 7,
     "tmdbId": 247704,
     "tmdbUrl": "https://www.themoviedb.org/tv/247704",
-    "cachedAt": "2026-05-05T06:22:36.532Z"
+    "cachedAt": "2026-05-05T06:22:36.532Z",
+    "doubanUrl": "https://movie.douban.com/subject/37200050/",
+    "doubanId": "37200050",
+    "doubanMatchedTitle": "深夜航班 第二季"
   },
   "dkwK1MTi1Y3": {
     "title": "良陈美锦",
