@@ -14,8 +14,11 @@ No package.json, no dependencies, no build tools. Pure vanilla JS.
 # Run scraper (requires Node.js 20+)
 node scripts/scrape.mjs
 
-# AI scoring is optional — requires GITHUB_TOKEN or MODELS_TOKEN env var
-GITHUB_TOKEN=ghp_xxx node scripts/scrape.mjs
+# AI scoring — requires at least one token (AI runs automatically when present)
+GITHUB_TOKEN=ghp_xxx node scripts/scrape.mjs          # GitHub Models (primary, free with models:read)
+OPENROUTER_API_KEY=sk-or-xxx node scripts/scrape.mjs   # OpenRouter fallback (8 free models)
+
+# Both tokens recommended: GitHub Models → OpenRouter automatic fallback on 429
 
 # Serve frontend locally (must use HTTP, not file://)
 npx serve .
@@ -26,18 +29,25 @@ No test suite exists.
 
 ## Architecture
 
-**Single-file scraper** (`scripts/scrape.mjs`, ~1460 lines): ES module, runs the entire pipeline in `main()`:
+**Single-file scraper** (`scripts/scrape.mjs`, ~1570 lines): ES module, runs the entire pipeline in `main()`:
 
 1. Scrape YFSP API (30 pages) → `Map<mediaKey, show>`
 2. Split into KDramas / Variety / Other, merge with hardcoded seed libraries (SEED_KDRAMAS, SEED_VARIETY)
 3. Discover new shows via keyword search → `discoverNewKDramas()` with AI screening
-4. Enrichment chain (sequential): TMDB posters → Wikidata links → YFSP URL verification → Douban links → TMDB/Wikipedia descriptions → AI descriptions
-5. AI scoring via GitHub Models (`openai/gpt-4.1-mini`, batched 15/batch, 7-day cache)
-6. Drop shows missing `coverImg` or `primaryUrl` → write `data/shows.json`
+4. Load previous `data/shows.json` → restore cached AI scores onto show objects (so cache filter skips them)
+5. AI scoring via `callModelsAPI()`: batched 25/batch, 7-day cache, viewer persona (66 watched shows in system prompt)
+   - Primary: GitHub Models (`openai/gpt-4.1-mini`)
+   - Fallback: OpenRouter free models (8 models, random rotation on each run)
+   - On 429: reads `Retry-After` header, waits, retries once; OpenRouter account-level limit detected → single 60s wait
+   - No retry loop for missed shows — cache + next cron run picks them up
+6. Enrichment chain (sequential): TMDB posters → Wikidata links → YFSP URL verification → Douban links → TMDB/Wikipedia descriptions → AI descriptions
+7. Drop shows missing `coverImg` or `primaryUrl` → write `data/shows.json`
 
 **Frontend** (`js/app.js`, ~290 lines): IIFE, fetches `data/shows.json` at runtime, renders card grid with tabs (Korean / 2026 / Variety / Latest / Classic), filters (status/score/search), and sorting (recommend/score/newest/popular).
 
-**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), commits data changes, deploys to GitHub Pages. Non-site files stripped before upload.
+**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), commits data changes, deploys to GitHub Pages. Non-site files stripped before upload. Uses `git pull --rebase` with conflict resolution (`git checkout --theirs` for data files, `GIT_EDITOR=true git rebase --continue`).
+
+GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKEN` (auto-provided, needs `models: read` permission for GitHub Models API).
 
 ## Key Data Flow
 
