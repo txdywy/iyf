@@ -1174,11 +1174,13 @@
     "matchedTitle": "月鳞绮纪",
     "tmdbId": 278275,
     "tmdbUrl": "https://www.themoviedb.org/tv/278275",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640236/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Veil_of_Shadows_(TV_series)",
     "imdbUrl": "https://www.imdb.com/title/tt35046984/",
     "wikidataId": "Q138683585",
-    "cachedAt": "2026-05-05T06:05:57.728Z"
+    "cachedAt": "2026-05-05T06:05:57.728Z",
+    "doubanId": "36640236",
+    "doubanMatchedTitle": "月鳞绮纪"
   },
   "jQvUieeHBdE": {
     "title": "佳偶天成",
