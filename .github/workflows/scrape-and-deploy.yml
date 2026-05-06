@@ -57,7 +57,7 @@ jobs:
                 # During rebase: --theirs = our local commit, --ours = remote
                 git checkout --theirs data/shows.json data/image_cache.json data/discovery.json 2>/dev/null || true
                 git add data/shows.json data/image_cache.json data/discovery.json
-                git rebase --continue || true
+                GIT_EDITOR=true git rebase --continue || true
                 git push origin main && break
               fi
               echo "Push attempt $i failed, retrying..."
