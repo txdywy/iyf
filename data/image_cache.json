@@ -828,7 +828,10 @@
     "version": 7,
     "tmdbId": 196747,
     "tmdbUrl": "https://www.themoviedb.org/tv/196747",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816919/",
+    "doubanId": "37816919",
+    "doubanMatchedTitle": "我家那小子2026"
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
@@ -929,7 +932,10 @@
     "version": 7,
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "cDta4dCa3lC": {
     "title": "奋斗吧人生-演员篇",
@@ -955,7 +961,10 @@
     "version": 7,
     "tmdbId": 97199,
     "tmdbUrl": "https://www.themoviedb.org/tv/97199",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816903/",
+    "doubanId": "37816903",
+    "doubanMatchedTitle": "妻子的浪漫旅行2026"
   },
   "dC8GmJK3nv8": {
     "title": "楼层游戏",
@@ -1103,11 +1112,13 @@
     "matchedTitle": "一年时光",
     "tmdbId": 311694,
     "tmdbUrl": "https://www.themoviedb.org/tv/311694",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37529434/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt42203169/",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:50.056Z"
+    "cachedAt": "2026-05-05T06:05:50.056Z",
+    "doubanId": "37529434",
+    "doubanMatchedTitle": "一年时光"
   },
   "OzevFOY7rmU": {
     "title": "宿敌恋人",
@@ -1118,11 +1129,13 @@
     "matchedTitle": "宿敌恋人",
     "tmdbId": 307432,
     "tmdbUrl": "https://www.themoviedb.org/tv/307432",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37434212/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Enemies_With_Benefits",
     "imdbUrl": "https://www.imdb.com/title/tt39044698/",
     "wikidataId": "Q139505893",
-    "cachedAt": "2026-05-05T06:05:53.364Z"
+    "cachedAt": "2026-05-05T06:05:53.364Z",
+    "doubanId": "37434212",
+    "doubanMatchedTitle": "宿敌恋人"
   },
   "JYeeXczoME0": {
     "title": "深夜航班第2季",
@@ -1189,11 +1202,13 @@
     "matchedTitle": "她的盛焰",
     "tmdbId": 282904,
     "tmdbUrl": "https://www.themoviedb.org/tv/282904",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36707547/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32563322/",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:06:00.915Z"
+    "cachedAt": "2026-05-05T06:06:00.915Z",
+    "doubanId": "36707547",
+    "doubanMatchedTitle": "她的盛焰"
   },
   "ThbgN3zrEu8": {
     "title": "家事法庭",
@@ -1234,11 +1249,13 @@
     "matchedTitle": "叵测",
     "tmdbId": 282902,
     "tmdbUrl": "https://www.themoviedb.org/tv/282902",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36457187/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33265527/",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:06:07.297Z"
+    "cachedAt": "2026-05-05T06:06:07.297Z",
+    "doubanId": "36457187",
+    "doubanMatchedTitle": "叵测"
   },
   "APFJyjxLyQa": {
     "title": "隐身的名字",
@@ -1359,10 +1376,12 @@
     "matchedTitle": "低智商犯罪",
     "tmdbId": 272432,
     "tmdbUrl": "https://www.themoviedb.org/tv/272432",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35517044/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32592348/",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T13:55:46.039Z"
+    "cachedAt": "2026-05-05T13:55:46.039Z",
+    "doubanId": "35517044",
+    "doubanMatchedTitle": "低智商犯罪"
   }
 }
