@@ -464,11 +464,13 @@
     "matchedTitle": "黑暗荣耀",
     "tmdbId": 136283,
     "tmdbUrl": "https://www.themoviedb.org/tv/136283",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35314632/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%BB%91%E6%9A%97%E8%8D%A3%E8%80%80",
     "imdbUrl": "https://www.imdb.com/title/tt21344706/",
     "wikidataId": "Q113197148",
-    "cachedAt": "2026-05-05T06:04:22.489Z"
+    "cachedAt": "2026-05-05T06:04:22.489Z",
+    "doubanId": "35314632",
+    "doubanMatchedTitle": "黑暗荣耀"
   },
   "seed_kd_2022_02": {
     "title": "财阀家的小儿子",
@@ -479,11 +481,13 @@
     "matchedTitle": "财阀家的小儿子",
     "tmdbId": 153496,
     "tmdbUrl": "https://www.themoviedb.org/tv/153496",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/30291070/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B2%A1%E9%96%A5%E5%AE%B6%E7%9A%84%E5%B0%8F%E5%85%92%E5%AD%90",
     "imdbUrl": "https://www.imdb.com/title/tt18352538/",
     "wikidataId": "Q110244733",
-    "cachedAt": "2026-05-05T06:04:24.591Z"
+    "cachedAt": "2026-05-05T06:04:24.591Z",
+    "doubanId": "30291070",
+    "doubanMatchedTitle": "财阀家的小儿子"
   },
   "seed_kd_2022_03": {
     "title": "王后伞下",
@@ -494,11 +498,13 @@
     "matchedTitle": "王后伞下",
     "tmdbId": 156406,
     "tmdbUrl": "https://www.themoviedb.org/tv/156406",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35525461/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8E%8B%E5%90%8E%E5%82%98%E4%B8%8B",
     "imdbUrl": "https://www.imdb.com/title/tt22265394/",
     "wikidataId": "Q111986155",
-    "cachedAt": "2026-05-05T06:04:26.278Z"
+    "cachedAt": "2026-05-05T06:04:26.278Z",
+    "doubanId": "35525461",
+    "doubanMatchedTitle": "王后伞下"
   },
   "seed_kd_c01": {
     "title": "请回答1988",
@@ -973,7 +979,10 @@
     "version": 7,
     "tmdbId": 163813,
     "tmdbUrl": "https://www.themoviedb.org/tv/163813",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814621/",
+    "doubanId": "37814621",
+    "doubanMatchedTitle": "亲爱的客栈2026"
   },
   "seed_var_2026_01": {
     "title": "奔跑吧2026",
