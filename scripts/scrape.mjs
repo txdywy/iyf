@@ -433,12 +433,16 @@ async function _callEndpoint(url, model, token, messages, temperature, timeout) 
       body: JSON.stringify({ model, messages, temperature }),
       signal: ctrl.signal,
     });
-    if (r.status === 429) return null;
-    if (!r.ok) return null;
+    if (r.status === 429) { console.warn(`  [AI] ${model}: 429 限流`); return null; }
+    if (!r.ok) { console.warn(`  [AI] ${model}: HTTP ${r.status}`); return null; }
     const data = await r.json();
-    return data.choices?.[0]?.message?.content || null;
-  } catch { return null; }
-  finally { clearTimeout(t); }
+    const content = data.choices?.[0]?.message?.content || null;
+    if (!content) console.warn(`  [AI] ${model}: 空响应`);
+    return content;
+  } catch (e) {
+    console.warn(`  [AI] ${model}: ${e.message}`);
+    return null;
+  } finally { clearTimeout(t); }
 }
 
 const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。根据观众的实际观影偏好评估每部剧的推荐度。
