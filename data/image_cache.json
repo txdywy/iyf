@@ -975,11 +975,13 @@
     "matchedTitle": "楼层游戏",
     "tmdbId": 303746,
     "tmdbUrl": "https://www.themoviedb.org/tv/303746",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37516944/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:29.053Z"
+    "cachedAt": "2026-05-05T06:05:29.053Z",
+    "doubanId": "37516944",
+    "doubanMatchedTitle": "楼层游戏"
   },
   "nyi2RoPNIDI": {
     "title": "亲爱的客栈2026",
