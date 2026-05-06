@@ -394,9 +394,9 @@ function scoreVariety(s) {
 
 const MODELS_API = 'https://models.github.ai/inference/chat/completions';
 const AI_MODEL = 'openai/gpt-4.1-mini';
-const AI_BATCH_SIZE = 10;
+const AI_BATCH_SIZE = 25;
 
-async function callModelsAPI(messages, { temperature = 0.3, timeout = 12000 } = {}) {
+async function callModelsAPI(messages, { temperature = 0.3, timeout = 30000 } = {}) {
   const token = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
   if (!token) return null;
 
@@ -525,36 +525,9 @@ async function aiScoreShows(shows) {
     if (i + AI_BATCH_SIZE < toScore.length) await sleep(1000);
   }
 
-  // 重试漏掉的剧(更小批次)
+  // 不重试 — 漏掉的剧靠 7 天缓存+下次定时任务自然补上,节省 API 调用
   const missed = toScore.filter(s => !results.has(s.id));
-  if (missed.length > 0) {
-    console.log(`  [AI] 重试 ${missed.length} 部未评分剧...`);
-    for (let i = 0; i < missed.length; i += 5) {
-      const batch = missed.slice(i, i + 5);
-      const items = batch.map(s => ({
-        id: s.id, title: s.title, year: s.year,
-        genre: s.contentType || '', desc: (s.description || '').slice(0, 100),
-        score: s.score, plays: s.playCount, actor: (s.actor || '').slice(0, 30),
-      }));
-      const prompt = `评估以下 ${batch.length} 部剧的推荐度:\n${JSON.stringify(items)}`;
-      const resp = await callModelsAPI([
-        { role: 'system', content: AI_SCORE_SYSTEM },
-        { role: 'user', content: prompt },
-      ], { temperature: 0.2 });
-      if (resp) {
-        try {
-          const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
-          for (const item of arr) {
-            if (item.id && typeof item.s === 'number') {
-              results.set(item.id, { score: Math.max(0, Math.min(100, item.s)), reason: item.r || '' });
-            }
-          }
-        } catch {}
-      }
-      if (i + 5 < missed.length) await sleep(1500);
-    }
-  }
-
+  if (missed.length > 0) console.log(`  [AI] ${missed.length} 部未返回评分,下次运行自动补上`);
   console.log(`  [AI] 获取到 ${results.size} 条评分结果`);
   return results;
 }
