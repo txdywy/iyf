@@ -392,40 +392,53 @@ function scoreVariety(s) {
 // GitHub Models AI 评分增强
 // ════════════════════════════════════════════════════════════════
 
-const MODELS_API = 'https://models.github.ai/inference/chat/completions';
-const AI_MODEL = 'openai/gpt-4.1-mini';
+const GITHUB_MODELS_API = 'https://models.github.ai/inference/chat/completions';
+const GITHUB_MODEL = 'openai/gpt-4.1-mini';
+const OPENROUTER_API = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_MODELS = ['google/gemma-4-31b-it:free', 'nvidia/nemotron-3-super-120b-a12b:free'];
 const AI_BATCH_SIZE = 25;
 
 async function callModelsAPI(messages, { temperature = 0.3, timeout = 30000 } = {}) {
-  const token = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
-  if (!token) return null;
+  // 1. 优先用 GitHub Models
+  const ghToken = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
+  if (ghToken) {
+    const result = await _callEndpoint(GITHUB_MODELS_API, GITHUB_MODEL, ghToken, messages, temperature, timeout);
+    if (result !== null) return result;
+    console.log('  [AI] GitHub Models 不可用,切换 OpenRouter...');
+  }
 
+  // 2. 备用: OpenRouter 免费模型
+  const orKey = process.env.OPENROUTER_API_KEY;
+  if (orKey) {
+    for (const model of OPENROUTER_MODELS) {
+      const result = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout);
+      if (result !== null) {
+        console.log(`  [AI] 使用 OpenRouter 模型: ${model}`);
+        return result;
+      }
+    }
+  }
+
+  return null;
+}
+
+async function _callEndpoint(url, model, token, messages, temperature, timeout) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(MODELS_API, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'X-GitHub-Api-Version': '2026-03-10',
-      },
-      body: JSON.stringify({ model: AI_MODEL, messages, temperature }),
+    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+    if (url.includes('models.github.ai')) headers['X-GitHub-Api-Version'] = '2026-03-10';
+    const r = await fetch(url, {
+      method: 'POST', headers,
+      body: JSON.stringify({ model, messages, temperature }),
       signal: ctrl.signal,
     });
-    if (r.status === 429) {
-      await sleep(5000);
-      return null;
-    }
-    if (!r.ok) throw new Error(`Models API ${r.status}`);
+    if (r.status === 429) return null;
+    if (!r.ok) return null;
     const data = await r.json();
     return data.choices?.[0]?.message?.content || null;
-  } catch (e) {
-    if (e.name !== 'AbortError') console.warn(`  [AI] API error: ${e.message}`);
-    return null;
-  } finally {
-    clearTimeout(t);
-  }
+  } catch { return null; }
+  finally { clearTimeout(t); }
 }
 
 const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。根据观众的实际观影偏好评估每部剧的推荐度。
