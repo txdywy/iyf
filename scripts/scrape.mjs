@@ -344,6 +344,11 @@ const KDramaGenreBoost = {
   '治愈': 20, '温馨': 20, '甜宠': 25,
   '悬疑': 5, '犯罪': 0, '惊悚': -10, '恐怖': -30,
   '剧情': 10, '古装': 5, '动作': 0,
+  // 观众偏好加权(基于66部已看韩剧)
+  '律师': 15, '法律': 15, '法官': 15, '检察官': 10,
+  '身份': 15, '伪装': 15, '冒充': 15, '替身': 15,
+  '漫改': 10, '改编': 10,
+  '办公室': 10, '职场剧': 10,
 };
 
 const KDramaNegative = [
@@ -391,6 +396,22 @@ const MODELS_API = 'https://models.github.ai/inference/chat/completions';
 const AI_MODEL = 'openai/gpt-4.1-mini';
 const AI_BATCH_SIZE = 15;
 
+// 观众已看韩剧(用于 AI 相似度匹配)
+const WATCHED_TITLES = [
+  '365：逆转命运的1年','爱过之后来临的','爱情发芽中','爱情怎么翻译？','爱在独木桥',
+  '绑架之日','春夜','都市男女爱情法','恶缘','恶之花','恩爱的盗贼大人','法官李汉英',
+  '高斯电子公司','公益律师','好搭档','好或坏的东载','机智住院医生生活','家族计划',
+  '监察','健将联盟','江南重案组','今天也很可爱的狗','金部长的梦想人生','金汤匙',
+  '酒鬼都市女人们','绝命辩护','来自地狱的法官','劳务师卢武镇','联结','鬣狗式生存',
+  '灵指','妈妈朋友的儿子','梦想成为律师的律师们','模范出租车','魔女的法庭',
+  '那个男人的记忆法','那家伙是黑炎龙','权欲之巅','瑞草洞','莎拉的真伪人生',
+  '善良的女人夫世弥','善意的竞争','社长的菜单','申社长计划','首尔破笑组',
+  '台风商社','特工家族','未知的首尔','我的解放日记','我的完美秘书','卧底洪小姐',
+  '现在拨打的电话','行骗天下KR','夜晚开的花','因为不想吃亏','有益的欺诈',
+  '又是吴海英','宇宙Marry Me？','再次我的人生','在你灿烂的季节','照明商店',
+  '争锋相辩','政坛旋风','只是相爱的关系','走到月亮为止','The Art of Negotiation',
+];
+
 async function callModelsAPI(messages, { temperature = 0.3, timeout = 12000 } = {}) {
   const token = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
   if (!token) return null;
@@ -423,27 +444,45 @@ async function callModelsAPI(messages, { temperature = 0.3, timeout = 12000 } = 
   }
 }
 
-const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。评估每部剧作为"值得推荐给观众的好剧"的程度。
+const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。根据观众的实际观影偏好评估每部剧的推荐度。
+
+观众画像(基于66部已看韩剧分析):
+- 偏好类型: 爱情/浪漫喜剧(36%), 法律/犯罪+喜剧(32%), 悬疑推理(24%), 奇幻(11%)
+- 偏好平台: tvN(26%), MBC(18%), SBS(12%), JTBC(9%)
+- 偏好主题: 身份互换/伪装关系/律师题材/漫改/治愈温馨
+- 偏好标签: romance, romcom, lawyer, hidden identity, pretend relationship, healing, webtoon adaptation
+- 零容忍: 恐怖/丧尸/血腥/极端暴力(66部中0部)
+- 轻度偏好: 悲剧/过于沉重的剧情(仅偶尔看)
+
+高分剧参考: 请回答1988(9.7), 善意的竞争(8.8), 机智的医生生活(9.5), 酒鬼都市女人们(8.8), 妈妈朋友的儿子(8.3), 那家伙是黑炎龙(8.1)
 
 评分标准(0-100):
-- 90-100: 必看佳作(高口碑+高热度+题材讨喜)
-- 70-89: 优质推荐(值得花时间看)
-- 50-69: 还行(有亮点也有不足)
-- 30-49: 一般(除非特别喜欢该题材)
-- 0-29: 不推荐
+- 90-100: 完全匹配观众口味的必看佳作(如: 浪漫喜剧+律师+身份互换+tvN)
+- 70-89: 高度匹配(如: 甜蜜爱情/轻松犯罪/治愈系/漫改)
+- 50-69: 部分匹配(如: 纯悬疑无喜剧元素/纯剧情无爱情线)
+- 30-49: 弱匹配(如: 纯动作/纯历史/纯家庭剧)
+- 0-29: 不匹配(如: 恐怖/血腥/过于沉重悲剧)
 
-加分: 治愈/温馨/甜蜜/搞笑/高口碑/热门演员/经典作品
-减分: 过于沉重/悲剧结尾/节奏拖沓/评价两极分化
+核心加分: romcom(+20) 律师/法律(+15) 身份互换(+15) 治愈温馨(+15) tvN/ENA(+10) 漫改(+10) 高口碑(+10)
+核心减分: 恐怖血腥(-50) 过于沉重(-20) 纯悲剧(-20) 节奏拖沓(-15)
 
 返回 JSON 数组: [{"id":"剧ID","s":推荐分,"r":"一句话理由"}]`;
 
-const AI_DISCOVERY_SYSTEM = `你是"剧荒救星"新剧筛选助手。判断每部新发现的韩剧是否值得收录到推荐库。
+const AI_DISCOVERY_SYSTEM = `你是"剧荒救星"新剧筛选助手。根据观众偏好判断新发现的韩剧是否值得收录。
+
+观众偏好(66部已看韩剧):
+- 最爱: 爱情/浪漫喜剧/律师题材/身份互换/治愈系/漫改
+- 喜欢: 轻松犯罪(犯罪+喜剧)/悬疑推理/奇幻/办公室喜剧
+- 接受: 纯剧情/历史古装(偶尔)
+- 不喜欢: 恐怖/丧尸/血腥/过于沉重悲剧
+- 偏好平台: tvN > MBC > SBS > JTBC > ENA > Netflix
 
 收录标准:
 - 必须是电视剧(非电影/综艺)
+- romcom/律师/身份互换/治愈 → 推荐度自动 >= 50
+- 纯犯罪/纯悬疑无喜剧 → 需口碑好才收录
+- 恐怖血腥/沉重悲剧 → 不收录(ok=false)
 - 推荐度 >= 40 才值得收录
-- 优先收录: 轻松甜蜜/治愈搞笑/悬疑不血腥/口碑好
-- 不收录: 恐怖血腥/过于沉重悲剧/质量明显低劣
 
 返回 JSON 数组: [{"id":"剧ID","ok":true/false,"s":推荐度(0-100),"r":"理由"}]`;
 
@@ -478,7 +517,7 @@ async function aiScoreShows(shows) {
       actor: (s.actor || '').slice(0, 40),
     }));
 
-    const prompt = `评估以下 ${batch.length} 部剧的推荐度:\n${JSON.stringify(items)}`;
+    const prompt = `观众已看韩剧: ${WATCHED_TITLES.join(',')}\n\n评估以下 ${batch.length} 部剧的推荐度:\n${JSON.stringify(items)}`;
     const resp = await callModelsAPI([
       { role: 'system', content: AI_SCORE_SYSTEM },
       { role: 'user', content: prompt },
@@ -517,7 +556,7 @@ async function aiEvaluateDiscovery(discovered) {
       plays: s.playCount, actor: (s.actor || '').slice(0, 40),
     }));
 
-    const prompt = `筛选以下 ${batch.length} 部新发现韩剧:\n${JSON.stringify(items)}`;
+    const prompt = `观众已看韩剧: ${WATCHED_TITLES.join(',')}\n\n筛选以下 ${batch.length} 部新发现韩剧:\n${JSON.stringify(items)}`;
     const resp = await callModelsAPI([
       { role: 'system', content: AI_DISCOVERY_SYSTEM },
       { role: 'user', content: prompt },
