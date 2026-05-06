@@ -152,6 +152,7 @@
 
   function renderCard(show, index) {
     const badges = [];
+    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${show.aiScore}</span>`);
     if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${show.score}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
@@ -209,6 +210,7 @@
           <div class="card-meta">${tags.join('')}</div>
           ${actors ? `<div class="card-actors">🎭 ${escapeHtml(actors)}</div>` : ''}
           <p class="card-desc">${escapeHtml(show.description || '')}</p>
+          ${show.aiReason ? `<p class="card-ai-reason">🤖 AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
           <div class="card-footer">
             <span class="card-status ${statusClass}">${escapeHtml(statusText)}</span>
             ${viewsText ? `<span class="card-views">👁 ${viewsText}</span>` : ''}

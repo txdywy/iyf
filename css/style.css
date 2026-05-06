@@ -319,6 +319,22 @@ a:hover { color: var(--pink); }
   color: #fff;
 }
 
+.badge-ai {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.card-ai-reason {
+  font-size: 0.78rem;
+  color: var(--accent-light);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  background: rgba(108,92,231,0.08);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent);
+}
+
 .card-score-float {
   position: absolute;
   bottom: 10px;
