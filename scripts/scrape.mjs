@@ -527,7 +527,7 @@ async function aiScoreShows(shows) {
 
   // 重试漏掉的剧(更小批次)
   const missed = toScore.filter(s => !results.has(s.id));
-  if (missed.length > 0 && missed.length <= 20) {
+  if (missed.length > 0) {
     console.log(`  [AI] 重试 ${missed.length} 部未评分剧...`);
     for (let i = 0; i < missed.length; i += 5) {
       const batch = missed.slice(i, i + 5);
