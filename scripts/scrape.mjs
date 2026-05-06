@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 爱壹帆 韩剧 & 国内综艺 推荐数据抓取器
- * 每天 00:00/06:00/12:00/18:00 UTC 由 GitHub Actions 执行
+ * 每天 00:00/12:00 UTC 由 GitHub Actions 执行
  *
  * 数据采集:
  *   - 从 api.yfsp.tv 抓取首页数据 (isn=0 + isn=1, 共 30 页)
@@ -19,10 +19,12 @@
  *   - 评分 + 类型偏好 + 人气 + 新鲜度 + 经典加分
  *   - 负面内容过滤 (血腥/暴力/恐怖关键词)
  *   - 综艺黑名单 (浪姐/乘风等)
+ *   - AI 智能评分增强 (GitHub Models, 可选, 用 GITHUB_TOKEN 或 MODELS_TOKEN)
  *
  * 新剧监控:
  *   - 扫描 API + 关键词搜索发现未收录韩剧
  *   - 2026 新剧放宽收录门槛 (评分≥4 或播放≥1 万)
+ *   - AI 智能筛选新剧质量
  *   - 发现记录持久化到 discovery.json (保留 60 天)
  *   - 满足条件的新剧自动收录并走完整富化管线
  */
@@ -382,6 +384,216 @@ function scoreVariety(s) {
 }
 
 // ════════════════════════════════════════════════════════════════
+// GitHub Models AI 评分增强
+// ════════════════════════════════════════════════════════════════
+
+const MODELS_API = 'https://models.github.ai/inference/chat/completions';
+const AI_MODEL = 'openai/gpt-4.1-mini';
+const AI_BATCH_SIZE = 15;
+
+async function callModelsAPI(messages, { temperature = 0.3, timeout = 12000 } = {}) {
+  const token = process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN;
+  if (!token) return null;
+
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const r = await fetch(MODELS_API, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2026-03-10',
+      },
+      body: JSON.stringify({ model: AI_MODEL, messages, temperature }),
+      signal: ctrl.signal,
+    });
+    if (r.status === 429) {
+      await sleep(5000);
+      return null;
+    }
+    if (!r.ok) throw new Error(`Models API ${r.status}`);
+    const data = await r.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (e) {
+    if (e.name !== 'AbortError') console.warn(`  [AI] API error: ${e.message}`);
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。评估每部剧作为"值得推荐给观众的好剧"的程度。
+
+评分标准(0-100):
+- 90-100: 必看佳作(高口碑+高热度+题材讨喜)
+- 70-89: 优质推荐(值得花时间看)
+- 50-69: 还行(有亮点也有不足)
+- 30-49: 一般(除非特别喜欢该题材)
+- 0-29: 不推荐
+
+加分: 治愈/温馨/甜蜜/搞笑/高口碑/热门演员/经典作品
+减分: 过于沉重/悲剧结尾/节奏拖沓/评价两极分化
+
+返回 JSON 数组: [{"id":"剧ID","s":推荐分,"r":"一句话理由"}]`;
+
+const AI_DISCOVERY_SYSTEM = `你是"剧荒救星"新剧筛选助手。判断每部新发现的韩剧是否值得收录到推荐库。
+
+收录标准:
+- 必须是电视剧(非电影/综艺)
+- 推荐度 >= 40 才值得收录
+- 优先收录: 轻松甜蜜/治愈搞笑/悬疑不血腥/口碑好
+- 不收录: 恐怖血腥/过于沉重悲剧/质量明显低劣
+
+返回 JSON 数组: [{"id":"剧ID","ok":true/false,"s":推荐度(0-100),"r":"理由"}]`;
+
+async function aiScoreShows(shows) {
+  if (!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) {
+    console.log('  [AI] 未找到 token,跳过 AI 评分');
+    return new Map();
+  }
+
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const toScore = shows.filter(s =>
+    !s.aiScoredAt || new Date(s.aiScoredAt).getTime() < oneWeekAgo
+  );
+  if (!toScore.length) {
+    console.log('  [AI] 所有剧集已有 AI 评分,跳过');
+    return new Map();
+  }
+
+  console.log(`  [AI] 评分 ${toScore.length} 部剧 (${shows.length - toScore.length} 部已有缓存)...`);
+  const results = new Map();
+
+  for (let i = 0; i < toScore.length; i += AI_BATCH_SIZE) {
+    const batch = toScore.slice(i, i + AI_BATCH_SIZE);
+    const items = batch.map(s => ({
+      id: s.id,
+      title: s.title,
+      year: s.year,
+      genre: s.contentType || '',
+      desc: (s.description || '').slice(0, 150),
+      score: s.score,
+      plays: s.playCount,
+      actor: (s.actor || '').slice(0, 40),
+    }));
+
+    const prompt = `评估以下 ${batch.length} 部剧的推荐度:\n${JSON.stringify(items)}`;
+    const resp = await callModelsAPI([
+      { role: 'system', content: AI_SCORE_SYSTEM },
+      { role: 'user', content: prompt },
+    ]);
+
+    if (resp) {
+      try {
+        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        for (const item of arr) {
+          if (item.id && typeof item.s === 'number') {
+            results.set(item.id, { score: Math.max(0, Math.min(100, item.s)), reason: item.r || '' });
+          }
+        }
+      } catch (e) {
+        console.warn(`  [AI] 解析评分失败: ${e.message}`);
+      }
+    }
+    if (i + AI_BATCH_SIZE < toScore.length) await sleep(1000);
+  }
+
+  console.log(`  [AI] 获取到 ${results.size} 条评分结果`);
+  return results;
+}
+
+async function aiEvaluateDiscovery(discovered) {
+  if ((!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) || !discovered.length) return discovered;
+
+  console.log(`  [AI] 筛选 ${discovered.length} 部新发现韩剧...`);
+  const results = new Map();
+
+  for (let i = 0; i < discovered.length; i += AI_BATCH_SIZE) {
+    const batch = discovered.slice(i, i + AI_BATCH_SIZE);
+    const items = batch.map(s => ({
+      id: s.id, title: s.title, year: s.year,
+      genre: s.contentType || '', score: s.score,
+      plays: s.playCount, actor: (s.actor || '').slice(0, 40),
+    }));
+
+    const prompt = `筛选以下 ${batch.length} 部新发现韩剧:\n${JSON.stringify(items)}`;
+    const resp = await callModelsAPI([
+      { role: 'system', content: AI_DISCOVERY_SYSTEM },
+      { role: 'user', content: prompt },
+    ]);
+
+    if (resp) {
+      try {
+        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        for (const item of arr) {
+          if (item.id) results.set(item.id, { ok: !!item.ok, score: item.s || 0, reason: item.r || '' });
+        }
+      } catch (e) {
+        console.warn(`  [AI] 解析筛选结果失败: ${e.message}`);
+      }
+    }
+    if (i + AI_BATCH_SIZE < discovered.length) await sleep(1000);
+  }
+
+  for (const s of discovered) {
+    const ai = results.get(s.id);
+    if (ai) {
+      s.aiDiscoveryOk = ai.ok;
+      s.aiDiscoveryScore = ai.score;
+      s.aiDiscoveryReason = ai.reason;
+    }
+  }
+
+  const accepted = discovered.filter(s => s.aiDiscoveryOk !== false);
+  console.log(`  [AI] 筛选结果: ${accepted.length}/${discovered.length} 部通过`);
+  return accepted;
+}
+
+async function aiEnhanceDescriptions(shows) {
+  if (!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) return 0;
+
+  const targets = shows.filter(s => !s.description || s.description.length < 20);
+  if (!targets.length) return 0;
+
+  console.log(`  [AI] 增强 ${targets.length} 个短描述...`);
+  let enhanced = 0;
+
+  for (let i = 0; i < targets.length; i += AI_BATCH_SIZE) {
+    const batch = targets.slice(i, i + AI_BATCH_SIZE);
+    const items = batch.map(s => ({
+      id: s.id, title: s.title, year: s.year,
+      genre: s.contentType || '', actor: (s.actor || '').slice(0, 40),
+    }));
+
+    const prompt = `为以下剧生成简洁吸引人的中文推荐语(50-80字),突出看点和适合人群:\n${JSON.stringify(items)}`;
+    const resp = await callModelsAPI([
+      { role: 'system', content: '你是剧集推荐文案专家。为每部剧写一句简洁吸引人的中文推荐语。返回JSON数组:[{"id":"剧ID","d":"推荐语"}]' },
+      { role: 'user', content: prompt },
+    ]);
+
+    if (resp) {
+      try {
+        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        const map = new Map(arr.filter(x => x.id && x.d).map(x => [x.id, x.d]));
+        for (const s of batch) {
+          const desc = map.get(s.id);
+          if (desc && (!s.description || s.description.length < 20)) {
+            s.description = desc;
+            s.descriptionSource = 'ai';
+            enhanced++;
+          }
+        }
+      } catch {}
+    }
+    if (i + AI_BATCH_SIZE < targets.length) await sleep(1000);
+  }
+
+  console.log(`  [AI] 增强了 ${enhanced} 个描述`);
+  return enhanced;
+}
+
+// ════════════════════════════════════════════════════════════════
 // 精选推荐库(韩剧 + 综艺) — 补充 API 无法直接获取的内容
 // ════════════════════════════════════════════════════════════════
 
@@ -562,6 +774,25 @@ async function main() {
     kdramaMap.set(s.id, s);
   }
 
+  // ── 5.5. AI 智能评分增强 ──
+  const allForAI = [...kdramaMap.values(), ...varietyMap.values()];
+  const aiScores = await aiScoreShows(allForAI);
+  if (aiScores.size > 0) {
+    for (const show of allForAI) {
+      const ai = aiScores.get(show.id);
+      if (ai) {
+        show.aiScore = ai.score;
+        show.aiReason = ai.reason;
+        show.aiScoredAt = new Date().toISOString();
+      }
+      // 混合评分: 规则分为主体, AI 分作为 ±25 的调整
+      if (show.aiScore != null) {
+        show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.5));
+      }
+    }
+    console.log(`  [AI] 已为 ${aiScores.size} 部节目调整推荐分`);
+  }
+
   // ── 6. 同步种子缓存 → 直播 ID (种子匹配直播节目后 ID 变了,缓存条目还在旧 ID 下) ──
   const imgCache = loadImageCache();
   for (const s of SEED_KDRAMAS) {
@@ -588,8 +819,9 @@ async function main() {
   await enrichDoubanLinks(allShowsList);
   for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
   await enrichDescriptions(allShowsList);
+  await aiEnhanceDescriptions(allShowsList);
 
-  // ── 7. 排序 ──
+  // ── 8. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
   if (dropped.length) console.log(`  丢弃 ${dropped.length} 个缺少有效图片或具体链接的节目: ${dropped.map(s => s.title).join(', ')}`);
 
@@ -597,7 +829,7 @@ async function main() {
   const chineseVariety = [...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
   const renderableOtherDramas = otherDramas.filter(isRenderableShow);
 
-  // ── 8. 输出 ──
+  // ── 9. 输出 ──
   const output = {
     lastUpdated: new Date().toISOString(),
     stats: {
@@ -906,10 +1138,13 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
   while (keys.length > 60) delete history[keys.shift()];
   writeFileSync(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
 
+  // 3.5. AI 智能筛选新发现韩剧
+  const aiFiltered = await aiEvaluateDiscovery(sorted);
+
   // 4. 筛选满足质量门槛的节目,自动收录
   const promoted = [];
   const logged = [];
-  for (const s of sorted) {
+  for (const s of aiFiltered) {
     const minSc2 = s.year >= 2026 ? DISCOVERY_2026_MIN_SCORE : DISCOVERY_MIN_SCORE;
     const minPl2 = s.year >= 2026 ? DISCOVERY_2026_MIN_PLAYS : DISCOVERY_MIN_PLAYS;
     const pass = s.score >= minSc2 || s.playCount >= minPl2;
@@ -925,13 +1160,15 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
   if (logged.length === 0) {
     console.log('  未发现新韩剧');
   } else {
-    console.log(`  发现 ${logged.length} 部未收录韩剧,自动收录 ${promoted.length} 部:`);
+    const aiRejected = sorted.length - aiFiltered.length;
+    console.log(`  发现 ${sorted.length} 部未收录韩剧${aiRejected > 0 ? `(AI过滤${aiRejected}部)` : ''},自动收录 ${promoted.length} 部:`);
     for (const s of logged.slice(0, 30)) {
       const sc = s.score ? `评分${s.score}` : '';
       const plays = s.playCount > 10000 ? `${(s.playCount/10000).toFixed(0)}万播放` : s.playCount > 0 ? `${s.playCount}播放` : '';
       const meta = [sc, plays, s.year ? `${s.year}年` : ''].filter(Boolean).join(' · ');
       const tag = promoted.some(p => p.title === s.title) ? ' ✓自动收录' : '';
-      console.log(`    ▸ ${s.title} [${meta}]${s.actor ? ` 演员:${s.actor}` : ''}${tag}`);
+      const aiTag = s.aiDiscoveryReason ? ` [AI: ${s.aiDiscoveryReason}]` : '';
+      console.log(`    ▸ ${s.title} [${meta}]${s.actor ? ` 演员:${s.actor}` : ''}${tag}${aiTag}`);
     }
   }
 
