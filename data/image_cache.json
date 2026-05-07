@@ -1398,5 +1398,39 @@
     "cachedAt": "2026-05-05T13:55:46.039Z",
     "doubanId": "35517044",
     "doubanMatchedTitle": "低智商犯罪"
+  },
+  "MdOQbEJXdMA": {
+    "title": "五十公里桃花坞第6季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-07T13:57:10.609Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814472/",
+    "doubanId": "37814472",
+    "doubanMatchedTitle": "五十公里桃花坞6"
+  },
+  "uZ33HDxFYG3": {
+    "title": "戴洛奇小镇第2季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-07T13:57:11.205Z",
+    "doubanUrl": "https://movie.douban.com/subject/36955778/",
+    "doubanId": "36955778",
+    "doubanMatchedTitle": "戴洛奇小镇 第二季"
+  },
+  "pmvbkxcHT50": {
+    "title": "堡垒第2季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-07T13:57:11.797Z"
+  },
+  "UNy3u2VTaN9": {
+    "title": "逾梦深情",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-07T13:57:12.665Z"
   }
 }
