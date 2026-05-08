@@ -1432,5 +1432,57 @@
     "version": 7,
     "notFound": true,
     "cachedAt": "2026-05-07T13:57:12.665Z"
+  },
+  "12skq2Fj4TF": {
+    "title": "犬饲先生是隐秘溺爱上司",
+    "url": "https://image.tmdb.org/t/p/w780/kP8hSMKbKfsiv6qFRXtPiLqQOuP.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "犬饲先生是隐秘溺爱上司",
+    "matchedTitle": "犬饲先生是隐秘溺爱上司",
+    "tmdbId": 316209,
+    "tmdbUrl": "https://www.themoviedb.org/tv/316209",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-08T02:38:21.336Z"
+  },
+  "xpy278hr0w6": {
+    "title": "同居",
+    "url": "https://image.tmdb.org/t/p/w780/Ao8yJKpZE0ssTAd3B5zjRUceNGz.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "同居",
+    "matchedTitle": "同居",
+    "tmdbId": 317623,
+    "tmdbUrl": "https://www.themoviedb.org/tv/317623",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-08T02:38:21.776Z"
+  },
+  "M7p9SSbyH48": {
+    "title": "血与汗",
+    "url": "https://image.tmdb.org/t/p/w780/6axHIjYJcGHi1QCYHM70MCcL8fO.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "血与汗",
+    "matchedTitle": "血与汗",
+    "tmdbId": 289357,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289357",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-08T02:38:22.102Z"
+  },
+  "Arj8I8mC1U6": {
+    "title": "寒栗第2季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-08T02:38:22.680Z"
   }
 }
