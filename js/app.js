@@ -160,6 +160,8 @@
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
 
+    const newBadge = show.isNew ? '<div class="card-new-badge">NEW</div>' : '';
+
     const posterContent = show.coverImg
       ? `<img src="${escapeHtml(show.coverImg)}" alt="${escapeHtml(show.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>🎬</div>'">`
       : '<div class="placeholder">🎬</div>';
@@ -201,6 +203,7 @@
       <article class="show-card" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
           ${posterContent}
+          ${newBadge}
           <div class="card-badges">${badges.join('')}</div>
           ${show.score > 0 ? `<div class="card-score-float">⭐ ${show.score}</div>` : ''}
         </div>

@@ -852,12 +852,19 @@ async function main() {
 
   // ── 5.5. AI 智能评分增强 ──
   // 先加载上次的 AI 评分并注入到 show 对象(让缓存过滤器识别,避免重复调用 API)
+  // 同时加载 firstSeenAt 用于新内容标记(30天有效期)
+  const prevFirstSeenMap = new Map();
+  const prevTitleFirstSeenMap = new Map();
   if (existsSync(SHOWS_FILE)) {
     try {
       const prev = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
       const prevMap = new Map();
       for (const s of [...(prev.koreanDramas || []), ...(prev.chineseVariety || []), ...(prev.otherDramas || [])]) {
         if (s.aiScore && s.aiScoredAt) prevMap.set(s.id, s);
+        if (s.firstSeenAt) {
+          prevFirstSeenMap.set(s.id, s.firstSeenAt);
+          prevTitleFirstSeenMap.set(normalizeTitle(s.title), s.firstSeenAt);
+        }
       }
       let restored = 0;
       for (const [id, show] of [...kdramaMap, ...varietyMap]) {
@@ -924,6 +931,21 @@ async function main() {
   const koreanDramas = [...kdramaMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
   const chineseVariety = [...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
   const renderableOtherDramas = otherDramas.filter(isRenderableShow);
+
+  // ── 8.5. 新内容标记(30天有效期) ──
+  const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+  const nowMs = Date.now();
+  for (const show of allShowsList) {
+    if (show.seedId) {
+      delete show.firstSeenAt;
+      show.isNew = false;
+      continue;
+    }
+    const prevId = prevFirstSeenMap.get(show.id);
+    const prevTitle = prevTitleFirstSeenMap.get(normalizeTitle(show.title));
+    show.firstSeenAt = prevId || prevTitle || new Date().toISOString();
+    show.isNew = (nowMs - new Date(show.firstSeenAt).getTime()) < ONE_MONTH_MS;
+  }
 
   // ── 9. 输出 ──
   const output = {
