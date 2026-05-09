@@ -1529,5 +1529,29 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-05-08T13:23:44.450Z"
+  },
+  "xgtIPER2Ji2": {
+    "title": "我的王室死对头",
+    "url": "https://image.tmdb.org/t/p/w780/dHFI5JHEpCcVofJsC2EhzgcbLRX.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "我的王室死对头",
+    "matchedTitle": "我的王室死对头",
+    "tmdbId": 303143,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303143",
+    "doubanUrl": "https://movie.douban.com/subject/37261471/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%88%91%E7%9A%84%E7%8E%8B%E5%AE%A4%E6%AD%BB%E5%B0%8D%E9%A0%AD",
+    "imdbUrl": "https://www.imdb.com/title/tt38828946/",
+    "wikidataId": "Q136763742",
+    "cachedAt": "2026-05-09T02:31:34.041Z",
+    "doubanId": "37261471",
+    "doubanMatchedTitle": "我的王室死对头"
+  },
+  "LKJdVoizig2": {
+    "title": "极地恶灵第3季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-09T02:31:34.620Z"
   }
 }
