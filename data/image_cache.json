@@ -156,11 +156,13 @@
     "matchedTitle": "秒杀爱情",
     "tmdbId": 287011,
     "tmdbUrl": "https://www.themoviedb.org/tv/287011",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37284838/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%A7%92%E6%AE%BA%E6%84%9B%E6%83%85",
     "imdbUrl": "https://www.imdb.com/title/tt39387440/",
     "wikidataId": "Q137711304",
-    "cachedAt": "2026-05-10T04:23:11.367Z"
+    "cachedAt": "2026-05-10T04:23:11.367Z",
+    "doubanId": "37284838",
+    "doubanMatchedTitle": "秒杀爱情"
   },
   "seed_kd_2026_12": {
     "title": "赌金",
@@ -171,11 +173,13 @@
     "matchedTitle": "赌金",
     "tmdbId": 278113,
     "tmdbUrl": "https://www.themoviedb.org/tv/278113",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37134823/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B3%AD%E9%87%91",
     "imdbUrl": "https://www.imdb.com/title/tt37253311/",
     "wikidataId": "Q134848097",
-    "cachedAt": "2026-05-10T04:23:12.598Z"
+    "cachedAt": "2026-05-10T04:23:12.598Z",
+    "doubanId": "37134823",
+    "doubanMatchedTitle": "赌金"
   },
   "seed_kd_2026_13": {
     "title": "魔女之吻",
@@ -186,11 +190,13 @@
     "matchedTitle": "魔女之吻",
     "tmdbId": 310800,
     "tmdbUrl": "https://www.themoviedb.org/tv/310800",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37284835/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%AD%94%E5%A5%B3%E4%B9%8B%E5%90%BB",
     "imdbUrl": "https://www.imdb.com/title/tt39303992/",
     "wikidataId": "Q137772351",
-    "cachedAt": "2026-05-10T04:23:13.741Z"
+    "cachedAt": "2026-05-10T04:23:13.741Z",
+    "doubanId": "37284835",
+    "doubanMatchedTitle": "魔女之吻"
   },
   "seed_kd_2026_14": {
     "title": "今天开始是人类",
@@ -1524,11 +1530,13 @@
     "matchedTitle": "亲爱的·客栈",
     "tmdbId": 163813,
     "tmdbUrl": "https://www.themoviedb.org/tv/163813",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37814621/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BA%B2%E7%88%B1%E7%9A%84%C2%B7%E5%AE%A2%E6%A0%88",
     "imdbUrl": "https://www.imdb.com/title/tt37370155/",
     "wikidataId": "Q39619341",
-    "cachedAt": "2026-05-10T04:24:27.412Z"
+    "cachedAt": "2026-05-10T04:24:27.412Z",
+    "doubanId": "37814621",
+    "doubanMatchedTitle": "亲爱的客栈2026"
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
@@ -1584,11 +1592,13 @@
     "matchedTitle": "奋斗吧人生-演员篇",
     "tmdbId": 317605,
     "tmdbUrl": "https://www.themoviedb.org/tv/317605",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38243034/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:25.024Z"
+    "cachedAt": "2026-05-10T04:24:25.024Z",
+    "doubanId": "38243034",
+    "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子",
@@ -1614,11 +1624,13 @@
     "matchedTitle": "妻子的浪漫旅行",
     "tmdbId": 97199,
     "tmdbUrl": "https://www.themoviedb.org/tv/97199",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816903/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt13685510/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:29.618Z"
+    "cachedAt": "2026-05-10T04:24:29.618Z",
+    "doubanId": "37816903",
+    "doubanMatchedTitle": "妻子的浪漫旅行2026"
   },
   "dC8GmJK3nv8": {
     "title": "楼层游戏",
@@ -1644,11 +1656,13 @@
     "matchedTitle": "魔力歌先生",
     "tmdbId": 315850,
     "tmdbUrl": "https://www.themoviedb.org/tv/315850",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37817273/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:25.826Z"
+    "cachedAt": "2026-05-10T04:24:25.826Z",
+    "doubanId": "37817273",
+    "doubanMatchedTitle": "魔力歌先生"
   },
   "tpJGaYBzSyS": {
     "title": "无限超越班第4季",
@@ -1659,11 +1673,13 @@
     "matchedTitle": "无限超越班",
     "tmdbId": 216487,
     "tmdbUrl": "https://www.themoviedb.org/tv/216487",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37824707/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:21.822Z"
+    "cachedAt": "2026-05-10T04:24:21.822Z",
+    "doubanId": "37824707",
+    "doubanMatchedTitle": "无限超越班 第四季"
   },
   "seed_var_2026_01": {
     "title": "奔跑吧",
