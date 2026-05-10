@@ -1467,7 +1467,10 @@
     "matchedTitle": "脱口秀小会",
     "tmdbId": 110546,
     "tmdbUrl": "https://www.themoviedb.org/tv/110546",
-    "cachedAt": "2026-05-10T11:00:00.000Z"
+    "cachedAt": "2026-05-10T11:00:00.000Z",
+    "doubanUrl": "https://movie.douban.com/subject/35158190/",
+    "doubanId": "35158190",
+    "doubanMatchedTitle": "脱口秀小会"
   },
   "PY2vdH89zyu": {
     "title": "脱口秀跨年",
@@ -1549,11 +1552,13 @@
     "matchedTitle": "为爱闪耀的她",
     "tmdbId": 321537,
     "tmdbUrl": "https://www.themoviedb.org/tv/321537",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38445108/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:42.274Z"
+    "cachedAt": "2026-05-10T03:16:42.274Z",
+    "doubanId": "38445108",
+    "doubanMatchedTitle": "为爱闪耀的她"
   },
   "YM0c26sGJQ3": {
     "title": "旧基洞朋友们",
@@ -1564,11 +1569,13 @@
     "matchedTitle": "旧基洞的朋友们",
     "tmdbId": 319339,
     "tmdbUrl": "https://www.themoviedb.org/tv/319339",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38357233/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:42.601Z"
+    "cachedAt": "2026-05-10T03:16:42.601Z",
+    "doubanId": "38357233",
+    "doubanMatchedTitle": "旧基洞朋友们"
   },
   "cDta4dCa3lC": {
     "title": "奋斗吧人生-演员篇",
@@ -1624,11 +1631,13 @@
     "matchedTitle": "楼层游戏",
     "tmdbId": 303746,
     "tmdbUrl": "https://www.themoviedb.org/tv/303746",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37516944/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:45.048Z"
+    "cachedAt": "2026-05-10T03:16:45.048Z",
+    "doubanId": "37516944",
+    "doubanMatchedTitle": "楼层游戏"
   },
   "3kQCEECh4ZD": {
     "title": "魔力歌先生",
@@ -1733,7 +1742,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%98%9F%E6%9C%9F%E5%85%AD",
     "imdbUrl": "https://www.imdb.com/title/tt30985733/",
     "wikidataId": "Q116248040",
-    "cachedAt": "2026-05-10T03:16:52.606Z"
+    "cachedAt": "2026-05-10T03:16:52.606Z",
+    "doubanId": "35698677",
+    "doubanMatchedTitle": "你好，星期六"
   },
   "seed_var_2026_08": {
     "title": "萌探探探案2026",
@@ -1744,11 +1755,13 @@
     "matchedTitle": "萌探探探案",
     "tmdbId": 126544,
     "tmdbUrl": "https://www.themoviedb.org/tv/126544",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35231928/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:53.729Z"
+    "cachedAt": "2026-05-10T03:16:53.729Z",
+    "doubanId": "35231928",
+    "doubanMatchedTitle": "萌探探探案"
   },
   "seed_var_2026_09": {
     "title": "青春环游记2026",
@@ -1759,11 +1772,13 @@
     "matchedTitle": "青春环游记",
     "tmdbId": 106938,
     "tmdbUrl": "https://www.themoviedb.org/tv/106938",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34880852/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:54.908Z"
+    "cachedAt": "2026-05-10T03:16:54.908Z",
+    "doubanId": "34880852",
+    "doubanMatchedTitle": "青春环游记 第二季"
   },
   "seed_var_2026_10": {
     "title": "现在就出发2026",
@@ -1774,11 +1789,13 @@
     "matchedTitle": "现在就出发",
     "tmdbId": 231620,
     "tmdbUrl": "https://www.themoviedb.org/tv/231620",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36540851/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt30461072/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:56.036Z"
+    "cachedAt": "2026-05-10T03:16:56.036Z",
+    "doubanId": "36540851",
+    "doubanMatchedTitle": "现在就出发 第二季"
   },
   "seed_var_2026_12": {
     "title": "种地吧2026",
@@ -1789,11 +1806,13 @@
     "matchedTitle": "种地吧",
     "tmdbId": 219934,
     "tmdbUrl": "https://www.themoviedb.org/tv/219934",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36230054/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:16:57.230Z"
+    "cachedAt": "2026-05-10T03:16:57.230Z",
+    "doubanId": "36230054",
+    "doubanMatchedTitle": "种地吧"
   },
   "seed_var_2026_13": {
     "title": "快乐的大人",
@@ -2242,11 +2261,13 @@
     "matchedTitle": "脱口秀反跨年",
     "tmdbId": 300309,
     "tmdbUrl": "https://www.themoviedb.org/tv/300309",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35165372/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:17:21.093Z"
+    "cachedAt": "2026-05-10T03:17:21.093Z",
+    "doubanId": "35165372",
+    "doubanMatchedTitle": "脱口秀反跨年"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -2301,10 +2322,12 @@
     "matchedTitle": "百川综艺季",
     "tmdbId": 224486,
     "tmdbUrl": "https://www.themoviedb.org/tv/224486",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36014759/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:17:23.030Z"
+    "cachedAt": "2026-05-10T03:17:23.030Z",
+    "doubanId": "36014759",
+    "doubanMatchedTitle": "百川综艺季"
   }
 }
