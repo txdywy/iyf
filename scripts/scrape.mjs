@@ -163,11 +163,16 @@ const TITLE_ALIAS_MAP = {
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
   '金秘书为何那样': ['金秘书为什么那样', '金秘书为何这样'],
   '酒鬼都市男女': ['酒鬼都市女人们', '酒鬼都市女人们第1季', 'Work Later Drink Now'],
-  '奇怪的律师禹英禑': ['非常律师禹英禑', 'Extraordinary Attorney Woo'],
-  '非常律师禹英禑': ['奇怪的律师禹英禑', 'Extraordinary Attorney Woo'],
+  '奇怪的律师禹英禑': ['非常律师禹英', 'Extraordinary Attorney Woo'],
+  '非常律师禹英禑': ['奇怪的律师禹英', 'Extraordinary Attorney Woo'],
   '信号': ['Signal信号', '시그널'],
   '文森佐': ['黑道律师文森佐', 'Vincenzo'],
   '机智的监狱生活': ['机智牢房生活', 'Prison Playbook'],
+  '奔跑吧兄弟': ['Running Man China', 'Running Man'],
+  '金星脱口秀': ['金星秀', 'The Jin Xing Show'],
+  '综艺大热门': ['綜藝大熱門', 'Hot Door Night'],
+  '披荆斩棘的哥哥': ['披荆斩棘', 'Call Me by Fire'],
+  'BTS综艺年代记': ['BTS Variety Chronicle', 'Run BTS!'],
 };
 
 function titleCandidates(title = '') {
@@ -190,6 +195,7 @@ function editDistance(a, b) {
 }
 
 function titleMatches(a, b) {
+  if (normalizedTitleMatches(a, b)) return true;
   return titleCandidates(a).some(ta => titleCandidates(b).some(tb => normalizedTitleMatches(ta, tb)));
 }
 
@@ -201,7 +207,12 @@ function normalizedTitleMatches(a, b) {
   const minLen = Math.min(na.length, nb.length);
   const maxLen = Math.max(na.length, nb.length);
   if (minLen >= 5 && maxLen - minLen <= 1 && editDistance(na, nb) <= 1) return true;
-  return minLen >= 4 && maxLen - minLen <= 2 && (na.includes(nb) || nb.includes(na));
+  // 综艺名通常较短，放宽匹配限制
+  if (na.includes(nb) || nb.includes(na)) {
+    if (minLen >= 3) return true;
+    if (minLen >= 2 && maxLen <= 4) return true;
+  }
+  return false;
 }
 
 const DOUBAN_SUBJECT_URLS = {
@@ -1507,7 +1518,7 @@ const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w780';
 const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
-const COVER_CACHE_VERSION = 8;
+const COVER_CACHE_VERSION = 13;
 
 function loadImageCache() {
   if (existsSync(IMAGE_CACHE_FILE)) {
@@ -1610,6 +1621,10 @@ const TITLE_EN_MAP = {
   '现在就出发': '现在就出发',
   '脱口秀和TA的朋友们': '脱口秀和TA的朋友们',
   '喜人奇妙夜': 'Super Sketch Show',
+  '综艺大热门': '綜藝大熱門',
+  '金星脱口秀': '金星秀',
+  'BTS综艺年代记': 'BTS Variety Chronicle',
+  '喜剧者联盟': '喜剧者联盟',
 };
 
 async function fetchTMDBJSON(path) {
@@ -1737,12 +1752,10 @@ async function enrichCoversFromTMDB(shows) {
     }
   }
 
-  // 2. 所有无有效 v3 TMDB 缓存的节目都重新查,包括已有爱壹帆小图的节目。
-  //    已有有效 URL 的缓存条目不再重新查询 (防止覆盖手动设置的高清封面)
+  // 2. 所有无最新版本 TMDB 缓存的节目都重新查
   const toFetch = shows.filter(s => {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
-    if (cached && typeof cached === 'object' && cached.url && cached.version === COVER_CACHE_VERSION) return false;
-    return !(cached && typeof cached === 'object' && cached?.version === COVER_CACHE_VERSION && cached.title === s.title);
+    return !(cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION);
   });
 
   if (toFetch.length === 0) {
@@ -1780,9 +1793,16 @@ async function enrichCoversFromTMDB(shows) {
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
-      // 只在没有已有有效缓存时标记 notFound,避免覆盖手动设置的 TMDB 封面
+      // 即使搜索失败，也更新缓存版本以避免下次重复尝试。保留现有有效 URL 作为兜底。
       const existing = cache[show.id];
-      if (!existing || existing === 'NOT_FOUND' || existing.notFound) {
+      if (existing && typeof existing === 'object' && existing.url) {
+        existing.version = COVER_CACHE_VERSION;
+        existing.cachedAt = new Date().toISOString();
+        if (show.yfspCoverImg) {
+          show.coverImg = show.yfspCoverImg;
+          show.coverSource = 'yfsp';
+        }
+      } else {
         cache[show.id] = {
           title: show.title,
           source: 'tmdb',
@@ -1790,10 +1810,10 @@ async function enrichCoversFromTMDB(shows) {
           notFound: true,
           cachedAt: new Date().toISOString(),
         };
-      }
-      if (show.yfspCoverImg) {
-        show.coverImg = show.yfspCoverImg;
-        show.coverSource = 'yfsp';
+        if (show.yfspCoverImg) {
+          show.coverImg = show.yfspCoverImg;
+          show.coverSource = 'yfsp';
+        }
       }
       console.log(`    ✗ ${show.title}`);
     }
