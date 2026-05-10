@@ -1646,10 +1646,14 @@
   },
   "seed_var_2026_02b": {
     "title": "王牌对王牌第九季",
+    "url": "https://image.tmdb.org/t/p/w780/dJLq9SHSJ04sVghgStXR1ypGHDA.jpg",
     "source": "tmdb",
     "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-10T02:28:20.530Z"
+    "query": "王牌对王牌",
+    "matchedTitle": "王牌对王牌",
+    "tmdbId": 88580,
+    "tmdbUrl": "https://www.themoviedb.org/tv/88580",
+    "cachedAt": "2026-05-10T10:00:00.000Z"
   },
   "seed_var_2026_07": {
     "title": "你好星期六2026",

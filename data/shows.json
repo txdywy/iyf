@@ -2762,7 +2762,7 @@
       "updateMsg": "周六",
       "mediaType": "综艺",
       "type": 5,
-      "coverImg": "https://static.yfsp.tv/upload/video/202002211703540353401s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/dJLq9SHSJ04sVghgStXR1ypGHDA.jpg",
       "scrapedAt": "",
       "isLive": false,
       "isClassic": false,
@@ -2778,10 +2778,11 @@
       "aiReason": "真人秀游戏搞笑，非韩剧且无核心偏好标签，匹配度低",
       "aiScoredAt": "2026-05-10T02:35:02.790Z",
       "linkMatchedTitle": "王牌对王牌第5季",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "publishTime": "2020-01-01T00:00:00",
       "updateStatus": "20200508集全",
-      "isNew": false
+      "isNew": false,
+      "tmdbUrl": "https://www.themoviedb.org/tv/88580"
     },
     {
       "id": "seed_var_2026_04",
