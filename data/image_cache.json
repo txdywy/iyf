@@ -8,11 +8,13 @@
     "matchedTitle": "爱情怎么翻译？",
     "tmdbId": 229891,
     "tmdbUrl": "https://www.themoviedb.org/tv/229891",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36363991/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%84%9B%E6%83%85%E6%80%8E%E9%BA%BC%E7%BF%BB%E8%AD%AF%EF%BC%9F",
     "imdbUrl": "https://www.imdb.com/title/tt30293074/",
     "wikidataId": "Q125121395",
-    "cachedAt": "2026-05-10T06:35:29.606Z"
+    "cachedAt": "2026-05-10T06:35:29.606Z",
+    "doubanId": "36363991",
+    "doubanMatchedTitle": "爱情怎么翻译？"
   },
   "seed_kd_2026_02": {
     "title": "21世纪大君夫人",
@@ -69,11 +71,13 @@
     "matchedTitle": "努力克服自卑的我们",
     "tmdbId": 289424,
     "tmdbUrl": "https://www.themoviedb.org/tv/289424",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37335468/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%8A%AA%E5%8A%9B%E5%85%8B%E6%9C%8D%E8%87%AA%E5%8D%91%E7%9A%84%E6%88%91%E5%80%91",
     "imdbUrl": "https://www.imdb.com/title/tt36732944/",
     "wikidataId": "Q137843064",
-    "cachedAt": "2026-05-10T06:35:37.033Z"
+    "cachedAt": "2026-05-10T06:35:37.033Z",
+    "doubanId": "37335468",
+    "doubanMatchedTitle": "努力克服自卑的我们"
   },
   "seed_kd_2026_07": {
     "title": "死亡之花",
@@ -84,11 +88,13 @@
     "matchedTitle": "死亡之花",
     "tmdbId": 310024,
     "tmdbUrl": "https://www.themoviedb.org/tv/310024",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36744136/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Bloody_Flower",
     "imdbUrl": "https://www.imdb.com/title/tt39306333/",
     "wikidataId": "Q137700437",
-    "cachedAt": "2026-05-10T06:35:37.977Z"
+    "cachedAt": "2026-05-10T06:35:37.977Z",
+    "doubanId": "36744136",
+    "doubanMatchedTitle": "死亡之花"
   },
   "seed_kd_2026_08": {
     "title": "春日狂热",
@@ -821,11 +827,13 @@
     "matchedTitle": "哈哈哈哈哈",
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14098718/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:46.938Z"
+    "cachedAt": "2026-05-10T06:36:46.938Z",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "seed_var_2026_06": {
     "title": "向往的生活2026",
@@ -1498,11 +1506,13 @@
     "matchedTitle": "亲爱的·客栈",
     "tmdbId": 163813,
     "tmdbUrl": "https://www.themoviedb.org/tv/163813",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37814621/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BA%B2%E7%88%B1%E7%9A%84%C2%B7%E5%AE%A2%E6%A0%88",
     "imdbUrl": "https://www.imdb.com/title/tt37370155/",
     "wikidataId": "Q39619341",
-    "cachedAt": "2026-05-10T06:36:41.396Z"
+    "cachedAt": "2026-05-10T06:36:41.396Z",
+    "doubanId": "37814621",
+    "doubanMatchedTitle": "亲爱的客栈2026"
   },
   "MHEZKd7uvbB": {
     "title": "我们的爸爸第2季",
@@ -1558,11 +1568,13 @@
     "matchedTitle": "奋斗吧人生-演员篇",
     "tmdbId": 317605,
     "tmdbUrl": "https://www.themoviedb.org/tv/317605",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38243034/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:43.825Z"
+    "cachedAt": "2026-05-10T06:36:43.825Z",
+    "doubanId": "38243034",
+    "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
   "9Qw3cljKhk7": {
     "title": "我家那小子",
@@ -1590,11 +1602,13 @@
     "matchedTitle": "妻子的浪漫旅行",
     "tmdbId": 97199,
     "tmdbUrl": "https://www.themoviedb.org/tv/97199",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816903/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt13685510/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:43.154Z"
+    "cachedAt": "2026-05-10T06:36:43.154Z",
+    "doubanId": "37816903",
+    "doubanMatchedTitle": "妻子的浪漫旅行2026"
   },
   "dC8GmJK3nv8": {
     "title": "楼层游戏",
@@ -1605,11 +1619,13 @@
     "matchedTitle": "楼层游戏",
     "tmdbId": 303746,
     "tmdbUrl": "https://www.themoviedb.org/tv/303746",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37516944/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:49.919Z"
+    "cachedAt": "2026-05-10T06:36:49.919Z",
+    "doubanId": "37516944",
+    "doubanMatchedTitle": "楼层游戏"
   },
   "3kQCEECh4ZD": {
     "title": "魔力歌先生",
@@ -2165,12 +2181,16 @@
     "title": "综艺大热门",
     "url": "https://image.tmdb.org/t/p/w780/kDTwqBN8uAO1k95hfgV0GZfIONN.jpg",
     "source": "tmdb",
-    "version": 8,
-    "notFound": true,
-    "cachedAt": "2026-05-10T04:25:18.717Z",
+    "version": 13,
+    "query": "綜藝大熱門",
+    "matchedTitle": "綜藝大熱門",
+    "tmdbId": 91953,
+    "tmdbUrl": "https://www.themoviedb.org/tv/91953",
     "doubanUrl": "https://movie.douban.com/subject/26354143/",
-    "doubanId": "26354143",
-    "doubanMatchedTitle": "综艺大热门"
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B6%9C%E8%97%9D%E5%A4%A7%E7%86%B1%E9%96%80",
+    "imdbUrl": "https://www.imdb.com/title/tt13174512/",
+    "wikidataId": "Q15895086",
+    "cachedAt": "2026-05-10T06:52:04.954Z"
   },
   "isyLQyASOyy0": {
     "title": "喜剧总动员",
