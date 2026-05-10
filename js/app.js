@@ -64,6 +64,12 @@
       case 'year2026':
         shows = (allData.koreanDramas || []).filter(s => s.year === 2026);
         break;
+      case 'variety2026':
+        // 2026年新综艺：当年新综艺 + 经典搞笑综艺
+        shows = (allData.chineseVariety || []).filter(s =>
+          s.year >= new Date().getFullYear() || s.isClassic
+        );
+        break;
       case 'variety':
         shows = allData.chineseVariety || [];
         break;
