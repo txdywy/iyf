@@ -1407,11 +1407,13 @@
     "matchedTitle": "奔跑吧",
     "tmdbId": 98031,
     "tmdbUrl": "https://www.themoviedb.org/tv/98031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38363866/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-10T04:24:33.709Z"
+    "cachedAt": "2026-05-10T04:24:33.709Z",
+    "doubanId": "38363866",
+    "doubanMatchedTitle": "奔跑吧 第十季"
   },
   "WuTfGtF5AyJ": {
     "title": "喜剧总动员第2季",
@@ -1619,11 +1621,13 @@
     "matchedTitle": "我家那小子",
     "tmdbId": 196747,
     "tmdbUrl": "https://www.themoviedb.org/tv/196747",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816919/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:10.699Z"
+    "cachedAt": "2026-05-10T04:24:10.699Z",
+    "doubanId": "37816919",
+    "doubanMatchedTitle": "我家那小子2026"
   },
   "YbbTMTCTNL7": {
     "title": "妻子的浪漫旅行",
@@ -1700,11 +1704,13 @@
     "matchedTitle": "奔跑吧",
     "tmdbId": 98031,
     "tmdbUrl": "https://www.themoviedb.org/tv/98031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38363866/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-10T04:24:31.221Z"
+    "cachedAt": "2026-05-10T04:24:31.221Z",
+    "doubanId": "38363866",
+    "doubanMatchedTitle": "奔跑吧 第十季"
   },
   "seed_var_2026_02": {
     "title": "王牌对王牌",
@@ -1970,11 +1976,13 @@
     "matchedTitle": "德云斗笑社",
     "tmdbId": 108371,
     "tmdbUrl": "https://www.themoviedb.org/tv/108371",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34894508/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt35348702/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:58.379Z"
+    "cachedAt": "2026-05-10T04:24:58.379Z",
+    "doubanId": "34894508",
+    "doubanMatchedTitle": "德云斗笑社"
   },
   "seed_var_2026_23": {
     "title": "吐槽大会",
@@ -2000,11 +2008,13 @@
     "matchedTitle": "披荆斩棘",
     "tmdbId": 131040,
     "tmdbUrl": "https://www.themoviedb.org/tv/131040",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35161214/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T03:17:09.708Z"
+    "cachedAt": "2026-05-10T03:17:09.708Z",
+    "doubanId": "35161214",
+    "doubanMatchedTitle": "披荆斩棘的哥哥"
   },
   "seed_var_2026_25": {
     "title": "声生不息",
@@ -2015,11 +2025,13 @@
     "matchedTitle": "声生不息",
     "tmdbId": 197906,
     "tmdbUrl": "https://www.themoviedb.org/tv/197906",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35634451/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt27171564/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:03.142Z"
+    "cachedAt": "2026-05-10T04:25:03.142Z",
+    "doubanId": "35634451",
+    "doubanMatchedTitle": "声生不息"
   },
   "seed_var_2026_26": {
     "title": "我们的歌",
@@ -2205,18 +2217,23 @@
     "matchedTitle": "怎么办！脱口秀专场",
     "tmdbId": 203600,
     "tmdbUrl": "https://www.themoviedb.org/tv/203600",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35890470/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:17.590Z"
+    "cachedAt": "2026-05-10T04:25:17.590Z",
+    "doubanId": "35890470",
+    "doubanMatchedTitle": "怎么办！脱口秀专场"
   },
   "vKaoujpjxB0": {
     "title": "综艺大热门",
     "source": "tmdb",
     "version": 8,
     "notFound": true,
-    "cachedAt": "2026-05-10T04:25:18.717Z"
+    "cachedAt": "2026-05-10T04:25:18.717Z",
+    "doubanUrl": "https://movie.douban.com/subject/26354143/",
+    "doubanId": "26354143",
+    "doubanMatchedTitle": "综艺大热门"
   },
   "isyLQyASOyy0": {
     "title": "喜剧总动员",
