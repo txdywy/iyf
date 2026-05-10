@@ -1583,5 +1583,27 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-05-09T13:07:36.318Z"
+  },
+  "728zbbqR3xL": {
+    "title": "哥哥的心动Moo",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:25:40.214Z"
+  },
+  "PWEBcbmYPG2": {
+    "title": "你的爹系男友",
+    "url": "https://image.tmdb.org/t/p/w780/uSWKO3D4xBM5tnP0Vino86qr2po.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "你的爹系男友",
+    "matchedTitle": "你的爹系男友",
+    "tmdbId": 248404,
+    "tmdbUrl": "https://www.themoviedb.org/tv/248404",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt42024186/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:25:40.558Z"
   }
 }
