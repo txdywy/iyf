@@ -105,11 +105,13 @@
     "matchedTitle": "春日狂热",
     "tmdbId": 280948,
     "tmdbUrl": "https://www.themoviedb.org/tv/280948",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37077593/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%A5%E6%97%A5%E7%8B%82%E7%86%B1",
     "imdbUrl": "https://www.imdb.com/title/tt39137681/",
     "wikidataId": "Q136527446",
-    "cachedAt": "2026-05-10T04:23:07.710Z"
+    "cachedAt": "2026-05-10T04:23:07.710Z",
+    "doubanId": "37077593",
+    "doubanMatchedTitle": "春日狂热"
   },
   "seed_kd_2026_09": {
     "title": "给你宇宙",
@@ -120,11 +122,13 @@
     "matchedTitle": "给你宇宙",
     "tmdbId": 297424,
     "tmdbUrl": "https://www.themoviedb.org/tv/297424",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37233532/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B5%A6%E4%BD%A0%E5%AE%87%E5%AE%99_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt39453765/",
     "wikidataId": "Q137668853",
-    "cachedAt": "2026-05-10T04:23:08.829Z"
+    "cachedAt": "2026-05-10T04:23:08.829Z",
+    "doubanId": "37233532",
+    "doubanMatchedTitle": "给你宇宙"
   },
   "seed_kd_2026_10": {
     "title": "权欲之巅",
@@ -135,11 +139,13 @@
     "matchedTitle": "权欲之巅",
     "tmdbId": 241860,
     "tmdbUrl": "https://www.themoviedb.org/tv/241860",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36691850/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AC%8A%E6%85%BE%E4%B9%8B%E5%B7%94_Climax",
     "imdbUrl": "https://www.imdb.com/title/tt39017753/",
     "wikidataId": "Q136945952",
-    "cachedAt": "2026-05-10T04:23:10.067Z"
+    "cachedAt": "2026-05-10T04:23:10.067Z",
+    "doubanId": "36691850",
+    "doubanMatchedTitle": "权欲之巅"
   },
   "seed_kd_2026_11": {
     "title": "秒杀爱情",
@@ -285,11 +291,13 @@
     "matchedTitle": "法官大人",
     "tmdbId": 247031,
     "tmdbUrl": "https://www.themoviedb.org/tv/247031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27121213/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-05-10T04:23:24.740Z"
+    "cachedAt": "2026-05-10T04:23:24.740Z",
+    "doubanId": "27121213",
+    "doubanMatchedTitle": "法官大人 第一季"
   },
   "seed_kd_2025_07": {
     "title": "善意的竞争",
@@ -300,11 +308,13 @@
     "matchedTitle": "善意的竞争",
     "tmdbId": 259288,
     "tmdbUrl": "https://www.themoviedb.org/tv/259288",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36782612/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%B6%E7%88%AD",
     "imdbUrl": "https://www.imdb.com/title/tt35683421/",
     "wikidataId": "Q127800838",
-    "cachedAt": "2026-05-10T04:23:25.987Z"
+    "cachedAt": "2026-05-10T04:23:25.987Z",
+    "doubanId": "36782612",
+    "doubanMatchedTitle": "善意的竞争 第一季"
   },
   "seed_kd_2025_08": {
     "title": "那家伙是黑炎龙",
@@ -315,11 +325,13 @@
     "matchedTitle": "那家伙是黑炎龙",
     "tmdbId": 259015,
     "tmdbUrl": "https://www.themoviedb.org/tv/259015",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36838684/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%82%A3%E5%82%A2%E4%BC%99%E6%98%AF%E9%BB%91%E7%82%8E%E9%BE%8D",
     "imdbUrl": "https://www.imdb.com/title/tt33320428/",
     "wikidataId": "Q127411915",
-    "cachedAt": "2026-05-10T04:23:27.087Z"
+    "cachedAt": "2026-05-10T04:23:27.087Z",
+    "doubanId": "36838684",
+    "doubanMatchedTitle": "那家伙是黑炎龙"
   },
   "seed_kd_2024_01": {
     "title": "泪之女王",
@@ -1426,11 +1438,13 @@
     "matchedTitle": "五十公里桃花坞",
     "tmdbId": 126398,
     "tmdbUrl": "https://www.themoviedb.org/tv/126398",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37814472/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BA%94%E5%8D%81%E5%85%AC%E9%87%8C%E6%A1%83%E8%8A%B1%E5%9D%9E",
     "imdbUrl": "https://www.imdb.com/title/tt30461027/",
     "wikidataId": "Q109342823",
-    "cachedAt": "2026-05-10T04:24:12.983Z"
+    "cachedAt": "2026-05-10T04:24:12.983Z",
+    "doubanId": "37814472",
+    "doubanMatchedTitle": "五十公里桃花坞6"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -1493,11 +1507,13 @@
     "matchedTitle": "大侦探",
     "tmdbId": 110129,
     "tmdbUrl": "https://www.themoviedb.org/tv/110129",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:24.212Z"
+    "cachedAt": "2026-05-10T04:24:24.212Z",
+    "doubanId": "37561280",
+    "doubanMatchedTitle": "大侦探 第十一季"
   },
   "nyi2RoPNIDI": {
     "title": "亲爱的客栈",
@@ -1988,11 +2004,13 @@
     "matchedTitle": "我们的歌",
     "tmdbId": 99496,
     "tmdbUrl": "https://www.themoviedb.org/tv/99496",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34863464/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:04.251Z"
+    "cachedAt": "2026-05-10T04:25:04.251Z",
+    "doubanId": "34863464",
+    "doubanMatchedTitle": "我们的歌 第一季"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -2003,11 +2021,13 @@
     "matchedTitle": "密室大逃脱",
     "tmdbId": 89861,
     "tmdbUrl": "https://www.themoviedb.org/tv/89861",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816907/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt12599910/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:05.487Z"
+    "cachedAt": "2026-05-10T04:25:05.487Z",
+    "doubanId": "37816907",
+    "doubanMatchedTitle": "密室大逃脱 第八季"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -2078,11 +2098,13 @@
     "matchedTitle": "欢乐喜剧人",
     "tmdbId": 104552,
     "tmdbUrl": "https://www.themoviedb.org/tv/104552",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26362746/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:12.649Z"
+    "cachedAt": "2026-05-10T04:25:12.649Z",
+    "doubanId": "26362746",
+    "doubanMatchedTitle": "欢乐喜剧人 第一季"
   },
   "seed_var_c06": {
     "title": "吐槽大会",
@@ -2123,11 +2145,13 @@
     "matchedTitle": "快乐大本营",
     "tmdbId": 33773,
     "tmdbUrl": "https://www.themoviedb.org/tv/33773",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/25908008/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%BF%AB%E4%B9%90%E5%A4%A7%E6%9C%AC%E8%90%A5",
     "imdbUrl": "https://www.imdb.com/title/tt5830218/",
     "wikidataId": "Q5652568",
-    "cachedAt": "2026-05-10T04:25:16.330Z"
+    "cachedAt": "2026-05-10T04:25:16.330Z",
+    "doubanId": "25908008",
+    "doubanMatchedTitle": "快乐大本营"
   },
   "seed_var_c09": {
     "title": "一年一度喜剧大赛",
@@ -2138,11 +2162,13 @@
     "matchedTitle": "一年一度喜剧大赛",
     "tmdbId": 136503,
     "tmdbUrl": "https://www.themoviedb.org/tv/136503",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35467072/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt23320840/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:16.961Z"
+    "cachedAt": "2026-05-10T04:25:16.961Z",
+    "doubanId": "35467072",
+    "doubanMatchedTitle": "一年一度喜剧大赛"
   },
   "iEv4v1zMWRN": {
     "title": "怎么办！脱口秀专场",
