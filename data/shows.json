@@ -2704,7 +2704,7 @@
       "isSerial": true,
       "mediaType": "综艺",
       "type": 5,
-      "coverImg": "https://static.yfsp.tv/upload/video/202410191454425476376s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/zs9xoKTxMSI2gscD6z8X9sBWIWp.jpg",
       "scrapedAt": "",
       "isLive": false,
       "isClassic": false,
@@ -2720,12 +2720,13 @@
       "aiReason": "真人秀旅行搞笑，非韩剧且无核心偏好标签，匹配度低",
       "aiScoredAt": "2026-05-10T02:35:02.790Z",
       "linkMatchedTitle": "现在就出发第2季",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "publishTime": "2024-01-01T00:00:00",
       "updateStatus": "20250119(游戏特辑)集全",
       "doubanId": "36540851",
       "doubanMatchedTitle": "现在就出发 第二季",
-      "isNew": false
+      "isNew": false,
+      "tmdbUrl": "https://www.themoviedb.org/tv/231620"
     },
     {
       "id": "seed_var_2026_18",
@@ -2823,7 +2824,7 @@
       "isSerial": true,
       "mediaType": "综艺",
       "type": 5,
-      "coverImg": "https://static.yfsp.tv/upload/video/202604041322202255247.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
       "scrapedAt": "",
       "isLive": false,
       "isClassic": false,
@@ -2839,10 +2840,11 @@
       "aiReason": "真人秀旅行搞笑，非韩剧且无核心偏好标签，匹配度低",
       "aiScoredAt": "2026-05-10T02:35:02.790Z",
       "linkMatchedTitle": "哈哈哈哈哈第6季",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "publishTime": "2026-01-01T00:00:00",
       "updateStatus": "20260509(第6期上)",
-      "isNew": false
+      "isNew": false,
+      "tmdbUrl": "https://www.themoviedb.org/tv/112732"
     },
     {
       "id": "seed_var_2026_16",
@@ -2982,7 +2984,7 @@
       "updateMsg": "周五",
       "mediaType": "综艺",
       "type": 5,
-      "coverImg": "https://static.yfsp.tv/upload/video/202102211947004730715s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/jOl12DTFiMcp9ga2KaEKwt5H8oo.jpg",
       "scrapedAt": "",
       "isLive": false,
       "isClassic": false,
@@ -2998,13 +3000,14 @@
       "aiReason": "真人秀竞技搞笑，非韩剧且无核心偏好标签，匹配度低",
       "aiScoredAt": "2026-05-10T02:35:02.790Z",
       "linkMatchedTitle": "奔跑吧",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "publishTime": "2017-01-01T00:00:00",
       "updateStatus": "20170707集全",
       "doubanId": "38363866",
       "doubanMatchedTitle": "奔跑吧 第十季",
       "descriptionSource": "ai",
-      "isNew": false
+      "isNew": false,
+      "tmdbUrl": "https://www.themoviedb.org/tv/98031"
     },
     {
       "id": "seed_var_2026_17",
@@ -4262,7 +4265,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《喜剧总动员第2季》汇聚沈腾、贾玲等喜剧大咖，爆笑不断，适合喜爱喜剧表演的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202102212102100261157s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/dXrUTn0TD8Dh6TnjSNneKYICRJ9.jpg",
       "updateStatus": "20180120集全",
       "updateMsg": "",
       "isSerial": true,
@@ -4283,10 +4286,11 @@
       "aiReason": "喜剧综艺，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202102212102100261157s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/215059"
     },
     {
       "id": "iEv4v1zMWRN",
@@ -4345,7 +4349,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《金星脱口秀》以犀利观点和幽默风格著称，适合喜欢深度思考与幽默碰撞的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202102231847164776333s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/pySUjjY6a716eflE92OBaQKyZ3I.jpg",
       "updateStatus": "20170830集全",
       "updateMsg": "",
       "isSerial": true,
@@ -4366,10 +4370,11 @@
       "aiReason": "脱口秀综艺，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202102231847164776333s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/121866"
     },
     {
       "id": "Cj4bMbQNsF3",
@@ -4427,7 +4432,7 @@
       "cidMapper": "真人秀",
       "actor": "周涛,袁咏仪,彭冠英,萧敬腾,方媛",
       "description": "节目以城市角落为主题，集结15位多元坞民通过21天的共同生活与亲手建造，探索在不够理想的环境中，如何创造理想生活的时代命题。这是一场关于城市更新，社区再造与社交实验的温暖成人童话。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202605071346254667407.jpg",
+      "coverImg": "https://image.tmdb.org/t/p/w780/5TZENbxYR8642m2tV36gAvLNSxi.jpg",
       "updateStatus": "更新到20260508(线下集结篇)",
       "updateMsg": "周四、五",
       "isSerial": true,
@@ -4449,11 +4454,12 @@
       "aiReason": "真人秀且非韩剧，类型与观众偏好不符，推荐度低",
       "aiScoredAt": "2026-05-07T13:57:10.203Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202605071346254667407.jpg",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "doubanId": "37814472",
       "doubanMatchedTitle": "五十公里桃花坞6",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/126398"
     },
     {
       "id": "PtVOviJzz0Q",
@@ -4509,7 +4515,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《跨界喜剧王2018》明星跨界挑战喜剧，精彩纷呈，适合喜欢多元才艺和幽默的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/201808191828592856583s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/aYSV4d5CmOG8fFb8qXFGfBky2d9.jpg",
       "updateStatus": "20181110集全",
       "updateMsg": "",
       "isSerial": true,
@@ -4530,10 +4536,11 @@
       "aiReason": "喜剧综艺，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/201808191828592856583s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/130870"
     },
     {
       "id": "2P1Uv59abn6",
@@ -4549,7 +4556,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《脱口秀小会2020》李诞、罗永浩等带来犀利幽默，适合喜欢轻松吐槽和社会话题的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202009211451095172062s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/ndmTt3EPKd5urihAbFDxbtLApbv.jpg",
       "updateStatus": "第10期集全",
       "updateMsg": "",
       "isSerial": true,
@@ -4570,10 +4577,11 @@
       "aiReason": "脱口秀综艺，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202009211451095172062s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/110546"
     },
     {
       "id": "V58UNe249y7",
@@ -4634,7 +4642,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《脱口秀跨年2021》汇聚多位脱口秀达人，笑声与思考兼备，适合跨年夜放松心情的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/202112261404480421810s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/lO1kFUW4lF8gzi391r1vqaLCPEo.jpg",
       "updateStatus": "20211226(加更版)集全",
       "updateMsg": "",
       "isSerial": true,
@@ -4655,12 +4663,13 @@
       "aiReason": "脱口秀综艺，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202112261404480421810s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "doubanId": "35558950",
       "doubanMatchedTitle": "脱口秀跨年2021",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/300309"
     },
     {
       "id": "0gzV9zdAg5e",
@@ -5018,7 +5027,7 @@
       "contentType": "",
       "cidMapper": "",
       "description": "《BTS综艺年代记》揭秘BTS成长故事，适合韩流粉丝和喜欢偶像综艺的观众。",
-      "coverImg": "https://static.yfsp.tv/upload/video/201909112014071467873s.gif",
+      "coverImg": "https://image.tmdb.org/t/p/w780/rD6xs2Op3i8yAlzhfa0F3C6htgN.jpg",
       "updateStatus": "20190912集全",
       "updateMsg": "",
       "isSerial": true,
@@ -5039,10 +5048,11 @@
       "aiReason": "综艺节目，非韩剧且非偏好类型，推荐度极低。",
       "aiScoredAt": "2026-05-10T02:28:19.501Z",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/201909112014071467873s.gif",
-      "coverSource": "yfsp",
+      "coverSource": "tmdb",
       "descriptionSource": "ai",
       "firstSeenAt": "2026-05-10T02:32:37.580Z",
-      "isNew": true
+      "isNew": true,
+      "tmdbUrl": "https://www.themoviedb.org/tv/212074"
     }
   ],
   "otherDramas": [
