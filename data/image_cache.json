@@ -267,11 +267,13 @@
     "matchedTitle": "问问星星吧",
     "tmdbId": 154822,
     "tmdbUrl": "https://www.themoviedb.org/tv/154822",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35679693/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%95%8F%E5%95%8F%E6%98%9F%E6%98%9F%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
-    "cachedAt": "2026-05-10T04:23:21.809Z"
+    "cachedAt": "2026-05-10T04:23:21.809Z",
+    "doubanId": "35679693",
+    "doubanMatchedTitle": "问问星星吧"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -855,11 +857,13 @@
     "matchedTitle": "哈哈哈哈哈",
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14098718/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:19.504Z"
+    "cachedAt": "2026-05-10T04:24:19.504Z",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "seed_var_2026_06": {
     "title": "向往的生活2026",
@@ -1472,11 +1476,13 @@
     "matchedTitle": "脱口秀小会",
     "tmdbId": 110546,
     "tmdbUrl": "https://www.themoviedb.org/tv/110546",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35158190/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:27.644Z"
+    "cachedAt": "2026-05-10T04:25:27.644Z",
+    "doubanId": "35158190",
+    "doubanMatchedTitle": "脱口秀小会"
   },
   "PY2vdH89zyu": {
     "title": "脱口秀跨年",
@@ -1487,11 +1493,13 @@
     "matchedTitle": "脱口秀反跨年",
     "tmdbId": 300309,
     "tmdbUrl": "https://www.themoviedb.org/tv/300309",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35558950/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:26.977Z"
+    "cachedAt": "2026-05-10T04:25:26.977Z",
+    "doubanId": "35558950",
+    "doubanMatchedTitle": "脱口秀跨年2021"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -1547,11 +1555,13 @@
     "matchedTitle": "我们的爸爸",
     "tmdbId": 283765,
     "tmdbUrl": "https://www.themoviedb.org/tv/283765",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38208978/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:24:15.413Z"
+    "cachedAt": "2026-05-10T04:24:15.413Z",
+    "doubanId": "38208978",
+    "doubanMatchedTitle": "我们的爸爸 第二季"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -2247,18 +2257,23 @@
     "matchedTitle": "跨界喜剧王",
     "tmdbId": 130870,
     "tmdbUrl": "https://www.themoviedb.org/tv/130870",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26864144/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T04:25:24.162Z"
+    "cachedAt": "2026-05-10T04:25:24.162Z",
+    "doubanId": "26864144",
+    "doubanMatchedTitle": "跨界喜剧王 第一季"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
     "source": "tmdb",
     "version": 8,
     "notFound": true,
-    "cachedAt": "2026-05-10T04:25:25.292Z"
+    "cachedAt": "2026-05-10T04:25:25.292Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2280,7 +2295,10 @@
     "source": "tmdb",
     "version": 8,
     "notFound": true,
-    "cachedAt": "2026-05-10T04:25:28.770Z"
+    "cachedAt": "2026-05-10T04:25:28.770Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
