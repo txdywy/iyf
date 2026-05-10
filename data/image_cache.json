@@ -1584,12 +1584,491 @@
     "wikidataId": "",
     "cachedAt": "2026-05-09T13:07:36.318Z"
   },
+  "seed_var_2026_04b": {
+    "title": "哈哈哈哈哈第6季",
+    "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "tmdbId": 112732,
+    "tmdbUrl": "https://www.themoviedb.org/tv/112732",
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
+  },
+  "seed_var_2026_11": {
+    "title": "五十公里桃花坞第6季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-07T13:57:10.609Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814472/",
+    "doubanId": "37814472",
+    "doubanMatchedTitle": "五十公里桃花坞6"
+  },
+  "seed_var_2026_27": {
+    "title": "大侦探第十一季",
+    "url": "https://image.tmdb.org/t/p/w780/dmWr4vJgvGMH8m60fuTh0wzYGde.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "tmdbId": 74561,
+    "tmdbUrl": "https://www.themoviedb.org/tv/74561",
+    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561280/",
+    "doubanId": "37561280",
+    "doubanMatchedTitle": "大侦探 第十一季"
+  },
+  "seed_var_2026_01b": {
+    "title": "奔跑吧第十季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:19.879Z",
+    "doubanUrl": "https://movie.douban.com/subject/38363866/",
+    "doubanId": "38363866",
+    "doubanMatchedTitle": "奔跑吧 第十季"
+  },
+  "seed_var_2026_02b": {
+    "title": "王牌对王牌第九季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:20.530Z"
+  },
+  "seed_var_2026_07": {
+    "title": "你好星期六2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:21.181Z"
+  },
+  "seed_var_2026_08": {
+    "title": "萌探探探案2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:21.827Z"
+  },
+  "seed_var_2026_09": {
+    "title": "青春环游记2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:22.471Z"
+  },
+  "seed_var_2026_10": {
+    "title": "现在就出发2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:23.122Z"
+  },
+  "seed_var_2026_10b": {
+    "title": "现在就出发第二季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:23.791Z"
+  },
+  "seed_var_2026_12": {
+    "title": "种地吧2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:24.441Z"
+  },
+  "seed_var_2026_13": {
+    "title": "快乐的大人",
+    "url": "https://image.tmdb.org/t/p/w780/cG9iZzUTtSDCIlE0bJHtELCsrMZ.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "快乐的大人",
+    "matchedTitle": "快乐的大人",
+    "tmdbId": 229572,
+    "tmdbUrl": "https://www.themoviedb.org/tv/229572",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:25.293Z"
+  },
+  "seed_var_2026_14": {
+    "title": "闪亮的日子",
+    "url": "https://image.tmdb.org/t/p/w780/aEmndR1bq2O5hQjvaGd5SuM5UFW.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "闪亮的日子",
+    "matchedTitle": "闪亮的日子",
+    "tmdbId": 205666,
+    "tmdbUrl": "https://www.themoviedb.org/tv/205666",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:26.143Z"
+  },
+  "seed_var_2026_15": {
+    "title": "快乐再出发2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:26.795Z"
+  },
+  "seed_var_2026_16": {
+    "title": "你好生活2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:27.444Z"
+  },
+  "seed_var_2026_17": {
+    "title": "地球超新鲜",
+    "url": "https://image.tmdb.org/t/p/w780/b0sU5blJ3Hwq7O71KCj7HhcRpPp.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "地球超新鲜",
+    "matchedTitle": "地球超新鲜",
+    "tmdbId": 296202,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296202",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:28.336Z"
+  },
+  "seed_var_2026_18": {
+    "title": "向往的生活2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:29.332Z"
+  },
+  "seed_var_2026_19": {
+    "title": "喜剧大会2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:29.984Z"
+  },
+  "seed_var_2026_20": {
+    "title": "脱口秀和TA的朋友们2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:30.634Z"
+  },
+  "seed_var_2026_21": {
+    "title": "喜人奇妙夜2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:31.289Z"
+  },
+  "seed_var_2026_22": {
+    "title": "德云斗笑社2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:31.951Z"
+  },
+  "seed_var_2026_23": {
+    "title": "吐槽大会2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:32.608Z"
+  },
+  "seed_var_2026_24": {
+    "title": "披荆斩棘的哥哥2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:33.258Z"
+  },
+  "seed_var_2026_25": {
+    "title": "声生不息2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:33.937Z"
+  },
+  "seed_var_2026_26": {
+    "title": "我们的歌2026",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:34.599Z"
+  },
+  "seed_var_c05": {
+    "title": "欢乐喜剧人",
+    "url": "https://image.tmdb.org/t/p/w780/qDk16792qGMh0Z2msAfEMpQh4Nx.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "欢乐喜剧人",
+    "matchedTitle": "欢乐喜剧人",
+    "tmdbId": 104552,
+    "tmdbUrl": "https://www.themoviedb.org/tv/104552",
+    "doubanUrl": "https://movie.douban.com/subject/26362746/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:35.097Z",
+    "doubanId": "26362746",
+    "doubanMatchedTitle": "欢乐喜剧人 第一季"
+  },
+  "seed_var_c06": {
+    "title": "吐槽大会",
+    "url": "https://image.tmdb.org/t/p/w780/jW6hKB6LF6rvvab5mix9tYShcJc.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "吐槽大会",
+    "matchedTitle": "吐槽大会",
+    "tmdbId": 84698,
+    "tmdbUrl": "https://www.themoviedb.org/tv/84698",
+    "doubanUrl": "https://movie.douban.com/subject/26830647/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%90%90%E6%A7%BD%E5%A4%A7%E4%BC%9A",
+    "imdbUrl": "https://www.imdb.com/title/tt11422588/",
+    "wikidataId": "Q60150038",
+    "cachedAt": "2026-05-10T02:28:36.289Z"
+  },
+  "seed_var_c07": {
+    "title": "奇葩说",
+    "url": "https://image.tmdb.org/t/p/w780/ppPd6Zs1XPuXZAnPlfB4NkeN6MV.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "奇葩说",
+    "matchedTitle": "奇葩说",
+    "tmdbId": 93550,
+    "tmdbUrl": "https://www.themoviedb.org/tv/93550",
+    "doubanUrl": "https://movie.douban.com/subject/26177736/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%87%E8%91%A9%E8%AF%B4",
+    "imdbUrl": "https://www.imdb.com/title/tt4397792/",
+    "wikidataId": "Q97357250",
+    "cachedAt": "2026-05-10T02:28:37.056Z"
+  },
+  "seed_var_c08": {
+    "title": "快乐大本营",
+    "url": "https://image.tmdb.org/t/p/w780/rRDhglqQUVskIhQSFzndDNi3rHx.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "快乐大本营",
+    "matchedTitle": "快乐大本营",
+    "tmdbId": 33773,
+    "tmdbUrl": "https://www.themoviedb.org/tv/33773",
+    "doubanUrl": "https://movie.douban.com/subject/25908008/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%BF%AB%E4%B9%90%E5%A4%A7%E6%9C%AC%E8%90%A5",
+    "imdbUrl": "https://www.imdb.com/title/tt5830218/",
+    "wikidataId": "Q5652568",
+    "cachedAt": "2026-05-10T02:28:37.822Z",
+    "doubanId": "25908008",
+    "doubanMatchedTitle": "快乐大本营"
+  },
+  "seed_var_c09": {
+    "title": "一年一度喜剧大赛",
+    "url": "https://image.tmdb.org/t/p/w780/3aqEj2RPkxNW6VmZtDuJGGohtLZ.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "一年一度喜剧大赛",
+    "matchedTitle": "一年一度喜剧大赛",
+    "tmdbId": 136503,
+    "tmdbUrl": "https://www.themoviedb.org/tv/136503",
+    "doubanUrl": "https://movie.douban.com/subject/35467072/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt23320840/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:38.367Z",
+    "doubanId": "35467072",
+    "doubanMatchedTitle": "一年一度喜剧大赛"
+  },
+  "iEv4v1zMWRN": {
+    "title": "怎么办！脱口秀专场",
+    "url": "https://image.tmdb.org/t/p/w780/ykcqWLNjvMDKXrNaIcMZBAX1MYc.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "怎么办！脱口秀专场",
+    "matchedTitle": "怎么办！脱口秀专场",
+    "tmdbId": 203600,
+    "tmdbUrl": "https://www.themoviedb.org/tv/203600",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:38.870Z"
+  },
+  "vKaoujpjxB0": {
+    "title": "综艺大热门",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:39.871Z"
+  },
+  "nB1mgySVvK3": {
+    "title": "金星脱口秀",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:40.886Z"
+  },
+  "isyLQyASOyy0": {
+    "title": "喜剧总动员",
+    "url": "https://image.tmdb.org/t/p/w780/dXrUTn0TD8Dh6TnjSNneKYICRJ9.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "喜剧总动员",
+    "matchedTitle": "喜剧总动员",
+    "tmdbId": 215059,
+    "tmdbUrl": "https://www.themoviedb.org/tv/215059",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:41.382Z"
+  },
+  "WuTfGtF5AyJ": {
+    "title": "喜剧总动员第2季",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:42.037Z"
+  },
+  "4YKvUGEpC0D": {
+    "title": "今晚80后脱口秀",
+    "url": "https://image.tmdb.org/t/p/w780/b0Y0AdcmrPqKaBX05MmAmCn0pHF.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "今晚80后脱口秀",
+    "matchedTitle": "今晚80后脱口秀",
+    "tmdbId": 101170,
+    "tmdbUrl": "https://www.themoviedb.org/tv/101170",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:42.884Z"
+  },
+  "Cj4bMbQNsF3": {
+    "title": "跨界喜剧王",
+    "url": "https://image.tmdb.org/t/p/w780/aYSV4d5CmOG8fFb8qXFGfBky2d9.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "跨界喜剧王",
+    "matchedTitle": "跨界喜剧王",
+    "tmdbId": 130870,
+    "tmdbUrl": "https://www.themoviedb.org/tv/130870",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:43.378Z"
+  },
+  "RYE0AHtUFX5": {
+    "title": "跨界喜剧王2018",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:44.029Z"
+  },
+  "PtVOviJzz0Q": {
+    "title": "喜剧者联盟",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:45.071Z"
+  },
+  "0gzV9zdAg5e": {
+    "title": "脱口秀反跨年",
+    "url": "https://image.tmdb.org/t/p/w780/lO1kFUW4lF8gzi391r1vqaLCPEo.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "脱口秀反跨年",
+    "matchedTitle": "脱口秀反跨年",
+    "tmdbId": 300309,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300309",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:45.567Z"
+  },
+  "PY2vdH89zyu": {
+    "title": "脱口秀跨年2021",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:46.222Z"
+  },
+  "2P1Uv59abn6": {
+    "title": "脱口秀小会2020",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:46.915Z"
+  },
+  "Q8jNTFG8D0D": {
+    "title": "嘴强王者脱口秀之夜",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:47.916Z"
+  },
+  "1oyEv3SQ2I5": {
+    "title": "搞笑艺家人",
+    "url": "https://image.tmdb.org/t/p/w780/lBdsqTtwmoSjhdIcLT7W5Td4I7t.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "搞笑艺家人",
+    "matchedTitle": "搞笑艺家人",
+    "tmdbId": 297877,
+    "tmdbUrl": "https://www.themoviedb.org/tv/297877",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:48.409Z"
+  },
+  "V58UNe249y7": {
+    "title": "李栋旭想做脱口秀",
+    "url": "https://image.tmdb.org/t/p/w780/5wd4cP6JilzzwALnZPsFsTUgINr.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "李栋旭想做脱口秀",
+    "matchedTitle": "李栋旭想做脱口秀",
+    "tmdbId": 95510,
+    "tmdbUrl": "https://www.themoviedb.org/tv/95510",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:48.912Z"
+  },
+  "G15iDgiJy3J": {
+    "title": "百川综艺季",
+    "url": "https://image.tmdb.org/t/p/w780/bSIG3BCWEyTmvR28iQyeSzFSYKM.jpg",
+    "source": "tmdb",
+    "version": 7,
+    "query": "百川综艺季",
+    "matchedTitle": "百川综艺季",
+    "tmdbId": 224486,
+    "tmdbUrl": "https://www.themoviedb.org/tv/224486",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T02:28:49.401Z"
+  },
+  "gME4Wj46fvE": {
+    "title": "BTS综艺年代记",
+    "source": "tmdb",
+    "version": 7,
+    "notFound": true,
+    "cachedAt": "2026-05-10T02:28:50.397Z"
+  },
   "728zbbqR3xL": {
     "title": "哥哥的心动Moo",
     "source": "tmdb",
     "version": 7,
     "notFound": true,
-    "cachedAt": "2026-05-10T02:25:40.214Z"
+    "cachedAt": "2026-05-10T02:28:51.368Z"
   },
   "PWEBcbmYPG2": {
     "title": "你的爹系男友",
@@ -1604,6 +2083,6 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt42024186/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T02:25:40.558Z"
+    "cachedAt": "2026-05-10T02:28:51.842Z"
   }
 }
