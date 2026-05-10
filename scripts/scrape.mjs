@@ -1581,6 +1581,41 @@ const TITLE_EN_MAP = {
   '脱口秀大会': '脱口秀大会',
   '奔跑吧兄弟': '奔跑吧',
   '奔跑吧2026': '奔跑吧',
+  '披荆斩棘的哥哥': '披荆斩棘',
+  '披荆斩棘的哥哥2026': '披荆斩棘',
+  '青春环游记': '青春环游记',
+  '青春环游记2026': '青春环游记',
+  '萌探探探案': '萌探探探案',
+  '萌探探探案2026': '萌探探探案',
+  '种地吧': '种地吧',
+  '种地吧2026': '种地吧',
+  '德云斗笑社': '德云斗笑社',
+  '德云斗笑社2026': '德云斗笑社',
+  '欢乐喜剧人': '欢乐喜剧人',
+  '一年一度喜剧大赛': '一年一度喜剧大赛',
+  '五十公里桃花坞': '五十公里桃花坞',
+  '五十公里桃花坞2026': '五十公里桃花坞',
+  '你好星期六': '你好星期六',
+  '你好星期六2026': '你好星期六',
+  '快乐大本营': '快乐大本营',
+  '快乐的大人': '快乐的大人',
+  '快乐再出发': '快乐再出发',
+  '快乐再出发2026': '快乐再出发',
+  '闪亮的日子': '闪亮的日子',
+  '我们的歌': '我们的歌',
+  '我们的歌2026': '我们的歌',
+  '声生不息': '声生不息',
+  '声生不息2026': '声生不息',
+  '大侦探': '大侦探',
+  '大侦探2026': '大侦探',
+  '你好生活': '你好生活',
+  '你好生活2026': '你好生活',
+  '现在就出发': '现在就出发',
+  '现在就出发2026': '现在就出发',
+  '脱口秀和TA的朋友们': '脱口秀和TA的朋友们',
+  '脱口秀和TA的朋友们2026': '脱口秀和TA的朋友们',
+  '喜人奇妙夜': '喜人奇妙夜',
+  '喜人奇妙夜2026': '喜人奇妙夜',
 };
 
 async function fetchTMDBJSON(path) {
@@ -1624,12 +1659,21 @@ async function fetchWikidataLinks(wikidataId) {
   } finally { clearTimeout(t); }
 }
 
+function simplifyTitleForSearch(title = '') {
+  return title
+    .replace(/\s*20\d{2}\s*$/u, '')
+    .replace(/\s*第[一二三四五六七八九十\d]+季\s*$/u, '')
+    .trim();
+}
+
 async function searchTMDBImage(show) {
   const isKorean = show.regional === '韩国';
   const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
   const enTitle = TITLE_EN_MAP[show.title];
-  const queries = [...new Set([...titleCandidates(show.title), enTitle].filter(Boolean))];
-  const shouldRetryWithoutYear = show.year && !/20\d{2}|第[一二三四五六七八九十\d]+季/u.test(show.title);
+  const simplified = simplifyTitleForSearch(show.title);
+  const queries = [...new Set([...titleCandidates(show.title), enTitle, simplified].filter(Boolean))];
+  // TV/综艺的 TMDB 原始条目通常不带年份后缀，所以始终重试不带年份的搜索
+  const shouldRetryWithoutYear = show.year && (mediaKind === 'tv' || !/20\d{2}|第[一二三四五六七八九十\d]+季/u.test(show.title));
 
   for (const query of queries) {
     const yearParams = [
