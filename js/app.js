@@ -76,7 +76,7 @@
       case 'new':
         shows = [...(allData.koreanDramas || []), ...(allData.chineseVariety || [])]
           .filter(s => s.year >= new Date().getFullYear())
-          .sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime));
+          .sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
         break;
       case 'classic':
         shows = (allData.koreanDramas || []).filter(s => s.isClassic || s.score >= 8.5);
@@ -111,7 +111,7 @@
     const query = document.getElementById('searchInput').value.trim().toLowerCase();
     if (query) {
       shows = shows.filter(s =>
-        s.title.toLowerCase().includes(query) ||
+        (s.title || '').toLowerCase().includes(query) ||
         (s.actor || '').toLowerCase().includes(query) ||
         (s.contentType || '').toLowerCase().includes(query)
       );
@@ -127,7 +127,7 @@
         shows.sort((a, b) => (b.score || 0) - (a.score || 0));
         break;
       case 'newest':
-        shows.sort((a, b) => new Date(b.publishTime || 0) - new Date(a.publishTime || 0));
+        shows.sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
         break;
       case 'popular':
         shows.sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
@@ -158,8 +158,8 @@
 
   function renderCard(show, index) {
     const badges = [];
-    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${show.aiScore}/100</span>`);
-    if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${show.score}</span>`);
+    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(show.aiScore))}/100</span>`);
+    if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.year >= new Date().getFullYear()) badges.push('<span class="badge badge-new">新剧</span>');
@@ -211,7 +211,7 @@
           ${posterContent}
           ${newBadge}
           <div class="card-badges">${badges.join('')}</div>
-          ${show.score > 0 ? `<div class="card-score-float">⭐ ${show.score}</div>` : ''}
+          ${show.score > 0 ? `<div class="card-score-float">⭐ ${escapeHtml(String(show.score))}</div>` : ''}
         </div>
         <div class="card-body">
           <div class="recommend-bar" style="width:${recommendWidth}%"></div>
@@ -285,6 +285,11 @@
   }
 
   // ── 工具函数 ──────────────────────────────────────
+  function getValidTime(value) {
+    const time = new Date(value || 0).getTime();
+    return Number.isNaN(time) ? 0 : time;
+  }
+
   function escapeHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');

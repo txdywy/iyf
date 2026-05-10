@@ -264,6 +264,7 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
 
 function applyLiveFields(seedShow, liveMatch) {
   if (!liveMatch) return seedShow;
+  const liveStatus = parseUpdateStatus(liveMatch.updateStatus || '');
   return {
     ...seedShow,
     id: liveMatch.id || seedShow.id,
@@ -271,6 +272,7 @@ function applyLiveFields(seedShow, liveMatch) {
     coverImg: liveMatch.coverImg || seedShow.coverImg,
     updateStatus: liveMatch.updateStatus || seedShow.updateStatus || '',
     updateMsg: liveMatch.updateMsg || seedShow.updateMsg || '',
+    ...liveStatus,
     publishTime: liveMatch.publishTime || seedShow.publishTime || '',
     scrapedAt: liveMatch.scrapedAt || seedShow.scrapedAt || '',
     isLive: true,
@@ -1513,7 +1515,7 @@ async function discoverNewVariety(liveShows, varietyMap) {
 // TMDB 封面抓取
 // ════════════════════════════════════════════════════════════════
 
-const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyNGM0MmEzMGUwNWFiMWZjYzMyN2JhZjlkMDZhOTcyYyIsIm5iZiI6MTc3Njk0NTcxNS43NTIsInN1YiI6IjY5ZWEwYTMzMTA4MTAyMGE4MjMzNDJhNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wqiFXZTy6XeHmb_-_LuXk3VkUcP4bjJH3KPuxAqOxlU';
+const TMDB_TOKEN = process.env.TMDB_TOKEN || '';
 const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w780';
 const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
@@ -1578,7 +1580,7 @@ const TITLE_EN_MAP = {
   '那家伙是黑炎龙': 'Black Flame Dragon',
   // 2026 韩剧
   '爱情怎么翻译': 'The Art of Love',
-  '订阅男友': ' mógí Boyfriend',
+  '订阅男友': 'Boyfriend on Demand',
   '理事长和我的秘密关系': 'Secret Relationship with the Chairman',
   '在你的灿烂季节': 'In Your Brilliant Season',
   '努力克服自卑的我们': 'Our Inferiority Complex',
@@ -1628,6 +1630,7 @@ const TITLE_EN_MAP = {
 };
 
 async function fetchTMDBJSON(path) {
+  if (!TMDB_TOKEN) return null;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 12000);
   try {
