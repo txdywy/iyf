@@ -267,11 +267,13 @@
     "matchedTitle": "问问星星吧",
     "tmdbId": 154822,
     "tmdbUrl": "https://www.themoviedb.org/tv/154822",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35679693/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%95%8F%E5%95%8F%E6%98%9F%E6%98%9F%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
-    "cachedAt": "2026-05-10T06:35:50.833Z"
+    "cachedAt": "2026-05-10T06:35:50.833Z",
+    "doubanId": "35679693",
+    "doubanMatchedTitle": "问问星星吧"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -297,11 +299,13 @@
     "matchedTitle": "法官大人",
     "tmdbId": 247031,
     "tmdbUrl": "https://www.themoviedb.org/tv/247031",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27121213/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-05-10T06:35:53.421Z"
+    "cachedAt": "2026-05-10T06:35:53.421Z",
+    "doubanId": "27121213",
+    "doubanMatchedTitle": "法官大人 第一季"
   },
   "seed_kd_2025_07": {
     "title": "善意的竞争",
@@ -312,11 +316,13 @@
     "matchedTitle": "善意的竞争",
     "tmdbId": 259288,
     "tmdbUrl": "https://www.themoviedb.org/tv/259288",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36782612/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%B6%E7%88%AD",
     "imdbUrl": "https://www.imdb.com/title/tt35683421/",
     "wikidataId": "Q127800838",
-    "cachedAt": "2026-05-10T06:35:54.699Z"
+    "cachedAt": "2026-05-10T06:35:54.699Z",
+    "doubanId": "36782612",
+    "doubanMatchedTitle": "善意的竞争 第一季"
   },
   "seed_kd_2025_08": {
     "title": "那家伙是黑炎龙",
@@ -871,11 +877,13 @@
     "matchedTitle": "白日提灯​",
     "tmdbId": 258865,
     "tmdbUrl": "https://www.themoviedb.org/tv/258865",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35929169/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32330809/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:45:12.387Z"
+    "cachedAt": "2026-05-10T06:45:12.387Z",
+    "doubanId": "35929169",
+    "doubanMatchedTitle": "白日提灯"
   },
   "UzijI9QnSfH": {
     "title": "一年时光",
@@ -977,11 +985,13 @@
     "matchedTitle": "她的盛焰",
     "tmdbId": 282904,
     "tmdbUrl": "https://www.themoviedb.org/tv/282904",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36707547/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32563322/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:03.660Z"
+    "cachedAt": "2026-05-10T06:38:03.660Z",
+    "doubanId": "36707547",
+    "doubanMatchedTitle": "她的盛焰"
   },
   "ThbgN3zrEu8": {
     "title": "家事法庭",
@@ -992,11 +1002,13 @@
     "matchedTitle": "家事法庭",
     "tmdbId": 261675,
     "tmdbUrl": "https://www.themoviedb.org/tv/261675",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35805716/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt30478333/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:01.663Z"
+    "cachedAt": "2026-05-10T06:38:01.663Z",
+    "doubanId": "35805716",
+    "doubanMatchedTitle": "家事法庭"
   },
   "AVUJMzIcf5T": {
     "title": "危险关系",
@@ -1806,11 +1818,13 @@
     "matchedTitle": "现在就出发",
     "tmdbId": 231620,
     "tmdbUrl": "https://www.themoviedb.org/tv/231620",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36540851/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt30461072/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:04.188Z"
+    "cachedAt": "2026-05-10T06:37:04.188Z",
+    "doubanId": "36540851",
+    "doubanMatchedTitle": "现在就出发 第二季"
   },
   "seed_var_2026_12": {
     "title": "种地吧",
@@ -1889,11 +1903,13 @@
     "matchedTitle": "你好生活",
     "tmdbId": 112774,
     "tmdbUrl": "https://www.themoviedb.org/tv/112774",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35243078/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:11.656Z"
+    "cachedAt": "2026-05-10T06:37:11.656Z",
+    "doubanId": "35243078",
+    "doubanMatchedTitle": "你好生活 第二季"
   },
   "seed_var_2026_17": {
     "title": "地球超新鲜",
@@ -1904,11 +1920,13 @@
     "matchedTitle": "地球超新鲜",
     "tmdbId": 296202,
     "tmdbUrl": "https://www.themoviedb.org/tv/296202",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37090502/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:12.750Z"
+    "cachedAt": "2026-05-10T06:37:12.750Z",
+    "doubanId": "37090502",
+    "doubanMatchedTitle": "地球超新鲜"
   },
   "seed_var_2026_18": {
     "title": "向往的生活",
@@ -1919,11 +1937,13 @@
     "matchedTitle": "向往的生活",
     "tmdbId": 88939,
     "tmdbUrl": "https://www.themoviedb.org/tv/88939",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37453965/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%90%91%E5%BE%80%E7%9A%84%E7%94%9F%E6%B4%BB",
     "imdbUrl": "https://www.imdb.com/title/tt10525584/",
     "wikidataId": "Q30945908",
-    "cachedAt": "2026-05-10T06:37:14.309Z"
+    "cachedAt": "2026-05-10T06:37:14.309Z",
+    "doubanId": "37453965",
+    "doubanMatchedTitle": "向往的生活 第八季"
   },
   "seed_var_2026_19": {
     "title": "喜剧大会",
@@ -1934,11 +1954,13 @@
     "matchedTitle": "喜剧大会",
     "tmdbId": 275176,
     "tmdbUrl": "https://www.themoviedb.org/tv/275176",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35936773/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:15.409Z"
+    "cachedAt": "2026-05-10T06:37:15.409Z",
+    "doubanId": "35936773",
+    "doubanMatchedTitle": "喜剧大会"
   },
   "seed_var_2026_20": {
     "title": "脱口秀和TA的朋友们",
@@ -2365,5 +2387,12 @@
     "doubanUrl": "https://movie.douban.com/subject/35295564/",
     "doubanId": "35295564",
     "doubanMatchedTitle": "主角"
+  },
+  "w2s3flsvk34": {
+    "title": "特勤局",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-11T02:44:31.033Z"
   }
 }
