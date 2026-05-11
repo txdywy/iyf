@@ -333,11 +333,13 @@
     "matchedTitle": "那家伙是黑炎龙",
     "tmdbId": 259015,
     "tmdbUrl": "https://www.themoviedb.org/tv/259015",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36838684/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%82%A3%E5%82%A2%E4%BC%99%E6%98%AF%E9%BB%91%E7%82%8E%E9%BE%8D",
     "imdbUrl": "https://www.imdb.com/title/tt33320428/",
     "wikidataId": "Q127411915",
-    "cachedAt": "2026-05-10T06:35:55.679Z"
+    "cachedAt": "2026-05-10T06:35:55.679Z",
+    "doubanId": "36838684",
+    "doubanMatchedTitle": "那家伙是黑炎龙"
   },
   "seed_kd_2024_01": {
     "title": "泪之女王",
@@ -393,11 +395,13 @@
     "matchedTitle": "正年",
     "tmdbId": 214528,
     "tmdbUrl": "https://www.themoviedb.org/tv/214528",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35211537/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%B9%B4",
     "imdbUrl": "https://www.imdb.com/title/tt28197611/",
     "wikidataId": "Q124243610",
-    "cachedAt": "2026-05-10T06:36:00.142Z"
+    "cachedAt": "2026-05-10T06:36:00.142Z",
+    "doubanId": "35211537",
+    "doubanMatchedTitle": "正年"
   },
   "seed_kd_2024_05": {
     "title": "贞淑的推销",
@@ -831,7 +835,7 @@
     "title": "超燃青春的合唱",
     "url": "https://image.tmdb.org/t/p/w780/noZO3kfCQo6rzwhx1h7HfVxPg0K.jpg",
     "source": "tmdb",
-    "version": 7,
+    "version": 13,
     "query": "超燃青春的合唱",
     "matchedTitle": "超燃青春的合唱",
     "tmdbId": 320614,
@@ -840,7 +844,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-05T06:05:22.400Z",
+    "cachedAt": "2026-05-11T14:41:04.942Z",
     "doubanId": "37332128",
     "doubanMatchedTitle": "超燃青春的合唱"
   },
@@ -1335,10 +1339,10 @@
     "title": "大侦探第十一季",
     "url": "https://image.tmdb.org/t/p/w780/dmWr4vJgvGMH8m60fuTh0wzYGde.jpg",
     "source": "tmdb",
-    "version": 7,
+    "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-05T06:22:36.528Z",
+    "cachedAt": "2026-05-11T14:41:05.543Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2122,7 +2126,7 @@
     "title": "明星大侦探",
     "url": "https://image.tmdb.org/t/p/w780/dmWr4vJgvGMH8m60fuTh0wzYGde.jpg",
     "source": "tmdb",
-    "version": 8,
+    "version": 13,
     "query": "明星大侦探",
     "matchedTitle": "明星大侦探",
     "tmdbId": 74561,
@@ -2131,7 +2135,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%8E%E6%98%9F%E5%A4%A7%E5%81%B5%E6%8E%A2",
     "imdbUrl": "https://www.imdb.com/title/tt9332934/",
     "wikidataId": "Q24839121",
-    "cachedAt": "2026-05-10T04:25:11.171Z"
+    "cachedAt": "2026-05-11T14:41:05.844Z",
+    "doubanId": "26737158",
+    "doubanMatchedTitle": "明星大侦探 第一季"
   },
   "seed_var_c04": {
     "title": "脱口秀大会",
@@ -2157,11 +2163,13 @@
     "matchedTitle": "欢乐喜剧人",
     "tmdbId": 104552,
     "tmdbUrl": "https://www.themoviedb.org/tv/104552",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26362746/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:31.585Z"
+    "cachedAt": "2026-05-10T06:37:31.585Z",
+    "doubanId": "26362746",
+    "doubanMatchedTitle": "欢乐喜剧人 第一季"
   },
   "seed_var_c06": {
     "title": "吐槽大会",
@@ -2202,11 +2210,13 @@
     "matchedTitle": "快乐大本营",
     "tmdbId": 33773,
     "tmdbUrl": "https://www.themoviedb.org/tv/33773",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/25908008/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%BF%AB%E4%B9%90%E5%A4%A7%E6%9C%AC%E8%90%A5",
     "imdbUrl": "https://www.imdb.com/title/tt5830218/",
     "wikidataId": "Q5652568",
-    "cachedAt": "2026-05-10T06:37:35.290Z"
+    "cachedAt": "2026-05-10T06:37:35.290Z",
+    "doubanId": "25908008",
+    "doubanMatchedTitle": "快乐大本营"
   },
   "seed_var_c09": {
     "title": "一年一度喜剧大赛",
@@ -2283,11 +2293,13 @@
     "matchedTitle": "今晚80后脱口秀",
     "tmdbId": 101170,
     "tmdbUrl": "https://www.themoviedb.org/tv/101170",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/25864078/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:44.131Z"
+    "cachedAt": "2026-05-10T06:37:44.131Z",
+    "doubanId": "25864078",
+    "doubanMatchedTitle": "今晚80后脱口秀"
   },
   "Cj4bMbQNsF3": {
     "title": "跨界喜剧王",
@@ -2298,11 +2310,13 @@
     "matchedTitle": "跨界喜剧王",
     "tmdbId": 130870,
     "tmdbUrl": "https://www.themoviedb.org/tv/130870",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26864144/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:44.796Z"
+    "cachedAt": "2026-05-10T06:37:44.796Z",
+    "doubanId": "26864144",
+    "doubanMatchedTitle": "跨界喜剧王 第一季"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -2394,5 +2408,46 @@
     "version": 13,
     "notFound": true,
     "cachedAt": "2026-05-11T02:44:31.033Z"
+  },
+  "V380HGzjQcF": {
+    "title": "奔跑吧",
+    "url": "https://image.tmdb.org/t/p/w780/jOl12DTFiMcp9ga2KaEKwt5H8oo.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "奔跑吧",
+    "matchedTitle": "奔跑吧",
+    "tmdbId": 98031,
+    "tmdbUrl": "https://www.themoviedb.org/tv/98031",
+    "doubanUrl": "https://movie.douban.com/subject/38363866/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
+    "imdbUrl": "https://www.imdb.com/title/tt4325992/",
+    "wikidataId": "Q17869295",
+    "cachedAt": "2026-05-10T04:24:31.221Z",
+    "doubanId": "38363866",
+    "doubanMatchedTitle": "奔跑吧 第十季"
+  },
+  "RyHxZP9EKpL": {
+    "title": "菜鸟炊事兵",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-11T14:41:04.343Z",
+    "doubanUrl": "https://movie.douban.com/subject/37194459/",
+    "doubanId": "37194459",
+    "doubanMatchedTitle": "菜鸟炊事兵"
+  },
+  "YyHhwKvBULB": {
+    "title": "风华合伙人",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-11T14:41:04.642Z"
+  },
+  "hREFb2JYJX9": {
+    "title": "音你而来第3季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-11T14:41:05.243Z"
   }
 }
