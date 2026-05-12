@@ -1603,6 +1603,8 @@ const TITLE_EN_MAP = {
   '爱情怎么翻译': 'The Art of Love',
   '订阅男友': 'Boyfriend on Demand',
   '理事长和我的秘密关系': 'Positively Yours',
+  '菜鸟炊事兵': 'The Legend of Kitchen Soldier',
+  '蔚蓝之春': 'Azure Spring',
   '在你的灿烂季节': 'In Your Brilliant Season',
   '努力克服自卑的我们': 'Our Inferiority Complex',
   '死亡之花': 'Flower of Death',
