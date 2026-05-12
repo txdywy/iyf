@@ -952,11 +952,13 @@
     "matchedTitle": "良陈美锦",
     "tmdbId": 283952,
     "tmdbUrl": "https://www.themoviedb.org/tv/283952",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640247/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36758636/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:00.323Z"
+    "cachedAt": "2026-05-10T06:38:00.323Z",
+    "doubanId": "36640247",
+    "doubanMatchedTitle": "良陈美锦"
   },
   "SWdQaEXMUx4": {
     "title": "月鳞绮纪",
@@ -982,11 +984,13 @@
     "matchedTitle": "佳偶天成",
     "tmdbId": 272715,
     "tmdbUrl": "https://www.themoviedb.org/tv/272715",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35633767/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt41926853/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:02.998Z"
+    "cachedAt": "2026-05-10T06:38:02.998Z",
+    "doubanId": "35633767",
+    "doubanMatchedTitle": "佳偶天成"
   },
   "FlEkczcnzlC": {
     "title": "她的盛焰",
@@ -1031,11 +1035,13 @@
     "matchedTitle": "危险关系",
     "tmdbId": 273151,
     "tmdbUrl": "https://www.themoviedb.org/tv/273151",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36866390/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt41150762/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:00.995Z"
+    "cachedAt": "2026-05-10T06:38:00.995Z",
+    "doubanId": "36866390",
+    "doubanMatchedTitle": "危险关系"
   },
   "T20HWLyzztT0": {
     "title": "叵测",
@@ -1350,7 +1356,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-12T03:27:53.420Z",
+    "cachedAt": "2026-05-12T04:02:20.089Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1601,11 +1607,13 @@
     "matchedTitle": "为爱闪耀的她",
     "tmdbId": 321537,
     "tmdbUrl": "https://www.themoviedb.org/tv/321537",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38445108/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:39.259Z"
+    "cachedAt": "2026-05-10T06:36:39.259Z",
+    "doubanId": "38445108",
+    "doubanMatchedTitle": "为爱闪耀的她"
   },
   "YM0c26sGJQ3": {
     "title": "旧基洞朋友们",
@@ -2343,7 +2351,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:53.721Z"
+    "cachedAt": "2026-05-12T04:02:20.389Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2367,7 +2375,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:54.022Z"
+    "cachedAt": "2026-05-12T04:02:20.690Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2419,14 +2427,20 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:54.621Z"
+    "cachedAt": "2026-05-12T04:02:21.291Z",
+    "doubanUrl": "https://movie.douban.com/subject/35295564/",
+    "doubanId": "35295564",
+    "doubanMatchedTitle": "主角"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:54.321Z"
+    "cachedAt": "2026-05-12T04:02:20.991Z",
+    "doubanUrl": "https://movie.douban.com/subject/36778371/",
+    "doubanId": "36778371",
+    "doubanMatchedTitle": "特勤局"
   },
   "V380HGzjQcF": {
     "title": "奔跑吧",
@@ -2441,7 +2455,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-12T03:27:52.819Z",
+    "cachedAt": "2026-05-12T04:02:19.488Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2467,7 +2481,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:53.119Z",
+    "cachedAt": "2026-05-12T04:02:19.187Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2477,10 +2491,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:52.518Z",
-    "doubanUrl": "https://movie.douban.com/subject/37835510/",
-    "doubanId": "37835510",
-    "doubanMatchedTitle": "音你而来3"
+    "cachedAt": "2026-05-12T04:02:19.788Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
