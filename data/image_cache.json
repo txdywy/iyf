@@ -1499,11 +1499,13 @@
     "matchedTitle": "脱口秀小会",
     "tmdbId": 110546,
     "tmdbUrl": "https://www.themoviedb.org/tv/110546",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35158190/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:48.375Z"
+    "cachedAt": "2026-05-10T06:37:48.375Z",
+    "doubanId": "35158190",
+    "doubanMatchedTitle": "脱口秀小会"
   },
   "PY2vdH89zyu": {
     "title": "脱口秀跨年",
@@ -1514,11 +1516,13 @@
     "matchedTitle": "脱口秀反跨年",
     "tmdbId": 300309,
     "tmdbUrl": "https://www.themoviedb.org/tv/300309",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35558950/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:47.714Z"
+    "cachedAt": "2026-05-10T06:37:47.714Z",
+    "doubanId": "35558950",
+    "doubanMatchedTitle": "脱口秀跨年2021"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -1572,11 +1576,13 @@
     "matchedTitle": "我们的爸爸",
     "tmdbId": 283765,
     "tmdbUrl": "https://www.themoviedb.org/tv/283765",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38208978/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:38.585Z"
+    "cachedAt": "2026-05-10T06:36:38.585Z",
+    "doubanId": "38208978",
+    "doubanMatchedTitle": "我们的爸爸 第二季"
   },
   "17PzNR1AcVN": {
     "title": "为爱闪耀的她",
@@ -2323,7 +2329,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-10T06:37:45.958Z"
+    "cachedAt": "2026-05-10T06:37:45.958Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2334,18 +2343,23 @@
     "matchedTitle": "脱口秀反跨年",
     "tmdbId": 300309,
     "tmdbUrl": "https://www.themoviedb.org/tv/300309",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35165372/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:46.621Z"
+    "cachedAt": "2026-05-10T06:37:46.621Z",
+    "doubanId": "35165372",
+    "doubanMatchedTitle": "脱口秀反跨年"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-10T06:37:49.537Z"
+    "cachedAt": "2026-05-10T06:37:49.537Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2449,5 +2463,15 @@
     "version": 13,
     "notFound": true,
     "cachedAt": "2026-05-11T14:41:05.243Z"
+  },
+  "EXt1RKOcYc7": {
+    "title": "蔚蓝之春",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-12T02:37:22.862Z",
+    "doubanUrl": "https://movie.douban.com/subject/37040807/",
+    "doubanId": "37040807",
+    "doubanMatchedTitle": "蔚蓝之春"
   }
 }
