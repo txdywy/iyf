@@ -1533,6 +1533,27 @@ function saveImageCache(cache) {
   writeFileSync(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
+function isTMDBImageUrl(url = '') {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' &&
+      parsed.hostname === 'image.tmdb.org' &&
+      parsed.pathname.startsWith('/t/p/');
+  } catch {
+    return false;
+  }
+}
+
+function isReusableTMDBCoverCache(cached, show) {
+  return cached &&
+    typeof cached === 'object' &&
+    cached.version === COVER_CACHE_VERSION &&
+    cached.source === 'tmdb' &&
+    cached.url &&
+    cached.title === show.title &&
+    isTMDBImageUrl(cached.url);
+}
+
 // 韩剧/综艺标题 → TMDB 搜索用英文名映射(提高命中率)
 const TITLE_EN_MAP = {
   // 韩剧 - 使用TMDB能精确匹配的搜索词
@@ -1581,7 +1602,7 @@ const TITLE_EN_MAP = {
   // 2026 韩剧
   '爱情怎么翻译': 'The Art of Love',
   '订阅男友': 'Boyfriend on Demand',
-  '理事长和我的秘密关系': 'Secret Relationship with the Chairman',
+  '理事长和我的秘密关系': 'Positively Yours',
   '在你的灿烂季节': 'In Your Brilliant Season',
   '努力克服自卑的我们': 'Our Inferiority Complex',
   '死亡之花': 'Flower of Death',
@@ -1739,26 +1760,24 @@ async function enrichCoversFromTMDB(shows) {
   for (const show of shows) {
     if (show.coverImg) show.yfspCoverImg = show.coverImg;
     const cached = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
-    if (cached && cached !== 'NOT_FOUND') {
-      if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.url && cached.title === show.title) {
-        show.coverImg = cached.url;
-        show.coverSource = 'tmdb';
-        show.tmdbUrl = cached.tmdbUrl || '';
-        show.doubanUrl = cached.doubanUrl || show.doubanUrl || '';
-        show.wikipediaUrl = cached.wikipediaUrl || '';
-        show.imdbUrl = cached.imdbUrl || '';
-        show.wikidataId = cached.wikidataId || '';
-      } else if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
-        show.coverImg = show.yfspCoverImg;
-        show.coverSource = 'yfsp';
-      }
+    if (isReusableTMDBCoverCache(cached, show)) {
+      show.coverImg = cached.url;
+      show.coverSource = 'tmdb';
+      show.tmdbUrl = cached.tmdbUrl || '';
+      show.doubanUrl = cached.doubanUrl || show.doubanUrl || '';
+      show.wikipediaUrl = cached.wikipediaUrl || '';
+      show.imdbUrl = cached.imdbUrl || '';
+      show.wikidataId = cached.wikidataId || '';
+    } else if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
+      show.coverImg = show.yfspCoverImg;
+      show.coverSource = 'yfsp';
     }
   }
 
-  // 2. 所有无最新版本 TMDB 缓存的节目都重新查
+  // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。
   const toFetch = shows.filter(s => {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
-    return !(cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION);
+    return !isReusableTMDBCoverCache(cached, s);
   });
 
   if (toFetch.length === 0) {
@@ -1796,7 +1815,7 @@ async function enrichCoversFromTMDB(shows) {
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else {
-      // 即使搜索失败，也更新缓存版本以避免下次重复尝试。保留现有有效 URL 作为兜底。
+      // 搜索失败时只保留现有兜底图；非 TMDB 缓存仍会在后续运行继续尝试刷新。
       const existing = cache[show.id];
       if (existing && typeof existing === 'object' && existing.url) {
         existing.version = COVER_CACHE_VERSION;

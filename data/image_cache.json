@@ -48,10 +48,18 @@
   },
   "seed_kd_2026_04": {
     "title": "理事长和我的秘密关系",
-    "url": "https://static.yfsp.tv/upload/video/202601171628322802751.jpg",
-    "source": "yfsp",
+    "url": "https://image.tmdb.org/t/p/w780/17fFC7njMKPOTjztarKt0X09eN3.jpg",
+    "source": "tmdb",
     "version": 13,
-    "cachedAt": "2026-05-10T06:45:04.845Z"
+    "query": "Positively Yours",
+    "matchedTitle": "Positively Yours",
+    "tmdbId": 296009,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296009",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "Q137217475",
+    "cachedAt": "2026-05-12T00:00:00.000Z"
   },
   "seed_kd_2026_05": {
     "title": "在你的灿烂季节",
