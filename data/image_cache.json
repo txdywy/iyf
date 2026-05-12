@@ -1350,7 +1350,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-11T14:41:05.543Z",
+    "cachedAt": "2026-05-12T03:27:53.420Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1616,11 +1616,13 @@
     "matchedTitle": "旧基洞的朋友们",
     "tmdbId": 319339,
     "tmdbUrl": "https://www.themoviedb.org/tv/319339",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38357233/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:40.009Z"
+    "cachedAt": "2026-05-10T06:36:40.009Z",
+    "doubanId": "38357233",
+    "doubanMatchedTitle": "旧基洞朋友们"
   },
   "cDta4dCa3lC": {
     "title": "奋斗吧人生-演员篇",
@@ -1714,11 +1716,13 @@
     "matchedTitle": "无限超越班",
     "tmdbId": 216487,
     "tmdbUrl": "https://www.themoviedb.org/tv/216487",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37824707/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:45:08.953Z"
+    "cachedAt": "2026-05-10T06:45:08.953Z",
+    "doubanId": "37824707",
+    "doubanMatchedTitle": "无限超越班 第四季"
   },
   "seed_var_2026_01": {
     "title": "奔跑吧",
@@ -1776,11 +1780,13 @@
     "matchedTitle": "极限挑战",
     "tmdbId": 89620,
     "tmdbUrl": "https://www.themoviedb.org/tv/89620",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26387728/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98",
     "imdbUrl": "https://www.imdb.com/title/tt7131118/",
     "wikidataId": "Q20645067",
-    "cachedAt": "2026-05-10T06:36:59.402Z"
+    "cachedAt": "2026-05-10T06:36:59.402Z",
+    "doubanId": "26387728",
+    "doubanMatchedTitle": "极限挑战 第一季"
   },
   "seed_var_2026_07": {
     "title": "你好星期六",
@@ -2337,10 +2343,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-10T06:37:45.958Z",
-    "doubanUrl": "https://movie.douban.com/subject/26809886/",
-    "doubanId": "26809886",
-    "doubanMatchedTitle": "喜剧者联盟"
+    "cachedAt": "2026-05-12T03:27:53.721Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2364,10 +2367,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-10T06:37:49.537Z",
-    "doubanUrl": "https://movie.douban.com/subject/35460067/",
-    "doubanId": "35460067",
-    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
+    "cachedAt": "2026-05-12T03:27:54.022Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2419,17 +2419,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-10T13:09:25.715Z",
-    "doubanUrl": "https://movie.douban.com/subject/35295564/",
-    "doubanId": "35295564",
-    "doubanMatchedTitle": "主角"
+    "cachedAt": "2026-05-12T03:27:54.621Z"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-11T02:44:31.033Z"
+    "cachedAt": "2026-05-12T03:27:54.321Z"
   },
   "V380HGzjQcF": {
     "title": "奔跑吧",
@@ -2444,7 +2441,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-10T04:24:31.221Z",
+    "cachedAt": "2026-05-12T03:27:52.819Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2453,7 +2450,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-11T14:41:04.343Z",
+    "cachedAt": "2026-05-12T03:27:52.217Z",
     "doubanUrl": "https://movie.douban.com/subject/37194459/",
     "doubanId": "37194459",
     "doubanMatchedTitle": "菜鸟炊事兵"
@@ -2463,21 +2460,27 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-11T14:41:04.642Z"
+    "cachedAt": "2026-05-12T03:27:53.119Z",
+    "doubanUrl": "https://movie.douban.com/subject/38370838/",
+    "doubanId": "38370838",
+    "doubanMatchedTitle": "风华合伙人"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-11T14:41:05.243Z"
+    "cachedAt": "2026-05-12T03:27:52.518Z",
+    "doubanUrl": "https://movie.douban.com/subject/37835510/",
+    "doubanId": "37835510",
+    "doubanMatchedTitle": "音你而来3"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T02:37:22.862Z",
+    "cachedAt": "2026-05-12T03:27:51.917Z",
     "doubanUrl": "https://movie.douban.com/subject/37040807/",
     "doubanId": "37040807",
     "doubanMatchedTitle": "蔚蓝之春"
