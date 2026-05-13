@@ -952,11 +952,13 @@
     "matchedTitle": "良陈美锦",
     "tmdbId": 283952,
     "tmdbUrl": "https://www.themoviedb.org/tv/283952",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640247/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36758636/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:00.323Z"
+    "cachedAt": "2026-05-10T06:38:00.323Z",
+    "doubanId": "36640247",
+    "doubanMatchedTitle": "良陈美锦"
   },
   "SWdQaEXMUx4": {
     "title": "月鳞绮纪",
@@ -967,11 +969,13 @@
     "matchedTitle": "月鳞绮纪",
     "tmdbId": 278275,
     "tmdbUrl": "https://www.themoviedb.org/tv/278275",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640236/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Veil_of_Shadows_(TV_series)",
     "imdbUrl": "https://www.imdb.com/title/tt35046984/",
     "wikidataId": "Q138683585",
-    "cachedAt": "2026-05-10T06:37:55.469Z"
+    "cachedAt": "2026-05-10T06:37:55.469Z",
+    "doubanId": "36640236",
+    "doubanMatchedTitle": "月鳞绮纪"
   },
   "jQvUieeHBdE": {
     "title": "佳偶天成",
@@ -1031,11 +1035,13 @@
     "matchedTitle": "危险关系",
     "tmdbId": 273151,
     "tmdbUrl": "https://www.themoviedb.org/tv/273151",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36866390/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt41150762/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:00.995Z"
+    "cachedAt": "2026-05-10T06:38:00.995Z",
+    "doubanId": "36866390",
+    "doubanMatchedTitle": "危险关系"
   },
   "T20HWLyzztT0": {
     "title": "叵测",
@@ -1152,11 +1158,13 @@
     "matchedTitle": "低智商犯罪",
     "tmdbId": 272432,
     "tmdbUrl": "https://www.themoviedb.org/tv/272432",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35517044/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32592348/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:38:04.336Z"
+    "cachedAt": "2026-05-10T06:38:04.336Z",
+    "doubanId": "35517044",
+    "doubanMatchedTitle": "低智商犯罪"
   },
   "uZ33HDxFYG3": {
     "title": "戴洛奇小镇第2季",
@@ -1350,7 +1358,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-12T03:27:53.420Z",
+    "cachedAt": "2026-05-13T12:38:18.710Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1601,11 +1609,13 @@
     "matchedTitle": "为爱闪耀的她",
     "tmdbId": 321537,
     "tmdbUrl": "https://www.themoviedb.org/tv/321537",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38445108/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:36:39.259Z"
+    "cachedAt": "2026-05-10T06:36:39.259Z",
+    "doubanId": "38445108",
+    "doubanMatchedTitle": "为爱闪耀的她"
   },
   "YM0c26sGJQ3": {
     "title": "旧基洞朋友们",
@@ -2343,7 +2353,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:53.721Z"
+    "cachedAt": "2026-05-13T12:38:19.011Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2367,7 +2377,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:54.022Z"
+    "cachedAt": "2026-05-13T12:38:19.314Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2419,7 +2429,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:54.621Z"
+    "cachedAt": "2026-05-13T12:38:20.221Z",
+    "doubanUrl": "https://movie.douban.com/subject/35295564/",
+    "doubanId": "35295564",
+    "doubanMatchedTitle": "主角"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
@@ -2441,7 +2454,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-12T03:27:52.819Z",
+    "cachedAt": "2026-05-13T12:38:17.801Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2467,7 +2480,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:53.119Z",
+    "cachedAt": "2026-05-13T12:38:18.408Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2477,7 +2490,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-12T03:27:52.518Z",
+    "cachedAt": "2026-05-13T12:38:18.104Z",
     "doubanUrl": "https://movie.douban.com/subject/37835510/",
     "doubanId": "37835510",
     "doubanMatchedTitle": "音你而来3"
@@ -2498,5 +2511,25 @@
     "cachedAt": "2026-05-12T03:45:00.000Z",
     "doubanId": "37040807",
     "doubanMatchedTitle": "蔚蓝之春"
+  },
+  "yXsBAuHo2kE": {
+    "title": "雨霖铃",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-13T12:38:19.615Z",
+    "doubanUrl": "https://movie.douban.com/subject/36310054/",
+    "doubanId": "36310054",
+    "doubanMatchedTitle": "雨霖铃"
+  },
+  "2D3w7T9VNXC": {
+    "title": "任务：卧底老师",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-13T12:38:19.920Z",
+    "doubanUrl": "https://movie.douban.com/subject/37293014/",
+    "doubanId": "37293014",
+    "doubanMatchedTitle": "任务：卧底老师"
   }
 }

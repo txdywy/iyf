@@ -132,9 +132,11 @@ function parseUpdateStatus(s) {
   const varietyEp = s.match(/第(\d+)期/);
   // 电视剧格式: "更新到06" → 06
   const dramaEp = s.match(/更新到(\d+)$/);
-  let current = 0;
+  const bareEpisode = s.match(/^\d+$/);
+  let current = total ? +total[1] : 0;
   if (varietyEp) current = +varietyEp[1];
   else if (dramaEp) current = +dramaEp[1];
+  else if (bareEpisode) current = +bareEpisode[0];
   return {
     totalEpisodes: total ? +total[1] : 0,
     currentEpisode: current,
@@ -324,6 +326,24 @@ async function searchYfspTitle(show) {
     await sleep(150);
   }
   return null;
+}
+
+function applyYfspSearchFields(show, found) {
+  show.updateStatus = found.updateStatus || show.updateStatus || '';
+  const parsed = parseUpdateStatus(show.updateStatus);
+  if (parsed.totalEpisodes) show.totalEpisodes = parsed.totalEpisodes;
+  if (parsed.currentEpisode) show.currentEpisode = parsed.currentEpisode;
+  show.isComplete = parsed.isComplete || show.isComplete;
+  if (!show.coverImg && found.coverImg) {
+    show.coverImg = found.coverImg;
+    show.coverSource = 'yfsp';
+  }
+  if (!show.publishTime && found.publishTime) show.publishTime = found.publishTime;
+  if (!show.actor && found.actor) show.actor = found.actor;
+  if (!show.regional && found.regional) show.regional = found.regional;
+  if (!show.lang && found.lang) show.lang = found.lang;
+  if (!show.score && found.score) show.score = found.score;
+  if (!show.playCount && found.playCount) show.playCount = found.playCount;
 }
 
 async function verifyYfspUrl(show, url) {
@@ -1118,6 +1138,22 @@ async function enrichMissingYfspLinks(shows) {
     console.log(`  移除 ${invalid} 个无效爱壹帆链接`);
   }
 
+  const refreshTargets = shows.filter(s => s.yfspUrl && s.title && !s.isComplete);
+  if (refreshTargets.length) {
+    console.log(`  刷新 ${refreshTargets.length} 个连载节目集数...`);
+    let refreshed = 0;
+    for (const show of refreshTargets) {
+      const found = await searchYfspTitle(show);
+      if (found?.updateStatus) {
+        applyYfspSearchFields(show, found);
+        refreshed++;
+        console.log(`    ↻ ${show.title}: ${show.updateStatus}`);
+      }
+      await sleep(250);
+    }
+    console.log(`  刷新 ${refreshed} 个连载节目集数`);
+  }
+
   const targets = shows.filter(s => !s.yfspUrl && s.title);
   if (!targets.length) return;
 
@@ -1130,17 +1166,7 @@ async function enrichMissingYfspLinks(shows) {
       show.yfspUrl = found.url;
       attachLinkFields(show, found.url, show.doubanUrl);
       show.linkMatchedTitle = found.title;
-      if (!show.coverImg && found.coverImg) {
-        show.coverImg = found.coverImg;
-        show.coverSource = 'yfsp';
-      }
-      if (!show.publishTime && found.publishTime) show.publishTime = found.publishTime;
-      if (!show.updateStatus && found.updateStatus) show.updateStatus = found.updateStatus;
-      if (!show.actor && found.actor) show.actor = found.actor;
-      if (!show.regional && found.regional) show.regional = found.regional;
-      if (!show.lang && found.lang) show.lang = found.lang;
-      if (!show.score && found.score) show.score = found.score;
-      if (!show.playCount && found.playCount) show.playCount = found.playCount;
+      applyYfspSearchFields(show, found);
       matched++;
       console.log(`    ✓ ${show.title} → ${found.title}`);
     } else {
@@ -1770,7 +1796,7 @@ async function enrichCoversFromTMDB(shows) {
       show.wikipediaUrl = cached.wikipediaUrl || '';
       show.imdbUrl = cached.imdbUrl || '';
       show.wikidataId = cached.wikidataId || '';
-    } else if (typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
+    } else if (cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
       show.coverImg = show.yfspCoverImg;
       show.coverSource = 'yfsp';
     }
