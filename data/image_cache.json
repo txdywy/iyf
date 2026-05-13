@@ -1356,7 +1356,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-13T02:43:42.422Z",
+    "cachedAt": "2026-05-13T13:02:42.647Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2000,11 +2000,13 @@
     "matchedTitle": "脱口秀和Ta的朋友们",
     "tmdbId": 261471,
     "tmdbUrl": "https://www.themoviedb.org/tv/261471",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36742889/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33242190/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:16.612Z"
+    "cachedAt": "2026-05-10T06:37:16.612Z",
+    "doubanId": "36742889",
+    "doubanMatchedTitle": "脱口秀和Ta的朋友们"
   },
   "seed_var_2026_21": {
     "title": "喜人奇妙夜",
@@ -2015,11 +2017,13 @@
     "matchedTitle": "喜人奇妙夜",
     "tmdbId": 257161,
     "tmdbUrl": "https://www.themoviedb.org/tv/257161",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36540857/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32862759/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:17.716Z"
+    "cachedAt": "2026-05-10T06:37:17.716Z",
+    "doubanId": "36540857",
+    "doubanMatchedTitle": "喜人奇妙夜"
   },
   "seed_var_2026_22": {
     "title": "德云斗笑社",
@@ -2096,11 +2100,13 @@
     "matchedTitle": "我们的歌",
     "tmdbId": 99496,
     "tmdbUrl": "https://www.themoviedb.org/tv/99496",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34863464/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:23.730Z"
+    "cachedAt": "2026-05-10T06:37:23.730Z",
+    "doubanId": "34863464",
+    "doubanMatchedTitle": "我们的歌 第一季"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -2111,11 +2117,13 @@
     "matchedTitle": "密室大逃脱",
     "tmdbId": 89861,
     "tmdbUrl": "https://www.themoviedb.org/tv/89861",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816907/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt12599910/",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:24.827Z"
+    "cachedAt": "2026-05-10T06:37:24.827Z",
+    "doubanId": "37816907",
+    "doubanMatchedTitle": "密室大逃脱 第八季"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -2348,7 +2356,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:42.723Z"
+    "cachedAt": "2026-05-13T13:02:42.948Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2372,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:43.024Z"
+    "cachedAt": "2026-05-13T13:02:43.249Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2430,7 +2438,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:43.625Z"
+    "cachedAt": "2026-05-13T13:02:44.153Z"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
@@ -2452,7 +2460,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-13T02:43:41.521Z",
+    "cachedAt": "2026-05-13T13:02:42.044Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2478,7 +2486,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:41.822Z",
+    "cachedAt": "2026-05-13T13:02:42.346Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2488,7 +2496,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:42.122Z",
+    "cachedAt": "2026-05-13T13:02:41.744Z",
     "doubanUrl": "https://movie.douban.com/subject/37835510/",
     "doubanId": "37835510",
     "doubanMatchedTitle": "音你而来3"
@@ -2509,5 +2517,19 @@
     "cachedAt": "2026-05-12T03:45:00.000Z",
     "doubanId": "37040807",
     "doubanMatchedTitle": "蔚蓝之春"
+  },
+  "yXsBAuHo2kE": {
+    "title": "雨霖铃",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-13T13:02:43.550Z"
+  },
+  "2D3w7T9VNXC": {
+    "title": "任务：卧底老师",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-13T13:02:43.852Z"
   }
 }
