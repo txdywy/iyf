@@ -1358,7 +1358,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-13T14:24:16.077Z",
+    "cachedAt": "2026-05-14T02:44:30.310Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1546,7 +1546,10 @@
     "matchedTitle": "Run BTS!",
     "tmdbId": 212074,
     "tmdbUrl": "https://www.themoviedb.org/tv/212074",
-    "cachedAt": "2026-05-10T06:45:11.762Z"
+    "cachedAt": "2026-05-10T06:45:11.762Z",
+    "doubanUrl": "https://movie.douban.com/subject/26954787/",
+    "doubanId": "26954787",
+    "doubanMatchedTitle": "奔跑吧，防弹！"
   },
   "PIIuQT8AFB0": {
     "title": "大侦探第十一季",
@@ -2358,7 +2361,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:16.377Z"
+    "cachedAt": "2026-05-14T02:44:30.611Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2382,7 +2385,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:16.678Z"
+    "cachedAt": "2026-05-14T02:44:30.911Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2440,17 +2443,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:17.580Z",
-    "doubanUrl": "https://movie.douban.com/subject/35295564/",
-    "doubanId": "35295564",
-    "doubanMatchedTitle": "主角"
+    "cachedAt": "2026-05-14T02:44:32.113Z"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T02:43:43.324Z"
+    "cachedAt": "2026-05-14T02:44:31.813Z"
   },
   "V380HGzjQcF": {
     "title": "奔跑吧",
@@ -2465,7 +2465,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-13T14:24:15.776Z",
+    "cachedAt": "2026-05-14T02:44:29.407Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2491,7 +2491,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:15.475Z",
+    "cachedAt": "2026-05-14T02:44:30.009Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2501,7 +2501,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:15.174Z",
+    "cachedAt": "2026-05-14T02:44:29.708Z",
     "doubanUrl": "https://movie.douban.com/subject/37835510/",
     "doubanId": "37835510",
     "doubanMatchedTitle": "音你而来3"
@@ -2528,13 +2528,19 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:16.979Z"
+    "cachedAt": "2026-05-14T02:44:31.212Z",
+    "doubanUrl": "https://movie.douban.com/subject/36310054/",
+    "doubanId": "36310054",
+    "doubanMatchedTitle": "雨霖铃"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-13T14:24:17.280Z"
+    "cachedAt": "2026-05-14T02:44:31.513Z",
+    "doubanUrl": "https://movie.douban.com/subject/37293014/",
+    "doubanId": "37293014",
+    "doubanMatchedTitle": "任务：卧底老师"
   }
 }
