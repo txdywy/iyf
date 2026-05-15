@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-15T02:45:07.401Z",
+    "cachedAt": "2026-05-15T13:57:32.932Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1824,11 +1824,13 @@
     "matchedTitle": "萌探探探案",
     "tmdbId": 126544,
     "tmdbUrl": "https://www.themoviedb.org/tv/126544",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35231928/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:01.897Z"
+    "cachedAt": "2026-05-10T06:37:01.897Z",
+    "doubanId": "35231928",
+    "doubanMatchedTitle": "萌探探探案"
   },
   "seed_var_2026_09": {
     "title": "青春环游记",
@@ -2363,7 +2365,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:07.701Z"
+    "cachedAt": "2026-05-15T13:57:33.232Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2387,7 +2389,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:08.002Z"
+    "cachedAt": "2026-05-15T13:57:33.533Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2445,10 +2447,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:09.805Z",
-    "doubanUrl": "https://movie.douban.com/subject/35295564/",
-    "doubanId": "35295564",
-    "doubanMatchedTitle": "主角"
+    "cachedAt": "2026-05-15T13:57:35.036Z"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
@@ -2470,7 +2469,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-15T02:45:06.499Z",
+    "cachedAt": "2026-05-15T13:57:32.330Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2496,7 +2495,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:06.800Z",
+    "cachedAt": "2026-05-15T13:57:32.031Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2506,7 +2505,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:07.100Z",
+    "cachedAt": "2026-05-15T13:57:32.631Z",
     "doubanUrl": "https://movie.douban.com/subject/37835510/",
     "doubanId": "37835510",
     "doubanMatchedTitle": "音你而来3"
@@ -2533,7 +2532,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:08.303Z"
+    "cachedAt": "2026-05-15T13:57:34.736Z"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
@@ -2557,14 +2556,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:08.603Z"
+    "cachedAt": "2026-05-15T13:57:34.134Z"
   },
   "3McMGRMFTvA": {
     "title": "校园之外",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T02:45:08.904Z"
+    "cachedAt": "2026-05-15T13:57:34.435Z"
   },
   "sBD1nC4z3a2": {
     "title": "好兆头第3季",
@@ -2575,5 +2574,22 @@
     "doubanUrl": "https://movie.douban.com/subject/36402972/",
     "doubanId": "36402972",
     "doubanMatchedTitle": "好兆头 第三季"
+  },
+  "0g5XPzNlDYL": {
+    "title": "超能路人甲",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-15T13:57:31.731Z",
+    "doubanUrl": "https://movie.douban.com/subject/36680667/",
+    "doubanId": "36680667",
+    "doubanMatchedTitle": "超能路人甲"
+  },
+  "YyzvQjesVwc": {
+    "title": "宿敌交锋",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-15T13:57:33.833Z"
   }
 }
