@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-15T13:57:32.932Z",
+    "cachedAt": "2026-05-16T02:34:34.077Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2365,7 +2365,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:33.232Z"
+    "cachedAt": "2026-05-16T02:34:34.377Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2389,7 +2389,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:33.533Z"
+    "cachedAt": "2026-05-16T02:34:34.678Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2447,7 +2447,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:35.036Z"
+    "cachedAt": "2026-05-16T02:34:36.181Z"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
@@ -2495,20 +2495,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:32.031Z",
-    "doubanUrl": "https://movie.douban.com/subject/38370838/",
-    "doubanId": "38370838",
-    "doubanMatchedTitle": "风华合伙人"
+    "cachedAt": "2026-05-16T02:34:33.475Z"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:32.631Z",
-    "doubanUrl": "https://movie.douban.com/subject/37835510/",
-    "doubanId": "37835510",
-    "doubanMatchedTitle": "音你而来3"
+    "cachedAt": "2026-05-16T02:34:33.776Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -2532,7 +2526,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:34.736Z"
+    "cachedAt": "2026-05-16T02:34:35.881Z"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
@@ -2556,7 +2550,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:34.134Z"
+    "cachedAt": "2026-05-16T02:34:35.580Z"
   },
   "3McMGRMFTvA": {
     "title": "校园之外",
@@ -2580,7 +2574,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:31.731Z",
+    "cachedAt": "2026-05-16T02:34:32.572Z",
     "doubanUrl": "https://movie.douban.com/subject/36680667/",
     "doubanId": "36680667",
     "doubanMatchedTitle": "超能路人甲"
@@ -2590,6 +2584,40 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-15T13:57:33.833Z"
+    "cachedAt": "2026-05-16T02:34:35.279Z"
+  },
+  "ZmEXNTlFkt6": {
+    "title": "种地吧",
+    "url": "https://image.tmdb.org/t/p/w780/sVl6l68ANHlXHBgFakclH9xTBt9.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "种地吧",
+    "matchedTitle": "种地吧",
+    "tmdbId": 219934,
+    "tmdbUrl": "https://www.themoviedb.org/tv/219934",
+    "doubanUrl": "https://movie.douban.com/subject/37562142/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-16T02:34:33.174Z",
+    "doubanId": "37562142",
+    "doubanMatchedTitle": "种地吧4"
+  },
+  "MiJQLDf1Hj1": {
+    "title": "歌手",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-16T02:34:32.873Z",
+    "doubanUrl": "https://movie.douban.com/subject/37110424/",
+    "doubanId": "37110424",
+    "doubanMatchedTitle": "歌手2025"
+  },
+  "TcOkUCJ5z4S": {
+    "title": "达顿牧场",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-16T02:34:34.979Z"
   }
 }
