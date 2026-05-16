@@ -1641,6 +1641,7 @@ const TITLE_EN_MAP = {
   '赌金': 'The Bet',
   '魔女之吻': 'Witch Kiss',
   '今天开始是人类': 'Starting Today I Am Human',
+  '超能路人甲': 'The WONDERfools',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',
@@ -1803,9 +1804,19 @@ async function enrichCoversFromTMDB(shows) {
   }
 
   // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。
+  //    yfsp 的 .gif 动图封面视为低质量，强制重新搜索。
+  const isLowQualityYfspCover = (url = '') => /\.gif(?:\?|$)/i.test(url);
+  const NOT_FOUND_RETRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
   const toFetch = shows.filter(s => {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
-    return !isReusableTMDBCoverCache(cached, s);
+    if (isReusableTMDBCoverCache(cached, s)) return false;
+    if (cached?.notFound) {
+      // gif 封面质量太差，始终尝试刷新；静态图 7 天后才重试，节省 API 调用
+      if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
+      const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
+      return age > NOT_FOUND_RETRY_MS;
+    }
+    return true;
   });
 
   if (toFetch.length === 0) {
