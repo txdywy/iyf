@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-16T04:07:51.982Z",
+    "cachedAt": "2026-05-16T05:08:27.949Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1841,11 +1841,13 @@
     "matchedTitle": "青春环游记",
     "tmdbId": 106938,
     "tmdbUrl": "https://www.themoviedb.org/tv/106938",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34880852/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-10T06:37:02.991Z"
+    "cachedAt": "2026-05-10T06:37:02.991Z",
+    "doubanId": "34880852",
+    "doubanMatchedTitle": "青春环游记 第二季"
   },
   "seed_var_2026_10": {
     "title": "现在就出发",
@@ -2365,7 +2367,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T04:07:52.283Z"
+    "cachedAt": "2026-05-16T05:08:28.249Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2389,7 +2394,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T04:07:52.584Z"
+    "cachedAt": "2026-05-16T05:08:28.550Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2469,7 +2477,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-16T04:07:51.681Z",
+    "cachedAt": "2026-05-16T05:08:27.648Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2502,7 +2510,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T02:34:33.776Z"
+    "cachedAt": "2026-05-16T02:34:33.776Z",
+    "doubanUrl": "https://movie.douban.com/subject/37835510/",
+    "doubanId": "37835510",
+    "doubanMatchedTitle": "音你而来3"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -2597,10 +2608,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T04:07:53.185Z",
-    "doubanUrl": "https://movie.douban.com/subject/37262465/",
-    "doubanId": "37262465",
-    "doubanMatchedTitle": "宿敌交锋"
+    "cachedAt": "2026-05-16T05:08:29.151Z"
   },
   "ZmEXNTlFkt6": {
     "title": "种地吧",
@@ -2615,7 +2623,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-16T04:07:51.381Z",
+    "cachedAt": "2026-05-16T05:08:27.347Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2624,7 +2632,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T04:07:51.081Z",
+    "cachedAt": "2026-05-16T05:08:27.046Z",
     "doubanUrl": "https://movie.douban.com/subject/37110424/",
     "doubanId": "37110424",
     "doubanMatchedTitle": "歌手2025"
@@ -2634,6 +2642,6 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T04:07:52.884Z"
+    "cachedAt": "2026-05-16T05:08:28.851Z"
   }
 }
