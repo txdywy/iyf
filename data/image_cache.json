@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-16T05:08:27.949Z",
+    "cachedAt": "2026-05-16T13:14:08.912Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2367,10 +2367,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T05:08:28.249Z",
-    "doubanUrl": "https://movie.douban.com/subject/26809886/",
-    "doubanId": "26809886",
-    "doubanMatchedTitle": "喜剧者联盟"
+    "cachedAt": "2026-05-16T13:14:09.212Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,10 +2391,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T05:08:28.550Z",
-    "doubanUrl": "https://movie.douban.com/subject/35460067/",
-    "doubanId": "35460067",
-    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
+    "cachedAt": "2026-05-16T13:14:09.513Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2455,7 +2449,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T02:34:36.181Z"
+    "cachedAt": "2026-05-16T02:34:36.181Z",
+    "doubanUrl": "https://movie.douban.com/subject/35295564/",
+    "doubanId": "35295564",
+    "doubanMatchedTitle": "主角"
   },
   "w2s3flsvk34": {
     "title": "特勤局",
@@ -2477,7 +2474,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-16T05:08:27.648Z",
+    "cachedAt": "2026-05-16T13:14:08.611Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2608,7 +2605,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T05:08:29.151Z"
+    "cachedAt": "2026-05-16T13:14:10.715Z",
+    "doubanUrl": "https://movie.douban.com/subject/37262465/",
+    "doubanId": "37262465",
+    "doubanMatchedTitle": "宿敌交锋"
   },
   "ZmEXNTlFkt6": {
     "title": "种地吧",
@@ -2623,7 +2623,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-16T05:08:27.347Z",
+    "cachedAt": "2026-05-16T13:14:08.311Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2632,7 +2632,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T05:08:27.046Z",
+    "cachedAt": "2026-05-16T13:14:08.011Z",
     "doubanUrl": "https://movie.douban.com/subject/37110424/",
     "doubanId": "37110424",
     "doubanMatchedTitle": "歌手2025"
@@ -2642,6 +2642,29 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T05:08:28.851Z"
+    "cachedAt": "2026-05-16T13:14:10.414Z",
+    "doubanUrl": "https://movie.douban.com/subject/37028528/",
+    "doubanId": "37028528",
+    "doubanMatchedTitle": "达顿牧场"
+  },
+  "ZMzmzWXRWJy0": {
+    "title": "男公馆",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-16T13:14:09.813Z",
+    "doubanUrl": "https://movie.douban.com/subject/37105551/",
+    "doubanId": "37105551",
+    "doubanMatchedTitle": "男公馆"
+  },
+  "qbYRYG62i60": {
+    "title": "纸钞屋：柏林第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-16T13:14:10.114Z",
+    "doubanUrl": "https://movie.douban.com/subject/36778853/",
+    "doubanId": "36778853",
+    "doubanMatchedTitle": "纸钞屋：柏林 第二季"
   }
 }
