@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-17T13:11:09.421Z",
+    "cachedAt": "2026-05-18T02:52:33.052Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -1391,12 +1391,15 @@
     "title": "哈哈哈哈哈第6季",
     "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
     "source": "tmdb",
-    "version": 7,
+    "version": 13,
     "query": "哈哈哈哈哈",
     "matchedTitle": "哈哈哈哈哈",
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "cachedAt": "2026-05-10T11:00:00.000Z"
+    "cachedAt": "2026-05-18T02:52:32.751Z",
+    "doubanUrl": "https://movie.douban.com/subject/37561228/",
+    "doubanId": "37561228",
+    "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
   "seed_var_2026_10b": {
     "title": "现在就出发第二季",
@@ -1419,12 +1422,15 @@
     "title": "哈哈哈哈哈第5季",
     "url": "https://image.tmdb.org/t/p/w780/7DcQsNG1Jw1NOASzQe1j4JOHkap.jpg",
     "source": "tmdb",
-    "version": 7,
+    "version": 13,
     "query": "哈哈哈哈哈",
     "matchedTitle": "哈哈哈哈哈",
     "tmdbId": 112732,
     "tmdbUrl": "https://www.themoviedb.org/tv/112732",
-    "cachedAt": "2026-05-10T11:00:00.000Z"
+    "cachedAt": "2026-05-18T02:52:32.450Z",
+    "doubanUrl": "https://movie.douban.com/subject/37054768/",
+    "doubanId": "37054768",
+    "doubanMatchedTitle": "哈哈哈哈哈 第五季"
   },
   "seed_var_2026_01b": {
     "title": "奔跑吧第十季",
@@ -2367,7 +2373,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-17T13:11:09.721Z"
+    "cachedAt": "2026-05-18T02:52:33.353Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2391,7 +2400,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-17T13:11:10.021Z"
+    "cachedAt": "2026-05-18T02:52:33.653Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2474,7 +2486,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-17T13:11:09.120Z",
+    "cachedAt": "2026-05-18T02:52:32.150Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2623,7 +2635,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-17T13:11:08.820Z",
+    "cachedAt": "2026-05-18T02:52:31.850Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2632,7 +2644,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-17T13:11:08.520Z",
+    "cachedAt": "2026-05-18T02:52:31.550Z",
     "doubanUrl": "https://movie.douban.com/subject/37110424/",
     "doubanId": "37110424",
     "doubanMatchedTitle": "歌手2025"
@@ -2652,7 +2664,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-17T13:11:11.524Z"
+    "cachedAt": "2026-05-18T02:52:34.255Z"
   },
   "qbYRYG62i60": {
     "title": "纸钞屋：柏林第2季",
@@ -2666,7 +2678,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-17T13:11:11.223Z"
+    "cachedAt": "2026-05-18T02:52:33.954Z"
   },
   "NHOyDsUSsxN": {
     "title": "家业",
