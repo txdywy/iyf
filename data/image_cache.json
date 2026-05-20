@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-20T02:50:16.894Z",
+    "cachedAt": "2026-05-20T14:53:56.879Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2373,7 +2373,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-20T02:50:17.193Z"
+    "cachedAt": "2026-05-20T14:53:57.180Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2397,7 +2397,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-20T02:50:17.494Z"
+    "cachedAt": "2026-05-20T14:53:57.480Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2480,7 +2480,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-19T14:52:44.169Z",
+    "cachedAt": "2026-05-20T14:53:55.677Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2632,7 +2632,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-20T02:50:16.593Z",
+    "cachedAt": "2026-05-20T14:53:56.578Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2641,10 +2641,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-19T14:52:43.568Z",
-    "doubanUrl": "https://movie.douban.com/subject/37110424/",
-    "doubanId": "37110424",
-    "doubanMatchedTitle": "歌手2025"
+    "cachedAt": "2026-05-20T14:53:56.277Z"
   },
   "TcOkUCJ5z4S": {
     "title": "达顿牧场",
@@ -2723,5 +2720,22 @@
     "version": 13,
     "notFound": true,
     "cachedAt": "2026-05-20T02:50:17.795Z"
+  },
+  "awi7TOzSK0N": {
+    "title": "开始推理吧第4季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-20T14:53:55.977Z",
+    "doubanUrl": "https://movie.douban.com/subject/37815828/",
+    "doubanId": "37815828",
+    "doubanMatchedTitle": "开始推理吧 第四季"
+  },
+  "VYXVNnIG2QF": {
+    "title": "极致欢愉保障",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-20T14:53:57.781Z"
   }
 }
