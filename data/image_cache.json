@@ -1344,14 +1344,11 @@
     "cachedAt": "2026-05-10T06:37:58.631Z"
   },
   "seed_var_2026_11": {
-    "title": "五十公里桃花坞第6季",
+    "title": "五十公里桃花坞",
     "source": "tmdb",
-    "version": 7,
+    "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-07T13:57:10.609Z",
-    "doubanUrl": "https://movie.douban.com/subject/37814472/",
-    "doubanId": "37814472",
-    "doubanMatchedTitle": "五十公里桃花坞6"
+    "cachedAt": "2026-05-22T02:53:25.669Z"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -1360,7 +1357,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-21T14:56:51.811Z",
+    "cachedAt": "2026-05-22T02:53:25.970Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2373,7 +2370,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:52.111Z"
+    "cachedAt": "2026-05-22T02:53:26.271Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2397,7 +2394,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:52.412Z"
+    "cachedAt": "2026-05-22T02:53:26.571Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2632,7 +2629,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-21T14:56:51.209Z",
+    "cachedAt": "2026-05-22T02:53:25.369Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2641,7 +2638,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:50.909Z",
+    "cachedAt": "2026-05-22T02:53:25.068Z",
     "doubanUrl": "https://movie.douban.com/subject/37110424/",
     "doubanId": "37110424",
     "doubanMatchedTitle": "歌手2025"
@@ -2729,7 +2726,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:50.609Z",
+    "cachedAt": "2026-05-22T02:53:24.768Z",
     "doubanUrl": "https://movie.douban.com/subject/37815828/",
     "doubanId": "37815828",
     "doubanMatchedTitle": "开始推理吧 第四季"
@@ -2739,20 +2736,37 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:53.314Z"
+    "cachedAt": "2026-05-22T02:53:27.774Z"
   },
   "PMphl0Ja0b0": {
     "title": "合著谋杀案",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:53.014Z"
+    "cachedAt": "2026-05-22T02:53:27.473Z"
   },
   "OZ1NGJCy4wM": {
     "title": "怪奇退休镇第1季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-21T14:56:52.713Z"
+    "cachedAt": "2026-05-22T02:53:26.872Z"
+  },
+  "BzBiiL0Zl4B": {
+    "title": "21天重养自己",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-22T02:53:24.467Z",
+    "doubanUrl": "https://movie.douban.com/subject/38460917/",
+    "doubanId": "38460917",
+    "doubanMatchedTitle": "21天重养自己"
+  },
+  "lE7rJK1Pn3C": {
+    "title": "转过头帮你擦眼泪",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-22T02:53:27.173Z"
   }
 }
