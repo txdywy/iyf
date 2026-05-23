@@ -1348,7 +1348,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T02:53:25.669Z"
+    "cachedAt": "2026-05-22T02:53:25.669Z",
+    "doubanUrl": "https://movie.douban.com/subject/35656136/",
+    "doubanId": "35656136",
+    "doubanMatchedTitle": "五十公里桃花坞2"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -1357,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-22T14:30:33.473Z",
+    "cachedAt": "2026-05-23T02:38:29.810Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2370,7 +2373,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:33.774Z"
+    "cachedAt": "2026-05-23T02:38:30.110Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,7 +2397,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:34.075Z"
+    "cachedAt": "2026-05-23T02:38:30.411Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2477,7 +2480,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-05-21T14:56:51.510Z",
+    "cachedAt": "2026-05-23T02:38:29.509Z",
     "doubanId": "38363866",
     "doubanMatchedTitle": "奔跑吧 第十季"
   },
@@ -2503,7 +2506,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T02:34:33.475Z",
+    "cachedAt": "2026-05-23T02:38:28.908Z",
     "doubanUrl": "https://movie.douban.com/subject/38370838/",
     "doubanId": "38370838",
     "doubanMatchedTitle": "风华合伙人"
@@ -2513,7 +2516,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T02:34:33.776Z",
+    "cachedAt": "2026-05-23T02:38:29.208Z",
     "doubanUrl": "https://movie.douban.com/subject/37835510/",
     "doubanId": "37835510",
     "doubanMatchedTitle": "音你而来3"
@@ -2540,10 +2543,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-16T02:34:35.881Z",
-    "doubanUrl": "https://movie.douban.com/subject/36310054/",
-    "doubanId": "36310054",
-    "doubanMatchedTitle": "雨霖铃"
+    "cachedAt": "2026-05-23T02:38:31.614Z"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
@@ -2629,7 +2629,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-22T14:30:32.271Z",
+    "cachedAt": "2026-05-23T02:38:28.607Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2638,7 +2638,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:33.172Z"
+    "cachedAt": "2026-05-22T14:30:33.172Z",
+    "doubanUrl": "https://movie.douban.com/subject/37110424/",
+    "doubanId": "37110424",
+    "doubanMatchedTitle": "歌手2025"
   },
   "TcOkUCJ5z4S": {
     "title": "达顿牧场",
@@ -2723,10 +2726,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:32.871Z",
-    "doubanUrl": "https://movie.douban.com/subject/37815828/",
-    "doubanId": "37815828",
-    "doubanMatchedTitle": "开始推理吧 第四季"
+    "cachedAt": "2026-05-23T02:38:28.306Z"
   },
   "VYXVNnIG2QF": {
     "title": "极致欢愉保障",
@@ -2747,17 +2747,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:34.976Z"
+    "cachedAt": "2026-05-23T02:38:31.313Z"
   },
   "BzBiiL0Zl4B": {
     "title": "21天重养自己",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:32.571Z",
-    "doubanUrl": "https://movie.douban.com/subject/38460917/",
-    "doubanId": "38460917",
-    "doubanMatchedTitle": "21天重养自己"
+    "cachedAt": "2026-05-23T02:38:28.005Z"
   },
   "lE7rJK1Pn3C": {
     "title": "转过头帮你擦眼泪",
@@ -2771,13 +2768,40 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:34.375Z"
+    "cachedAt": "2026-05-23T02:38:30.712Z"
   },
   "BIXnUnrZ54E": {
     "title": "盛唐奇案",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-22T14:30:34.676Z"
+    "cachedAt": "2026-05-23T02:38:31.013Z"
+  },
+  "iFy5szh6dec": {
+    "title": "大叔再出招",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-23T02:38:27.104Z",
+    "doubanUrl": "https://movie.douban.com/subject/37435811/",
+    "doubanId": "37435811",
+    "doubanMatchedTitle": "大叔再出招"
+  },
+  "OUi3VnNIkQE": {
+    "title": "国乐无双",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-23T02:38:27.404Z",
+    "doubanUrl": "https://movie.douban.com/subject/38435117/",
+    "doubanId": "38435117",
+    "doubanMatchedTitle": "国乐无双"
+  },
+  "IjLQoIwgl5A": {
+    "title": "这是我的西游第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-23T02:38:27.705Z"
   }
 }
