@@ -2791,13 +2791,18 @@
   },
   "iFy5szh6dec": {
     "title": "大叔再出招",
+    "url": "https://image.tmdb.org/t/p/w780/lPG0WrpcKKl3QegDBvYf0vW9mbl.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-23T13:19:10.073Z",
+    "query": "Fifties Professionals",
+    "matchedTitle": "Fifties Professionals",
+    "tmdbId": 297712,
+    "tmdbUrl": "https://www.themoviedb.org/tv/297712",
     "doubanUrl": "https://movie.douban.com/subject/37435811/",
-    "doubanId": "37435811",
-    "doubanMatchedTitle": "大叔再出招"
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A4%A7%E5%8F%94%E5%86%8D%E5%87%BA%E6%8B%9B",
+    "imdbUrl": "https://www.imdb.com/title/tt41962163/",
+    "wikidataId": "Q138315168",
+    "cachedAt": "2026-05-24T02:28:58.876Z"
   },
   "OUi3VnNIkQE": {
     "title": "国乐无双",

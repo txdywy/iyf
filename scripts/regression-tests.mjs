@@ -28,11 +28,14 @@ assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search resul
 assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
 assert.match(scrape, /cached && typeof cached === 'object' && cached\.version === COVER_CACHE_VERSION/, 'TMDB cache fallback should guard null cached entries');
 assert.match(scrape, /'订阅男友': 'Boyfriend on Demand'/, 'TMDB English title for 订阅男友 should be corrected');
+assert.match(scrape, /'大叔再出招': \['Fifties Professionals', '오십프로', '五十专家', '五十專家'\]/, '大叔再出招 should have TMDB search aliases');
+assert.match(scrape, /'大叔再出招': 'Fifties Professionals'/, '大叔再出招 should use its TMDB English title');
 
 assert.match(updateVariety, /actor:'马东,黄渤,徐峥,于和伟'/, '喜人奇妙夜 actor typo should be corrected');
 
 assert.match(workflow, /data\/history\.json/, 'workflow should include history.json in data commit handling');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
+assert.match(workflow, /paths-ignore:\n\s+- 'data\/\*\*'/, 'data-only bot commits should not retrigger the scraper workflow');
 
 assert.doesNotMatch(css, /\.show-card:nth-child\(\d+\) \{ animation-delay:/, 'CSS nth-child animation delays should not duplicate inline delay');
 

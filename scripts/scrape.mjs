@@ -162,6 +162,7 @@ function normalizeTitle(title = '') {
 }
 
 const TITLE_ALIAS_MAP = {
+  '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
   '金秘书为何那样': ['金秘书为什么那样', '金秘书为何这样'],
   '酒鬼都市男女': ['酒鬼都市女人们', '酒鬼都市女人们第1季', 'Work Later Drink Now'],
@@ -1642,6 +1643,7 @@ const TITLE_EN_MAP = {
   '魔女之吻': 'Witch Kiss',
   '今天开始是人类': 'Starting Today I Am Human',
   '超能路人甲': 'The WONDERfools',
+  '大叔再出招': 'Fifties Professionals',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',
