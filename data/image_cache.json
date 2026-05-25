@@ -1360,7 +1360,7 @@
     "version": 13,
     "tmdbId": 74561,
     "tmdbUrl": "https://www.themoviedb.org/tv/74561",
-    "cachedAt": "2026-05-25T02:58:36.507Z",
+    "cachedAt": "2026-05-25T14:46:36.222Z",
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
@@ -2373,7 +2373,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:36.808Z"
+    "cachedAt": "2026-05-25T14:46:36.522Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2397,7 +2397,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:37.108Z"
+    "cachedAt": "2026-05-25T14:46:36.823Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2626,7 +2626,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-05-25T02:58:35.905Z",
+    "cachedAt": "2026-05-25T14:46:35.921Z",
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
@@ -2720,7 +2720,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:36.206Z"
+    "cachedAt": "2026-05-25T02:58:36.206Z",
+    "doubanUrl": "https://movie.douban.com/subject/37815828/",
+    "doubanId": "37815828",
+    "doubanMatchedTitle": "开始推理吧 第四季"
   },
   "VYXVNnIG2QF": {
     "title": "极致欢愉保障",
@@ -2748,7 +2751,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:35.605Z"
+    "cachedAt": "2026-05-25T14:46:35.620Z"
   },
   "lE7rJK1Pn3C": {
     "title": "转过头帮你擦眼泪",
@@ -2762,7 +2765,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:38.010Z"
+    "cachedAt": "2026-05-25T14:46:37.424Z"
   },
   "BIXnUnrZ54E": {
     "title": "盛唐奇案",
@@ -2801,14 +2804,20 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:35.304Z"
+    "cachedAt": "2026-05-25T14:46:35.319Z",
+    "doubanUrl": "https://movie.douban.com/subject/37515203/",
+    "doubanId": "37515203",
+    "doubanMatchedTitle": "这是我的西游2"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:35.003Z"
+    "cachedAt": "2026-05-25T14:46:35.018Z",
+    "doubanUrl": "https://movie.douban.com/subject/38201945/",
+    "doubanId": "38201945",
+    "doubanMatchedTitle": "姐姐对我来说是女人2"
   },
   "3YUB4l1kNMC": {
     "title": "监狱星级餐厅",
@@ -2822,6 +2831,6 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-25T02:58:37.710Z"
+    "cachedAt": "2026-05-25T14:46:37.124Z"
   }
 }
