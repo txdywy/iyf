@@ -95,8 +95,10 @@ function normalizeItem(it) {
   const url = it.mediaKey ? `https://www.yfsp.tv/play/${it.mediaKey}` : '';
   const rawTitle = it.title || '';
   const title = it.mediaType === '综艺' ? cleanShowTitle(rawTitle) : rawTitle;
+  const year = extractYear(it.publishTime || it.date || '');
+  const fallbackPrefix = it.mediaType === '综艺' ? 'disc_var' : it.mediaType === '电视剧' ? 'disc_kd' : 'disc_live';
   return {
-    id: it.mediaKey || it.episodeKey || '',
+    id: it.mediaKey || it.episodeKey || stableDiscoveredId(fallbackPrefix, title, year),
     title,
     mediaType: it.mediaType || '',
     type: it.type || 0,
@@ -114,7 +116,7 @@ function normalizeItem(it) {
     isSerial: it.isSerial ?? false,
     ...ui,
     publishTime: it.publishTime || '',
-    year: extractYear(it.publishTime || it.date || ''),
+    year,
     url,
     primaryUrl: url,
     primaryUrlSource: url ? 'yfsp' : '',
@@ -159,6 +161,13 @@ function normalizeTitle(title = '') {
     .replace(/20\d{2}$/u, '')
     .replace(/吧$/u, '')
     .trim();
+}
+
+function stableDiscoveredId(prefix, title = '', year = 0) {
+  const key = `${normalizeTitle(title)}:${year || ''}`;
+  let hash = 0;
+  for (const ch of key) hash = ((hash * 31) + ch.codePointAt(0)) >>> 0;
+  return `${prefix}_${hash.toString(36)}`;
 }
 
 const TITLE_ALIAS_MAP = {
@@ -281,6 +290,56 @@ function applyLiveFields(seedShow, liveMatch) {
     isLive: true,
     yfspUrl: liveMatch.yfspUrl || liveMatch.url || '',
   };
+}
+
+function loadPreviousShows() {
+  if (!existsSync(SHOWS_FILE)) return { koreanDramas: [], chineseVariety: [], otherDramas: [] };
+  try {
+    const prev = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
+    return {
+      koreanDramas: Array.isArray(prev.koreanDramas) ? prev.koreanDramas : [],
+      chineseVariety: Array.isArray(prev.chineseVariety) ? prev.chineseVariety : [],
+      otherDramas: Array.isArray(prev.otherDramas) ? prev.otherDramas : [],
+    };
+  } catch {
+    return { koreanDramas: [], chineseVariety: [], otherDramas: [] };
+  }
+}
+
+function restorePreviousCategory(targetMap, previous, category, mediaType, scoreFn, fallbackPrefix) {
+  const knownTitles = new Set([...targetMap.values()].map(s => normalizeTitle(s.title)));
+  let restored = 0;
+
+  for (const prev of previous) {
+    if (!prev?.title || prev.seedId) continue;
+    const norm = normalizeTitle(prev.title);
+    if (!norm || knownTitles.has(norm)) continue;
+
+    const show = {
+      ...prev,
+      id: prev.id || stableDiscoveredId(fallbackPrefix, prev.title, prev.year),
+      mediaType: prev.mediaType || mediaType,
+      category,
+      isLive: false,
+      source: prev.source || 'previous_output',
+    };
+    show.recommendScore = scoreFn(show);
+    if (show.recommendScore < 0) continue;
+    attachLinkFields(show, show.yfspUrl, show.doubanUrl);
+
+    targetMap.set(show.id, show);
+    knownTitles.add(norm);
+    restored++;
+  }
+
+  return restored;
+}
+
+function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
+  const restored =
+    restorePreviousCategory(kdramaMap, prevShows.koreanDramas, 'korean_drama', '电视剧', scoreKDrama, 'disc_kd') +
+    restorePreviousCategory(varietyMap, prevShows.chineseVariety, 'chinese_variety', '综艺', scoreVariety, 'disc_var');
+  if (restored) console.log(`  从上次结果续保 ${restored} 个已收录推荐`);
 }
 
 function scoreYfspCandidate(show, result) {
@@ -901,6 +960,7 @@ async function main() {
   }
 
   console.log(`  抓取到 ${liveShows.size} 个独立节目 (API)`);
+  const prevShows = loadPreviousShows();
 
   // ── 2. 构建韩剧列表 (合并 API + 种子) ──
   const kdramaMap = new Map();
@@ -967,6 +1027,8 @@ async function main() {
     }
   }
 
+  restorePreviousRecommendations(kdramaMap, varietyMap, prevShows);
+
   // ── 5. 新韩剧监控扫描 (发现并自动收录高质量新剧) ──
   const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap);
   for (const s of discoveredShows) {
@@ -984,30 +1046,25 @@ async function main() {
   // 同时加载 firstSeenAt 用于新内容标记(30天有效期)
   const prevFirstSeenMap = new Map();
   const prevTitleFirstSeenMap = new Map();
-  if (existsSync(SHOWS_FILE)) {
-    try {
-      const prev = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
-      const prevMap = new Map();
-      for (const s of [...(prev.koreanDramas || []), ...(prev.chineseVariety || []), ...(prev.otherDramas || [])]) {
-        if (s.aiScore && s.aiScoredAt) prevMap.set(s.id, s);
-        if (s.firstSeenAt) {
-          prevFirstSeenMap.set(s.id, s.firstSeenAt);
-          prevTitleFirstSeenMap.set(normalizeTitle(s.title), s.firstSeenAt);
-        }
-      }
-      let restored = 0;
-      for (const [id, show] of [...kdramaMap, ...varietyMap]) {
-        if (!show.aiScore && prevMap.has(id)) {
-          const p = prevMap.get(id);
-          show.aiScore = p.aiScore;
-          show.aiReason = p.aiReason;
-          show.aiScoredAt = p.aiScoredAt;
-          restored++;
-        }
-      }
-      if (restored) console.log(`  [AI] 从上次结果恢复 ${restored} 部评分`);
-    } catch {}
+  const prevMap = new Map();
+  for (const s of [...prevShows.koreanDramas, ...prevShows.chineseVariety, ...prevShows.otherDramas]) {
+    if (s.aiScore && s.aiScoredAt) prevMap.set(s.id, s);
+    if (s.firstSeenAt) {
+      prevFirstSeenMap.set(s.id, s.firstSeenAt);
+      prevTitleFirstSeenMap.set(normalizeTitle(s.title), s.firstSeenAt);
+    }
   }
+  let restored = 0;
+  for (const [id, show] of [...kdramaMap, ...varietyMap]) {
+    if (!show.aiScore && prevMap.has(id)) {
+      const p = prevMap.get(id);
+      show.aiScore = p.aiScore;
+      show.aiReason = p.aiReason;
+      show.aiScoredAt = p.aiScoredAt;
+      restored++;
+    }
+  }
+  if (restored) console.log(`  [AI] 从上次结果恢复 ${restored} 部评分`);
 
   const allForAI = [...kdramaMap.values(), ...varietyMap.values()];
   const aiScores = await aiScoreShows(allForAI);
@@ -1099,9 +1156,14 @@ async function main() {
   console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${renderableOtherDramas.length}`);
 }
 
+function isRecommendationCategory(show) {
+  return show.category === 'korean_drama' || show.category === 'chinese_variety';
+}
+
 function isRenderableShow(show) {
   // 种子数据直接保留(封面和链接可在前端兜底)
   if (show.seedId) return true;
+  if (isRecommendationCategory(show)) return !!show.primaryUrl && show.coverSource === 'tmdb' && isTMDBImageUrl(show.coverImg);
   return !!show.coverImg && !!show.primaryUrl;
 }
 
@@ -1353,10 +1415,10 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
           const minPlays = yr >= 2026 ? DISCOVERY_2026_MIN_PLAYS : DISCOVERY_MIN_PLAYS;
           if (sc < minSc && plays < minPlays) continue;
           discovered.set(r.title, {
-            id: r.contxt || `disc_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+            id: r.contxt || stableDiscoveredId('disc_kd', r.title, yr),
             title: r.title, mediaType: '电视剧', type: 4,
             score: sc, playCount: plays,
-            year: extractYear(r.postTime || ''),
+            year: yr,
             actor: r.starring || '', regional: '韩国', lang: '韩语',
             contentType: r.tag || '', cidMapper: '', description: '',
             coverImg: r.imgPath || '', updateStatus: r.lastName || '',
@@ -1479,10 +1541,10 @@ async function discoverNewVariety(liveShows, varietyMap) {
           const minPlays = yr >= CURRENT_YEAR ? VARIETY_DISCOVERY_2026_MIN_PLAYS : VARIETY_DISCOVERY_MIN_PLAYS;
           if (sc < minSc && plays < minPlays) continue;
           discovered.set(cleanTitle, {
-            id: r.contxt || `disc_var_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+            id: r.contxt || stableDiscoveredId('disc_var', cleanTitle, yr),
             title: cleanTitle, mediaType: '综艺', type: 5,
             score: sc, playCount: plays,
-            year: extractYear(r.postTime || ''),
+            year: yr,
             actor: r.starring || '', regional: r.regional || '大陆', lang: r.lang || '国语',
             contentType: r.tag || '', cidMapper: '', description: '',
             coverImg: r.imgPath || '', updateStatus: r.lastName || '',
@@ -1577,7 +1639,7 @@ function isReusableTMDBCoverCache(cached, show) {
     cached.version === COVER_CACHE_VERSION &&
     cached.source === 'tmdb' &&
     cached.url &&
-    cached.title === show.title &&
+    titleMatches(cached.title, show.title) &&
     isTMDBImageUrl(cached.url);
 }
 
@@ -1789,7 +1851,11 @@ async function enrichCoversFromTMDB(shows) {
 
   // 1. TMDB 缓存优先。爱壹帆原图只作为 TMDB 失败时的兜底。
   for (const show of shows) {
-    if (show.coverImg) show.yfspCoverImg = show.coverImg;
+    if (isTMDBImageUrl(show.coverImg)) {
+      show.coverSource = 'tmdb';
+    } else if (show.coverImg) {
+      show.yfspCoverImg = show.coverImg;
+    }
     const cached = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
     if (isReusableTMDBCoverCache(cached, show)) {
       show.coverImg = cached.url;
@@ -1813,6 +1879,7 @@ async function enrichCoversFromTMDB(shows) {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
     if (isReusableTMDBCoverCache(cached, s)) return false;
     if (cached?.notFound) {
+      if (isRecommendationCategory(s)) return true;
       // gif 封面质量太差，始终尝试刷新；静态图 7 天后才重试，节省 API 调用
       if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();

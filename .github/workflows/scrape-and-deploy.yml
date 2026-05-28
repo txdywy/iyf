@@ -51,22 +51,35 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add data/shows.json data/image_cache.json data/discovery.json
             git add -f data/history.json
-            git commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')" || true
+            git commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
+
+            pushed=false
             for i in 1 2 3; do
               if git pull --rebase origin main; then
-                git push origin main && break
+                if git push origin main; then
+                  pushed=true
+                  break
+                fi
               else
-                # Resolve data file conflicts: keep our (freshly scraped) version
-                # During rebase: --theirs = our local commit, --ours = remote
+                # Resolve data file conflicts: keep our freshly scraped data commit.
+                # During rebase: --theirs = local commit, --ours = remote main.
                 git checkout --theirs data/shows.json data/image_cache.json data/discovery.json data/history.json 2>/dev/null || true
                 git add data/shows.json data/image_cache.json data/discovery.json
-            git add -f data/history.json
-                GIT_EDITOR=true git rebase --continue || true
-                git push origin main && break
+                git add -f data/history.json
+                if GIT_EDITOR=true git rebase --continue && git push origin main; then
+                  pushed=true
+                  break
+                fi
+                git rebase --abort 2>/dev/null || true
               fi
               echo "Push attempt $i failed, retrying..."
               sleep 5
             done
+
+            if [ "$pushed" != "true" ]; then
+              echo "::error::Failed to push scraped data to main; refusing to deploy an uncommitted Pages artifact."
+              exit 1
+            fi
           fi
 
       - name: Setup Pages
