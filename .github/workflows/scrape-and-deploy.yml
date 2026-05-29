@@ -37,6 +37,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Run regression tests
+        run: node scripts/regression-tests.mjs
+
       - name: Run Scraper
         run: node scripts/scrape.mjs
         env:

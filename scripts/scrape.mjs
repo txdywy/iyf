@@ -562,24 +562,18 @@ async function callModelsAPI(messages, { temperature = 0.3, timeout = 60000 } = 
     console.log('  [AI] GitHub Models 不可用,切换 OpenRouter...');
   }
 
-  // 2. 备用: OpenRouter 免费模型(账号级限流,一次 429 → 等待后只试一个模型)
+  // 2. 备用: OpenRouter 免费模型。依次尝试(随机顺序),跳过失效/限流的模型,
+  //    单个模型不做长等待(retries=0),避免在无效 ID 或账号级限流上空耗时间。
   const orKey = process.env.OPENROUTER_API_KEY;
   if (orKey) {
-    const models = shuffle(OPENROUTER_MODELS);
-    // 直接试第一个
-    let result = await _callEndpoint(OPENROUTER_API, models[0], orKey, messages, temperature, timeout);
-    if (result !== null) {
-      console.log(`  [AI] 使用 OpenRouter: ${models[0]}`);
-      return result;
+    for (const model of shuffle(OPENROUTER_MODELS)) {
+      const result = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout, 0);
+      if (result !== null) {
+        console.log(`  [AI] 使用 OpenRouter: ${model}`);
+        return result;
+      }
     }
-    // 如果 429(账号级), 等 60s 后只再试一个模型(避免逐个尝试浪费时间)
-    console.log('  [AI] OpenRouter 限流,等 60s 后重试...');
-    await sleep(60000);
-    result = await _callEndpoint(OPENROUTER_API, models[1] || models[0], orKey, messages, temperature, timeout);
-    if (result !== null) {
-      console.log(`  [AI] 使用 OpenRouter: ${models[1] || models[0]}`);
-      return result;
-    }
+    console.log('  [AI] OpenRouter 所有模型均不可用');
   }
 
   return null;
@@ -881,19 +875,15 @@ const SEED_VARIETY = [
   // ════════════════════════════════════════════════════════════════
   // ── 户外竞技/游戏搞笑 ──
   { id:'seed_var_2026_01', title:'奔跑吧', year:2026, score:7.5, playCount:500000, contentType:'真人秀·竞技·搞笑', actor:'李晨,郑恺,沙溢,白鹿,范丞丞,周深', description:'经典户外竞技真人秀,欢乐撕名牌大战,2026全新季爆笑回归。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true, updateMsg:'周五' },
-  { id:'seed_var_2026_01b', title:'奔跑吧第十季', year:2026, score:7.5, playCount:500000, contentType:'真人秀·竞技·搞笑', actor:'李晨,郑恺,沙溢,白鹿,范丞丞,周深', description:'奔跑吧第十季,经典游戏升级,笑料加量。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true, updateMsg:'周五' },
   { id:'seed_var_2026_02', title:'王牌对王牌', year:2026, score:7.8, playCount:450000, contentType:'真人秀·游戏·搞笑', actor:'沈腾,贾玲,关晓彤,华晨宇,宋亚轩', description:'经典室内游戏综艺,沈腾贾玲的爆笑组合,2026年笑闹继续。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true, updateMsg:'周六' },
-  { id:'seed_var_2026_02b', title:'王牌对王牌第九季', year:2026, score:7.8, playCount:450000, contentType:'真人秀·游戏·搞笑', actor:'沈腾,贾玲,关晓彤,华晨宇', description:'王牌家族集结,经典游戏新玩法,全程高能爆笑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true, updateMsg:'周六' },
   { id:'seed_var_2026_03', title:'极限挑战', year:2026, score:7.2, playCount:350000, contentType:'真人秀·竞技·搞笑', actor:'黄渤,黄磊,罗志祥,张艺兴', description:'男人帮的极限挑战,笑料不断,2026新征程开启。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_07', title:'你好星期六', year:2026, score:7.6, playCount:380000, contentType:'真人秀·游戏·搞笑', actor:'何炅,檀健次,王鹤棣,秦霄贤,李雪琴', description:'快乐大本营精神续作,何炅带队,每期嘉宾互动游戏,轻松搞笑不断档。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true, updateMsg:'周六' },
   { id:'seed_var_2026_08', title:'萌探探探案', year:2026, score:7.4, playCount:320000, contentType:'真人秀·推理·搞笑', actor:'孙红雷,沙溢,黄子韬,杨迪,宋亚轩', description:'萌探家族欢乐探案,沉浸式剧本杀+搞笑互动,笑到停不下来。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_09', title:'青春环游记', year:2026, score:7.3, playCount:290000, contentType:'真人秀·旅行·搞笑', actor:'贾玲,杨洋,范丞丞,杨迪,郎朗', description:'青春旅行团边走边玩,游戏环节爆笑连连,治愈又欢乐。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ── 旅行/生活搞笑 ──
-  { id:'seed_var_2026_04', title:'哈哈哈哈哈第5季', year:2026, score:8.2, playCount:300000, contentType:'真人秀·旅行·搞笑', actor:'邓超,陈赫,鹿晗,范志毅,王勉', description:'五哈兄弟团欢乐旅行,全程笑到停不下来。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_04b', title:'哈哈哈哈哈第6季', year:2026, score:8.1, playCount:350000, contentType:'真人秀·旅行·搞笑', actor:'邓超,陈赫,鹿晗,范志毅,王勉', description:'五哈兄弟继续出发,公路喜剧+真实旅行,笑点密集。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_04', title:'哈哈哈哈哈', year:2026, score:8.2, playCount:350000, contentType:'真人秀·旅行·搞笑', actor:'邓超,陈赫,鹿晗,范志毅,王勉', description:'五哈兄弟团欢乐旅行,公路喜剧+真实旅行,全程笑到停不下来。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_10', title:'现在就出发', year:2026, score:7.7, playCount:340000, contentType:'真人秀·旅行·搞笑', actor:'沈腾,贾冰,范丞丞,白敬亭,金晨', description:'明星嘉宾出发去野外,露营+游戏+美食,轻松解压的旅行综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_10b', title:'现在就出发第二季', year:2026, score:7.7, playCount:340000, contentType:'真人秀·旅行·搞笑', actor:'沈腾,贾冰,范丞丞,白敬亭', description:'现在就出发第二季,明星野外露营欢乐多,轻松治愈。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_11', title:'五十公里桃花坞', year:2026, score:7.5, playCount:260000, contentType:'真人秀·生活·搞笑', actor:'宋丹丹,汪苏泷,李雪琴,王鹤棣,孟子义', description:'明星群居社交实验,尴尬与欢乐齐飞,真实又好笑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_12', title:'种地吧', year:2026, score:8.5, playCount:420000, contentType:'真人秀·生活·搞笑', actor:'十个勤天,蒋敦豪,鹭卓,李耕耘', description:'十个年轻人真实种地,从播种到收获,热血又搞笑,治愈力满分。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_13', title:'快乐的大人', year:2026, score:7.8, playCount:220000, contentType:'真人秀·生活·搞笑', actor:'沈月,王敬轩,吴宇恒,周彦辰', description:'沈月和她的朋友们的真实日常,友情治愈,笑料自然不做作。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
@@ -908,7 +898,6 @@ const SEED_VARIETY = [
   { id:'seed_var_2026_20', title:'脱口秀和TA的朋友们', year:2026, score:7.6, playCount:230000, contentType:'脱口秀·搞笑', actor:'李诞,徐志胜,何广智,鸟鸟,童漠男', description:'脱口秀好友局,新老选手同台竞技,爆梗频出。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_21', title:'喜人奇妙夜', year:2026, score:7.8, playCount:190000, contentType:'喜剧·竞演·搞笑', actor:'马东,黄渤,徐峥,于和伟', description:'一年一度喜剧大赛团队新作, Sketch喜剧竞演,创意与笑点齐飞。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_22', title:'德云斗笑社', year:2026, score:7.4, playCount:280000, contentType:'喜剧·相声·搞笑', actor:'郭德纲,于谦,岳云鹏,烧饼,孟鹤堂', description:'德云社团综,相声竞演+游戏互动,德云男孩的快乐源泉。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_23', title:'吐槽大会', year:2026, score:7.2, playCount:170000, contentType:'脱口秀·搞笑', actor:'李诞,张绍刚,池子', description:'明星互怼的脱口秀盛宴,犀利吐槽+幽默回应,解压神器。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ── 音乐/舞台搞笑 ──
   { id:'seed_var_2026_24', title:'披荆斩棘的哥哥', year:2026, score:7.5, playCount:360000, contentType:'真人秀·音乐·竞演', actor:'陈小春,张智霖,李承铉,张云龙', description:'哥哥们的舞台竞演,兄弟情义+热血舞台,笑泪交织。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
@@ -1116,8 +1105,8 @@ async function main() {
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
   if (dropped.length) console.log(`  丢弃 ${dropped.length} 个缺少有效图片或具体链接的节目: ${dropped.map(s => s.title).join(', ')}`);
 
-  const koreanDramas = [...kdramaMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
-  const chineseVariety = [...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore);
+  const koreanDramas = dedupByTitle([...kdramaMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore));
+  const chineseVariety = dedupByTitle([...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore));
   const renderableOtherDramas = otherDramas.filter(isRenderableShow);
 
   // ── 8.5. 新内容标记(30天有效期) ──
@@ -1158,6 +1147,19 @@ async function main() {
 
 function isRecommendationCategory(show) {
   return show.category === 'korean_drama' || show.category === 'chinese_variety';
+}
+
+// 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
+// 防止同名条目(如季号变体撞名)重复成卡。不按 normalizeTitle 合并,
+// 以保留确实不同的季(如"黑暗荣耀"/"黑暗荣耀第2季"、"极限挑战"/"极限挑战第一季")。
+function dedupByTitle(list) {
+  const seen = new Set();
+  return list.filter(s => {
+    const key = (s.title || '').trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function isRenderableShow(show) {
@@ -1879,11 +1881,13 @@ async function enrichCoversFromTMDB(shows) {
     const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
     if (isReusableTMDBCoverCache(cached, s)) return false;
     if (cached?.notFound) {
-      if (isRecommendationCategory(s)) return true;
-      // gif 封面质量太差，始终尝试刷新；静态图 7 天后才重试，节省 API 调用
+      // gif 封面质量太差，始终尝试刷新
       if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
-      return age > NOT_FOUND_RETRY_MS;
+      // 推荐类(韩剧/综艺)重试更积极(3天),其他类 7 天;
+      // 避免每轮重复请求 TMDB 上根本不存在的条目(浪费 API、拖慢运行)
+      const retryMs = isRecommendationCategory(s) ? 3 * 24 * 60 * 60 * 1000 : NOT_FOUND_RETRY_MS;
+      return age > retryMs;
     }
     return true;
   });

@@ -7,7 +7,6 @@ const read = path => readFileSync(join(root, path), 'utf8');
 
 const app = read('js/app.js');
 const scrape = read('scripts/scrape.mjs');
-const updateVariety = read('scripts/update-variety.mjs');
 const workflow = read('.github/workflows/scrape-and-deploy.yml');
 const css = read('css/style.css');
 
@@ -39,7 +38,10 @@ assert.match(scrape, /id: it\.mediaKey \|\| it\.episodeKey \|\| stableDiscovered
 assert.match(scrape, /isTMDBImageUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
 
-assert.match(updateVariety, /actor:'马东,黄渤,徐峥,于和伟'/, '喜人奇妙夜 actor typo should be corrected');
+assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
+assert.match(scrape, /function dedupByTitle\(/, 'final output should dedup identical titles');
+assert.match(scrape, /koreanDramas = dedupByTitle\(/, 'korean drama output should be de-duplicated by exact title');
+assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should be de-duplicated by exact title');
 
 assert.match(workflow, /data\/history\.json/, 'workflow should include history.json in data commit handling');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
