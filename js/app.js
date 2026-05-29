@@ -51,8 +51,11 @@
 
   function switchTab(tab) {
     currentTab = tab;
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.tab').forEach(b => {
+      const active = b.dataset.tab === tab;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
 
     if (!allData) return;
 
@@ -84,18 +87,19 @@
     }
 
     currentShows = shows;
-    applyFilters();
+    applyFilters(true);
   }
 
   // ── 筛选 ──────────────────────────────────────────
   function bindFilters() {
-    document.getElementById('filterStatus').addEventListener('change', applyFilters);
-    document.getElementById('filterScore').addEventListener('change', applyFilters);
-    document.getElementById('sortBy').addEventListener('change', applyFilters);
-    document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+    // 包一层箭头函数,避免事件对象被当作 animate 实参传入(否则筛选也会触发入场动画)。
+    document.getElementById('filterStatus').addEventListener('change', () => applyFilters());
+    document.getElementById('filterScore').addEventListener('change', () => applyFilters());
+    document.getElementById('sortBy').addEventListener('change', () => applyFilters());
+    document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300));
   }
 
-  function applyFilters() {
+  function applyFilters(animate = false) {
     let shows = [...currentShows];
 
     // 状态筛选
@@ -134,12 +138,12 @@
         break;
     }
 
-    renderShows(shows);
+    renderShows(shows, animate);
     updateStats(shows);
   }
 
   // ── 渲染 ──────────────────────────────────────────
-  function renderShows(shows) {
+  function renderShows(shows, animate = false) {
     const grid = document.getElementById('showGrid');
     const loading = document.getElementById('loading');
     const empty = document.getElementById('empty');
@@ -153,6 +157,8 @@
     }
 
     empty.style.display = 'none';
+    // 仅在切换标签/首次加载时播放入场动画;筛选/搜索/排序时即时呈现,避免每次按键重放动画造成的抖动。
+    grid.classList.toggle('animate', animate);
     grid.innerHTML = shows.map((show, i) => renderCard(show, i)).join('');
   }
 
@@ -290,11 +296,12 @@
     return Number.isNaN(time) ? 0 : time;
   }
 
+  // 文本与属性上下文均安全：textContent→innerHTML 不会转义引号,
+  // 而本文件所有输出都插入到双引号属性内(src/href/alt),故需显式转义引号。
+  const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   function escapeHtml(str) {
     if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return String(str).replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
   }
 
   function debounce(fn, delay) {

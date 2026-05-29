@@ -153,14 +153,28 @@ function extractYear(d) {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// 有界并发:items 上跑最多 concurrency 个 worker,保持顺序无关、异常不中断其余任务。
+async function mapPool(items, concurrency, fn) {
+  const it = items[Symbol.iterator]();
+  const worker = async () => { for (let n = it.next(); !n.done; n = it.next()) await fn(n.value); };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, worker));
+}
+
+// 纯函数,且在 titleMatches/findLiveTitleMatch 中被成千上万次以相同标题调用,
+// 故按原始标题记忆化,避免重复执行多次 Unicode 正则。
+const _normalizeTitleCache = new Map();
 function normalizeTitle(title = '') {
-  return title
+  const cached = _normalizeTitleCache.get(title);
+  if (cached !== undefined) return cached;
+  const result = title
     .toLowerCase()
     .replace(/[^\p{Script=Han}\p{Letter}\p{Number}]/gu, '')
     .replace(/第[一二三四五六七八九十\d]+季$/u, '')
     .replace(/20\d{2}$/u, '')
     .replace(/吧$/u, '')
     .trim();
+  _normalizeTitleCache.set(title, result);
+  return result;
 }
 
 function stableDiscoveredId(prefix, title = '', year = 0) {
@@ -1613,14 +1627,19 @@ const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
 const COVER_CACHE_VERSION = 13;
 
+// 单进程顺序管线内复用解析结果,避免每个富化阶段重复解析 ~100KB JSON。
+// 写入时同步更新内存副本,保证后续阶段读到最新数据。
+let _imageCacheMemo = null;
 function loadImageCache() {
+  if (_imageCacheMemo) return _imageCacheMemo;
   if (existsSync(IMAGE_CACHE_FILE)) {
-    try { return JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8')); } catch {}
+    try { return (_imageCacheMemo = JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8'))); } catch {}
   }
-  return {};
+  return (_imageCacheMemo = {});
 }
 
 function saveImageCache(cache) {
+  _imageCacheMemo = cache;
   writeFileSync(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
@@ -1899,7 +1918,8 @@ async function enrichCoversFromTMDB(shows) {
 
   console.log(`  从 TMDB 优先抓取 ${toFetch.length} 个节目的高清封面...`);
 
-  for (const show of toFetch) {
+  // TMDB 为官方 API(token 鉴权、限速宽松),用有界并发显著缩短封面抓取耗时。
+  await mapPool(toFetch, 4, async (show) => {
     const img = await searchTMDBImage(show);
     if (img?.url) {
       cache[show.id] = {
@@ -1951,8 +1971,7 @@ async function enrichCoversFromTMDB(shows) {
       }
       console.log(`    ✗ ${show.title}`);
     }
-    await sleep(300);
-  }
+  });
 
   // 同步 seedId ↔ show.id 缓存 (种子匹配到直播节目后 ID 会变)
   for (const show of shows) {

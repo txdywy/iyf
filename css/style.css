@@ -639,3 +639,20 @@ a:hover { color: var(--pink); }
 .show-card {
   animation: fadeInUp 0.4s ease-out both;
 }
+
+/* 仅在切换标签/首次加载(.animate)时播放入场动画;筛选/搜索/排序的即时重渲不重放动画,避免抖动 */
+.show-grid:not(.animate) .show-card {
+  animation: none;
+}
+
+/* 尊重系统"减少动态效果"偏好:关闭入场/旋转/悬停位移等非必要动效 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .show-card { animation: none; }
+  .show-card:hover { transform: none; }
+  .show-card:hover .card-poster img { transform: none; }
+}
