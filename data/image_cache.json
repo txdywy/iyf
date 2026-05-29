@@ -1348,7 +1348,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:46.238Z"
+    "cachedAt": "2026-05-29T02:48:26.186Z"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -2370,7 +2370,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:46.539Z"
+    "cachedAt": "2026-05-29T02:48:26.486Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,7 +2394,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:46.840Z"
+    "cachedAt": "2026-05-29T02:48:26.787Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2500,14 +2503,17 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:45.937Z"
+    "cachedAt": "2026-05-29T02:48:25.584Z"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:45.336Z"
+    "cachedAt": "2026-05-29T02:48:23.781Z",
+    "doubanUrl": "https://movie.douban.com/subject/37835510/",
+    "doubanId": "37835510",
+    "doubanMatchedTitle": "音你而来3"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -2705,7 +2711,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T13:24:42.118Z"
+    "cachedAt": "2026-05-29T02:48:25.885Z"
   },
   "VYXVNnIG2QF": {
     "title": "极致欢愉保障",
@@ -2733,7 +2739,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:45.637Z"
+    "cachedAt": "2026-05-29T02:48:25.284Z"
   },
   "lE7rJK1Pn3C": {
     "title": "转过头帮你擦眼泪",
@@ -2776,27 +2782,21 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:44.735Z",
-    "doubanUrl": "https://movie.douban.com/subject/38435117/",
-    "doubanId": "38435117",
-    "doubanMatchedTitle": "国乐无双"
+    "cachedAt": "2026-05-29T02:48:24.682Z"
   },
   "IjLQoIwgl5A": {
     "title": "这是我的西游第2季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:45.035Z",
-    "doubanUrl": "https://movie.douban.com/subject/37515203/",
-    "doubanId": "37515203",
-    "doubanMatchedTitle": "这是我的西游2"
+    "cachedAt": "2026-05-29T02:48:24.983Z"
   },
   "Va2aCooTNzE": {
     "title": "刘在锡的民宿法则！",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:44.133Z",
+    "cachedAt": "2026-05-29T02:48:24.082Z",
     "doubanUrl": "https://movie.douban.com/subject/37480845/",
     "doubanId": "37480845",
     "doubanMatchedTitle": "刘在锡的民宿法则！"
@@ -2806,7 +2806,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T15:41:44.434Z",
+    "cachedAt": "2026-05-29T02:48:24.381Z",
     "doubanUrl": "https://movie.douban.com/subject/38201945/",
     "doubanId": "38201945",
     "doubanMatchedTitle": "姐姐对我来说是女人2"
@@ -2844,7 +2844,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-28T13:12:55.348Z"
+    "cachedAt": "2026-05-28T13:12:55.348Z",
+    "doubanUrl": "https://movie.douban.com/subject/26387829/",
+    "doubanId": "26387829",
+    "doubanMatchedTitle": "犯罪心理 第十一季"
   },
   "bmgk6y7zqNy1": {
     "title": "欢迎回我的频道",
@@ -2866,5 +2869,35 @@
     "version": 13,
     "notFound": true,
     "cachedAt": "2026-05-28T13:24:45.425Z"
+  },
+  "X0Jv875gmX2": {
+    "title": "四季情第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-29T02:48:27.088Z",
+    "doubanUrl": "https://movie.douban.com/subject/37354666/",
+    "doubanId": "37354666",
+    "doubanMatchedTitle": "四季情 第二季"
+  },
+  "7KtxVIt5fC8": {
+    "title": "正念谋杀第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-29T02:48:27.388Z",
+    "doubanUrl": "https://movie.douban.com/subject/37164585/",
+    "doubanId": "37164585",
+    "doubanMatchedTitle": "正念谋杀 第二季"
+  },
+  "m2yZCcRFWpR": {
+    "title": "好女孩的谋杀调查指南第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-05-29T02:48:27.689Z",
+    "doubanUrl": "https://movie.douban.com/subject/37124467/",
+    "doubanId": "37124467",
+    "doubanMatchedTitle": "好女孩的谋杀调查指南 第二季"
   }
 }
