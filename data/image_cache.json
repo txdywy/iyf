@@ -1348,7 +1348,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-29T02:48:26.186Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -2370,7 +2370,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,7 +2394,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2503,20 +2503,14 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-29T02:48:25.584Z",
-    "doubanUrl": "https://movie.douban.com/subject/38370838/",
-    "doubanId": "38370838",
-    "doubanMatchedTitle": "风华合伙人"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-29T02:48:23.781Z",
-    "doubanUrl": "https://movie.douban.com/subject/37835510/",
-    "doubanId": "37835510",
-    "doubanMatchedTitle": "音你而来3"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -2720,7 +2714,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-29T02:48:25.885Z",
+    "cachedAt": "2026-06-01T03:35:55.945Z",
     "doubanUrl": "https://movie.douban.com/subject/37815828/",
     "doubanId": "37815828",
     "doubanMatchedTitle": "开始推理吧 第四季"
@@ -2797,40 +2791,28 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-29T02:48:24.682Z",
-    "doubanUrl": "https://movie.douban.com/subject/38435117/",
-    "doubanId": "38435117",
-    "doubanMatchedTitle": "国乐无双"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "IjLQoIwgl5A": {
     "title": "这是我的西游第2季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z",
-    "doubanUrl": "https://movie.douban.com/subject/37515203/",
-    "doubanId": "37515203",
-    "doubanMatchedTitle": "这是我的西游2"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "Va2aCooTNzE": {
     "title": "刘在锡的民宿法则！",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.465Z",
-    "doubanUrl": "https://movie.douban.com/subject/37480845/",
-    "doubanId": "37480845",
-    "doubanMatchedTitle": "刘在锡的民宿法则！"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z",
-    "doubanUrl": "https://movie.douban.com/subject/38201945/",
-    "doubanId": "38201945",
-    "doubanMatchedTitle": "姐姐对我来说是女人2"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -2937,7 +2919,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.465Z",
+    "cachedAt": "2026-06-01T03:35:55.945Z",
     "doubanUrl": "https://movie.douban.com/subject/37172409/",
     "doubanId": "37172409",
     "doubanMatchedTitle": "新进职员姜会长"
@@ -2954,6 +2936,16 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
+  },
+  "nxdKUKzzNCG": {
+    "title": "半熟恋人第5季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37815127/",
+    "doubanId": "37815127",
+    "doubanMatchedTitle": "半熟恋人 第五季"
   }
 }
