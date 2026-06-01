@@ -2394,7 +2394,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2791,7 +2794,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/38435117/",
+    "doubanId": "38435117",
+    "doubanMatchedTitle": "国乐无双"
   },
   "IjLQoIwgl5A": {
     "title": "这是我的西游第2季",
@@ -2929,14 +2935,20 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-05-31T02:59:08.966Z"
+    "cachedAt": "2026-05-31T02:59:08.966Z",
+    "doubanUrl": "https://movie.douban.com/subject/37134257/",
+    "doubanId": "37134257",
+    "doubanMatchedTitle": "天国男孩"
   },
   "Lztr1FrEg4K": {
     "title": "相信我",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37332646/",
+    "doubanId": "37332646",
+    "doubanMatchedTitle": "相信我"
   },
   "nxdKUKzzNCG": {
     "title": "半熟恋人第5季",
