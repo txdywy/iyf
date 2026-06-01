@@ -128,8 +128,8 @@ function normalizeItem(it) {
 }
 
 function parseUpdateStatus(s) {
-  const total = s.match(/(\d+)集全/);
-  const done = !!total || s.includes('全集');
+  const total = s.match(/(?<!\d)(\d{1,3})集全/);
+  const done = !!total || /全集|集全|(?<!未)完结|收官/.test(s);
   // 综艺格式: "更新到20260503(第10期下)" → 提取括号内集数
   const varietyEp = s.match(/第(\d+)期/);
   // 电视剧格式: "更新到06" → 06
@@ -279,11 +279,33 @@ function attachLinkFields(show, yfspUrl = '', doubanUrl = '') {
   return show;
 }
 
+function candidateStatusYear(candidate) {
+  return extractYear(candidate.updateStatus || candidate.lastName || candidate.updateMsg || '');
+}
+
+function candidateReferencesSeedYear(seed, candidate) {
+  return !!(seed?.year && candidateStatusYear(candidate) === seed.year);
+}
+
+function isYearCompatible(seed, candidate) {
+  if (!seed?.year || !candidate) return true;
+  const candidateYear = candidate.year || extractYear(candidate.publishTime || '');
+  if (seed.isClassic) return true;
+  const statusYear = candidateStatusYear(candidate);
+  const hasSeedYearUpdate = candidateReferencesSeedYear(seed, candidate);
+  if ((seed.isSerial || seed.mediaType === '综艺') && statusYear && statusYear < seed.year && !hasSeedYearUpdate) return false;
+  if (!candidateYear) return true;
+  if (candidateYear < seed.year && (seed.isSerial || seed.mediaType === '综艺') && !hasSeedYearUpdate) return false;
+  if (seed.year >= CURRENT_YEAR && candidateYear < CURRENT_YEAR && !hasSeedYearUpdate) return false;
+  return Math.abs(seed.year - candidateYear) <= 1 || hasSeedYearUpdate;
+}
+
 function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
   const candidates = [...liveShows.values()].filter(s =>
     s.mediaType === mediaType &&
     (!regionMatcher || regionMatcher(s)) &&
-    titleMatches(seed.title, s.title)
+    titleMatches(seed.title, s.title) &&
+    isYearCompatible(seed, s)
   );
   return candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0] || null;
 }
@@ -358,6 +380,7 @@ function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
 
 function scoreYfspCandidate(show, result) {
   if (!titleMatches(show.title, result.title)) return -1;
+  if (!isYearCompatible(show, { year: extractYear(result.postTime || ''), publishTime: result.postTime || '', updateStatus: result.lastName || '', mediaType: result.atypeName })) return -1;
   const showYearInTitle = show.title.match(/20\d{2}/)?.[0];
   if (showYearInTitle && !result.title.includes(showYearInTitle)) return -1;
   let score = 0;
@@ -666,8 +689,48 @@ const AI_DISCOVERY_SYSTEM = `你是"剧荒救星"新剧筛选助手。根据观�
 
 返回 JSON 数组: [{"id":"剧ID","ok":true/false,"s":推荐度(0-100),"r":"理由"}]`;
 
+function hasAnyAIProvider() {
+  return !!(process.env.GITHUB_TOKEN || process.env.MODELS_TOKEN || process.env.OPENROUTER_API_KEY);
+}
+
+function parseJSONArrayResponse(resp) {
+  if (!resp) return [];
+  try {
+    const parsed = JSON.parse(resp);
+    if (Array.isArray(parsed)) return parsed;
+    for (const key of ['results', 'items', 'data']) {
+      if (Array.isArray(parsed?.[key])) return parsed[key];
+    }
+  } catch {}
+
+  for (let start = resp.indexOf('['); start >= 0; start = resp.indexOf('[', start + 1)) {
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = start; i < resp.length; i++) {
+      const ch = resp[i];
+      if (escape) { escape = false; continue; }
+      if (inString && ch === '\\') { escape = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === '[') depth++;
+      else if (ch === ']') {
+        depth--;
+        if (depth === 0) {
+          try {
+            const parsed = JSON.parse(resp.slice(start, i + 1));
+            if (Array.isArray(parsed)) return parsed;
+          } catch {}
+          break;
+        }
+      }
+    }
+  }
+  return [];
+}
+
 async function aiScoreShows(shows) {
-  if (!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) {
+  if (!hasAnyAIProvider()) {
     console.log('  [AI] 未找到 token,跳过 AI 评分');
     return new Map();
   }
@@ -675,7 +738,7 @@ async function aiScoreShows(shows) {
   const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   // 包含: 无 aiScoredAt 的、7天前的、或有 aiScoredAt 但无 aiScore 的(上次 API 漏返回的)
   const toScore = shows.filter(s =>
-    !s.aiScoredAt || !s.aiScore || new Date(s.aiScoredAt).getTime() < oneWeekAgo
+    !s.aiScoredAt || s.aiScore == null || new Date(s.aiScoredAt).getTime() < oneWeekAgo
   );
   if (!toScore.length) {
     console.log('  [AI] 所有剧集已有 AI 评分,跳过');
@@ -706,7 +769,7 @@ async function aiScoreShows(shows) {
 
     if (resp) {
       try {
-        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        const arr = parseJSONArrayResponse(resp);
         for (const item of arr) {
           if (item.id && typeof item.s === 'number') {
             results.set(item.id, { score: Math.max(0, Math.min(100, item.s)), reason: item.r || '' });
@@ -727,7 +790,7 @@ async function aiScoreShows(shows) {
 }
 
 async function aiEvaluateDiscovery(discovered) {
-  if ((!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) || !discovered.length) return discovered;
+  if (!hasAnyAIProvider() || !discovered.length) return discovered;
 
   console.log(`  [AI] 筛选 ${discovered.length} 部新发现韩剧...`);
   const results = new Map();
@@ -748,7 +811,7 @@ async function aiEvaluateDiscovery(discovered) {
 
     if (resp) {
       try {
-        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        const arr = parseJSONArrayResponse(resp);
         for (const item of arr) {
           if (item.id) results.set(item.id, { ok: !!item.ok, score: item.s || 0, reason: item.r || '' });
         }
@@ -774,7 +837,7 @@ async function aiEvaluateDiscovery(discovered) {
 }
 
 async function aiEnhanceDescriptions(shows) {
-  if (!process.env.GITHUB_TOKEN && !process.env.MODELS_TOKEN) return 0;
+  if (!hasAnyAIProvider()) return 0;
 
   const targets = shows.filter(s => !s.description || s.description.length < 20);
   if (!targets.length) return 0;
@@ -797,7 +860,7 @@ async function aiEnhanceDescriptions(shows) {
 
     if (resp) {
       try {
-        const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+        const arr = parseJSONArrayResponse(resp);
         const map = new Map(arr.filter(x => x.id && x.d).map(x => [x.id, x.d]));
         for (const s of batch) {
           const desc = map.get(s.id);
@@ -1001,10 +1064,13 @@ async function main() {
     }
     // 韩国综艺也算
     if (s.regional === '韩国' && s.mediaType === '综艺') {
-      s.recommendScore = scoreVariety(s);
-      s.category = 'chinese_variety';
-      attachLinkFields(s, s.yfspUrl || s.url);
-      varietyMap.set(s.id, s);
+      const vsc = scoreVariety(s);
+      if (vsc >= 0) {
+        s.recommendScore = vsc;
+        s.category = 'chinese_variety';
+        attachLinkFields(s, s.yfspUrl || s.url);
+        varietyMap.set(s.id, s);
+      }
     }
   }
   for (const s of SEED_VARIETY) {
@@ -1016,7 +1082,8 @@ async function main() {
     show.recommendScore = scoreVariety(show);
     show.category = 'chinese_variety';
     attachLinkFields(show, show.yfspUrl, buildDoubanSubjectUrl(show.title));
-    varietyMap.set(existingKey, show);
+    const vsc = show.recommendScore;
+    if (vsc >= 0) varietyMap.set(existingKey, show);
   }
 
   // ── 4. 其他电视剧 ──
@@ -1051,7 +1118,7 @@ async function main() {
   const prevTitleFirstSeenMap = new Map();
   const prevMap = new Map();
   for (const s of [...prevShows.koreanDramas, ...prevShows.chineseVariety, ...prevShows.otherDramas]) {
-    if (s.aiScore && s.aiScoredAt) prevMap.set(s.id, s);
+    if (s.aiScore != null && s.aiScoredAt) prevMap.set(s.id, s);
     if (s.firstSeenAt) {
       prevFirstSeenMap.set(s.id, s.firstSeenAt);
       prevTitleFirstSeenMap.set(normalizeTitle(s.title), s.firstSeenAt);
@@ -1059,7 +1126,7 @@ async function main() {
   }
   let restored = 0;
   for (const [id, show] of [...kdramaMap, ...varietyMap]) {
-    if (!show.aiScore && prevMap.has(id)) {
+    if (show.aiScore == null && prevMap.has(id)) {
       const p = prevMap.get(id);
       show.aiScore = p.aiScore;
       show.aiReason = p.aiReason;
@@ -1166,21 +1233,66 @@ function isRecommendationCategory(show) {
 // 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
 // 防止同名条目(如季号变体撞名)重复成卡。不按 normalizeTitle 合并,
 // 以保留确实不同的季(如"黑暗荣耀"/"黑暗荣耀第2季"、"极限挑战"/"极限挑战第一季")。
+function externalIdentityKeys(show) {
+  return [show.tmdbUrl, show.doubanUrl, show.imdbUrl, show.wikidataId, show.yfspUrl].filter(Boolean);
+}
+
+const SEASON_NUMERAL_MAP = {
+  '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+  '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+};
+
+function normalizeSeasonNumber(value = '') {
+  if (/^\d+$/u.test(value)) return String(parseInt(value, 10));
+  if (value === '十') return '10';
+  if (value.startsWith('十')) return String(10 + (SEASON_NUMERAL_MAP[value.slice(1)] || 0));
+  if (value.endsWith('十')) return String((SEASON_NUMERAL_MAP[value.slice(0, -1)] || 1) * 10);
+  if (value.includes('十')) {
+    const [tens, ones] = value.split('十');
+    return String((SEASON_NUMERAL_MAP[tens] || 1) * 10 + (SEASON_NUMERAL_MAP[ones] || 0));
+  }
+  return SEASON_NUMERAL_MAP[value] ? String(SEASON_NUMERAL_MAP[value]) : value;
+}
+
+function seasonKey(title = '') {
+  const match = title.match(/第([一二三四五六七八九十\d]+)季/u);
+  return match ? `第${normalizeSeasonNumber(match[1])}季` : '';
+}
+
+function shouldDedupByExternal(a, b) {
+  if (!a?.title || !b?.title) return false;
+  const aSeason = seasonKey(a.title);
+  const bSeason = seasonKey(b.title);
+  if (aSeason || bSeason) return !!aSeason && aSeason === bSeason && titleMatches(a.title, b.title);
+  return true;
+}
+
 function dedupByTitle(list) {
-  const seen = new Set();
+  const seenTitles = new Set();
+  const seenExternal = new Map();
   return list.filter(s => {
     const key = (s.title || '').trim();
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
+    if (!key || seenTitles.has(key)) return false;
+
+    const externalKeys = externalIdentityKeys(s);
+    for (const external of externalKeys) {
+      const previous = seenExternal.get(external) || [];
+      if (previous.some(p => shouldDedupByExternal(p, s))) return false;
+    }
+    for (const external of externalKeys) {
+      const previous = seenExternal.get(external) || [];
+      previous.push(s);
+      seenExternal.set(external, previous);
+    }
+
+    seenTitles.add(key);
     return true;
   });
 }
 
 function isRenderableShow(show) {
-  // 种子数据直接保留(封面和链接可在前端兜底)
-  if (show.seedId) return true;
-  if (isRecommendationCategory(show)) return !!show.primaryUrl && show.coverSource === 'tmdb' && isTMDBImageUrl(show.coverImg);
-  return !!show.coverImg && !!show.primaryUrl;
+  if (!show.coverImg || !show.primaryUrl) return false;
+  return true;
 }
 
 function saveHistory(output) {
@@ -1257,21 +1369,54 @@ async function enrichMissingYfspLinks(shows) {
   console.log(`  匹配到 ${matched} 个爱壹帆具体页`);
 }
 
+function isDoubanYearCompatible(show, doubanYear) {
+  const year = parseInt(doubanYear || '', 10);
+  if (!show.year || !year) return true;
+  return Math.abs(show.year - year) <= 1;
+}
+
+function isSeasonSpecificTitle(title = '') {
+  return !!seasonKey(title);
+}
+
+function isDoubanSeasonCompatible(show, match) {
+  if (show.mediaType !== '综艺') return true;
+  const showSeason = seasonKey(show.title);
+  const matchSeason = seasonKey(match.doubanTitle);
+  return !showSeason || !matchSeason || showSeason === matchSeason;
+}
+
+function isDoubanFallbackAllowed(show, match) {
+  if (!show.year) return true;
+  if (show.mediaType !== '综艺') return false;
+  return !isSeasonSpecificTitle(show.title) && !isSeasonSpecificTitle(match.doubanTitle);
+}
+
 async function searchDoubanSubject(show) {
   for (const query of titleCandidates(show.title)) {
     try {
       const results = await fetchDoubanSuggest(query);
       if (!Array.isArray(results)) continue;
+      let exact = null;
+      let compatible = null;
+      let fallback = null;
       for (const item of results.slice(0, 8)) {
         const names = [item.title, item.sub_title].filter(Boolean);
         if (!names.some(name => titleMatches(show.title, name))) continue;
-        return {
+        const match = {
           doubanUrl: `${DOUBAN_MOVIE_BASE}/${item.id}/`,
           doubanId: item.id,
           doubanTitle: item.title || '',
           doubanYear: item.year || '',
         };
+        const itemYear = parseInt(item.year || '', 10);
+        if (show.year && itemYear === show.year && isDoubanSeasonCompatible(show, match)) exact ||= match;
+        else if (isDoubanYearCompatible(show, item.year) && isDoubanSeasonCompatible(show, match)) compatible ||= match;
+        else if (isDoubanFallbackAllowed(show, match)) fallback ||= match;
       }
+      if (exact) return exact;
+      if (compatible) return compatible;
+      if (fallback) return fallback;
     } catch (e) {
       console.warn(`  [WARN] douban search failed for "${query}": ${e.message}`);
     }
@@ -1890,6 +2035,12 @@ async function enrichCoversFromTMDB(shows) {
       show.coverImg = show.yfspCoverImg;
       show.coverSource = 'yfsp';
     }
+  }
+
+  if (!TMDB_TOKEN) {
+    console.log('  未配置 TMDB_TOKEN,跳过 TMDB 封面抓取');
+    saveImageCache(cache);
+    return;
   }
 
   // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。

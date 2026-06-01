@@ -7,7 +7,6 @@
 
   const DATA_URL = 'data/shows.json';
   let allData = null;
-  let currentTab = 'korean';
   let currentShows = [];
 
   // ── 初始化 ──────────────────────────────────────────
@@ -50,7 +49,6 @@
   }
 
   function switchTab(tab) {
-    currentTab = tab;
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
       b.classList.toggle('active', active);
@@ -65,12 +63,12 @@
         shows = allData.koreanDramas || [];
         break;
       case 'year2026':
-        shows = (allData.koreanDramas || []).filter(s => s.year === 2026);
+        shows = (allData.koreanDramas || []).filter(s => s.year === getCurrentDataYear());
         break;
       case 'variety2026':
-        // 2026年新综艺：当年新综艺 + 经典搞笑综艺
+        // 当年新综艺：当年新综艺 + 经典搞笑综艺
         shows = (allData.chineseVariety || []).filter(s =>
-          s.year >= new Date().getFullYear() || s.isClassic
+          s.year >= getCurrentDataYear() || s.isClassic
         );
         break;
       case 'variety':
@@ -78,7 +76,7 @@
         break;
       case 'new':
         shows = [...(allData.koreanDramas || []), ...(allData.chineseVariety || [])]
-          .filter(s => s.year >= new Date().getFullYear())
+          .filter(s => s.year >= getCurrentDataYear())
           .sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
         break;
       case 'classic':
@@ -164,11 +162,11 @@
 
   function renderCard(show, index) {
     const badges = [];
-    if (show.aiScore) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(show.aiScore))}/100</span>`);
+    if (Number.isFinite(show.aiScore)) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(show.aiScore))}/100</span>`);
     if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
-    if (show.year >= new Date().getFullYear()) badges.push('<span class="badge badge-new">新剧</span>');
+    if (show.year >= getCurrentDataYear()) badges.push('<span class="badge badge-new">新剧</span>');
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
 
@@ -179,7 +177,7 @@
       : '<div class="placeholder">🎬</div>';
 
     const statusText = show.isComplete
-      ? `已完结 · ${show.totalEpisodes || '?'}集`
+      ? (show.totalEpisodes ? `已完结 · ${show.totalEpisodes}集` : '已完结')
       : show.mediaType === '综艺'
         ? (show.updateStatus || '更新中')
         : show.currentEpisode
@@ -252,6 +250,15 @@
     if (show.imdbUrl) {
       actions.push(`<a class="card-action source-imdb" href="${escapeHtml(show.imdbUrl)}" target="_blank" rel="noopener">IMDb资料</a>`);
     }
+
+    const yfspUrl = show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : '');
+    if (yfspUrl) {
+      actions.push(`<a class="card-action source-yfsp" href="${escapeHtml(yfspUrl)}" target="_blank" rel="noopener">观看/详情</a>`);
+    }
+
+    if (!actions.length && show.primaryUrl) {
+      actions.push(`<a class="card-action source-yfsp" href="${escapeHtml(show.primaryUrl)}" target="_blank" rel="noopener">资料链接</a>`);
+    }
     if (!actions.length) {
       actions.push('<span class="card-action disabled">待匹配链接</span>');
     }
@@ -291,6 +298,11 @@
   }
 
   // ── 工具函数 ──────────────────────────────────────
+  function getCurrentDataYear() {
+    const time = getValidTime(allData?.lastUpdated);
+    return time ? new Date(time).getUTCFullYear() : new Date().getFullYear();
+  }
+
   function getValidTime(value) {
     const time = new Date(value || 0).getTime();
     return Number.isNaN(time) ? 0 : time;

@@ -88,14 +88,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      - name: Clean up non-site files
+      - name: Build Pages artifact
         run: |
-          rm -rf .github scripts .git data/history.json data/image_cache.json .gitignore
+          mkdir -p site/data
+          cp index.html site/
+          cp -R css js site/
+          cp data/shows.json site/data/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: '.'
+          path: 'site'
 
       - name: Deploy to GitHub Pages
         id: deployment
