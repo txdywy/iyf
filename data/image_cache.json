@@ -2370,7 +2370,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T14:07:24.243Z"
+    "cachedAt": "2026-06-02T16:14:55.927Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,7 +2394,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T14:07:24.243Z"
+    "cachedAt": "2026-06-02T16:14:55.927Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2510,7 +2510,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37835510/",
+    "doubanId": "37835510",
+    "doubanMatchedTitle": "音你而来3"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -2835,10 +2838,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T14:07:24.242Z",
-    "doubanUrl": "https://movie.douban.com/subject/38201945/",
-    "doubanId": "38201945",
-    "doubanMatchedTitle": "姐姐对我来说是女人2"
+    "cachedAt": "2026-06-02T16:14:55.924Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -2967,13 +2967,18 @@
   },
   "Lztr1FrEg4K": {
     "title": "相信我",
+    "url": "https://image.tmdb.org/t/p/w780/g8qiv2FzpjAlQ8bWrucVDlpbKSG.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/37332646/",
-    "doubanId": "37332646",
-    "doubanMatchedTitle": "相信我"
+    "query": "相信我",
+    "matchedTitle": "相信我",
+    "tmdbId": 301283,
+    "tmdbUrl": "https://www.themoviedb.org/tv/301283",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36789130/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T16:14:56.010Z"
   },
   "nxdKUKzzNCG": {
     "title": "半熟恋人第5季",
@@ -3035,5 +3040,22 @@
     "cachedAt": "2026-06-02T12:56:59.873Z",
     "doubanId": "36894289",
     "doubanMatchedTitle": "翘楚"
+  },
+  "9p7CLA6ixT2": {
+    "title": "喜欢你我也是第6季",
+    "url": "https://image.tmdb.org/t/p/w780/tDJcQL4KpY50OZrqQjP5L7tHKo6.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "喜欢你我也是",
+    "matchedTitle": "喜欢你我也是",
+    "tmdbId": 124265,
+    "tmdbUrl": "https://www.themoviedb.org/tv/124265",
+    "doubanUrl": "https://movie.douban.com/subject/37561237/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T16:14:56.326Z",
+    "doubanId": "37561237",
+    "doubanMatchedTitle": "喜欢你我也是 第六季"
   }
 }
