@@ -1348,10 +1348,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/37814472/",
-    "doubanId": "37814472",
-    "doubanMatchedTitle": "五十公里桃花坞6"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -2373,10 +2370,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T12:53:29.684Z",
-    "doubanUrl": "https://movie.douban.com/subject/26809886/",
-    "doubanId": "26809886",
-    "doubanMatchedTitle": "喜剧者联盟"
+    "cachedAt": "2026-06-02T12:56:59.655Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2400,7 +2394,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T12:53:30.005Z"
+    "cachedAt": "2026-06-02T12:56:59.133Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2509,10 +2503,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/38370838/",
-    "doubanId": "38370838",
-    "doubanMatchedTitle": "风华合伙人"
+    "cachedAt": "2026-06-01T03:35:55.945Z"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
@@ -2807,13 +2798,18 @@
   },
   "IjLQoIwgl5A": {
     "title": "这是我的西游第2季",
+    "url": "https://image.tmdb.org/t/p/w780/6r8b7TJqVB9kQb1pvv05OegXpNy.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/37515203/",
-    "doubanId": "37515203",
-    "doubanMatchedTitle": "这是我的西游2"
+    "query": "这是我的西游",
+    "matchedTitle": "这是我的西游",
+    "tmdbId": 289983,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289983",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T12:56:59.523Z"
   },
   "Va2aCooTNzE": {
     "title": "刘在锡的民宿法则！",
@@ -2824,18 +2820,20 @@
     "matchedTitle": "刘在锡的民宿法则！",
     "tmdbId": 318167,
     "tmdbUrl": "https://www.themoviedb.org/tv/318167",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37480845/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt39387426/",
     "wikidataId": "",
-    "cachedAt": "2026-06-02T12:53:29.134Z"
+    "cachedAt": "2026-06-02T12:56:58.255Z",
+    "doubanId": "37480845",
+    "doubanMatchedTitle": "刘在锡的民宿法则！"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T12:53:29.654Z"
+    "cachedAt": "2026-06-02T12:56:58.755Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -2950,7 +2948,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%96%B0%E9%80%B2%E7%A4%BE%E5%93%A1%E5%A7%9C%E6%9C%83%E9%95%B7",
     "imdbUrl": "https://www.imdb.com/title/tt42206645/",
     "wikidataId": "Q136714294",
-    "cachedAt": "2026-06-02T12:53:29.451Z"
+    "cachedAt": "2026-06-02T12:56:58.461Z"
   },
   "fQOF804YwsE": {
     "title": "天国男孩",
@@ -2995,7 +2993,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%86%AB%E5%88%B0%E5%AD%A4%E5%B3%B6%E6%84%9B%E4%B8%8A%E4%BD%A0",
     "imdbUrl": "https://www.imdb.com/title/tt39184653/",
     "wikidataId": "Q137394211",
-    "cachedAt": "2026-06-02T12:53:29.452Z",
+    "cachedAt": "2026-06-02T12:56:58.457Z",
     "doubanId": "36680637",
     "doubanMatchedTitle": "医到孤岛爱上你"
   },
@@ -3008,13 +3006,11 @@
     "matchedTitle": "灵魂摆渡·十年",
     "tmdbId": 289147,
     "tmdbUrl": "https://www.themoviedb.org/tv/289147",
-    "doubanUrl": "https://movie.douban.com/subject/37317021/",
+    "doubanUrl": "",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-06-02T12:53:29.480Z",
-    "doubanId": "37317021",
-    "doubanMatchedTitle": "灵魂摆渡·十年"
+    "cachedAt": "2026-06-02T12:56:58.937Z"
   },
   "4fnuiuBzXV0": {
     "title": "翘楚",
@@ -3029,6 +3025,6 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37140755/",
     "wikidataId": "",
-    "cachedAt": "2026-06-02T12:53:29.512Z"
+    "cachedAt": "2026-06-02T12:56:59.873Z"
   }
 }
