@@ -199,6 +199,7 @@ const TITLE_ALIAS_MAP = {
   '综艺大热门': ['綜藝大熱門', 'Hot Door Night'],
   '披荆斩棘的哥哥': ['披荆斩棘', 'Call Me by Fire'],
   'BTS综艺年代记': ['BTS Variety Chronicle', 'Run BTS!'],
+  '新进职员姜会长': ['新进社员姜会长', 'The New Employee Chairman Kang'],
 };
 
 function titleCandidates(title = '') {
@@ -1872,6 +1873,8 @@ const TITLE_EN_MAP = {
   '今天开始是人类': 'Starting Today I Am Human',
   '超能路人甲': 'The WONDERfools',
   '大叔再出招': 'Fifties Professionals',
+  '医到孤岛爱上你': 'Doctor on the Edge',
+  '新进职员姜会长': 'The New Employee Chairman Kang',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',
