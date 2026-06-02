@@ -1348,7 +1348,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814472/",
+    "doubanId": "37814472",
+    "doubanMatchedTitle": "五十公里桃花坞6"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -2370,7 +2373,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-02T12:53:29.684Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,10 +2400,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/35460067/",
-    "doubanId": "35460067",
-    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
+    "cachedAt": "2026-06-02T12:53:30.005Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2506,7 +2509,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/38370838/",
+    "doubanId": "38370838",
+    "doubanMatchedTitle": "风华合伙人"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
@@ -2804,21 +2810,32 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37515203/",
+    "doubanId": "37515203",
+    "doubanMatchedTitle": "这是我的西游2"
   },
   "Va2aCooTNzE": {
     "title": "刘在锡的民宿法则！",
+    "url": "https://image.tmdb.org/t/p/w780/pcBuEVNJn69IQ1Bp2du0qJa7gtV.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "query": "刘在锡的民宿法则！",
+    "matchedTitle": "刘在锡的民宿法则！",
+    "tmdbId": 318167,
+    "tmdbUrl": "https://www.themoviedb.org/tv/318167",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39387426/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T12:53:29.134Z"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-02T12:53:29.654Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -2922,13 +2939,18 @@
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
+    "url": "https://image.tmdb.org/t/p/w780/viNlJhAM4ztlSC0xle0nnxR3f4Q.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z",
-    "doubanUrl": "https://movie.douban.com/subject/37172409/",
-    "doubanId": "37172409",
-    "doubanMatchedTitle": "新进职员姜会长"
+    "query": "新进职员姜会长",
+    "matchedTitle": "新进社员姜会长",
+    "tmdbId": 299365,
+    "tmdbUrl": "https://www.themoviedb.org/tv/299365",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%96%B0%E9%80%B2%E7%A4%BE%E5%93%A1%E5%A7%9C%E6%9C%83%E9%95%B7",
+    "imdbUrl": "https://www.imdb.com/title/tt42206645/",
+    "wikidataId": "Q136714294",
+    "cachedAt": "2026-06-02T12:53:29.451Z"
   },
   "fQOF804YwsE": {
     "title": "天国男孩",
@@ -2959,5 +2981,54 @@
     "doubanUrl": "https://movie.douban.com/subject/37815127/",
     "doubanId": "37815127",
     "doubanMatchedTitle": "半熟恋人 第五季"
+  },
+  "ycjsdW8Bom4": {
+    "title": "医到孤岛爱上你",
+    "url": "https://image.tmdb.org/t/p/w780/gcxoRCPKIv0TlTi9zMdGzmfcgjH.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "医到孤岛爱上你",
+    "matchedTitle": "医到孤岛爱上你",
+    "tmdbId": 287009,
+    "tmdbUrl": "https://www.themoviedb.org/tv/287009",
+    "doubanUrl": "https://movie.douban.com/subject/36680637/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%86%AB%E5%88%B0%E5%AD%A4%E5%B3%B6%E6%84%9B%E4%B8%8A%E4%BD%A0",
+    "imdbUrl": "https://www.imdb.com/title/tt39184653/",
+    "wikidataId": "Q137394211",
+    "cachedAt": "2026-06-02T12:53:29.452Z",
+    "doubanId": "36680637",
+    "doubanMatchedTitle": "医到孤岛爱上你"
+  },
+  "tqA8rMxWCj9": {
+    "title": "灵魂摆渡·十年",
+    "url": "https://image.tmdb.org/t/p/w780/r1EHwuOLdQ396YOlpmBoFEeOit3.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "灵魂摆渡·十年",
+    "matchedTitle": "灵魂摆渡·十年",
+    "tmdbId": 289147,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289147",
+    "doubanUrl": "https://movie.douban.com/subject/37317021/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T12:53:29.480Z",
+    "doubanId": "37317021",
+    "doubanMatchedTitle": "灵魂摆渡·十年"
+  },
+  "4fnuiuBzXV0": {
+    "title": "翘楚",
+    "url": "https://image.tmdb.org/t/p/w780/vcU56Dw1aKxTTlhrVr0qvPnljDV.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "翘楚",
+    "matchedTitle": "翘楚",
+    "tmdbId": 289271,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289271",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37140755/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-02T12:53:29.512Z"
   }
 }
