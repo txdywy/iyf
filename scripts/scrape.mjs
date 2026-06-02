@@ -236,7 +236,7 @@ function normalizedTitleMatches(a, b) {
   if (minLen >= 5 && maxLen - minLen <= 1 && editDistance(na, nb) <= 1) return true;
   // 综艺名通常较短，放宽匹配限制
   if (na.includes(nb) || nb.includes(na)) {
-    if (minLen >= 3) return true;
+    if (minLen >= 4) return true;
     if (minLen >= 2 && maxLen <= 4) return true;
   }
   return false;
@@ -314,6 +314,7 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
 function applyLiveFields(seedShow, liveMatch) {
   if (!liveMatch) return seedShow;
   const liveStatus = parseUpdateStatus(liveMatch.updateStatus || '');
+  const hasLiveData = !!(liveMatch.updateStatus && (liveStatus.totalEpisodes || liveStatus.currentEpisode));
   return {
     ...seedShow,
     id: liveMatch.id || seedShow.id,
@@ -321,7 +322,7 @@ function applyLiveFields(seedShow, liveMatch) {
     coverImg: liveMatch.coverImg || seedShow.coverImg,
     updateStatus: liveMatch.updateStatus || seedShow.updateStatus || '',
     updateMsg: liveMatch.updateMsg || seedShow.updateMsg || '',
-    ...liveStatus,
+    ...(hasLiveData ? liveStatus : {}),
     publishTime: liveMatch.publishTime || seedShow.publishTime || '',
     scrapedAt: liveMatch.scrapedAt || seedShow.scrapedAt || '',
     isLive: true,
@@ -375,7 +376,7 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
 function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
   const restored =
     restorePreviousCategory(kdramaMap, prevShows.koreanDramas, 'korean_drama', '电视剧', scoreKDrama, 'disc_kd') +
-    restorePreviousCategory(varietyMap, prevShows.chineseVariety, 'chinese_variety', '综艺', scoreVariety, 'disc_var');
+    restorePreviousCategory(varietyMap, prevShows.chineseVariety, 'variety', '综艺', scoreVariety, 'disc_var');
   if (restored) console.log(`  从上次结果续保 ${restored} 个已收录推荐`);
 }
 
@@ -1058,7 +1059,7 @@ async function main() {
       const vsc = scoreVariety(s);
       if (vsc >= 0) {
         s.recommendScore = vsc;
-        s.category = 'chinese_variety';
+        s.category = 'variety';
         attachLinkFields(s, s.yfspUrl || s.url);
         varietyMap.set(s.id, s);
       }
@@ -1068,7 +1069,7 @@ async function main() {
       const vsc = scoreVariety(s);
       if (vsc >= 0) {
         s.recommendScore = vsc;
-        s.category = 'chinese_variety';
+        s.category = 'variety';
         attachLinkFields(s, s.yfspUrl || s.url);
         varietyMap.set(s.id, s);
       }
@@ -1081,7 +1082,7 @@ async function main() {
     let show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
     show.recommendScore = scoreVariety(show);
-    show.category = 'chinese_variety';
+    show.category = 'variety';
     attachLinkFields(show, show.yfspUrl, buildDoubanSubjectUrl(show.title));
     const vsc = show.recommendScore;
     if (vsc >= 0) varietyMap.set(existingKey, show);
@@ -1149,7 +1150,7 @@ async function main() {
     // 混合评分: 规则分为主体, AI 分作为 ±25 的调整
     if (show.aiScore != null) {
       // 综艺使用更温和的 AI 调整(±12.5),避免韩剧向 AI 误伤国产综艺
-      const aiWeight = show.category === 'chinese_variety' ? 0.25 : 0.5;
+      const aiWeight = show.category === 'variety' ? 0.25 : 0.5;
       show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * aiWeight));
     }
   }
@@ -1228,7 +1229,7 @@ async function main() {
 }
 
 function isRecommendationCategory(show) {
-  return show.category === 'korean_drama' || show.category === 'chinese_variety';
+  return show.category === 'korean_drama' || show.category === 'variety';
 }
 
 // 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
@@ -1739,7 +1740,7 @@ async function discoverNewVariety(liveShows, varietyMap) {
     const pass = s.score >= minSc2 || s.playCount >= minPl2 || (isFunny && s.playCount >= 5000) || hasFunnyHost;
     if (pass) {
       s.recommendScore = scoreVariety(s);
-      s.category = 'chinese_variety';
+      s.category = 'variety';
       attachLinkFields(s, s.yfspUrl || s.url);
       promoted.push(s);
     }

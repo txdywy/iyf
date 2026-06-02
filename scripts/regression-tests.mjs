@@ -422,7 +422,7 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
 assert.match(scrape, /const liveStatus = parseUpdateStatus\(liveMatch\.updateStatus \|\| ''\);/, 'live updateStatus should be parsed when applying live fields');
-assert.match(scrape, /\.\.\.liveStatus,/, 'parsed live status fields should override seed status fields');
+assert.match(scrape, /\.\.\.\(hasLiveData \? liveStatus : \{\}\)/, 'parsed live status fields should override seed status fields only when data exists');
 assert.match(scrape, /const bareEpisode = s\.match\(\/\^\\d\+\$\/\);/, 'bare numeric YFSP statuses should parse as current episodes');
 assert.match(scrape, /const refreshTargets = shows\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete\);/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');

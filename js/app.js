@@ -38,7 +38,9 @@
     const el = document.getElementById('updateInfo');
     const time = new Date(allData.lastUpdated);
     const timeStr = time.toLocaleString('zh-CN', { hour12: false });
-    el.textContent = `最后更新: ${timeStr} · 共 ${allData.stats.koreanDramas} 部韩剧 · ${allData.stats.chineseVariety} 档综艺`;
+    const kr = allData.stats?.koreanDramas ?? (allData.koreanDramas || []).length;
+    const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
+    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺`;
   }
 
   // ── 标签切换 ──────────────────────────────────────────
@@ -80,7 +82,10 @@
           .sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
         break;
       case 'classic':
-        shows = (allData.koreanDramas || []).filter(s => s.isClassic || s.score >= 8.5);
+        shows = [
+          ...(allData.koreanDramas || []),
+          ...(allData.chineseVariety || [])
+        ].filter(s => s.isClassic || s.score >= 8.5);
         break;
     }
 
@@ -277,10 +282,16 @@
     animateNum('statHighScore', highScore);
   }
 
+  const _numTimers = new Map();
+
   function animateNum(id, target) {
     const el = document.getElementById(id);
+    if (!el) return;
     const current = parseInt(el.textContent) || 0;
     if (current === target) return;
+
+    // 清理该元素上一次未完成的动画,避免多个 setInterval 叠加导致数字闪烁
+    if (_numTimers.has(id)) clearInterval(_numTimers.get(id));
 
     const diff = target - current;
     const steps = Math.min(Math.abs(diff), 20);
@@ -293,14 +304,18 @@
       if (i >= steps) {
         el.textContent = target;
         clearInterval(timer);
+        _numTimers.delete(id);
       }
     }, 30);
+    _numTimers.set(id, timer);
   }
 
   // ── 工具函数 ──────────────────────────────────────
   function getCurrentDataYear() {
-    const time = getValidTime(allData?.lastUpdated);
-    return time ? new Date(time).getUTCFullYear() : new Date().getFullYear();
+    // 从实际数据中的最大年份推导,而非更新时间戳(避免跨年时"新剧"tab 为空)
+    const allShows = [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || [])];
+    const maxYear = allShows.reduce((max, s) => Math.max(max, s.year || 0), 0);
+    return maxYear || new Date().getFullYear();
   }
 
   function getValidTime(value) {
