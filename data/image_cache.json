@@ -1348,7 +1348,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/37814472/",
+    "doubanId": "37814472",
+    "doubanMatchedTitle": "五十公里桃花坞6"
   },
   "seed_var_2026_27": {
     "title": "大侦探第十一季",
@@ -2370,7 +2373,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T16:14:55.927Z"
+    "cachedAt": "2026-06-03T03:39:41.706Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2394,7 +2400,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T16:14:55.927Z"
+    "cachedAt": "2026-06-03T03:39:41.697Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2503,7 +2509,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-01T03:35:55.945Z"
+    "cachedAt": "2026-06-01T03:35:55.945Z",
+    "doubanUrl": "https://movie.douban.com/subject/38370838/",
+    "doubanId": "38370838",
+    "doubanMatchedTitle": "风华合伙人"
   },
   "hREFb2JYJX9": {
     "title": "音你而来第3季",
@@ -2838,7 +2847,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-02T16:14:55.924Z"
+    "cachedAt": "2026-06-03T03:39:41.685Z",
+    "doubanUrl": "https://movie.douban.com/subject/38201945/",
+    "doubanId": "38201945",
+    "doubanMatchedTitle": "姐姐对我来说是女人2"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
