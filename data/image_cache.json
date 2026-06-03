@@ -2373,10 +2373,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-03T03:39:41.706Z",
-    "doubanUrl": "https://movie.douban.com/subject/26809886/",
-    "doubanId": "26809886",
-    "doubanMatchedTitle": "喜剧者联盟"
+    "cachedAt": "2026-06-03T16:30:39.576Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2400,7 +2397,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-03T03:39:41.697Z"
+    "cachedAt": "2026-06-03T16:30:39.579Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2847,7 +2844,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-03T03:39:41.685Z",
+    "cachedAt": "2026-06-03T16:30:39.564Z",
     "doubanUrl": "https://movie.douban.com/subject/38201945/",
     "doubanId": "38201945",
     "doubanMatchedTitle": "姐姐对我来说是女人2"
@@ -3069,5 +3066,20 @@
     "cachedAt": "2026-06-02T16:14:56.326Z",
     "doubanId": "37561237",
     "doubanMatchedTitle": "喜欢你我也是 第六季"
+  },
+  "r7ErB5ZVcF0": {
+    "title": "曼哈顿打拼日记",
+    "url": "https://image.tmdb.org/t/p/w780/hpucDFIvWwcn6sXk8EOEX0dbY0C.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "曼哈顿打拼日记",
+    "matchedTitle": "曼哈顿打拼日记",
+    "tmdbId": 284725,
+    "tmdbUrl": "https://www.themoviedb.org/tv/284725",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Not_Suitable_for_Work",
+    "imdbUrl": "https://www.imdb.com/title/tt35823838/",
+    "wikidataId": "Q139854135",
+    "cachedAt": "2026-06-03T16:30:39.183Z"
   }
 }
