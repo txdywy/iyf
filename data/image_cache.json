@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T02:57:29.475Z"
+    "cachedAt": "2026-06-05T14:40:25.153Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T02:57:29.481Z"
+    "cachedAt": "2026-06-05T14:40:25.417Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2882,7 +2882,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T02:57:29.471Z",
+    "cachedAt": "2026-06-05T14:40:25.144Z",
     "doubanUrl": "https://movie.douban.com/subject/38201945/",
     "doubanId": "38201945",
     "doubanMatchedTitle": "姐姐对我来说是女人2"
@@ -3132,7 +3132,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T02:57:29.463Z",
+    "cachedAt": "2026-06-05T14:40:25.123Z",
     "doubanUrl": "https://movie.douban.com/subject/38372590/",
     "doubanId": "38372590",
     "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
@@ -3185,5 +3185,37 @@
     "imdbUrl": "https://www.imdb.com/title/tt36118374/",
     "wikidataId": "Q133808336",
     "cachedAt": "2026-06-05T02:57:29.748Z"
+  },
+  "0bnt3n2KVH1": {
+    "title": "铁拳教育",
+    "url": "https://image.tmdb.org/t/p/w780/7KEA6GYQ81Lcmu3KHee2eYKjccP.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "铁拳教育",
+    "matchedTitle": "铁拳教育",
+    "tmdbId": 276161,
+    "tmdbUrl": "https://www.themoviedb.org/tv/276161",
+    "doubanUrl": "https://movie.douban.com/subject/37071123/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%90%B5%E6%8B%B3%E6%95%99%E8%82%B2",
+    "imdbUrl": "https://www.imdb.com/title/tt34809853/",
+    "wikidataId": "Q137844128",
+    "cachedAt": "2026-06-05T14:40:24.835Z",
+    "doubanId": "37071123",
+    "doubanMatchedTitle": "铁拳教育"
+  },
+  "L5zn9CEFcj5": {
+    "title": "恐怖角",
+    "url": "https://image.tmdb.org/t/p/w780/a4B0RX5XFOl3nsrG4DxTTntk1gZ.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "恐怖角",
+    "matchedTitle": "恐怖角",
+    "tmdbId": 277439,
+    "tmdbUrl": "https://www.themoviedb.org/tv/277439",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Cape_Fear_(TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt34675596/",
+    "wikidataId": "Q134126367",
+    "cachedAt": "2026-06-05T14:40:25.197Z"
   }
 }
