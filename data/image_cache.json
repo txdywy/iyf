@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T14:40:25.153Z"
+    "cachedAt": "2026-06-06T02:44:34.526Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T14:40:25.417Z"
+    "cachedAt": "2026-06-06T02:44:34.532Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2561,13 +2561,18 @@
   },
   "yXsBAuHo2kE": {
     "title": "雨霖铃",
+    "url": "https://image.tmdb.org/t/p/w780/wBvTSV8WOk46gUrnn1GfrISvxz7.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T02:42:02.158Z",
-    "doubanUrl": "https://movie.douban.com/subject/36310054/",
-    "doubanId": "36310054",
-    "doubanMatchedTitle": "雨霖铃"
+    "query": "雨霖铃",
+    "matchedTitle": "雨霖铃",
+    "tmdbId": 254486,
+    "tmdbUrl": "https://www.themoviedb.org/tv/254486",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt31887969/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-06T02:44:34.534Z"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
@@ -2882,10 +2887,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T14:40:25.144Z",
-    "doubanUrl": "https://movie.douban.com/subject/38201945/",
-    "doubanId": "38201945",
-    "doubanMatchedTitle": "姐姐对我来说是女人2"
+    "cachedAt": "2026-06-06T02:44:34.536Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3132,7 +3134,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-05T14:40:25.123Z",
+    "cachedAt": "2026-06-06T02:44:34.511Z",
     "doubanUrl": "https://movie.douban.com/subject/38372590/",
     "doubanId": "38372590",
     "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
@@ -3212,10 +3214,29 @@
     "matchedTitle": "恐怖角",
     "tmdbId": 277439,
     "tmdbUrl": "https://www.themoviedb.org/tv/277439",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36657472/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Cape_Fear_(TV_series)",
     "imdbUrl": "https://www.imdb.com/title/tt34675596/",
     "wikidataId": "Q134126367",
-    "cachedAt": "2026-06-05T14:40:25.197Z"
+    "cachedAt": "2026-06-05T14:40:25.197Z",
+    "doubanId": "36657472",
+    "doubanMatchedTitle": "恐怖角"
+  },
+  "bAWI9Dj52q8": {
+    "title": "导演竞技场",
+    "url": "https://image.tmdb.org/t/p/w780/1jKLaIn4xA22oqcIyBa2ibr2t9H.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "导演竞技场",
+    "matchedTitle": "导演竞技场",
+    "tmdbId": 319608,
+    "tmdbUrl": "https://www.themoviedb.org/tv/319608",
+    "doubanUrl": "https://movie.douban.com/subject/38461107/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-06T02:44:33.997Z",
+    "doubanId": "38461107",
+    "doubanMatchedTitle": "导演竞技场"
   }
 }
