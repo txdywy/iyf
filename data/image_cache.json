@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-06T02:44:34.526Z"
+    "cachedAt": "2026-06-06T13:23:11.578Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-06T02:44:34.532Z"
+    "cachedAt": "2026-06-06T13:23:11.580Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2459,11 +2459,18 @@
   },
   "pWhVSfzEJbT": {
     "title": "主角",
+    "url": "https://image.tmdb.org/t/p/w780/bUrgoPF61ySpHuoccoDnFVhlytL.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T13:20:07.359Z",
+    "query": "主角",
+    "matchedTitle": "主角",
+    "tmdbId": 284110,
+    "tmdbUrl": "https://www.themoviedb.org/tv/284110",
     "doubanUrl": "https://movie.douban.com/subject/35295564/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt35955279/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-06T13:23:11.677Z",
     "doubanId": "35295564",
     "doubanMatchedTitle": "主角"
   },
@@ -2568,11 +2575,13 @@
     "matchedTitle": "雨霖铃",
     "tmdbId": 254486,
     "tmdbUrl": "https://www.themoviedb.org/tv/254486",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36310054/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt31887969/",
     "wikidataId": "",
-    "cachedAt": "2026-06-06T02:44:34.534Z"
+    "cachedAt": "2026-06-06T02:44:34.534Z",
+    "doubanId": "36310054",
+    "doubanMatchedTitle": "雨霖铃"
   },
   "2D3w7T9VNXC": {
     "title": "任务：卧底老师",
@@ -2887,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-06T02:44:34.536Z"
+    "cachedAt": "2026-06-06T13:23:11.574Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3134,7 +3143,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-06T02:44:34.511Z",
+    "cachedAt": "2026-06-06T13:23:11.580Z",
     "doubanUrl": "https://movie.douban.com/subject/38372590/",
     "doubanId": "38372590",
     "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
