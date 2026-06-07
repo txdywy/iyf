@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-07T03:27:34.075Z"
+    "cachedAt": "2026-06-07T13:43:45.047Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-07T03:27:34.072Z"
+    "cachedAt": "2026-06-07T13:43:45.055Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-07T03:27:34.072Z"
+    "cachedAt": "2026-06-07T13:43:45.046Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3143,10 +3143,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-07T03:27:34.060Z",
-    "doubanUrl": "https://movie.douban.com/subject/38372590/",
-    "doubanId": "38372590",
-    "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
+    "cachedAt": "2026-06-07T13:43:45.032Z"
   },
   "y1pU7lwhSuM": {
     "title": "午夜出租车",
@@ -3274,5 +3271,20 @@
     "cachedAt": "2026-06-07T03:27:35.234Z",
     "doubanId": "37386645",
     "doubanMatchedTitle": "死亡谷 第二季"
+  },
+  "j8QtaGBWhi0": {
+    "title": "迷墙",
+    "url": "https://image.tmdb.org/t/p/w780/1lPtFI5KujhtfagWqBrFN0zIkTv.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "迷墙",
+    "matchedTitle": "迷墙",
+    "tmdbId": 282497,
+    "tmdbUrl": "https://www.themoviedb.org/tv/282497",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt31922391/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-07T13:43:45.151Z"
   }
 }
