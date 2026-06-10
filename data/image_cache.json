@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-09T14:40:09.765Z"
+    "cachedAt": "2026-06-10T02:56:45.891Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-09T14:40:09.766Z"
+    "cachedAt": "2026-06-10T02:56:45.914Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-09T14:40:09.755Z"
+    "cachedAt": "2026-06-10T02:56:46.515Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3143,7 +3143,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-09T14:40:09.750Z",
+    "cachedAt": "2026-06-10T02:56:45.893Z",
     "doubanUrl": "https://movie.douban.com/subject/38372590/",
     "doubanId": "38372590",
     "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
@@ -3357,5 +3357,15 @@
     "cachedAt": "2026-06-09T14:40:09.788Z",
     "doubanId": "37234503",
     "doubanMatchedTitle": "莫离"
+  },
+  "o4fF4eqSycO": {
+    "title": "我们的宿舍·归心季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-10T02:56:45.907Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816918/",
+    "doubanId": "37816918",
+    "doubanMatchedTitle": "我们的宿舍·归心季"
   }
 }
