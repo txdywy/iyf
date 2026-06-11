@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T03:32:26.390Z"
+    "cachedAt": "2026-06-11T15:52:17.535Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T03:32:26.390Z"
+    "cachedAt": "2026-06-11T15:52:17.544Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T03:32:26.909Z"
+    "cachedAt": "2026-06-11T15:52:17.536Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3143,10 +3143,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T03:32:26.368Z",
-    "doubanUrl": "https://movie.douban.com/subject/38372590/",
-    "doubanId": "38372590",
-    "doubanMatchedTitle": "我们与恋爱的距离·奔赴季"
+    "cachedAt": "2026-06-11T15:52:17.523Z"
   },
   "y1pU7lwhSuM": {
     "title": "午夜出租车",
@@ -3391,5 +3388,20 @@
     "cachedAt": "2026-06-11T03:32:26.455Z",
     "doubanId": "36987600",
     "doubanMatchedTitle": "每个夏天之后"
+  },
+  "v7Wdgdw3KIA": {
+    "title": "南部档案",
+    "url": "https://image.tmdb.org/t/p/w780/yUt9FrqirHJG8I7dpIJa9croLZZ.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "南部档案",
+    "matchedTitle": "南部档案",
+    "tmdbId": 278605,
+    "tmdbUrl": "https://www.themoviedb.org/tv/278605",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt34959993/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-11T15:52:17.554Z"
   }
 }
