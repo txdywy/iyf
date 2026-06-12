@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T15:52:17.535Z"
+    "cachedAt": "2026-06-12T03:30:59.328Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T15:52:17.544Z"
+    "cachedAt": "2026-06-12T03:30:59.341Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-11T15:52:17.536Z"
+    "cachedAt": "2026-06-12T03:30:59.335Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3403,5 +3403,52 @@
     "imdbUrl": "https://www.imdb.com/title/tt34959993/",
     "wikidataId": "",
     "cachedAt": "2026-06-11T15:52:17.554Z"
+  },
+  "Bawp4DMyHu7": {
+    "title": "天才厨人",
+    "url": "https://image.tmdb.org/t/p/w780/4RkGjxv4VVqPI4zqhy2NSfeTPCL.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "天才厨人",
+    "matchedTitle": "天才厨人",
+    "tmdbId": 325041,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325041",
+    "doubanUrl": "https://movie.douban.com/subject/38433264/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-12T03:30:58.854Z",
+    "doubanId": "38433264",
+    "doubanMatchedTitle": "天才厨人"
+  },
+  "fpmsCf0Tnm4": {
+    "title": "邪恶律师",
+    "url": "https://image.tmdb.org/t/p/w780/1xVfGMogjedmwtomxxeXi2VsCSe.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "邪恶律师",
+    "matchedTitle": "邪恶律师",
+    "tmdbId": 324115,
+    "tmdbUrl": "https://www.themoviedb.org/tv/324115",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39749708/",
+    "wikidataId": "Q138581250",
+    "cachedAt": "2026-06-12T03:30:59.326Z"
+  },
+  "0HMCJkIP6iE": {
+    "title": "格斗实况 喧嘩独学",
+    "url": "https://image.tmdb.org/t/p/w780/3HgYqDnbrcgwBDiYJd6vbPJ76mR.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "格斗实况 喧嘩独学",
+    "matchedTitle": "格斗实况",
+    "tmdbId": 312493,
+    "tmdbUrl": "https://www.themoviedb.org/tv/312493",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39400589/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-12T03:30:59.507Z"
   }
 }
