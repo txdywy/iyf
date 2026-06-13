@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-13T02:56:31.832Z"
+    "cachedAt": "2026-06-13T13:51:13.245Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-13T02:56:31.833Z"
+    "cachedAt": "2026-06-13T13:51:13.238Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-13T02:56:31.832Z"
+    "cachedAt": "2026-06-13T13:51:13.253Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3360,7 +3360,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-10T02:56:45.907Z",
+    "cachedAt": "2026-06-13T13:51:13.245Z",
     "doubanUrl": "https://movie.douban.com/subject/37816918/",
     "doubanId": "37816918",
     "doubanMatchedTitle": "我们的宿舍·归心季"
@@ -3497,5 +3497,12 @@
     "imdbUrl": "https://www.imdb.com/title/tt9077540/",
     "wikidataId": "Q56800842",
     "cachedAt": "2026-06-12T14:49:49.522Z"
+  },
+  "gTmXJgUUcr6": {
+    "title": "权欲第三章之少年卡南第5季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-13T13:51:14.630Z"
   }
 }
