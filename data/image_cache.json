@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T03:34:15.343Z"
+    "cachedAt": "2026-06-14T13:53:08.825Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T03:34:15.337Z"
+    "cachedAt": "2026-06-14T13:53:08.827Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T03:34:15.334Z"
+    "cachedAt": "2026-06-14T13:53:08.850Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3398,11 +3398,13 @@
     "matchedTitle": "南部档案",
     "tmdbId": 278605,
     "tmdbUrl": "https://www.themoviedb.org/tv/278605",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35465012/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt34959993/",
     "wikidataId": "",
-    "cachedAt": "2026-06-11T15:52:17.554Z"
+    "cachedAt": "2026-06-11T15:52:17.554Z",
+    "doubanId": "35465012",
+    "doubanMatchedTitle": "南部档案"
   },
   "Bawp4DMyHu7": {
     "title": "天才厨人",
@@ -3503,6 +3505,6 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T03:34:16.454Z"
+    "cachedAt": "2026-06-14T13:53:09.380Z"
   }
 }
