@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T13:53:08.825Z"
+    "cachedAt": "2026-06-15T03:44:00.091Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T13:53:08.827Z"
+    "cachedAt": "2026-06-15T03:44:00.075Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T13:53:08.850Z"
+    "cachedAt": "2026-06-15T03:44:00.047Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3505,6 +3505,23 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-14T13:53:09.380Z"
+    "cachedAt": "2026-06-15T03:44:01.297Z"
+  },
+  "Ufz2Upmuu6K": {
+    "title": "我家那些事第2季",
+    "url": "https://image.tmdb.org/t/p/w780/tSgo3LiVp0UOqJcQ8uhQqvrfuo9.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "我家那些事",
+    "matchedTitle": "我家那些事",
+    "tmdbId": 281679,
+    "tmdbUrl": "https://www.themoviedb.org/tv/281679",
+    "doubanUrl": "https://movie.douban.com/subject/37295340/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt29242849/",
+    "wikidataId": "Q132157115",
+    "cachedAt": "2026-06-15T03:44:00.818Z",
+    "doubanId": "37295340",
+    "doubanMatchedTitle": "我家那些事 第二季"
   }
 }
