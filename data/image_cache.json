@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-15T03:44:00.091Z"
+    "cachedAt": "2026-06-15T17:10:10.217Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-15T03:44:00.075Z"
+    "cachedAt": "2026-06-15T17:10:10.221Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-15T03:44:00.047Z"
+    "cachedAt": "2026-06-15T17:10:10.196Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3505,7 +3505,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-15T03:44:01.297Z"
+    "cachedAt": "2026-06-15T17:10:11.084Z"
   },
   "Ufz2Upmuu6K": {
     "title": "我家那些事第2季",
@@ -3523,5 +3523,20 @@
     "cachedAt": "2026-06-15T03:44:00.818Z",
     "doubanId": "37295340",
     "doubanMatchedTitle": "我家那些事 第二季"
+  },
+  "A8McEtqy23U": {
+    "title": "爱情有烟火",
+    "url": "https://image.tmdb.org/t/p/w780/vjRI8Vnxoetq4Rkl0aJYUYZ95iN.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "爱情有烟火",
+    "matchedTitle": "爱情有烟火",
+    "tmdbId": 230311,
+    "tmdbUrl": "https://www.themoviedb.org/tv/230311",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt28131816/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-15T17:10:09.692Z"
   }
 }
