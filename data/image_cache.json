@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-17T15:16:42.277Z"
+    "cachedAt": "2026-06-18T03:30:26.668Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-17T15:16:42.281Z"
+    "cachedAt": "2026-06-18T03:30:26.665Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-17T15:16:42.277Z"
+    "cachedAt": "2026-06-18T03:30:26.665Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3533,25 +3533,30 @@
     "matchedTitle": "爱情有烟火",
     "tmdbId": 230311,
     "tmdbUrl": "https://www.themoviedb.org/tv/230311",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35452068/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt28131816/",
     "wikidataId": "",
-    "cachedAt": "2026-06-15T17:10:09.692Z"
+    "cachedAt": "2026-06-15T17:10:09.692Z",
+    "doubanId": "35452068",
+    "doubanMatchedTitle": "爱情有烟火"
   },
   "Sg0FkZAzCtN": {
     "title": "飞常日志2(粤)",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-17T15:16:42.278Z"
+    "cachedAt": "2026-06-18T03:30:26.674Z"
   },
   "K0nm1TfCYV9": {
     "title": "少年无尽夏",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-16T16:44:00.008Z"
+    "cachedAt": "2026-06-16T16:44:00.008Z",
+    "doubanUrl": "https://movie.douban.com/subject/38433409/",
+    "doubanId": "38433409",
+    "doubanMatchedTitle": "少年无尽夏"
   },
   "ANjvqtyY9vS": {
     "title": "炽夏",
@@ -3562,10 +3567,12 @@
     "matchedTitle": "炽夏",
     "tmdbId": 288603,
     "tmdbUrl": "https://www.themoviedb.org/tv/288603",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36884141/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36982964/",
     "wikidataId": "",
-    "cachedAt": "2026-06-16T16:44:00.037Z"
+    "cachedAt": "2026-06-16T16:44:00.037Z",
+    "doubanId": "36884141",
+    "doubanMatchedTitle": "炽夏"
   }
 }
