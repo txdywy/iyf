@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:42.518Z"
+    "cachedAt": "2026-06-20T13:52:14.754Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:43.088Z"
+    "cachedAt": "2026-06-20T13:52:14.765Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:43.266Z"
+    "cachedAt": "2026-06-20T13:52:14.760Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3557,11 +3557,13 @@
     "matchedTitle": "少年无尽夏",
     "tmdbId": 325617,
     "tmdbUrl": "https://www.themoviedb.org/tv/325617",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38433409/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-06-20T02:54:42.719Z"
+    "cachedAt": "2026-06-20T02:54:42.719Z",
+    "doubanId": "38433409",
+    "doubanMatchedTitle": "少年无尽夏"
   },
   "ANjvqtyY9vS": {
     "title": "炽夏",
@@ -3642,14 +3644,17 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:43.806Z"
+    "cachedAt": "2026-06-20T13:52:14.756Z"
   },
   "dyxBykmVDmc": {
     "title": "谜探休格第2季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:44.573Z"
+    "cachedAt": "2026-06-20T13:52:15.853Z",
+    "doubanUrl": "https://movie.douban.com/subject/36851140/",
+    "doubanId": "36851140",
+    "doubanMatchedTitle": "谜探休格 第二季"
   },
   "eQC0L76cT43": {
     "title": "一万元舞台",
@@ -3689,5 +3694,20 @@
     "version": 13,
     "notFound": true,
     "cachedAt": "2026-06-20T02:54:43.415Z"
+  },
+  "NKNYP287d65": {
+    "title": "云秀行",
+    "url": "https://image.tmdb.org/t/p/w780/6NoxYhG4ksBsPGtc7aIUtTAqWCM.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "云秀行",
+    "matchedTitle": "云秀行",
+    "tmdbId": 239901,
+    "tmdbUrl": "https://www.themoviedb.org/tv/239901",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt29489359/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-20T13:52:14.217Z"
   }
 }
