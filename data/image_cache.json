@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-19T14:55:32.634Z"
+    "cachedAt": "2026-06-20T02:54:42.518Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-19T14:55:32.636Z"
+    "cachedAt": "2026-06-20T02:54:43.088Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-19T14:55:32.634Z"
+    "cachedAt": "2026-06-20T02:54:43.266Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3360,7 +3360,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-16T16:44:00.013Z",
+    "cachedAt": "2026-06-20T02:54:42.542Z",
     "doubanUrl": "https://movie.douban.com/subject/37816918/",
     "doubanId": "37816918",
     "doubanMatchedTitle": "我们的宿舍·归心季"
@@ -3550,13 +3550,18 @@
   },
   "K0nm1TfCYV9": {
     "title": "少年无尽夏",
+    "url": "https://image.tmdb.org/t/p/w780/p2qICTAxoGdK8H2dx3nZ7tjwFbA.jpg",
     "source": "tmdb",
     "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-16T16:44:00.008Z",
-    "doubanUrl": "https://movie.douban.com/subject/38433409/",
-    "doubanId": "38433409",
-    "doubanMatchedTitle": "少年无尽夏"
+    "query": "少年无尽夏",
+    "matchedTitle": "少年无尽夏",
+    "tmdbId": 325617,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325617",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-20T02:54:42.719Z"
   },
   "ANjvqtyY9vS": {
     "title": "炽夏",
@@ -3637,13 +3642,52 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-19T14:55:33.215Z"
+    "cachedAt": "2026-06-20T02:54:43.806Z"
   },
   "dyxBykmVDmc": {
     "title": "谜探休格第2季",
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-19T14:55:33.777Z"
+    "cachedAt": "2026-06-20T02:54:44.573Z"
+  },
+  "eQC0L76cT43": {
+    "title": "一万元舞台",
+    "url": "https://image.tmdb.org/t/p/w780/sQsy1Oo9ykNZarEysUHLEW7xLwN.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "一万元舞台",
+    "matchedTitle": "一万元舞台",
+    "tmdbId": 248338,
+    "tmdbUrl": "https://www.themoviedb.org/tv/248338",
+    "doubanUrl": "https://movie.douban.com/subject/36774512/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-20T02:54:42.344Z",
+    "doubanId": "36774512",
+    "doubanMatchedTitle": "一万元舞台"
+  },
+  "KZqyG3nxpIB": {
+    "title": "中餐厅第10季",
+    "url": "https://image.tmdb.org/t/p/w780/z8JPfzKViBG51MRvTpo9U9vwyh0.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "中餐厅",
+    "matchedTitle": "中餐厅",
+    "tmdbId": 91914,
+    "tmdbUrl": "https://www.themoviedb.org/tv/91914",
+    "doubanUrl": "https://movie.douban.com/subject/27079327/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt7143342/",
+    "wikidataId": "Q31836879",
+    "cachedAt": "2026-06-20T02:54:43.141Z"
+  },
+  "qXMkDyt3W7C": {
+    "title": "艾米丽与玛丽亚",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-20T02:54:43.415Z"
   }
 }
