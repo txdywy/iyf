@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T03:40:11.382Z"
+    "cachedAt": "2026-06-21T13:59:59.288Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T03:40:11.429Z"
+    "cachedAt": "2026-06-21T13:59:59.268Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T03:40:11.436Z"
+    "cachedAt": "2026-06-21T13:59:59.233Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3763,5 +3763,37 @@
     "cachedAt": "2026-06-21T03:40:11.611Z",
     "doubanId": "37806463",
     "doubanMatchedTitle": "Oasis：绿洲谜踪"
+  },
+  "8VfBEGcey83": {
+    "title": "绘梦婚礼",
+    "url": "https://image.tmdb.org/t/p/w780/28QpybDe3wN8oqecTWwREULuH4k.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "绘梦婚礼",
+    "matchedTitle": "绘梦婚礼",
+    "tmdbId": 308834,
+    "tmdbUrl": "https://www.themoviedb.org/tv/308834",
+    "doubanUrl": "https://movie.douban.com/subject/37854912/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-21T13:59:58.730Z",
+    "doubanId": "37854912",
+    "doubanMatchedTitle": "绘梦婚礼"
+  },
+  "lje0b9Wgrj6": {
+    "title": "迷失之光",
+    "url": "https://image.tmdb.org/t/p/w780/n0b5pHj4yH9RUJcNRBLB36HlPm8.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "迷失之光",
+    "matchedTitle": "迷失之光",
+    "tmdbId": 313263,
+    "tmdbUrl": "https://www.themoviedb.org/tv/313263",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt41492869/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-21T13:59:58.756Z"
   }
 }
