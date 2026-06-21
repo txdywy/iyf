@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T13:52:14.754Z"
+    "cachedAt": "2026-06-21T03:40:11.382Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T13:52:14.765Z"
+    "cachedAt": "2026-06-21T03:40:11.429Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T13:52:14.760Z"
+    "cachedAt": "2026-06-21T03:40:11.436Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3644,7 +3644,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T13:52:14.756Z"
+    "cachedAt": "2026-06-21T03:40:12.137Z"
   },
   "dyxBykmVDmc": {
     "title": "谜探休格第2季",
@@ -3693,7 +3693,10 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-20T02:54:43.415Z"
+    "cachedAt": "2026-06-20T02:54:43.415Z",
+    "doubanUrl": "https://movie.douban.com/subject/38480695/",
+    "doubanId": "38480695",
+    "doubanMatchedTitle": "艾米丽与玛丽亚"
   },
   "NKNYP287d65": {
     "title": "云秀行",
@@ -3709,5 +3712,56 @@
     "imdbUrl": "https://www.imdb.com/title/tt29489359/",
     "wikidataId": "",
     "cachedAt": "2026-06-20T13:52:14.217Z"
+  },
+  "72nyGygyPBu1": {
+    "title": "食神·百厨大战",
+    "url": "https://image.tmdb.org/t/p/w780/2Rha4oyCoJfe7CEs2kqKHikhW9b.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "食神·百厨大战",
+    "matchedTitle": "食神·百厨大战",
+    "tmdbId": 297509,
+    "tmdbUrl": "https://www.themoviedb.org/tv/297509",
+    "doubanUrl": "https://movie.douban.com/subject/38458365/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-21T03:40:11.217Z",
+    "doubanId": "38458365",
+    "doubanMatchedTitle": "食神·百厨大战"
+  },
+  "dbEx7ZdT1B0": {
+    "title": "欠你的那场婚礼",
+    "url": "https://image.tmdb.org/t/p/w780/yeQpLBIXgSyobIGR5CbMOfnNJGR.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "欠你的那场婚礼",
+    "matchedTitle": "欠你的那场婚礼",
+    "tmdbId": 311881,
+    "tmdbUrl": "https://www.themoviedb.org/tv/311881",
+    "doubanUrl": "https://movie.douban.com/subject/38212189/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39496176/",
+    "wikidataId": "Q139859085",
+    "cachedAt": "2026-06-21T03:40:11.559Z",
+    "doubanId": "38212189",
+    "doubanMatchedTitle": "欠你的那场婚礼"
+  },
+  "AEcjWDP0vOC": {
+    "title": "Oasis：绿洲谜踪",
+    "url": "https://image.tmdb.org/t/p/w780/qgJAYr8fg57WQqf8V8ZGauwBZ6y.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "Oasis：绿洲谜踪",
+    "matchedTitle": "Oasis：绿洲谜踪",
+    "tmdbId": 296285,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296285",
+    "doubanUrl": "https://movie.douban.com/subject/37806463/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt38734636/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-21T03:40:11.611Z",
+    "doubanId": "37806463",
+    "doubanMatchedTitle": "Oasis：绿洲谜踪"
   }
 }
