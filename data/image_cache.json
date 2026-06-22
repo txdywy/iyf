@@ -2380,7 +2380,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T13:59:59.288Z"
+    "cachedAt": "2026-06-22T03:44:07.594Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2404,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T13:59:59.268Z"
+    "cachedAt": "2026-06-22T03:44:07.604Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2896,7 +2896,7 @@
     "source": "tmdb",
     "version": 13,
     "notFound": true,
-    "cachedAt": "2026-06-21T13:59:59.233Z"
+    "cachedAt": "2026-06-22T03:44:07.587Z"
   },
   "xUa0yzOJCmR": {
     "title": "暗影蜘蛛侠(黑白版)",
@@ -3795,5 +3795,66 @@
     "imdbUrl": "https://www.imdb.com/title/tt41492869/",
     "wikidataId": "",
     "cachedAt": "2026-06-21T13:59:58.756Z"
+  },
+  "dYFS8oZkjND": {
+    "title": "豆豆农场",
+    "url": "https://image.tmdb.org/t/p/w780/eIAjJHnvCmp113tuCBvFiUx57OZ.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "豆豆农场",
+    "matchedTitle": "豆豆农场",
+    "tmdbId": 323962,
+    "tmdbUrl": "https://www.themoviedb.org/tv/323962",
+    "doubanUrl": "https://movie.douban.com/subject/38433912/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43491842/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-22T03:44:07.058Z",
+    "doubanId": "38433912",
+    "doubanMatchedTitle": "豆豆农场"
+  },
+  "gnNdLKuQ6Q3": {
+    "title": "顾问：书写死亡的男人",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-22T03:44:07.588Z"
+  },
+  "Dm9nTV4ORJA": {
+    "title": "黎明破晓时",
+    "url": "https://image.tmdb.org/t/p/w780/qiojnqQwDbxcvlmBuCnBoTyObNi.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "黎明破晓时",
+    "matchedTitle": "等待黎明破晓时",
+    "tmdbId": 315083,
+    "tmdbUrl": "https://www.themoviedb.org/tv/315083",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt40231500/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-22T03:44:07.632Z"
+  },
+  "PK2r5QbLQn6": {
+    "title": "东京P.D.警视厅公关二课第2季",
+    "url": "https://image.tmdb.org/t/p/w780/drHyr5nDPrBPh7sdO1iDU5omz5z.jpg",
+    "source": "tmdb",
+    "version": 13,
+    "query": "东京P.D.警视厅公关二课",
+    "matchedTitle": "东京P.D. 警视厅公关二课",
+    "tmdbId": 305078,
+    "tmdbUrl": "https://www.themoviedb.org/tv/305078",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39461119/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-22T03:44:08.189Z"
+  },
+  "MIutqyuwmKV": {
+    "title": "传奇办公室：中央情报第2季",
+    "source": "tmdb",
+    "version": 13,
+    "notFound": true,
+    "cachedAt": "2026-06-22T03:44:08.698Z"
   }
 }
