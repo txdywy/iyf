@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T13:41:43.505Z"
+    "cachedAt": "2026-06-23T14:39:28.515Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T13:41:43.503Z"
+    "cachedAt": "2026-06-23T14:39:28.514Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T13:41:43.502Z"
+    "cachedAt": "2026-06-23T14:39:28.511Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3471,5 +3471,37 @@
     "doubanUrl": "https://movie.douban.com/subject/37657579/",
     "doubanId": "37657579",
     "doubanMatchedTitle": "顾问：书写死亡的男人"
+  },
+  "SEDOoKbOa95": {
+    "title": "地球超新鲜",
+    "url": "https://image.tmdb.org/t/p/original/b0sU5blJ3Hwq7O71KCj7HhcRpPp.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "地球超新鲜",
+    "matchedTitle": "地球超新鲜",
+    "tmdbId": 296202,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296202",
+    "doubanUrl": "https://movie.douban.com/subject/37090502/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T06:37:12.750Z",
+    "doubanId": "37090502",
+    "doubanMatchedTitle": "地球超新鲜"
+  },
+  "X3UBgn0bVqE": {
+    "title": "种墨园",
+    "url": "https://image.tmdb.org/t/p/original/uVa3c0FSfF73jSxxxKazKIR0PkI.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "种墨园",
+    "matchedTitle": "种墨园",
+    "tmdbId": 326189,
+    "tmdbUrl": "https://www.themoviedb.org/tv/326189",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-23T14:39:28.025Z"
   }
 }
