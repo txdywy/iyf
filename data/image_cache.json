@@ -873,13 +873,6 @@
     "doubanId": "37561228",
     "doubanMatchedTitle": "哈哈哈哈哈 第六季"
   },
-  "seed_var_2026_06": {
-    "title": "向往的生活2026",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-05T06:05:38.328Z"
-  },
   "FAnfX66lqm1": {
     "title": "白日提灯",
     "url": "https://image.tmdb.org/t/p/original/4jPOkzQdogCkkT8HhS7kVsdoOBb.jpg",
@@ -1168,30 +1161,6 @@
     "doubanId": "35517044",
     "doubanMatchedTitle": "低智商犯罪"
   },
-  "uZ33HDxFYG3": {
-    "title": "戴洛奇小镇第2季",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-07T13:57:11.205Z",
-    "doubanUrl": "https://movie.douban.com/subject/36955778/",
-    "doubanId": "36955778",
-    "doubanMatchedTitle": "戴洛奇小镇 第二季"
-  },
-  "pmvbkxcHT50": {
-    "title": "堡垒第2季",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-07T13:57:11.797Z"
-  },
-  "UNy3u2VTaN9": {
-    "title": "逾梦深情",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-07T13:57:12.665Z"
-  },
   "12skq2Fj4TF": {
     "title": "犬饲先生是隐秘溺爱上司",
     "url": "https://image.tmdb.org/t/p/original/kP8hSMKbKfsiv6qFRXtPiLqQOuP.jpg",
@@ -1236,13 +1205,6 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-05-08T02:38:22.102Z"
-  },
-  "Arj8I8mC1U6": {
-    "title": "寒栗第2季",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-08T02:38:22.680Z"
   },
   "i6eUukSgll6": {
     "title": "双程",
@@ -1306,13 +1268,6 @@
     "doubanId": "37261471",
     "doubanMatchedTitle": "我的王室死对头"
   },
-  "LKJdVoizig2": {
-    "title": "极地恶灵第3季",
-    "source": "tmdb",
-    "version": 7,
-    "notFound": true,
-    "cachedAt": "2026-05-09T02:31:34.620Z"
-  },
   "nytozg1JeGB": {
     "title": "没有砍十次还不倒的树",
     "url": "https://image.tmdb.org/t/p/original/ym7pDxY8MwxD1PcYqIi2KqBowRN.jpg",
@@ -1371,13 +1326,6 @@
     "doubanUrl": "https://movie.douban.com/subject/37561280/",
     "doubanId": "37561280",
     "doubanMatchedTitle": "大侦探 第十一季"
-  },
-  "728zbbqR3xL": {
-    "title": "哥哥的心动Moo",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-13T02:43:43.925Z"
   },
   "PWEBcbmYPG2": {
     "title": "你的爹系男友",
@@ -2380,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T12:46:16.702Z"
+    "cachedAt": "2026-06-23T13:41:43.505Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2404,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T12:46:16.769Z"
+    "cachedAt": "2026-06-23T13:41:43.503Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2473,13 +2421,6 @@
     "cachedAt": "2026-06-06T13:23:11.677Z",
     "doubanId": "35295564",
     "doubanMatchedTitle": "主角"
-  },
-  "w2s3flsvk34": {
-    "title": "特勤局",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-14T02:44:31.813Z"
   },
   "V380HGzjQcF": {
     "title": "奔跑吧",
@@ -2583,50 +2524,6 @@
     "doubanId": "36310054",
     "doubanMatchedTitle": "雨霖铃"
   },
-  "2D3w7T9VNXC": {
-    "title": "任务：卧底老师",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-14T14:00:45.208Z"
-  },
-  "ioqelZ744j9": {
-    "title": "当橘子掉落时",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-15T02:45:09.504Z",
-    "doubanUrl": "https://movie.douban.com/subject/37892353/",
-    "doubanId": "37892353",
-    "doubanMatchedTitle": "当橘子掉落时"
-  },
-  "EviSkKpob7C": {
-    "title": "灵魂之伴",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-16T02:34:35.580Z",
-    "doubanUrl": "https://movie.douban.com/subject/36946200/",
-    "doubanId": "36946200",
-    "doubanMatchedTitle": "灵魂之伴"
-  },
-  "3McMGRMFTvA": {
-    "title": "校园之外",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-15T13:57:34.435Z"
-  },
-  "sBD1nC4z3a2": {
-    "title": "好兆头第3季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-15T02:45:09.203Z",
-    "doubanUrl": "https://movie.douban.com/subject/36402972/",
-    "doubanId": "36402972",
-    "doubanMatchedTitle": "好兆头 第三季"
-  },
   "0g5XPzNlDYL": {
     "title": "超能路人甲",
     "url": "https://image.tmdb.org/t/p/original/jj7AYkz2OLRDL1wfJmjTXyWQ5I4.jpg",
@@ -2643,16 +2540,6 @@
     "cachedAt": "2026-05-16T04:15:00.000Z",
     "doubanId": "36680667",
     "doubanMatchedTitle": "超能路人甲"
-  },
-  "YyzvQjesVwc": {
-    "title": "宿敌交锋",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-16T13:14:10.715Z",
-    "doubanUrl": "https://movie.douban.com/subject/37262465/",
-    "doubanId": "37262465",
-    "doubanMatchedTitle": "宿敌交锋"
   },
   "ZmEXNTlFkt6": {
     "title": "种地吧",
@@ -2671,44 +2558,6 @@
     "doubanId": "37562142",
     "doubanMatchedTitle": "种地吧4"
   },
-  "MiJQLDf1Hj1": {
-    "title": "歌手",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:24:42.719Z"
-  },
-  "TcOkUCJ5z4S": {
-    "title": "达顿牧场",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-17T02:42:19.832Z",
-    "doubanUrl": "https://movie.douban.com/subject/37028528/",
-    "doubanId": "37028528",
-    "doubanMatchedTitle": "达顿牧场"
-  },
-  "ZMzmzWXRWJy0": {
-    "title": "男公馆",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-19T14:52:45.672Z"
-  },
-  "qbYRYG62i60": {
-    "title": "纸钞屋：柏林第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-17T02:42:19.532Z"
-  },
-  "oido3fAJql8": {
-    "title": "对手第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-20T02:50:18.095Z"
-  },
   "NHOyDsUSsxN": {
     "title": "家业",
     "url": "https://image.tmdb.org/t/p/original/fIdqYhJhuIGLMbWlvfZdIQalf2p.jpg",
@@ -2724,40 +2573,6 @@
     "wikidataId": "",
     "cachedAt": "2026-06-04T14:50:44.410Z"
   },
-  "I238qJckylB": {
-    "title": "四大元素之风之恋歌",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-17T13:11:10.622Z",
-    "doubanUrl": "https://movie.douban.com/subject/37113902/",
-    "doubanId": "37113902",
-    "doubanMatchedTitle": "四大元素之风之恋歌"
-  },
-  "rsO88UfJBn7": {
-    "title": "我的爷爷是耽美作家",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-17T13:11:10.923Z",
-    "doubanUrl": "https://movie.douban.com/subject/38455152/",
-    "doubanId": "38455152",
-    "doubanMatchedTitle": "我的爷爷是耽美作家"
-  },
-  "nqoeOVWXIyP": {
-    "title": "爸爸当家第5季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:24:42.418Z"
-  },
-  "PB9TWmNsEU3": {
-    "title": "陈腔滥调",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-20T02:50:17.795Z"
-  },
   "awi7TOzSK0N": {
     "title": "开始推理吧第4季",
     "url": "https://image.tmdb.org/t/p/original/64xFi1olZzxBFFX93fIVGa6tU7h.jpg",
@@ -2772,58 +2587,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt31638277/",
     "wikidataId": "",
     "cachedAt": "2026-06-04T14:50:44.942Z"
-  },
-  "VYXVNnIG2QF": {
-    "title": "极致欢愉保障",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-22T02:53:27.774Z"
-  },
-  "PMphl0Ja0b0": {
-    "title": "合著谋杀案",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-22T02:53:27.473Z"
-  },
-  "OZ1NGJCy4wM": {
-    "title": "怪奇退休镇第1季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-24T02:30:48.080Z"
-  },
-  "BzBiiL0Zl4B": {
-    "title": "21天重养自己",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-31T13:27:43.466Z",
-    "doubanUrl": "https://movie.douban.com/subject/38460917/",
-    "doubanId": "38460917",
-    "doubanMatchedTitle": "21天重养自己"
-  },
-  "lE7rJK1Pn3C": {
-    "title": "转过头帮你擦眼泪",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-22T14:30:35.276Z"
-  },
-  "2Gxbf3ybyiW": {
-    "title": "网红女王",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-24T02:30:47.479Z"
-  },
-  "BIXnUnrZ54E": {
-    "title": "盛唐奇案",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-24T02:30:47.779Z"
   },
   "iFy5szh6dec": {
     "title": "大叔再出招",
@@ -2896,107 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-23T12:46:16.751Z"
-  },
-  "xUa0yzOJCmR": {
-    "title": "暗影蜘蛛侠(黑白版)",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T15:41:47.140Z"
-  },
-  "t1JREzOJe3J": {
-    "title": "暗影蜘蛛侠",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T15:41:47.441Z"
-  },
-  "AKz2aR06FE3": {
-    "title": "耀眼",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T15:41:47.742Z"
-  },
-  "si9wQTIrOzF": {
-    "title": "思想很危险第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:00:38.573Z"
-  },
-  "EcimVBxA4jA": {
-    "title": "犯罪心理第19季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:12:55.348Z",
-    "doubanUrl": "https://movie.douban.com/subject/26387829/",
-    "doubanId": "26387829",
-    "doubanMatchedTitle": "犯罪心理 第十一季"
-  },
-  "bmgk6y7zqNy1": {
-    "title": "欢迎回我的频道",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:24:44.824Z"
-  },
-  "R8tfCMWjpf7": {
-    "title": "致英格兰",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:24:45.125Z"
-  },
-  "207CAVwFAyI": {
-    "title": "100天后分手的我和他",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-28T13:24:45.425Z"
-  },
-  "X0Jv875gmX2": {
-    "title": "四季情第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T13:20:07.359Z"
-  },
-  "7KtxVIt5fC8": {
-    "title": "正念谋杀第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T13:20:07.359Z"
-  },
-  "m2yZCcRFWpR": {
-    "title": "好女孩的谋杀调查指南第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-29T14:54:23.121Z",
-    "doubanUrl": "https://movie.douban.com/subject/37124467/",
-    "doubanId": "37124467",
-    "doubanMatchedTitle": "好女孩的谋杀调查指南 第二季"
-  },
-  "LWKsydA9O8L": {
-    "title": "星城",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T13:20:07.359Z"
-  },
-  "jKIkj2HZjR3": {
-    "title": "爱冲云霄",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-30T02:42:02.158Z",
-    "doubanUrl": "https://movie.douban.com/subject/37134254/",
-    "doubanId": "37134254",
-    "doubanMatchedTitle": "爱冲云霄"
+    "cachedAt": "2026-06-23T13:41:43.502Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3012,16 +2675,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt42206645/",
     "wikidataId": "Q136714294",
     "cachedAt": "2026-06-02T12:56:58.461Z"
-  },
-  "fQOF804YwsE": {
-    "title": "天国男孩",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-05-31T02:59:08.966Z",
-    "doubanUrl": "https://movie.douban.com/subject/37134257/",
-    "doubanId": "37134257",
-    "doubanMatchedTitle": "天国男孩"
   },
   "Lztr1FrEg4K": {
     "title": "相信我",
@@ -3138,13 +2791,6 @@
     "wikidataId": "Q139854135",
     "cachedAt": "2026-06-03T16:30:39.183Z"
   },
-  "Uk8ATgIFBc9": {
-    "title": "我们与恋爱的距离·奔赴季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-19T03:54:58.031Z"
-  },
   "y1pU7lwhSuM": {
     "title": "午夜出租车",
     "url": "https://image.tmdb.org/t/p/original/3hGPd0j6w2VK1DdUo0LM2QM3OwW.jpg",
@@ -3244,16 +2890,6 @@
     "cachedAt": "2026-06-06T02:44:33.997Z",
     "doubanId": "38461107",
     "doubanMatchedTitle": "导演竞技场"
-  },
-  "rWW6Z5d2Cw6": {
-    "title": "我的相抵日记",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-07T03:27:34.643Z",
-    "doubanUrl": "https://movie.douban.com/subject/38459162/",
-    "doubanId": "38459162",
-    "doubanMatchedTitle": "我的相抵日记"
   },
   "2TehLOAnW19": {
     "title": "死亡谷第2季",
@@ -3364,13 +3000,6 @@
     "doubanUrl": "https://movie.douban.com/subject/37816918/",
     "doubanId": "37816918",
     "doubanMatchedTitle": "我们的宿舍·归心季"
-  },
-  "Hy0y7MlablO": {
-    "title": "寅娜知音",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-17T03:38:37.968Z"
   },
   "mFJ3ys0Qmb2": {
     "title": "每个夏天之后",
@@ -3500,13 +3129,6 @@
     "wikidataId": "Q56800842",
     "cachedAt": "2026-06-12T14:49:49.522Z"
   },
-  "gTmXJgUUcr6": {
-    "title": "权欲第三章之少年卡南第5季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-19T03:54:59.152Z"
-  },
   "Ufz2Upmuu6K": {
     "title": "我家那些事第2季",
     "url": "https://image.tmdb.org/t/p/original/tSgo3LiVp0UOqJcQ8uhQqvrfuo9.jpg",
@@ -3540,13 +3162,6 @@
     "cachedAt": "2026-06-15T17:10:09.692Z",
     "doubanId": "35452068",
     "doubanMatchedTitle": "爱情有烟火"
-  },
-  "Sg0FkZAzCtN": {
-    "title": "飞常日志2(粤)",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-19T03:54:58.592Z"
   },
   "K0nm1TfCYV9": {
     "title": "少年无尽夏",
@@ -3612,16 +3227,6 @@
     "wikidataId": "Q134412018",
     "cachedAt": "2026-06-18T14:58:25.483Z"
   },
-  "lUGFm0mawCB": {
-    "title": "忙忙碌碌寻宝藏·双人成行季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-22T16:47:41.203Z",
-    "doubanUrl": "https://movie.douban.com/subject/37816913/",
-    "doubanId": "37816913",
-    "doubanMatchedTitle": "忙忙碌碌寻宝藏·双人成行季"
-  },
   "UWTOgGU4ak7": {
     "title": "Stand",
     "url": "https://image.tmdb.org/t/p/original/xRvx2QnVZjgp5jSkJiDmCQ08AFY.jpg",
@@ -3638,23 +3243,6 @@
     "cachedAt": "2026-06-19T14:55:32.709Z",
     "doubanId": "25889963",
     "doubanMatchedTitle": "站"
-  },
-  "T81zLbAvBwA": {
-    "title": "生而骄傲",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-21T03:40:12.137Z"
-  },
-  "dyxBykmVDmc": {
-    "title": "谜探休格第2季",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-20T13:52:15.853Z",
-    "doubanUrl": "https://movie.douban.com/subject/36851140/",
-    "doubanId": "36851140",
-    "doubanMatchedTitle": "谜探休格 第二季"
   },
   "eQC0L76cT43": {
     "title": "一万元舞台",
@@ -3687,16 +3275,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt7143342/",
     "wikidataId": "Q31836879",
     "cachedAt": "2026-06-20T02:54:43.141Z"
-  },
-  "qXMkDyt3W7C": {
-    "title": "艾米丽与玛丽亚",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-20T02:54:43.415Z",
-    "doubanUrl": "https://movie.douban.com/subject/38480695/",
-    "doubanId": "38480695",
-    "doubanMatchedTitle": "艾米丽与玛丽亚"
   },
   "NKNYP287d65": {
     "title": "云秀行",
@@ -3813,13 +3391,6 @@
     "doubanId": "38433912",
     "doubanMatchedTitle": "豆豆农场"
   },
-  "gnNdLKuQ6Q3": {
-    "title": "顾问：书写死亡的男人",
-    "source": "tmdb",
-    "version": 13,
-    "notFound": true,
-    "cachedAt": "2026-06-22T03:44:07.588Z"
-  },
   "Dm9nTV4ORJA": {
     "title": "黎明破晓时",
     "url": "https://image.tmdb.org/t/p/original/qiojnqQwDbxcvlmBuCnBoTyObNi.jpg",
@@ -3880,5 +3451,25 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-06-23T12:46:17.726Z"
+  },
+  "lUGFm0mawCB": {
+    "title": "忙忙碌碌寻宝藏·双人成行季",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-06-23T13:41:43.524Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816913/",
+    "doubanId": "37816913",
+    "doubanMatchedTitle": "忙忙碌碌寻宝藏·双人成行季"
+  },
+  "gnNdLKuQ6Q3": {
+    "title": "顾问：书写死亡的男人",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-06-23T13:41:44.089Z",
+    "doubanUrl": "https://movie.douban.com/subject/37657579/",
+    "doubanId": "37657579",
+    "doubanMatchedTitle": "顾问：书写死亡的男人"
   }
 }
