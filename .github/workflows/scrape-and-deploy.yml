@@ -24,7 +24,7 @@ jobs:
   scrape-and-deploy:
     name: 抓取数据 & 部署
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -39,6 +39,17 @@ jobs:
 
       - name: Run regression tests
         run: node scripts/regression-tests.mjs
+
+      - name: Validate TMDB_TOKEN
+        run: |
+          if [ -z "$TMDB_TOKEN" ]; then
+            echo "::warning::TMDB_TOKEN 未配置! 抓取将无法获取 TMDB 高清封面,新节目只能使用低质量源站图片。"
+            echo "请在 Settings → Secrets → Actions 中添加 TMDB_TOKEN (TMDB API v4 Read Access Token)。"
+          else
+            echo "✓ TMDB_TOKEN 已配置"
+          fi
+        env:
+          TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
 
       - name: Run Scraper
         run: node scripts/scrape.mjs

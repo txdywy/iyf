@@ -9,7 +9,7 @@
  *   - 与内置精选推荐库合并 (54 部韩剧 + 16 部综艺, 覆盖经典和 2024-2026 新剧)
  *
  * 数据富化:
- *   - TMDB 高清封面 (w780) + Wikidata 豆瓣/Wikipedia/IMDb 链接
+ *   - TMDB 高清封面 (original) + Wikidata 豆瓣/Wikipedia/IMDb 链接
  *   - 爱壹帆具体页验证与搜索补全
  *   - 豆瓣条目搜索补全
  *   - image_cache.json 缓存 TMDB 结果, 避免重复请求
@@ -1008,6 +1008,12 @@ const SEED_VARIETY = [
 async function main() {
   console.log(`[SCRAPER] 开始抓取 ${new Date().toISOString()}`);
 
+  // ── 0. 检查 TMDB_TOKEN ──
+  if (!TMDB_TOKEN) {
+    console.error('  ⚠️  TMDB_TOKEN 未配置! 将无法抓取 TMDB 高清封面,所有节目只能使用低质量原图。');
+    console.error('     请在 GitHub Actions secrets 中配置 TMDB_TOKEN (TMDB API v4 Read Access Token)。');
+  }
+
   // ── 1. 从 API 抓取首页数据 (多页 × 多参数组合) ──
   const liveShows = new Map();
   const pages = Array.from({ length: 15 }, (_, i) => i + 1);
@@ -1192,7 +1198,19 @@ async function main() {
   const chineseVariety = dedupByTitle([...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore));
   const renderableOtherDramas = otherDramas.filter(isRenderableShow);
 
-  // ── 8.5. 新内容标记(30天有效期) ──
+  // ── 8.5. TMDB 封面覆盖率验证 ──
+  const allRenderable = [...koreanDramas, ...chineseVariety, ...renderableOtherDramas];
+  const missingTMDB = allRenderable.filter(s => s.coverSource !== 'tmdb');
+  const tmdbRate = ((allRenderable.length - missingTMDB.length) / allRenderable.length * 100).toFixed(1);
+  console.log(`  TMDB 高清封面覆盖率: ${tmdbRate}% (${allRenderable.length - missingTMDB.length}/${allRenderable.length})`);
+  if (missingTMDB.length > 0) {
+    const kdMissing = missingTMDB.filter(s => s.category === 'korean_drama');
+    const varMissing = missingTMDB.filter(s => s.category === 'variety');
+    if (kdMissing.length) console.warn(`  ⚠️  ${kdMissing.length} 部韩剧无 TMDB 高清封面: ${kdMissing.map(s => s.title).join(', ')}`);
+    if (varMissing.length) console.warn(`  ⚠️  ${varMissing.length} 部综艺无 TMDB 高清封面: ${varMissing.map(s => s.title).join(', ')}`);
+  }
+
+  // ── 8.6. 新内容标记(30天有效期) ──
   const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000;
   const nowMs = Date.now();
   for (const show of allShowsList) {
@@ -1768,21 +1786,29 @@ async function discoverNewVariety(liveShows, varietyMap) {
 // ════════════════════════════════════════════════════════════════
 
 const TMDB_TOKEN = process.env.TMDB_TOKEN || '';
-const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/w780';
+const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/original';
 const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
-const COVER_CACHE_VERSION = 13;
+const COVER_CACHE_VERSION = 14;
 
 // 单进程顺序管线内复用解析结果,避免每个富化阶段重复解析 ~100KB JSON。
 // 写入时同步更新内存副本,保证后续阶段读到最新数据。
 let _imageCacheMemo = null;
 function loadImageCache() {
   if (_imageCacheMemo) return _imageCacheMemo;
+  let cache = {};
   if (existsSync(IMAGE_CACHE_FILE)) {
-    try { return (_imageCacheMemo = JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8'))); } catch {}
+    try { cache = JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8')); } catch {}
   }
-  return (_imageCacheMemo = {});
+  // 升级已有 TMDB 图片 URL 分辨率: w780 → original (无需重新请求 API)
+  for (const [id, entry] of Object.entries(cache)) {
+    if (entry?.url && entry.url.includes('/t/p/w780/')) {
+      entry.url = entry.url.replace('/t/p/w780/', '/t/p/original/');
+      entry.version = COVER_CACHE_VERSION;
+    }
+  }
+  return (_imageCacheMemo = cache);
 }
 
 function saveImageCache(cache) {

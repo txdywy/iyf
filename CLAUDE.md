@@ -47,7 +47,7 @@ No test suite exists.
 
 **Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), commits data changes, deploys to GitHub Pages. Non-site files stripped before upload. Uses `git pull --rebase` with conflict resolution (`git checkout --theirs` for data files, `GIT_EDITOR=true git rebase --continue`).
 
-GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKEN` (auto-provided, needs `models: read` permission for GitHub Models API).
+GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKEN` (auto-provided, needs `models: read` permission for GitHub Models API), `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images).
 
 ## Key Data Flow
 
@@ -75,4 +75,5 @@ AI blending: `recommendScore += (aiScore - 50) * 0.5` (max ±25 adjustment).
 - Seed ID format: `seed_kd_YYYY_NN`, `seed_var_YYYY_NN`, `seed_kd_cNN` (classics)
 - Constants UPPER_SNAKE_CASE, functions camelCase
 - Enrichment cache: `data/image_cache.json`, keyed by show ID, `COVER_CACHE_VERSION` for invalidation
-- TMDB API token is hardcoded in source (not env var)
+- TMDB poster resolution: `original` (full-size); URL migration from `w780` handled in `loadImageCache()`
+- TMDB API token: `TMDB_TOKEN` env var (GitHub Actions secret)
