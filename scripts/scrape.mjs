@@ -1902,6 +1902,7 @@ const TITLE_EN_MAP = {
   '大叔再出招': 'Fifties Professionals',
   '医到孤岛爱上你': 'Doctor on the Edge',
   '新进职员姜会长': 'The New Employee Chairman Kang',
+  '明天也要上班！': '내일도 출근',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',
