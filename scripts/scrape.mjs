@@ -187,6 +187,8 @@ function stableDiscoveredId(prefix, title = '', year = 0) {
 const TITLE_ALIAS_MAP = {
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
+  '忙忙碌碌寻宝藏': ['忙忙碌碌寻宝藏·双人成行季', 'Crazy Treasure Hunt'],
+  '我们的宿舍': ['我们的宿舍·归心季'],
   '金秘书为何那样': ['金秘书为什么那样', '金秘书为何这样'],
   '酒鬼都市男女': ['酒鬼都市女人们', '酒鬼都市女人们第1季', 'Work Later Drink Now'],
   '奇怪的律师禹英禑': ['非常律师禹英', 'Extraordinary Attorney Woo'],
@@ -1801,11 +1803,16 @@ function loadImageCache() {
   if (existsSync(IMAGE_CACHE_FILE)) {
     try { cache = JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8')); } catch {}
   }
-  // 升级已有 TMDB 图片 URL 分辨率: w780 → original (无需重新请求 API)
   for (const [id, entry] of Object.entries(cache)) {
-    if (entry?.url && entry.url.includes('/t/p/w780/')) {
+    if (!entry || typeof entry !== 'object') continue;
+    // 升级已有 TMDB 图片 URL 分辨率: w780 → original (无需重新请求 API)
+    if (entry.url && entry.url.includes('/t/p/w780/')) {
       entry.url = entry.url.replace('/t/p/w780/', '/t/p/original/');
       entry.version = COVER_CACHE_VERSION;
+    }
+    // 清除旧版本 notFound 标记,让改进后的搜索逻辑重试
+    if (entry.notFound && entry.version !== COVER_CACHE_VERSION) {
+      delete cache[id];
     }
   }
   return (_imageCacheMemo = cache);
@@ -1989,7 +1996,54 @@ function simplifyTitleForSearch(title = '') {
     .trim();
 }
 
+// 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
+const TMDB_ID_MAP = {
+  '明天也要上班！': { id: 289763, kind: 'tv' },
+  '忙忙碌碌寻宝藏': { id: 259700, kind: 'tv' },
+  '我们的宿舍': { id: 294253, kind: 'tv' },
+};
+
+async function lookupTMDBDirect(show) {
+  const candidates = [show.title, simplifyTitleForSearch(show.title)];
+  let entry = null;
+  for (const c of candidates) {
+    if (TMDB_ID_MAP[c]) { entry = TMDB_ID_MAP[c]; break; }
+  }
+  if (!entry) return null;
+
+  const mediaKind = entry.kind;
+  const data = await fetchTMDBJSON(`${mediaKind}/${entry.id}?language=zh-CN`);
+  if (!data?.id) return null;
+
+  // poster_path 可能在详情 API 中,也可能需要 images API
+  let posterPath = data.poster_path;
+  if (!posterPath) {
+    const images = await fetchTMDBJSON(`${mediaKind}/${entry.id}/images`);
+    posterPath = images?.posters?.[0]?.file_path || null;
+  }
+  if (!posterPath) return null;
+
+  const external = await fetchTMDBJSON(`${mediaKind}/${entry.id}/external_ids`);
+  const wikidata = await fetchWikidataLinks(external?.wikidata_id);
+  return {
+    url: `${TMDB_IMG_BASE}${posterPath}`,
+    tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${entry.id}`,
+    doubanUrl: wikidata.doubanUrl || '',
+    wikipediaUrl: wikidata.wikipediaUrl || '',
+    imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
+    wikidataId: external?.wikidata_id || '',
+    matchedTitle: data.name || data.original_name || '',
+    tmdbId: data.id,
+    mediaKind,
+    query: `direct:${entry.id}`,
+  };
+}
+
 async function searchTMDBImage(show) {
+  // 1. 优先用已知 TMDB ID 直接查找(跳过搜索,命中率 100%)
+  const direct = await lookupTMDBDirect(show);
+  if (direct) return direct;
+
   const isKorean = show.regional === '韩国';
   const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
   const enTitle = TITLE_EN_MAP[show.title];
