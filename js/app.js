@@ -177,8 +177,9 @@
 
     const newBadge = show.isNew ? '<div class="card-new-badge">NEW</div>' : '';
 
-    const posterContent = show.coverImg
-      ? `<img src="${escapeHtml(show.coverImg)}" alt="${escapeHtml(show.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>🎬</div>'">`
+    const coverImg = safeExternalUrl(show.coverImg);
+    const posterContent = coverImg
+      ? `<img src="${escapeHtml(coverImg)}" alt="${escapeHtml(show.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>🎬</div>'">`
       : '<div class="placeholder">🎬</div>';
 
     const statusText = show.isComplete
@@ -243,31 +244,27 @@
 
   function renderCardActions(show) {
     const actions = [];
-    if (show.tmdbUrl) {
-      actions.push(`<a class="card-action source-tmdb" href="${escapeHtml(show.tmdbUrl)}" target="_blank" rel="noopener">TMDB资料</a>`);
-    }
-    if (show.doubanUrl) {
-      actions.push(`<a class="card-action source-douban" href="${escapeHtml(show.doubanUrl)}" target="_blank" rel="noopener">豆瓣资料</a>`);
-    }
-    if (show.wikipediaUrl) {
-      actions.push(`<a class="card-action source-wikipedia" href="${escapeHtml(show.wikipediaUrl)}" target="_blank" rel="noopener">Wikipedia</a>`);
-    }
-    if (show.imdbUrl) {
-      actions.push(`<a class="card-action source-imdb" href="${escapeHtml(show.imdbUrl)}" target="_blank" rel="noopener">IMDb资料</a>`);
-    }
+    addExternalAction(actions, show.tmdbUrl, 'source-tmdb', 'TMDB资料');
+    addExternalAction(actions, show.doubanUrl, 'source-douban', '豆瓣资料');
+    addExternalAction(actions, show.wikipediaUrl, 'source-wikipedia', 'Wikipedia');
+    addExternalAction(actions, show.imdbUrl, 'source-imdb', 'IMDb资料');
 
     const yfspUrl = show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : '');
-    if (yfspUrl) {
-      actions.push(`<a class="card-action source-yfsp" href="${escapeHtml(yfspUrl)}" target="_blank" rel="noopener">观看/详情</a>`);
-    }
+    addExternalAction(actions, yfspUrl, 'source-yfsp', '观看/详情');
 
     if (!actions.length && show.primaryUrl) {
-      actions.push(`<a class="card-action source-yfsp" href="${escapeHtml(show.primaryUrl)}" target="_blank" rel="noopener">资料链接</a>`);
+      addExternalAction(actions, show.primaryUrl, 'source-yfsp', '资料链接');
     }
     if (!actions.length) {
       actions.push('<span class="card-action disabled">待匹配链接</span>');
     }
     return actions.join('');
+  }
+
+  function addExternalAction(actions, url, sourceClass, label) {
+    const safeUrl = safeExternalUrl(url);
+    if (!safeUrl) return;
+    actions.push(`<a class="card-action ${sourceClass}" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${label}</a>`);
   }
 
   function updateStats(shows) {
@@ -329,6 +326,11 @@
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
+  }
+
+  function safeExternalUrl(value) {
+    const url = String(value || '').trim();
+    return /^https?:\/\//i.test(url) ? url : '';
   }
 
   function debounce(fn, delay) {

@@ -70,6 +70,7 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         isRenderableShow,
         dedupByTitle,
         enrichCoversFromTMDB,
+        applyYfspSearchFields,
         searchDoubanSubject,
       };
     `;
@@ -104,6 +105,7 @@ function loadAppHelpers({ dateImpl = Date } = {}) {
       renderCardActions,
       renderCard,
       escapeHtml,
+      safeExternalUrl,
       switchTab,
       setAllData: value => { allData = value; },
       getCurrentShows: () => currentShows,
@@ -132,7 +134,7 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
 
 // ── Frontend behavior regressions ──────────────────────────
 {
-  const { renderCardActions, renderCard } = loadAppHelpers();
+  const { renderCardActions, renderCard, safeExternalUrl } = loadAppHelpers();
   const yfspOnly = renderCardActions({
     primaryUrl: 'https://www.yfsp.tv/play/rkNc61MMTE0',
     primaryUrlSource: 'yfsp',
@@ -150,8 +152,21 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
   assert.match(metadataAndYfsp, /href="https:\/\/www\.yfsp\.tv\/play\/live"/, 'cards with metadata should also expose the playable YFSP link');
   assert.match(metadataAndYfsp, /观看\/详情/, 'YFSP action should keep the watch/detail label');
 
+  const unsafeActions = renderCardActions({
+    primaryUrl: 'javascript:alert(1)',
+    primaryUrlSource: 'yfsp',
+    yfspUrl: 'data:text/html,<script>alert(1)</script>',
+    tmdbUrl: 'ftp://example.com/not-web',
+  });
+  assert.doesNotMatch(unsafeActions, /javascript:|data:|ftp:/, 'non-http external URLs should not render into card actions');
+  assert.match(unsafeActions, /待匹配链接/, 'unsafe-only cards should fall back to the disabled action');
+  assert.equal(safeExternalUrl(' https://example.com/path '), 'https://example.com/path', 'safe URL helper should trim valid web URLs');
+  assert.equal(safeExternalUrl('javascript:alert(1)'), '', 'safe URL helper should reject javascript URLs');
+
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
   assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');
+  const unsafeCover = renderCard({ title: '坏图测试', coverImg: 'javascript:alert(1)', score: 0, recommendScore: 0 }, 0);
+  assert.doesNotMatch(unsafeCover, /src="javascript:/, 'non-http cover URLs should render a placeholder instead of an image');
 
   const staleYearHelpers = loadAppHelpers({ dateImpl: fixedDate(2027) });
   staleYearHelpers.setAllData({
@@ -326,6 +341,58 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
   }]);
   const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
   assert.notEqual(savedCache['tmdb-unavailable']?.notFound, true, 'missing TMDB token should not write a negative notFound cache entry');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return {
+          ok: true,
+          json: async () => ({
+            results: [{
+              id: 12345,
+              name: 'TMDB高清优先测试',
+              original_name: 'TMDB高清优先测试',
+              poster_path: '/poster-original.jpg',
+              origin_country: ['CN'],
+            }],
+          }),
+        };
+      }
+      if (textUrl.includes('/tv/12345/external_ids')) {
+        return { ok: true, json: async () => ({}) };
+      }
+      if (textUrl.includes('wikidata.org')) {
+        return { ok: false, json: async () => ({}) };
+      }
+      throw new Error(`unexpected TMDB mock URL: ${textUrl}`);
+    },
+  });
+
+  const show = {
+    id: 'tmdb-priority',
+    title: 'TMDB高清优先测试',
+    year: 2026,
+    mediaType: '综艺',
+    regional: '大陆',
+    category: 'variety',
+    coverImg: 'https://static.yfsp.tv/low-quality.gif',
+    primaryUrl: 'https://www.yfsp.tv/play/demo',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/poster-original.jpg', 'TMDB original poster should replace an existing YFSP cover');
+  assert.equal(show.coverSource, 'tmdb', 'TMDB matches should be marked as the cover source');
+  assert.equal(show.yfspCoverImg, 'https://static.yfsp.tv/low-quality.gif', 'YFSP cover should be kept only as fallback after TMDB wins');
+
+  helpers.applyYfspSearchFields(show, {
+    coverImg: 'https://static.yfsp.tv/another-low-quality.jpg',
+    updateStatus: '更新到3',
+  });
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/poster-original.jpg', 'later YFSP refreshes should not overwrite a TMDB cover');
+  assert.equal(show.coverSource, 'tmdb', 'later YFSP refreshes should preserve TMDB cover source');
 }
 
 {
