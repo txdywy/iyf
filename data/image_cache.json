@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:46.283Z"
+    "cachedAt": "2026-06-24T14:22:25.639Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:46.356Z"
+    "cachedAt": "2026-06-24T14:22:25.629Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:46.735Z"
+    "cachedAt": "2026-06-24T14:22:25.605Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3285,11 +3285,13 @@
     "matchedTitle": "云秀行",
     "tmdbId": 239901,
     "tmdbUrl": "https://www.themoviedb.org/tv/239901",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26970929/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt29489359/",
     "wikidataId": "",
-    "cachedAt": "2026-06-20T13:52:14.217Z"
+    "cachedAt": "2026-06-20T13:52:14.217Z",
+    "doubanId": "26970929",
+    "doubanMatchedTitle": "云秀行"
   },
   "72nyGygyPBu1": {
     "title": "食神·百厨大战",
@@ -3752,7 +3754,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:47.281Z"
+    "cachedAt": "2026-06-24T14:22:26.368Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3774,34 +3776,59 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:47.487Z"
+    "cachedAt": "2026-06-24T14:22:26.331Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:47.773Z"
+    "cachedAt": "2026-06-24T14:22:26.348Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:47.878Z"
+    "cachedAt": "2026-06-24T14:22:26.429Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:48.209Z"
+    "cachedAt": "2026-06-24T14:22:27.060Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-24T03:32:48.239Z"
+    "cachedAt": "2026-06-24T14:22:27.066Z"
+  },
+  "muQ25XBxJZ6": {
+    "title": "街头餐厅斗士",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-06-24T14:22:25.563Z",
+    "doubanUrl": "https://movie.douban.com/subject/38521299/",
+    "doubanId": "38521299",
+    "doubanMatchedTitle": "街头餐厅斗士"
+  },
+  "WVgKNjZmx46": {
+    "title": "昨夜将至",
+    "url": "https://image.tmdb.org/t/p/original/6YM05zQQZnlrwFQ1HDng9KAVI7Y.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "昨夜将至",
+    "matchedTitle": "昨夜将至",
+    "tmdbId": 291947,
+    "tmdbUrl": "https://www.themoviedb.org/tv/291947",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37481034/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-24T14:22:26.544Z"
   }
 }
