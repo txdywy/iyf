@@ -507,16 +507,23 @@ const VarietyBoost = {
   '推理': 12, '探案': 12, '剧本杀': 12,
   '音乐': 8, '竞演': 8, '舞台': 8,
   '相声': 20, '小品': 20, 'sketch': 20,
+  // 旅行/户外/生活类加权
+  '露营': 15, '自驾': 12, '公路': 12, '田园': 12, '乡村': 10,
+  '做饭': 10, '料理': 10, '厨艺': 10, '农场': 12, '种地': 12,
+  '搭档': 8, '团建': 10, '兄弟': 8, '闺蜜': 8,
+  '解压': 10, '下饭': 12, '轻松': 12,
   // 明星加成（轻量）
   '沈腾': 5, '贾玲': 5, '邓超': 5, '陈赫': 5, '大张伟': 5, '杨迪': 5,
   '何炅': 5, '撒贝宁': 5, '李诞': 3,
+  '黄渤': 5, '贾冰': 5, '白敬亭': 3, '范丞丞': 3, '刘宇宁': 3,
+  '沙溢': 3, '王鹤棣': 3, '秦霄贤': 3, '郭麒麟': 3,
 };
 
 const VarietyExclude = ['浪姐', '乘风', '姐姐们', '女儿们的恋爱', '怦然再心动', '我们离婚了'];
 
-// 轻松搞笑综艺偏好关键词（用于收录判断）
-const VarietyFunnyKeywords = ['搞笑', '喜剧', '幽默', '欢乐', '爆笑', '脱口秀', '相声', '小品', '游戏', '旅行', '生活'];
-const VarietyHighWeightHosts = ['沈腾', '贾玲', '邓超', '陈赫', '鹿晗', '大张伟', '杨迪', '何炅', '撒贝宁', '李诞', '岳云鹏', '黄子韬', '孙红雷'];
+// 轻松搞笑综艺偏好关键词（用于收录判断和评分加分）
+const VarietyFunnyKeywords = ['搞笑', '喜剧', '幽默', '欢乐', '爆笑', '脱口秀', '相声', '小品', '游戏', '旅行', '生活', '美食', '户外', '露营', '做饭', '轻松', '下饭', '田园', '农场', '搭档'];
+const VarietyHighWeightHosts = ['沈腾', '贾玲', '邓超', '陈赫', '鹿晗', '大张伟', '杨迪', '何炅', '撒贝宁', '李诞', '岳云鹏', '黄子韬', '孙红雷', '黄渤', '贾冰', '白敬亭', '范丞丞', '刘宇宁', '沙溢', '王鹤棣', '秦霄贤', '郭麒麟', '王祖蓝', '薛之谦', '张艺兴', '王嘉尔'];
 
 function scoreKDrama(s) {
   let sc = 0;
@@ -988,6 +995,16 @@ const SEED_VARIETY = [
   // ── 密室/推理搞笑 ──
   { id:'seed_var_2026_05', title:'密室大逃脱', year:2026, score:8.0, playCount:280000, contentType:'真人秀·推理·搞笑', actor:'杨幂,大张伟,黄明昊,张国伟,许凯', description:'明星密室逃脱,紧张刺激又搞笑,2026新主题更烧脑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_27', title:'大侦探', year:2026, score:8.5, playCount:350000, contentType:'真人秀·推理·搞笑', actor:'何炅,张若昀,王鸥,魏晨,杨蓉', description:'明星推理探案,剧本杀沉浸体验,逻辑与笑料并存。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+
+  // ── 美食/旅行/生活 新增 ──
+  { id:'seed_var_2026_28', title:'地球超新鲜', year:2026, score:7.8, playCount:300000, contentType:'真人秀·旅行·搞笑', actor:'孙红雷,李乃文,郭京飞,刘宇宁,龚俊,陈赫', description:'明星自驾旅行探索地球新鲜事,笑料不断+涨知识,轻松解压。第二季热播中。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_29', title:'中餐厅', year:2026, score:7.5, playCount:135000, contentType:'真人秀·美食·旅行', actor:'黄晓明,王俊凯,昆凌,靳梦佳', description:'明星海外开中餐厅,美食+旅行+跨文化碰撞,轻松治愈下饭综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_30', title:'天才厨人', year:2026, score:7.6, playCount:114000, contentType:'真人秀·美食·搞笑', actor:'黄渤,吕严,马頔,王祖蓝', description:'明星厨艺大比拼,黄渤带队下厨,笑料百出的美食综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_31', title:'天赐的声音', year:2026, score:7.4, playCount:97000, contentType:'真人秀·音乐', actor:'陈楚生,黄霄云,黄子弘凡', description:'音乐搭档竞演综艺,新老歌手碰撞,好听又好看。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_32', title:'奋斗吧人生', year:2026, score:7.3, playCount:166000, contentType:'真人秀·搞笑', actor:'陈赫,邓超,秦海璐', description:'陈赫邓超搭档真人秀,奋斗路上笑料不断,兄弟情满满。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_33', title:'风华合伙人', year:2026, score:7.2, playCount:268000, contentType:'真人秀·生活', actor:'吴彦祖,井胧,代旭,周柯宇', description:'明星合伙创业真人秀,吴彦祖跨界挑战,轻松有趣。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_34', title:'超燃青春的合唱', year:2026, score:7.3, playCount:349000, contentType:'真人秀·音乐·竞演', actor:'段奥娟,希林娜依·高,康可人', description:'青春合唱竞演综艺,热血舞台+团队合作,青春活力满满。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  { id:'seed_var_2026_35', title:'无限超越班', year:2026, score:7.5, playCount:1152000, contentType:'真人秀·竞演', actor:'曾志伟,郝蕾,何赛飞,刘涛', description:'演员竞演真人秀,导师阵容豪华,看点十足。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ════════════════════════════════════════════════════════════════
   // 经典必看搞笑综艺
@@ -1681,7 +1698,7 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
 // 新综艺监控扫描 (自动发现大陆/韩国搞笑综艺)
 // ════════════════════════════════════════════════════════════════
 
-const VARIETY_DISCOVERY_KEYWORDS = ['综艺', '搞笑综艺', '真人秀', '2026综艺', '脱口秀', '喜剧'];
+const VARIETY_DISCOVERY_KEYWORDS = ['综艺', '搞笑综艺', '真人秀', '2026综艺', '脱口秀', '喜剧', '旅行综艺', '慢综艺', '美食综艺', '户外综艺', '露营综艺', '音乐综艺'];
 const VARIETY_DISCOVERY_MIN_SCORE = 5.0;
 const VARIETY_DISCOVERY_MIN_PLAYS = 30000;
 const VARIETY_DISCOVERY_2026_MIN_SCORE = 3.0;
@@ -1945,6 +1962,22 @@ const TITLE_EN_MAP = {
   '金星脱口秀': '金星秀',
   'BTS综艺年代记': 'BTS Variety Chronicle',
   '喜剧者联盟': '喜剧者联盟',
+  '地球超新鲜': 'Go Green',
+  '天才厨人': 'Genius Chef',
+  '天赐的声音': 'The Treasured Voice',
+  '奋斗吧人生': 'Strive for Life',
+  '风华合伙人': 'Youth Partners',
+  '超燃青春的合唱': 'Youth Choir',
+  '无限超越班': '无限超越班',
+  '中餐厅': 'Chinese Restaurant',
+  '食神·百厨大战': '食神百厨大战',
+  '开始推理吧': '推理开始了',
+  '脱口秀反跨年': '脱口秀反跨年',
+  '今晚80后脱口秀': '今晚80后脱口秀',
+  '脱口秀小会': '脱口秀小会',
+  '跨界喜剧王': '跨界喜剧王',
+  '豆豆农场': '豆豆农场',
+  '妻子的浪漫旅行': '妻子的浪漫旅行',
 };
 
 async function fetchTMDBJSON(path) {
