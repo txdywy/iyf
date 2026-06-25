@@ -330,7 +330,9 @@
 
   function safeExternalUrl(value) {
     const url = String(value || '').trim();
-    return /^https?:\/\//i.test(url) ? url : '';
+    // reject protocol-injection and attribute-breakout characters
+    if (!/^https?:\/\//i.test(url) || /["'<>]/.test(url)) return '';
+    return url;
   }
 
   function debounce(fn, delay) {

@@ -162,6 +162,9 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
   assert.match(unsafeActions, /待匹配链接/, 'unsafe-only cards should fall back to the disabled action');
   assert.equal(safeExternalUrl(' https://example.com/path '), 'https://example.com/path', 'safe URL helper should trim valid web URLs');
   assert.equal(safeExternalUrl('javascript:alert(1)'), '', 'safe URL helper should reject javascript URLs');
+  assert.equal(safeExternalUrl('https://evil.com/"onload=alert(1)'), '', 'safe URL helper should reject URLs containing quotes');
+  assert.equal(safeExternalUrl("https://evil.com/'onload=alert(1)"), '', 'safe URL helper should reject URLs containing single quotes');
+  assert.equal(safeExternalUrl('https://evil.com/<script>'), '', 'safe URL helper should reject URLs containing angle brackets');
 
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
   assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');

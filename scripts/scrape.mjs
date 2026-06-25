@@ -647,7 +647,10 @@ async function _callEndpoint(url, model, token, messages, temperature, timeout, 
         }
         return null;
       }
-      if (!r.ok) { return null; }
+      if (!r.ok) {
+        if (r.status !== 429) console.warn(`  [AI] ${model}: HTTP ${r.status}`);
+        return null;
+      }
       const data = await r.json();
       return data.choices?.[0]?.message?.content || null;
     } catch { return null; }
