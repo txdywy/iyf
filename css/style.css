@@ -656,3 +656,114 @@ a:hover { color: var(--pink); }
   .show-card:hover { transform: none; }
   .show-card:hover .card-poster img { transform: none; }
 }
+
+/* ── External Source Cards ──────────────────────────────────── */
+.card-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+}
+
+.schedule-ep {
+  background: rgba(108,92,231,0.2);
+  color: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.schedule-time {
+  color: var(--text-dim);
+}
+
+.schedule-rating {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.card-source-label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+.card-title-en {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.card-trakt-hot {
+  font-size: 0.82rem;
+  color: #ff6b6b;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.mdl-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  background: rgba(253,121,168,0.12);
+  color: var(--pink);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.card-mdl-stats {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+}
+
+.mdl-rating {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.mdl-watchers {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+/* External source action buttons */
+.card-action.source-tvmaze-link {
+  background: linear-gradient(135deg, #1e90ff, #4169e1);
+  color: #fff;
+}
+.card-action.source-tvmaze-link:hover {
+  background: linear-gradient(135deg, #3aa0ff, #5a7aee);
+  color: #fff;
+}
+
+.card-action.source-trakt-link {
+  background: linear-gradient(135deg, #ed1c24, #ff4444);
+  color: #fff;
+}
+.card-action.source-trakt-link:hover {
+  background: linear-gradient(135deg, #ff2d36, #ff6666);
+  color: #fff;
+}
+
+.card-action.source-mdl-link {
+  background: linear-gradient(135deg, #f5c518, #e6b91e);
+  color: #151515;
+}
+.card-action.source-mdl-link:hover {
+  background: linear-gradient(135deg, #ffda4a, #f5d030);
+  color: #111;
+}

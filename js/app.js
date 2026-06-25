@@ -91,6 +91,15 @@
           ...(allData.chineseVariety || [])
         ].filter(s => s.isClassic || s.score >= 8.5);
         break;
+      case 'tvmaze':
+        fetchAndRenderTVmaze();
+        return;
+      case 'trakt':
+        fetchAndRenderTrakt();
+        return;
+      case 'mdl':
+        fetchAndRenderMDL();
+        return;
     }
 
     currentShows = shows;
@@ -352,6 +361,221 @@
       clearTimeout(timer);
       timer = setTimeout(() => fn.apply(this, args), delay);
     };
+  }
+
+  // ── 外部数据源: TVmaze 韩剧时间表 ─────────────────────────
+  async function fetchAndRenderTVmaze() {
+    const grid = document.getElementById('showGrid');
+    const loading = document.getElementById('loading');
+    const empty = document.getElementById('empty');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    grid.innerHTML = '';
+
+    try {
+      // 回溯最多 7 天找到有数据的日期(TVMaze 可能对某些日期无数据)
+      const showMap = new Map();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+        const data = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`).then(r => r.json());
+        for (const entry of data) {
+          const show = entry.show;
+          if (!show?.id || showMap.has(show.id)) continue;
+          showMap.set(show.id, { ...show, latestEpisode: entry, airDate: d });
+        }
+        if (showMap.size >= 5) break;
+      }
+
+      // 按评分降序
+      const shows = [...showMap.values()].sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0));
+      loading.style.display = 'none';
+
+      if (!shows.length) {
+        empty.style.display = 'block';
+        empty.innerHTML = '<p>📡 今日暂无韩国电视剧播出</p>';
+        return;
+      }
+
+      grid.innerHTML = shows.map((show, i) => renderTVmazeCard(show, i)).join('');
+      updateStats(shows.map(s => ({ isComplete: s.status === 'Ended', score: (s.rating?.average || 0) * 10 / 7 })));
+    } catch (e) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.innerHTML = '<p>😢 TVmaze 数据加载失败,请稍后刷新</p>';
+    }
+  }
+
+  function renderTVmazeCard(show, index) {
+    const ep = show.latestEpisode;
+    const epInfo = ep ? `S${ep.season}E${ep.number}` : '';
+    const airtime = ep?.airtime || '';
+    const network = show.network?.name || '';
+    const genres = (show.genres || []).slice(0, 3);
+    const rating = show.rating?.average;
+    const img = show.image?.medium || show.image?.original || '';
+    const summary = (show.summary || '').replace(/<[^>]+>/g, '').slice(0, 120);
+    const posterContent = img
+      ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(show.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>📺</div>'">`
+      : '<div class="placeholder">📺</div>';
+
+    return `
+      <article class="show-card source-tvmaze" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+        <div class="card-poster">${posterContent}</div>
+        <div class="card-body">
+          <h3 class="card-title">${escapeHtml(show.name)}</h3>
+          <div class="card-meta">
+            ${network ? `<span class="meta-tag region">${escapeHtml(network)}</span>` : ''}
+            ${genres.map(g => `<span class="meta-tag">${escapeHtml(g)}</span>`).join('')}
+          </div>
+          <div class="card-schedule">
+            ${epInfo ? `<span class="schedule-ep">${escapeHtml(epInfo)}</span>` : ''}
+            ${airtime ? `<span class="schedule-time">🕐 ${escapeHtml(airtime)}</span>` : ''}
+            ${rating ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
+          </div>
+          <p class="card-desc">${escapeHtml(summary)}</p>
+          <div class="card-footer">
+            <span class="card-status ${show.status === 'Running' ? 'ongoing' : ''}">${show.status === 'Running' ? '连载中' : '已完结'}</span>
+            <span class="card-source-label">📡 TVmaze</span>
+          </div>
+          <div class="card-actions">
+            <a class="card-action source-tvmaze-link" href="${escapeHtml(show.url || '#')}" target="_blank" rel="noopener noreferrer">TVmaze 详情</a>
+            <a class="card-action source-tmdb" href="https://www.themoviedb.org/search?query=${encodeURIComponent(show.name)}" target="_blank" rel="noopener noreferrer">TMDB</a>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  // ── 外部数据源: Trakt.tv 全球热度 ─────────────────────────
+  let _traktShows = null;
+  async function fetchAndRenderTrakt() {
+    const grid = document.getElementById('showGrid');
+    const loading = document.getElementById('loading');
+    const empty = document.getElementById('empty');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    grid.innerHTML = '';
+
+    try {
+      if (!_traktShows) {
+        const resp = await fetch('data/trakt_shows.json');
+        if (!resp.ok) throw new Error('Trakt data not found');
+        const traktData = await resp.json();
+        _traktShows = traktData.shows || [];
+      }
+
+      loading.style.display = 'none';
+      if (!_traktShows.length) {
+        empty.style.display = 'block';
+        empty.innerHTML = '<p>🔥 暂无 Trakt.tv 热度数据</p>';
+        return;
+      }
+
+      grid.innerHTML = _traktShows.map((show, i) => renderTraktCard(show, i)).join('');
+      updateStats(_traktShows.map(s => ({ isComplete: s.status === 'ended', score: 8 })));
+    } catch (e) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.innerHTML = '<p>😢 Trakt.tv 数据加载失败</p>';
+    }
+  }
+
+  function renderTraktCard(show, index) {
+    const overview = (show.overview || '').slice(0, 150);
+    const genres = (show.genres || []).slice(0, 3);
+    const year = show.year || '';
+    const traktUrl = show.traktUrl || '';
+    const tmdbId = show.tmdbId || 0;
+
+    return `
+      <article class="show-card source-trakt" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+        <div class="card-poster"><div class="placeholder">🔥</div></div>
+        <div class="card-body">
+          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${year})` : ''}</h3>
+          ${show.titleCn ? `<div class="card-title-en">${escapeHtml(show.titleCn)}</div>` : ''}
+          <div class="card-meta">
+            ${genres.map(g => `<span class="meta-tag">${escapeHtml(g)}</span>`).join('')}
+          </div>
+          ${show.watchers ? `<div class="card-trakt-hot">🔥 ${show.watchers.toLocaleString()} 人在追</div>` : ''}
+          <p class="card-desc">${escapeHtml(overview)}</p>
+          <div class="card-footer">
+            <span class="card-status ${show.status === 'ended' ? '' : 'ongoing'}">${show.status === 'ended' ? '已完结' : '连载中'}</span>
+            <span class="card-source-label">🔥 Trakt.tv</span>
+          </div>
+          <div class="card-actions">
+            ${traktUrl ? `<a class="card-action source-trakt-link" href="${escapeHtml(traktUrl)}" target="_blank" rel="noopener noreferrer">Trakt 详情</a>` : ''}
+            ${tmdbId ? `<a class="card-action source-tmdb" href="https://www.themoviedb.org/tv/${tmdbId}" target="_blank" rel="noopener noreferrer">TMDB</a>` : ''}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  // ── 外部数据源: MyDramaList 社区精选 ─────────────────────────
+  async function fetchAndRenderMDL() {
+    const grid = document.getElementById('showGrid');
+    const loading = document.getElementById('loading');
+    const empty = document.getElementById('empty');
+    loading.style.display = 'block';
+    empty.style.display = 'none';
+    grid.innerHTML = '';
+
+    try {
+      const resp = await fetch('data/mdl_shows.json');
+      if (!resp.ok) throw new Error('MDL data not found');
+      const mdlData = await resp.json();
+      const shows = mdlData.shows || [];
+
+      loading.style.display = 'none';
+      if (!shows.length) {
+        empty.style.display = 'block';
+        empty.innerHTML = '<p>🎯 暂无 MDL 社区精选数据</p>';
+        return;
+      }
+
+      // 按 MDL 评分降序
+      shows.sort((a, b) => (b.mdlRating || 0) - (a.mdlRating || 0));
+      grid.innerHTML = shows.map((show, i) => renderMDLCard(show, i)).join('');
+      updateStats(shows.map(s => ({ isComplete: true, score: s.mdlRating * 10 / 7 })));
+    } catch (e) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      empty.innerHTML = '<p>😢 MDL 社区精选数据加载失败</p>';
+    }
+  }
+
+  function renderMDLCard(show, index) {
+    const genres = (show.genres || []).slice(0, 3);
+    const tags = (show.tags || []).slice(0, 3);
+    const year = show.year || '';
+    const rating = show.mdlRating || 0;
+    const watchers = show.watchers || 0;
+    const description = show.description || '';
+
+    return `
+      <article class="show-card source-mdl" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+        <div class="card-poster"><div class="placeholder">🎯</div></div>
+        <div class="card-body">
+          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${year})` : ''}</h3>
+          ${show.titleEn ? `<div class="card-title-en">${escapeHtml(show.titleEn)}</div>` : ''}
+          <div class="card-meta">
+            ${show.network ? `<span class="meta-tag region">${escapeHtml(show.network)}</span>` : ''}
+            ${genres.map(g => `<span class="meta-tag">${escapeHtml(g)}</span>`).join('')}
+          </div>
+          ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="mdl-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+          <div class="card-mdl-stats">
+            <span class="mdl-rating">⭐ ${rating.toFixed(1)}/10</span>
+            ${watchers ? `<span class="mdl-watchers">👁 ${watchers >= 1000 ? (watchers / 1000).toFixed(1) + 'k' : watchers} watchers</span>` : ''}
+          </div>
+          <p class="card-desc">${escapeHtml(description)}</p>
+          <div class="card-footer">
+            <span class="card-status">${show.episodes ? show.episodes + '集完结' : '已完结'}</span>
+            <span class="card-source-label">🎯 MyDramaList</span>
+          </div>
+          <div class="card-actions">
+            ${show.mdlUrl ? `<a class="card-action source-mdl-link" href="${escapeHtml(show.mdlUrl)}" target="_blank" rel="noopener noreferrer">MDL 详情</a>` : ''}
+            <a class="card-action source-tmdb" href="https://www.themoviedb.org/search?query=${encodeURIComponent(show.titleEn || show.title)}" target="_blank" rel="noopener noreferrer">TMDB</a>
+          </div>
+        </div>
+      </article>`;
   }
 
 })();

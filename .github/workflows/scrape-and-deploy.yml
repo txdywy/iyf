@@ -105,6 +105,8 @@ jobs:
           cp index.html site/
           cp -R css js site/
           cp data/shows.json site/data/
+          cp data/mdl_shows.json site/data/
+          cp data/trakt_shows.json site/data/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
