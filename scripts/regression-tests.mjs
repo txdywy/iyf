@@ -506,6 +506,8 @@ assert.match(scrape, /isTMDBImageUrl\(show\.coverImg\)[\s\S]*?show\.coverSource 
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
 
 assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
+assert.doesNotMatch(scrape, /seed_var_2026_17/, '待定版地球超新鲜 seed should be removed (duplicate of seed_var_2026_28)');
+assert.doesNotMatch(scrape, /seed_kd_s03/, 'duplicate 奇怪的律师禹英禑 seed should be removed (covered by seed_kd_c15 非常律师禹英禑)');
 assert.match(scrape, /function dedupByTitle\(/, 'final output should dedup duplicate cards');
 assert.match(scrape, /koreanDramas = dedupByTitle\(/, 'korean drama output should be de-duplicated');
 assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should be de-duplicated');

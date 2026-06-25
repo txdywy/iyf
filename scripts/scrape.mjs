@@ -954,7 +954,6 @@ const SEED_KDRAMAS = [
   // ── 悬疑探案(适度推荐,非血腥) ──
   { id:'seed_kd_s01', title:'信号', year:2016, score:9.2, playCount:600000, contentType:'悬疑·犯罪·剧情', actor:'李帝勋,赵震雄,金惠秀', description:'通过无线电连接过去和现在的刑警破案故事。悬疑烧脑,经典中的经典。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_s02', title:'秘密森林', year:2017, score:9.1, playCount:400000, contentType:'悬疑·犯罪·剧情', actor:'曹承佑,裴斗娜', description:'失去情感的检察官和正义女警联手破案。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
-  { id:'seed_kd_s03', title:'奇怪的律师禹英禑', year:2022, score:8.6, playCount:800000, contentType:'剧情·喜剧·法律', actor:'朴恩斌,姜泰伍', description:'自闭症天才律师的法庭故事。温暖有趣,不沉重。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
 ];
 
 const SEED_VARIETY = [
@@ -978,7 +977,6 @@ const SEED_VARIETY = [
   { id:'seed_var_2026_14', title:'闪亮的日子', year:2026, score:7.6, playCount:180000, contentType:'真人秀·生活·搞笑', actor:'陆虎,张远,王栎鑫,陈楚生,苏醒', description:'再就业男团日常记录,真实友情+搞笑互动,轻松下饭。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_15', title:'快乐再出发', year:2026, score:8.3, playCount:310000, contentType:'真人秀·旅行·搞笑', actor:'陈楚生,苏醒,王栎鑫,张远,王铮亮,陆虎', description:'再就业男团的音乐旅行,熟人局的化学反应,笑中带泪的宝藏综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_16', title:'你好生活', year:2026, score:7.4, playCount:200000, contentType:'真人秀·生活·搞笑', actor:'撒贝宁,尼格买提,康辉,李梓萌', description:'央视主持人团建综艺,慢生活+真诚对话,温馨又有趣。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_17', title:'地球超新鲜', year:2026, score:7.3, playCount:250000, contentType:'真人秀·旅行·搞笑', actor:'待定', description:'全新户外探索综艺,明星嘉宾走访各地,体验风土人情,轻松搞笑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_18', title:'向往的生活', year:2026, score:8.3, playCount:400000, contentType:'真人秀·生活·搞笑', actor:'何炅,黄磊,彭昱畅,张子枫', description:'田园慢生活综艺,温馨治愈,笑料不断。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ── 喜剧/脱口秀 ──
