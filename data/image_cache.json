@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:11.634Z"
+    "cachedAt": "2026-06-25T14:22:46.795Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:11.717Z"
+    "cachedAt": "2026-06-25T14:22:46.792Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:11.793Z"
+    "cachedAt": "2026-06-25T14:22:46.830Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3500,11 +3500,13 @@
     "matchedTitle": "种墨园",
     "tmdbId": 326189,
     "tmdbUrl": "https://www.themoviedb.org/tv/326189",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37491182/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-06-23T14:39:28.025Z"
+    "cachedAt": "2026-06-23T14:39:28.025Z",
+    "doubanId": "37491182",
+    "doubanMatchedTitle": "种墨园"
   },
   "seed_var_2026_28": {
     "title": "地球超新鲜",
@@ -3756,7 +3758,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:11.744Z"
+    "cachedAt": "2026-06-25T14:22:47.470Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3778,35 +3780,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:12.271Z"
+    "cachedAt": "2026-06-25T14:22:47.522Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:12.274Z"
+    "cachedAt": "2026-06-25T14:22:47.514Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:12.381Z"
+    "cachedAt": "2026-06-25T14:22:47.583Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:12.909Z"
+    "cachedAt": "2026-06-25T14:22:48.255Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T03:46:12.431Z"
+    "cachedAt": "2026-06-25T14:22:48.196Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3832,5 +3834,45 @@
     "imdbUrl": "https://www.imdb.com/title/tt37481034/",
     "wikidataId": "",
     "cachedAt": "2026-06-24T14:22:26.544Z"
+  },
+  "J5wDjxiILn9": {
+    "title": "快乐老家",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-06-25T14:22:46.742Z",
+    "doubanUrl": "https://movie.douban.com/subject/37462956/",
+    "doubanId": "37462956",
+    "doubanMatchedTitle": "快乐老家"
+  },
+  "lcbjuPBEsZ1": {
+    "title": "你在夏日之中",
+    "url": "https://image.tmdb.org/t/p/original/he0yILQnhKDO8Tr94s9R0eFgDzb.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "你在夏日之中",
+    "matchedTitle": "你在夏日之中",
+    "tmdbId": 322072,
+    "tmdbUrl": "https://www.themoviedb.org/tv/322072",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43611974/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-25T14:22:47.803Z"
+  },
+  "vXuTBcSXqED": {
+    "title": "降世神通：最后的气宗第2季",
+    "url": "https://image.tmdb.org/t/p/original/6yRBwqaKcFlp9TBIuZgLvJip8hA.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "降世神通：最后的气宗",
+    "matchedTitle": "降世神通：最后的气宗",
+    "tmdbId": 82452,
+    "tmdbUrl": "https://www.themoviedb.org/tv/82452",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt9018736/",
+    "wikidataId": "Q109608844",
+    "cachedAt": "2026-06-25T14:22:48.932Z"
   }
 }
