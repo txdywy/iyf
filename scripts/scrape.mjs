@@ -50,19 +50,32 @@ const HEADERS = {
 
 const CURRENT_YEAR = new Date().getFullYear();
 
+// API 请求限速间隔 (ms)
+const YFSP_PAGE_DELAY = 600;
+const YFSP_SEARCH_DELAY = 150;
+const YFSP_VERIFY_DELAY = 120;
+const YFSP_REFRESH_DELAY = 250;
+const DOUBAN_SEARCH_DELAY = 900;
+const TMDB_SEARCH_DELAY = 250;
+const WIKI_REQUEST_DELAY = 300;
+const AI_BATCH_DELAY = 1000;
+
 // ════════════════════════════════════════════════════════════════
 // API 抓取
 // ════════════════════════════════════════════════════════════════
 
-async function fetchJSON(url) {
+async function fetchWithTimeout(url, { timeout = 15000, asText = false } = {}) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 15000);
+  const t = setTimeout(() => ctrl.abort(), timeout);
   try {
     const r = await fetch(url, { headers: HEADERS, signal: ctrl.signal });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.json();
+    return asText ? await r.text() : await r.json();
   } finally { clearTimeout(t); }
 }
+
+async function fetchJSON(url) { return fetchWithTimeout(url); }
+async function fetchText(url) { return fetchWithTimeout(url, { asText: true }); }
 
 async function fetchPage(page, isn = 0) {
   const url = `${API_BASE}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=${isn}&isfree=-1`;
@@ -424,7 +437,7 @@ async function searchYfspTitle(show) {
     } catch (e) {
       console.warn(`  [WARN] yfsp search failed for "${query}": ${e.message}`);
     }
-    await sleep(150);
+    await sleep(YFSP_SEARCH_DELAY);
   }
   return null;
 }
@@ -466,15 +479,6 @@ async function verifyYfspUrl(show, url) {
   }
 }
 
-async function fetchText(url) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const r = await fetch(url, { headers: HEADERS, signal: ctrl.signal });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.text();
-  } finally { clearTimeout(t); }
-}
 
 // ════════════════════════════════════════════════════════════════
 // 推荐算法
@@ -793,7 +797,7 @@ async function aiScoreShows(shows) {
         console.warn(`  [AI] 解析评分失败: ${e.message}`);
       }
     }
-    if (i + AI_BATCH_SIZE < toScore.length) await sleep(1000);
+    if (i + AI_BATCH_SIZE < toScore.length) await sleep(AI_BATCH_DELAY);
   }
 
   // 不重试 — 漏掉的剧靠 7 天缓存+下次定时任务自然补上,节省 API 调用
@@ -833,7 +837,7 @@ async function aiEvaluateDiscovery(discovered) {
         console.warn(`  [AI] 解析筛选结果失败: ${e.message}`);
       }
     }
-    if (i + AI_BATCH_SIZE < discovered.length) await sleep(1000);
+    if (i + AI_BATCH_SIZE < discovered.length) await sleep(AI_BATCH_DELAY);
   }
 
   for (const s of discovered) {
@@ -886,7 +890,7 @@ async function aiEnhanceDescriptions(shows) {
         }
       } catch {}
     }
-    if (i + AI_BATCH_SIZE < targets.length) await sleep(1000);
+    if (i + AI_BATCH_SIZE < targets.length) await sleep(AI_BATCH_DELAY);
   }
 
   console.log(`  [AI] 增强了 ${enhanced} 个描述`);
@@ -1049,7 +1053,7 @@ async function main() {
           if (!liveShows.has(key)) liveShows.set(key, s);
         }
       }
-      await sleep(600);
+      await sleep(YFSP_PAGE_DELAY);
     }
   }
 
@@ -1204,11 +1208,11 @@ async function main() {
   const allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   await enrichCoversFromTMDB(allShowsList);
   await enrichMissingYfspLinks(allShowsList);
-  for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
   await enrichDoubanLinks(allShowsList);
-  for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
   await enrichDescriptions(allShowsList);
   await aiEnhanceDescriptions(allShowsList);
+  // 所有 URL 富化完成后统一重算链接优先级
+  for (const show of allShowsList) attachLinkFields(show, show.yfspUrl, show.doubanUrl);
 
   // ── 8. 排序 ──
   const dropped = allShowsList.filter(s => !isRenderableShow(s));
@@ -1364,7 +1368,7 @@ async function enrichMissingYfspLinks(shows) {
         attachLinkFields(show, '', show.doubanUrl);
         console.log(`    ✗ ${show.title}`);
       }
-      await sleep(120);
+      await sleep(YFSP_VERIFY_DELAY);
     }
     console.log(`  移除 ${invalid} 个无效爱壹帆链接`);
   }
@@ -1380,7 +1384,7 @@ async function enrichMissingYfspLinks(shows) {
         refreshed++;
         console.log(`    ↻ ${show.title}: ${show.updateStatus}`);
       }
-      await sleep(250);
+      await sleep(YFSP_REFRESH_DELAY);
     }
     console.log(`  刷新 ${refreshed} 个连载节目集数`);
   }
@@ -1404,7 +1408,7 @@ async function enrichMissingYfspLinks(shows) {
       attachLinkFields(show, '', show.doubanUrl || buildDoubanSubjectUrl(show.title));
       console.log(`    ✗ ${show.title}`);
     }
-    await sleep(250);
+    await sleep(YFSP_REFRESH_DELAY);
   }
   console.log(`  匹配到 ${matched} 个爱壹帆具体页`);
 }
@@ -1460,7 +1464,7 @@ async function searchDoubanSubject(show) {
     } catch (e) {
       console.warn(`  [WARN] douban search failed for "${query}": ${e.message}`);
     }
-    await sleep(900);
+    await sleep(DOUBAN_SEARCH_DELAY);
   }
   return null;
 }
@@ -1489,7 +1493,7 @@ async function enrichDoubanLinks(shows) {
   console.log(`  为 ${targets.length} 个节目补充豆瓣具体页...`);
   const cache = loadImageCache();
   let matched = 0;
-  for (const show of targets) {
+  await mapPool(targets, 3, async (show) => {
     const found = await searchDoubanSubject(show);
     if (found?.doubanUrl) {
       show.doubanUrl = found.doubanUrl;
@@ -1505,8 +1509,8 @@ async function enrichDoubanLinks(shows) {
     } else {
       console.log(`    ✗ ${show.title}`);
     }
-    await sleep(1000);
-  }
+    await sleep(DOUBAN_SEARCH_DELAY);
+  });
   saveImageCache(cache);
   console.log(`  补充 ${matched} 个豆瓣具体页`);
 }
@@ -1531,11 +1535,11 @@ async function enrichDescriptions(shows) {
   console.log(`  为 ${targets.length} 个节目补充 TMDB 剧情介绍...`);
   let enriched = 0;
 
-  for (const show of targets) {
+  await mapPool(targets, 4, async (show) => {
     const c = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
     const tmdbId = c?.tmdbId;
     const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
-    if (!tmdbId) continue;
+    if (!tmdbId) return;
 
     try {
       const data = await fetchTMDBJSON(`${mediaKind}/${tmdbId}?language=zh-CN`);
@@ -1547,8 +1551,8 @@ async function enrichDescriptions(shows) {
     } catch (e) {
       console.warn(`  [WARN] description fetch failed for "${show.title}": ${e.message}`);
     }
-    await sleep(250);
-  }
+    await sleep(TMDB_SEARCH_DELAY);
+  });
 
   // 补充 Wikipedia 描述 (优先中文,其次英文)
   const wikiTargets = shows.filter(s => s.wikipediaUrl && (!s.description || s.description.length < 80));
@@ -1568,7 +1572,7 @@ async function enrichDescriptions(shows) {
         }
       }
     } catch {}
-    await sleep(300);
+    await sleep(WIKI_REQUEST_DELAY);
   }
 
   console.log(`  补充 ${enriched} 个剧情介绍`);
@@ -1634,7 +1638,7 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
     } catch (e) {
       console.warn(`  [WARN] discovery search failed for "${kw}": ${e.message}`);
     }
-    await sleep(600);
+    await sleep(YFSP_PAGE_DELAY);
   }
 
   const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
@@ -1760,7 +1764,7 @@ async function discoverNewVariety(liveShows, varietyMap) {
     } catch (e) {
       console.warn(`  [WARN] variety discovery search failed for "${kw}": ${e.message}`);
     }
-    await sleep(600);
+    await sleep(YFSP_PAGE_DELAY);
   }
 
   const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
@@ -2124,7 +2128,7 @@ async function searchTMDBImage(show) {
       } catch (e) {
         console.warn(`  [WARN] TMDB search failed for "${query}": ${e.message}`);
       }
-      await sleep(250);
+      await sleep(TMDB_SEARCH_DELAY);
     }
   }
   return null;
