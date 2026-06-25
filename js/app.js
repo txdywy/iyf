@@ -24,7 +24,10 @@
       if (!resp.ok) throw new Error('Data not found');
       allData = await resp.json();
       updateInfo();
-      switchTab('korean');
+      // 从 URL hash 恢复上次选择的标签,默认韩剧推荐
+      const hashTab = location.hash.slice(1);
+      const validTabs = ['korean', 'year2026', 'variety2026', 'variety', 'new', 'classic'];
+      switchTab(validTabs.includes(hashTab) ? hashTab : 'korean');
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('empty').style.display = 'block';
@@ -51,6 +54,7 @@
   }
 
   function switchTab(tab) {
+    history.replaceState(null, '', '#' + tab);
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
       b.classList.toggle('active', active);
@@ -252,6 +256,11 @@
     const yfspUrl = show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : '');
     addExternalAction(actions, yfspUrl, 'source-yfsp', '观看/详情');
 
+    // 有资料链接但缺少观看链接时,显示灰色提示
+    if (!yfspUrl && actions.length > 0) {
+      actions.push('<span class="card-action disabled">暂无观看链接</span>');
+    }
+
     if (!actions.length && show.primaryUrl) {
       addExternalAction(actions, show.primaryUrl, 'source-yfsp', '资料链接');
     }
@@ -308,11 +317,13 @@
   }
 
   // ── 工具函数 ──────────────────────────────────────
+  let _cachedMaxYear = 0;
   function getCurrentDataYear() {
+    if (_cachedMaxYear) return _cachedMaxYear;
     // 从实际数据中的最大年份推导,而非更新时间戳(避免跨年时"新剧"tab 为空)
     const allShows = [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || [])];
-    const maxYear = allShows.reduce((max, s) => Math.max(max, s.year || 0), 0);
-    return maxYear || new Date().getFullYear();
+    _cachedMaxYear = allShows.reduce((max, s) => Math.max(max, s.year || 0), 0);
+    return _cachedMaxYear || new Date().getFullYear();
   }
 
   function getValidTime(value) {

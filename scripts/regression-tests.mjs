@@ -86,6 +86,8 @@ function loadAppHelpers({ dateImpl = Date } = {}) {
     Date: dateImpl,
     setInterval,
     clearInterval,
+    history: { replaceState() {} },
+    location: { hash: '', slice(n) { return this.hash.slice(n); } },
     document: {
       addEventListener() {},
       querySelectorAll: () => [],
@@ -151,6 +153,15 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
   assert.match(metadataAndYfsp, /TMDB资料/, 'metadata links should still render when present');
   assert.match(metadataAndYfsp, /href="https:\/\/www\.yfsp\.tv\/play\/live"/, 'cards with metadata should also expose the playable YFSP link');
   assert.match(metadataAndYfsp, /观看\/详情/, 'YFSP action should keep the watch/detail label');
+
+  const metadataNoYfsp = renderCardActions({
+    tmdbUrl: 'https://www.themoviedb.org/tv/1',
+    doubanUrl: 'https://movie.douban.com/subject/1/',
+    yfspUrl: '',
+  });
+  assert.match(metadataNoYfsp, /TMDB资料/, 'cards with metadata but no YFSP should still show metadata links');
+  assert.match(metadataNoYfsp, /暂无观看链接/, 'cards with metadata but no YFSP should show a disabled watch hint');
+  assert.doesNotMatch(metadataNoYfsp, /待匹配链接/, 'cards with metadata should not show the generic fallback');
 
   const unsafeActions = renderCardActions({
     primaryUrl: 'javascript:alert(1)',
