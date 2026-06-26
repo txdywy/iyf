@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:46.795Z"
+    "cachedAt": "2026-06-26T02:54:19.164Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:46.792Z"
+    "cachedAt": "2026-06-26T02:54:19.162Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:46.830Z"
+    "cachedAt": "2026-06-26T02:54:19.163Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3758,7 +3758,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:47.470Z"
+    "cachedAt": "2026-06-26T02:54:19.164Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3780,35 +3780,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:47.522Z"
+    "cachedAt": "2026-06-26T02:54:19.733Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:47.514Z"
+    "cachedAt": "2026-06-26T02:54:19.741Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:47.583Z"
+    "cachedAt": "2026-06-26T02:54:19.760Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:48.255Z"
+    "cachedAt": "2026-06-26T02:54:20.331Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-25T14:22:48.196Z"
+    "cachedAt": "2026-06-26T02:54:19.737Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3874,5 +3874,20 @@
     "imdbUrl": "https://www.imdb.com/title/tt9018736/",
     "wikidataId": "Q109608844",
     "cachedAt": "2026-06-25T14:22:48.932Z"
+  },
+  "xDleUb9Dg7A": {
+    "title": "当光芒消逝",
+    "url": "https://image.tmdb.org/t/p/original/hKTPWH7BlUoGdVkWgfoDM4TYSRw.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "当光芒消逝",
+    "matchedTitle": "当光芒消逝",
+    "tmdbId": 300074,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300074",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39182733/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-26T02:54:19.766Z"
   }
 }
