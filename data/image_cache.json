@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:18.846Z"
+    "cachedAt": "2026-06-27T13:24:10.898Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:18.885Z"
+    "cachedAt": "2026-06-27T13:24:10.897Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:19.198Z"
+    "cachedAt": "2026-06-27T13:24:11.435Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -2996,7 +2996,10 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.119Z"
+    "cachedAt": "2026-06-26T14:18:20.119Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816918/",
+    "doubanId": "37816918",
+    "doubanMatchedTitle": "我们的宿舍·归心季"
   },
   "mFJ3ys0Qmb2": {
     "title": "每个夏天之后",
@@ -3752,7 +3755,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:19.519Z"
+    "cachedAt": "2026-06-27T13:24:11.575Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3774,35 +3777,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:19.565Z"
+    "cachedAt": "2026-06-27T13:24:11.604Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:19.602Z"
+    "cachedAt": "2026-06-27T13:24:11.598Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:19.970Z"
+    "cachedAt": "2026-06-27T13:24:12.165Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:20.294Z"
+    "cachedAt": "2026-06-27T13:24:12.361Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:20.237Z"
+    "cachedAt": "2026-06-27T13:24:12.333Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3889,10 +3892,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T02:44:18.804Z",
-    "doubanUrl": "https://movie.douban.com/subject/37249356/",
-    "doubanId": "37249356",
-    "doubanMatchedTitle": "最后一排的男孩"
+    "cachedAt": "2026-06-27T13:24:10.859Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
@@ -3917,5 +3917,82 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-06-27T02:44:20.303Z"
+  },
+  "iGdaiZejfFA": {
+    "title": "说唱巅峰对决",
+    "url": "https://image.tmdb.org/t/p/original/A7oQVG8SDT89uUysYbVEkGNotSz.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "说唱巅峰对决",
+    "matchedTitle": "中国说唱巅峰对决",
+    "tmdbId": 225861,
+    "tmdbUrl": "https://www.themoviedb.org/tv/225861",
+    "doubanUrl": "https://movie.douban.com/subject/37561085/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-06-27T13:24:10.693Z",
+    "doubanId": "37561085",
+    "doubanMatchedTitle": "说唱巅峰对决2026"
+  },
+  "cwX4qHtZmR8": {
+    "title": "千香",
+    "url": "https://image.tmdb.org/t/p/original/Cdnzjeu1pZ1ljF3ZtGV0a33Qq3.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "千香",
+    "matchedTitle": "千香",
+    "tmdbId": 251600,
+    "tmdbUrl": "https://www.themoviedb.org/tv/251600",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36872458/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-27T13:24:11.784Z"
+  },
+  "Ofk1WSPlVQ3": {
+    "title": "入戏",
+    "url": "https://image.tmdb.org/t/p/original/zvpd92q7DtuPkl9xz4z3VJGJyio.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "入戏",
+    "matchedTitle": "入戏",
+    "tmdbId": 303084,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303084",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43551392/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-27T13:24:11.959Z"
+  },
+  "bjjjwHluWPA": {
+    "title": "心动禁止",
+    "url": "https://image.tmdb.org/t/p/original/e6NQBX3R5X8jid3CUI5UQf6R94v.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "心动禁止",
+    "matchedTitle": "心动禁止",
+    "tmdbId": 314936,
+    "tmdbUrl": "https://www.themoviedb.org/tv/314936",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt40164372/",
+    "wikidataId": "Q139905576",
+    "cachedAt": "2026-06-27T13:24:12.468Z"
+  },
+  "aLtVvk5EMzD": {
+    "title": "熊家餐馆第5季",
+    "url": "https://image.tmdb.org/t/p/original/3utKZ1Wp7FD9NE8Dysu0NATa9cC.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "熊家餐馆",
+    "matchedTitle": "熊家餐馆",
+    "tmdbId": 136315,
+    "tmdbUrl": "https://www.themoviedb.org/tv/136315",
+    "doubanUrl": "https://movie.douban.com/subject/35900652/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt14452776/",
+    "wikidataId": "Q112761982",
+    "cachedAt": "2026-06-27T13:24:13.677Z"
   }
 }
