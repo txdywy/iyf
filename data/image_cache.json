@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.131Z"
+    "cachedAt": "2026-06-27T02:44:18.846Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.800Z"
+    "cachedAt": "2026-06-27T02:44:18.885Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.767Z"
+    "cachedAt": "2026-06-27T02:44:19.198Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3752,7 +3752,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.817Z"
+    "cachedAt": "2026-06-27T02:44:19.519Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3774,35 +3774,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.808Z"
+    "cachedAt": "2026-06-27T02:44:19.565Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:21.466Z"
+    "cachedAt": "2026-06-27T02:44:19.602Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:21.521Z"
+    "cachedAt": "2026-06-27T02:44:19.970Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:21.680Z"
+    "cachedAt": "2026-06-27T02:44:20.294Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:21.477Z"
+    "cachedAt": "2026-06-27T02:44:20.237Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3835,8 +3835,8 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-06-25T14:22:46.742Z",
-    "doubanUrl": "https://movie.douban.com/subject/37462956/",
-    "doubanId": "37462956",
+    "doubanUrl": "https://movie.douban.com/subject/38531729/",
+    "doubanId": "38531729",
     "doubanMatchedTitle": "快乐老家"
   },
   "lcbjuPBEsZ1": {
@@ -3889,9 +3889,33 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-26T14:18:20.081Z",
+    "cachedAt": "2026-06-27T02:44:18.804Z",
     "doubanUrl": "https://movie.douban.com/subject/37249356/",
     "doubanId": "37249356",
     "doubanMatchedTitle": "最后一排的男孩"
+  },
+  "LErmLemeAf0": {
+    "title": "金特务：本色回归",
+    "url": "https://image.tmdb.org/t/p/original/9XokGnTlAgxkqnoOnbsSnBfO8Il.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "金特务：本色回归",
+    "matchedTitle": "金特务：本色回归",
+    "tmdbId": 296206,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296206",
+    "doubanUrl": "https://movie.douban.com/subject/37523009/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt42127457/",
+    "wikidataId": "Q139553270",
+    "cachedAt": "2026-06-27T02:44:18.461Z",
+    "doubanId": "37523009",
+    "doubanMatchedTitle": "金特务：本色回归"
+  },
+  "kvF9L7KIOZA": {
+    "title": "从现在开始，不做朋友了吧",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-06-27T02:44:20.303Z"
   }
 }
