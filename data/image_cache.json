@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.015Z"
+    "cachedAt": "2026-06-28T13:27:42.825Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.134Z"
+    "cachedAt": "2026-06-28T13:27:42.824Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.137Z"
+    "cachedAt": "2026-06-28T13:27:42.817Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3597,11 +3597,13 @@
     "matchedTitle": "超燃青春的合唱",
     "tmdbId": 320614,
     "tmdbUrl": "https://www.themoviedb.org/tv/320614",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37332128/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-06-24T03:32:45.638Z"
+    "cachedAt": "2026-06-24T03:32:45.638Z",
+    "doubanId": "37332128",
+    "doubanMatchedTitle": "超燃青春的合唱"
   },
   "seed_var_2026_35": {
     "title": "无限超越班",
@@ -3755,7 +3757,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.650Z"
+    "cachedAt": "2026-06-28T13:27:43.490Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3777,35 +3779,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.691Z"
+    "cachedAt": "2026-06-28T13:27:43.546Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.800Z"
+    "cachedAt": "2026-06-28T13:27:43.545Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:33.803Z"
+    "cachedAt": "2026-06-28T13:27:43.551Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:34.357Z"
+    "cachedAt": "2026-06-28T13:27:44.287Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:34.335Z"
+    "cachedAt": "2026-06-28T13:27:44.206Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3899,7 +3901,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-28T02:59:32.978Z"
+    "cachedAt": "2026-06-28T13:27:42.770Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
@@ -4035,5 +4037,20 @@
     "cachedAt": "2026-06-28T02:59:32.473Z",
     "doubanId": "37435796",
     "doubanMatchedTitle": "检察官室的提案"
+  },
+  "yp1ps24e2wT": {
+    "title": "生活、拉里与不快乐的追求：一部美国史",
+    "url": "https://image.tmdb.org/t/p/original/eA8lwlHAuFQrZzek25xgGZCgImu.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "生活、拉里与不快乐的追求：一部美国史",
+    "matchedTitle": "生活、拉里与不快乐的追求：一部美国史",
+    "tmdbId": 295780,
+    "tmdbUrl": "https://www.themoviedb.org/tv/295780",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37543147/",
+    "wikidataId": "Q138858394",
+    "cachedAt": "2026-06-28T13:27:43.902Z"
   }
 }
