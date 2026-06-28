@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:10.898Z"
+    "cachedAt": "2026-06-28T02:59:33.015Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:10.897Z"
+    "cachedAt": "2026-06-28T02:59:33.134Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:11.435Z"
+    "cachedAt": "2026-06-28T02:59:33.137Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3755,7 +3755,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:11.575Z"
+    "cachedAt": "2026-06-28T02:59:33.650Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3777,43 +3777,50 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:11.604Z"
+    "cachedAt": "2026-06-28T02:59:33.691Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:11.598Z"
+    "cachedAt": "2026-06-28T02:59:33.800Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:12.165Z"
+    "cachedAt": "2026-06-28T02:59:33.803Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:12.361Z"
+    "cachedAt": "2026-06-28T02:59:34.357Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:12.333Z"
+    "cachedAt": "2026-06-28T02:59:34.335Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
+    "url": "https://image.tmdb.org/t/p/original/qXsINRwVfV5PCQyjPVEjEXayIRq.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-24T14:22:25.563Z",
+    "query": "街头餐厅斗士",
+    "matchedTitle": "街头餐厅斗士",
+    "tmdbId": 325056,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325056",
     "doubanUrl": "https://movie.douban.com/subject/38521299/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43611743/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-28T02:59:32.469Z",
     "doubanId": "38521299",
     "doubanMatchedTitle": "街头餐厅斗士"
   },
@@ -3892,7 +3899,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-27T13:24:10.859Z"
+    "cachedAt": "2026-06-28T02:59:32.978Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
@@ -3994,5 +4001,39 @@
     "imdbUrl": "https://www.imdb.com/title/tt14452776/",
     "wikidataId": "Q112761982",
     "cachedAt": "2026-06-27T13:24:13.677Z"
+  },
+  "BJM8WxBHDeB": {
+    "title": "脱口秀和TA的朋友们",
+    "url": "https://image.tmdb.org/t/p/original/mm1qozQUbRZajcGhOkOI4gH4dm8.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "脱口秀和TA的朋友们",
+    "matchedTitle": "脱口秀和Ta的朋友们",
+    "tmdbId": 261471,
+    "tmdbUrl": "https://www.themoviedb.org/tv/261471",
+    "doubanUrl": "https://movie.douban.com/subject/36742889/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt33242190/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T06:37:16.612Z",
+    "doubanId": "36742889",
+    "doubanMatchedTitle": "脱口秀和Ta的朋友们"
+  },
+  "e5E6ryElabL": {
+    "title": "检察官室的提案",
+    "url": "https://image.tmdb.org/t/p/original/4A5Sl89zZ0WRKj5QrhMxgBFiQYc.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "检察官室的提案",
+    "matchedTitle": "检察官的提案",
+    "tmdbId": 322055,
+    "tmdbUrl": "https://www.themoviedb.org/tv/322055",
+    "doubanUrl": "https://movie.douban.com/subject/37435796/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43592244/",
+    "wikidataId": "",
+    "cachedAt": "2026-06-28T02:59:32.473Z",
+    "doubanId": "37435796",
+    "doubanMatchedTitle": "检察官室的提案"
   }
 }
