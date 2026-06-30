@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.081Z"
+    "cachedAt": "2026-06-30T02:54:14.361Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.784Z"
+    "cachedAt": "2026-06-30T02:54:14.388Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.802Z"
+    "cachedAt": "2026-06-30T02:54:14.349Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -2996,7 +2996,10 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.092Z"
+    "cachedAt": "2026-06-29T15:39:24.092Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816918/",
+    "doubanId": "37816918",
+    "doubanMatchedTitle": "我们的宿舍·归心季"
   },
   "mFJ3ys0Qmb2": {
     "title": "每个夏天之后",
@@ -3747,18 +3750,20 @@
     "matchedTitle": "美食告白记",
     "tmdbId": 273092,
     "tmdbUrl": "https://www.themoviedb.org/tv/273092",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27168175/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-06-24T03:32:47.165Z"
+    "cachedAt": "2026-06-24T03:32:47.165Z",
+    "doubanId": "27168175",
+    "doubanMatchedTitle": "美食告白记 第一季"
   },
   "bP71pZj8e7B": {
     "title": "花儿与少年露营季Plus版",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.815Z"
+    "cachedAt": "2026-06-30T02:54:15.057Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3780,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.828Z"
+    "cachedAt": "2026-06-30T02:54:15.087Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:25.523Z"
+    "cachedAt": "2026-06-30T02:54:15.083Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:25.535Z"
+    "cachedAt": "2026-06-30T02:54:15.157Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:25.543Z"
+    "cachedAt": "2026-06-30T02:54:15.819Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:25.617Z"
+    "cachedAt": "2026-06-30T02:54:15.789Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3909,7 +3914,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-06-29T15:39:24.106Z"
+    "cachedAt": "2026-06-30T02:54:14.329Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
