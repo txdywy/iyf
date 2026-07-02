@@ -198,6 +198,7 @@ function stableDiscoveredId(prefix, title = '', year = 0) {
 }
 
 const TITLE_ALIAS_MAP = {
+  '最后一排的男孩': ['Notes from the Last Row'],
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
   '忙忙碌碌寻宝藏': ['忙忙碌碌寻宝藏·双人成行季', 'Crazy Treasure Hunt'],
@@ -1932,6 +1933,7 @@ const TITLE_EN_MAP = {
   '医到孤岛爱上你': 'Doctor on the Edge',
   '新进职员姜会长': 'The New Employee Chairman Kang',
   '明天也要上班！': '내일도 출근',
+  '最后一排的男孩': 'Notes from the Last Row',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',

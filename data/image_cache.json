@@ -3911,10 +3911,18 @@
   },
   "6fPfX4eGl7F": {
     "title": "最后一排的男孩",
+    "url": "https://image.tmdb.org/t/p/original/paRFCxAJRZOypfgnzYLo6KH5jjO.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-02T02:49:47.408Z"
+    "query": "Notes from the Last Row",
+    "matchedTitle": "Notes from the Last Row",
+    "tmdbId": 286360,
+    "tmdbUrl": "https://www.themoviedb.org/tv/286360",
+    "doubanUrl": "https://movie.douban.com/subject/37249356/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-02T09:01:02.327Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
