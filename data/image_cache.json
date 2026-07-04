@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.034Z"
+    "cachedAt": "2026-07-04T13:15:06.863Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:51.999Z"
+    "cachedAt": "2026-07-04T13:15:06.886Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.156Z"
+    "cachedAt": "2026-07-04T13:15:06.825Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.016Z"
+    "cachedAt": "2026-07-04T13:15:06.887Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.628Z"
+    "cachedAt": "2026-07-04T13:15:07.430Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.724Z"
+    "cachedAt": "2026-07-04T13:15:07.477Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.667Z"
+    "cachedAt": "2026-07-04T13:15:07.502Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:53.323Z"
+    "cachedAt": "2026-07-04T13:15:08.071Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:52.776Z"
+    "cachedAt": "2026-07-04T13:15:07.496Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4254,24 +4254,37 @@
     "matchedTitle": "仆人的王子殿下",
     "tmdbId": 323569,
     "tmdbUrl": "https://www.themoviedb.org/tv/323569",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38489149/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt43619367/",
     "wikidataId": "",
-    "cachedAt": "2026-07-04T02:30:52.853Z"
+    "cachedAt": "2026-07-04T02:30:52.853Z",
+    "doubanId": "38489149",
+    "doubanMatchedTitle": "仆人的王子殿下"
   },
   "DeKRt1SmyrJ": {
     "title": "晚酌的流派5",
+    "url": "https://image.tmdb.org/t/p/original/nNS1j8CEeHMcbmCpBwnEcWjFOrY.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-04T02:30:53.392Z"
+    "query": "晚酌的流派5",
+    "matchedTitle": "晚酌的流派",
+    "tmdbId": 202396,
+    "tmdbUrl": "https://www.themoviedb.org/tv/202396",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt21200262/",
+    "wikidataId": "Q119658054",
+    "cachedAt": "2026-07-04T13:15:07.995Z"
   },
   "wQLIPhzyQUA": {
     "title": "致亲爱的丈夫完美妻子的谎言",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-04T02:30:53.419Z"
+    "cachedAt": "2026-07-04T02:30:53.419Z",
+    "doubanUrl": "https://movie.douban.com/subject/38484693/",
+    "doubanId": "38484693",
+    "doubanMatchedTitle": "致亲爱的丈夫~完美妻子的谎言~"
   }
 }
