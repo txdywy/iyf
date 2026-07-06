@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.251Z"
+    "cachedAt": "2026-07-06T02:44:33.778Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.277Z"
+    "cachedAt": "2026-07-06T02:44:33.772Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.281Z"
+    "cachedAt": "2026-07-06T02:44:33.789Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -2996,7 +2996,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-03T02:32:52.602Z",
+    "cachedAt": "2026-07-06T02:44:33.770Z",
     "doubanUrl": "https://movie.douban.com/subject/37816918/",
     "doubanId": "37816918",
     "doubanMatchedTitle": "我们的宿舍·归心季"
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.332Z"
+    "cachedAt": "2026-07-06T02:44:34.341Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.981Z"
+    "cachedAt": "2026-07-06T02:44:34.342Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:41.991Z"
+    "cachedAt": "2026-07-06T02:44:34.341Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:42.012Z"
+    "cachedAt": "2026-07-06T02:44:34.356Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:42.713Z"
+    "cachedAt": "2026-07-06T02:44:34.911Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-05T13:22:42.058Z"
+    "cachedAt": "2026-07-06T02:44:34.907Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4350,5 +4350,29 @@
     "imdbUrl": "https://www.imdb.com/title/tt36979936/",
     "wikidataId": "Q137908255",
     "cachedAt": "2026-07-05T13:22:42.351Z"
+  },
+  "d8cPi6no7w6": {
+    "title": "孤单又灿烂的神：鬼怪十周年特辑",
+    "url": "https://image.tmdb.org/t/p/original/5C7z9KKylOsI4ncxecLVSxcTDYI.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "孤单又灿烂的神：鬼怪十周年特辑",
+    "matchedTitle": "孤单又灿烂的神：鬼怪十周年特辑",
+    "tmdbId": 325828,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325828",
+    "doubanUrl": "https://movie.douban.com/subject/38397649/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-06T02:44:33.231Z",
+    "doubanId": "38397649",
+    "doubanMatchedTitle": "孤单又灿烂的神：鬼怪十周年特辑"
+  },
+  "XANYznrCsb5": {
+    "title": "夫妇与16岁 疯狂的邻居",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-07-06T02:44:34.941Z"
   }
 }
