@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.372Z"
+    "cachedAt": "2026-07-08T13:52:38.749Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.385Z"
+    "cachedAt": "2026-07-08T13:52:38.788Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.397Z"
+    "cachedAt": "2026-07-08T13:52:38.742Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.386Z"
+    "cachedAt": "2026-07-08T13:52:39.409Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,47 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.950Z"
+    "cachedAt": "2026-07-08T13:52:39.383Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.960Z"
+    "cachedAt": "2026-07-08T13:52:39.406Z",
+    "doubanUrl": "https://movie.douban.com/subject/30248953/",
+    "doubanId": "30248953",
+    "doubanMatchedTitle": "中国音乐公告牌"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.992Z"
+    "cachedAt": "2026-07-08T13:52:39.805Z",
+    "doubanUrl": "https://movie.douban.com/subject/30470314/",
+    "doubanId": "30470314",
+    "doubanMatchedTitle": "继续宠爱·十年·音乐会"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:47.536Z"
+    "cachedAt": "2026-07-08T13:52:40.040Z",
+    "doubanUrl": "https://movie.douban.com/subject/34822647/",
+    "doubanId": "34822647",
+    "doubanMatchedTitle": "星期三是音乐节目"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-08T02:13:46.996Z"
+    "cachedAt": "2026-07-08T13:52:40.037Z",
+    "doubanUrl": "https://movie.douban.com/subject/35208434/",
+    "doubanId": "35208434",
+    "doubanMatchedTitle": "改造露营车"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4471,11 +4483,13 @@
     "matchedTitle": "致命漫画",
     "tmdbId": 306953,
     "tmdbUrl": "https://www.themoviedb.org/tv/306953",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37874014/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt39046052/",
     "wikidataId": "",
-    "cachedAt": "2026-07-08T02:13:46.993Z"
+    "cachedAt": "2026-07-08T02:13:46.993Z",
+    "doubanId": "37874014",
+    "doubanMatchedTitle": "致命漫画"
   },
   "Q7giSJ1Q8EA": {
     "title": "普通的恋爱",
@@ -4513,5 +4527,37 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-07-08T02:13:47.555Z"
+  },
+  "14EVncaObc3": {
+    "title": "密室大逃脱",
+    "url": "https://image.tmdb.org/t/p/original/yq6gJUXCFimaq1V8zvA27R2eODW.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "密室大逃脱",
+    "matchedTitle": "密室大逃脱",
+    "tmdbId": 89861,
+    "tmdbUrl": "https://www.themoviedb.org/tv/89861",
+    "doubanUrl": "https://movie.douban.com/subject/37816907/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt12599910/",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T06:37:24.827Z",
+    "doubanId": "37816907",
+    "doubanMatchedTitle": "密室大逃脱 第八季"
+  },
+  "vt9PVSCgbZD": {
+    "title": "密室大逃脱大神版第8季",
+    "url": "https://image.tmdb.org/t/p/original/hAMORqnXSHNzQbnJ6gykTddW2gQ.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "密室大逃脱大神版",
+    "matchedTitle": "密室大逃脱 大神版",
+    "tmdbId": 109096,
+    "tmdbUrl": "https://www.themoviedb.org/tv/109096",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-08T13:52:39.150Z"
   }
 }
