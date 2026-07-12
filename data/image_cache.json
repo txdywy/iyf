@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:32.536Z"
+    "cachedAt": "2026-07-12T02:15:33.859Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:32.553Z"
+    "cachedAt": "2026-07-12T02:15:34.455Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.105Z"
+    "cachedAt": "2026-07-12T02:15:34.435Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.676Z"
+    "cachedAt": "2026-07-12T02:15:35.082Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:32.543Z"
+    "cachedAt": "2026-07-12T02:15:33.846Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.126Z"
+    "cachedAt": "2026-07-12T02:15:35.082Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.106Z"
+    "cachedAt": "2026-07-12T02:15:34.486Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.120Z"
+    "cachedAt": "2026-07-12T02:15:34.771Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-11T13:09:32.554Z"
+    "cachedAt": "2026-07-12T02:15:34.161Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4717,5 +4717,54 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-07-11T13:09:33.697Z"
+  },
+  "ihZeoA7mtc6": {
+    "title": "公寓黑风暴",
+    "url": "https://image.tmdb.org/t/p/original/86V2NsVkdMsC8JTjnBF3uo0lIIJ.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "公寓黑风暴",
+    "matchedTitle": "公寓黑风暴",
+    "tmdbId": 300727,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300727",
+    "doubanUrl": "https://movie.douban.com/subject/37517390/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43357366/",
+    "wikidataId": "Q139455537",
+    "cachedAt": "2026-07-12T02:15:33.539Z",
+    "doubanId": "37517390",
+    "doubanMatchedTitle": "公寓黑风暴"
+  },
+  "uuVXeTESwn9": {
+    "title": "天籁与少年",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-07-12T02:15:33.846Z",
+    "doubanUrl": "https://movie.douban.com/subject/38424043/",
+    "doubanId": "38424043",
+    "doubanMatchedTitle": "天籁与少年"
+  },
+  "oGL69bMcUv2": {
+    "title": "四大元素之火之爱链",
+    "url": "https://image.tmdb.org/t/p/original/3TYyy6SrirPMr3xBeG6PUriWD1A.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "四大元素之火之爱链",
+    "matchedTitle": "四大元素之火之爱链",
+    "tmdbId": 285992,
+    "tmdbUrl": "https://www.themoviedb.org/tv/285992",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36626299/",
+    "wikidataId": "",
+    "cachedAt": "2026-07-12T02:15:34.554Z"
+  },
+  "2xtfBWOACJ3": {
+    "title": "直到T恤干透",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-07-12T02:15:35.138Z"
   }
 }
