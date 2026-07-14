@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:54.731Z"
+    "cachedAt": "2026-07-14T02:02:34.599Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.298Z"
+    "cachedAt": "2026-07-14T02:02:35.090Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.278Z"
+    "cachedAt": "2026-07-14T02:02:35.327Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.879Z"
+    "cachedAt": "2026-07-14T02:02:36.042Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:54.725Z"
+    "cachedAt": "2026-07-14T02:02:34.695Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.863Z"
+    "cachedAt": "2026-07-14T02:02:35.826Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.335Z"
+    "cachedAt": "2026-07-14T02:02:35.397Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:55.350Z"
+    "cachedAt": "2026-07-14T02:02:35.421Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-13T14:23:54.736Z"
+    "cachedAt": "2026-07-14T02:02:34.670Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4542,11 +4542,13 @@
     "matchedTitle": "密室大逃脱 大神版",
     "tmdbId": 109096,
     "tmdbUrl": "https://www.themoviedb.org/tv/109096",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816907/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-07-08T13:52:39.150Z"
+    "cachedAt": "2026-07-08T13:52:39.150Z",
+    "doubanId": "37816907",
+    "doubanMatchedTitle": "密室大逃脱 第八季"
   },
   "qUSyOfoE8U4": {
     "title": "再见黑色",
@@ -4825,5 +4827,22 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-07-13T14:23:56.079Z"
+  },
+  "DWuXixzVc2F": {
+    "title": "给你梦想",
+    "url": "https://image.tmdb.org/t/p/original/AoSrsUluuXcXZOO1IrZPnIqESQd.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "给你梦想",
+    "matchedTitle": "给你梦想",
+    "tmdbId": 301412,
+    "tmdbUrl": "https://www.themoviedb.org/tv/301412",
+    "doubanUrl": "https://movie.douban.com/subject/37194393/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39028251/",
+    "wikidataId": "Q136364083",
+    "cachedAt": "2026-07-14T02:02:34.365Z",
+    "doubanId": "37194393",
+    "doubanMatchedTitle": "给你梦想"
   }
 }
