@@ -29,7 +29,7 @@
  *   - 满足条件的新剧自动收录并走完整富化管线
  */
 
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync, mkdirSync, renameSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -38,6 +38,16 @@ const DATA_DIR = join(__dirname, '..', 'data');
 const SHOWS_FILE = join(DATA_DIR, 'shows.json');
 const HISTORY_FILE = join(DATA_DIR, 'history.json');
 const DISCOVERY_FILE = join(DATA_DIR, 'discovery.json');
+
+function writeFileSyncAtomic(path, data) {
+  if (typeof renameSync === 'function') {
+    const tempPath = `${path}.tmp`;
+    writeFileSync(tempPath, data, 'utf-8');
+    renameSync(tempPath, path);
+  } else {
+    writeFileSync(path, data, 'utf-8');
+  }
+}
 
 const API_BASE = 'https://api.yfsp.tv';
 const API_PATH = '/api/list/index';
@@ -1287,7 +1297,7 @@ async function main() {
   };
 
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(SHOWS_FILE, JSON.stringify(output, null, 2), 'utf-8');
+  writeFileSyncAtomic(SHOWS_FILE, JSON.stringify(output, null, 2), 'utf-8');
   saveHistory(output);
 
   console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${renderableOtherDramas.length}`);
@@ -1375,7 +1385,7 @@ function saveHistory(output) {
   };
   const keys = Object.keys(h).sort();
   while (keys.length > 30) delete h[keys.shift()];
-  writeFileSync(HISTORY_FILE, JSON.stringify(h, null, 2), 'utf-8');
+  writeFileSyncAtomic(HISTORY_FILE, JSON.stringify(h, null, 2), 'utf-8');
 }
 
 async function enrichMissingYfspLinks(shows) {
@@ -1683,7 +1693,7 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
   };
   const keys = Object.keys(history).sort();
   while (keys.length > 60) delete history[keys.shift()];
-  writeFileSync(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+  writeFileSyncAtomic(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
 
   // 3.5. AI 智能筛选新发现韩剧
   const aiFiltered = await aiEvaluateDiscovery(sorted);
@@ -1865,7 +1875,7 @@ function loadImageCache() {
 
 function saveImageCache(cache) {
   _imageCacheMemo = cache;
-  writeFileSync(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+  writeFileSyncAtomic(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
 function isTMDBImageUrl(url = '') {

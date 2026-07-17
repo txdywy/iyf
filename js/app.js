@@ -8,6 +8,8 @@
   const DATA_URL = 'data/shows.json';
   let allData = null;
   let currentShows = [];
+  let activeTabName = 'korean';
+
 
   // ── 初始化 ──────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', init);
@@ -20,7 +22,8 @@
 
   async function loadData() {
     try {
-      const resp = await fetch(DATA_URL + '?t=' + Date.now());
+      const cacheBuster = Math.floor(Date.now() / 7200000);
+      const resp = await fetch(DATA_URL + '?t=' + cacheBuster);
       if (!resp.ok) throw new Error('Data not found');
       allData = await resp.json();
       updateInfo();
@@ -54,6 +57,7 @@
   }
 
   function switchTab(tab) {
+    activeTabName = tab;
     history.replaceState(null, '', '#' + tab);
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
@@ -120,20 +124,35 @@
 
     // 状态筛选
     const status = document.getElementById('filterStatus').value;
-    if (status === 'ongoing') shows = shows.filter(s => !s.isComplete);
-    else if (status === 'complete') shows = shows.filter(s => s.isComplete);
+    if (status === 'ongoing') {
+      shows = shows.filter(s => {
+        const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+        return !complete;
+      });
+    } else if (status === 'complete') {
+      shows = shows.filter(s => {
+        const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+        return complete;
+      });
+    }
 
     // 评分筛选
     const minScore = parseFloat(document.getElementById('filterScore').value);
-    if (minScore > 0) shows = shows.filter(s => s.score >= minScore);
+    if (minScore > 0) {
+      shows = shows.filter(s => {
+        const score = s.score ?? s.rating?.average ?? s.mdlRating ?? 0;
+        return score >= minScore;
+      });
+    }
 
     // 搜索
     const query = document.getElementById('searchInput').value.trim().toLowerCase();
     if (query) {
       shows = shows.filter(s =>
         (s.title || '').toLowerCase().includes(query) ||
+        (s.name || '').toLowerCase().includes(query) ||
         (s.actor || '').toLowerCase().includes(query) ||
-        (s.contentType || '').toLowerCase().includes(query)
+        (s.contentType || (s.genres || []).join('/') || '').toLowerCase().includes(query)
       );
     }
 
@@ -141,16 +160,16 @@
     const sort = document.getElementById('sortBy').value;
     switch (sort) {
       case 'recommend':
-        shows.sort((a, b) => (b.recommendScore || 0) - (a.recommendScore || 0));
+        shows.sort((a, b) => (b.recommendScore || b.mdlRating || b.rating?.average || 0) - (a.recommendScore || a.mdlRating || a.rating?.average || 0));
         break;
       case 'score':
-        shows.sort((a, b) => (b.score || 0) - (a.score || 0));
+        shows.sort((a, b) => (b.score || b.rating?.average || b.mdlRating || 0) - (a.score || a.rating?.average || a.mdlRating || 0));
         break;
       case 'newest':
-        shows.sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
+        shows.sort((a, b) => getValidTime(b.publishTime || b.airDate || b.year) - getValidTime(a.publishTime || a.airDate || a.year));
         break;
       case 'popular':
-        shows.sort((a, b) => (b.playCount || 0) - (a.playCount || 0));
+        shows.sort((a, b) => (b.playCount || b.watchers || 0) - (a.playCount || a.watchers || 0));
         break;
     }
 
@@ -175,7 +194,13 @@
     empty.style.display = 'none';
     // 仅在切换标签/首次加载时播放入场动画;筛选/搜索/排序时即时呈现,避免每次按键重放动画造成的抖动。
     grid.classList.toggle('animate', animate);
-    grid.innerHTML = shows.map((show, i) => renderCard(show, i)).join('');
+
+    let renderer = renderCard;
+    if (activeTabName === 'tvmaze') renderer = renderTVmazeCard;
+    else if (activeTabName === 'trakt') renderer = renderTraktCard;
+    else if (activeTabName === 'mdl') renderer = renderMDLCard;
+
+    grid.innerHTML = shows.map((show, i) => renderer(show, i)).join('');
   }
 
   function renderCard(show, index) {
@@ -287,9 +312,18 @@
 
   function updateStats(shows) {
     const total = shows.length;
-    const ongoing = shows.filter(s => !s.isComplete).length;
-    const complete = shows.filter(s => s.isComplete).length;
-    const highScore = shows.filter(s => s.score >= 8).length;
+    const ongoing = shows.filter(s => {
+      const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+      return !complete;
+    }).length;
+    const complete = shows.filter(s => {
+      const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+      return complete;
+    }).length;
+    const highScore = shows.filter(s => {
+      const score = s.score ?? s.rating?.average ?? s.mdlRating ?? 0;
+      return score >= 8;
+    }).length;
 
     animateNum('statTotal', total);
     animateNum('statOngoing', ongoing);
@@ -388,16 +422,13 @@
 
       // 按评分降序
       const shows = [...showMap.values()].sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0));
-      loading.style.display = 'none';
+      currentShows = shows;
+      applyFilters(true);
 
       if (!shows.length) {
         empty.style.display = 'block';
         empty.innerHTML = '<p>📡 今日暂无韩国电视剧播出</p>';
-        return;
       }
-
-      grid.innerHTML = shows.map((show, i) => renderTVmazeCard(show, i)).join('');
-      updateStats(shows.map(s => ({ isComplete: s.status === 'Ended', score: (s.rating?.average || 0) * 10 / 7 })));
     } catch (e) {
       loading.style.display = 'none';
       empty.style.display = 'block';
@@ -463,15 +494,13 @@
         _traktShows = traktData.shows || [];
       }
 
-      loading.style.display = 'none';
+      currentShows = _traktShows;
+      applyFilters(true);
+
       if (!_traktShows.length) {
         empty.style.display = 'block';
         empty.innerHTML = '<p>🔥 暂无 Trakt.tv 热度数据</p>';
-        return;
       }
-
-      grid.innerHTML = _traktShows.map((show, i) => renderTraktCard(show, i)).join('');
-      updateStats(_traktShows.map(s => ({ isComplete: s.status === 'ended', score: 8 })));
     } catch (e) {
       loading.style.display = 'none';
       empty.style.display = 'block';
@@ -524,17 +553,15 @@
       const mdlData = await resp.json();
       const shows = mdlData.shows || [];
 
-      loading.style.display = 'none';
+      // 按 MDL 评分降序
+      shows.sort((a, b) => (b.mdlRating || 0) - (a.mdlRating || 0));
+      currentShows = shows;
+      applyFilters(true);
+
       if (!shows.length) {
         empty.style.display = 'block';
         empty.innerHTML = '<p>🎯 暂无 MDL 社区精选数据</p>';
-        return;
       }
-
-      // 按 MDL 评分降序
-      shows.sort((a, b) => (b.mdlRating || 0) - (a.mdlRating || 0));
-      grid.innerHTML = shows.map((show, i) => renderMDLCard(show, i)).join('');
-      updateStats(shows.map(s => ({ isComplete: true, score: s.mdlRating * 10 / 7 })));
     } catch (e) {
       loading.style.display = 'none';
       empty.style.display = 'block';
