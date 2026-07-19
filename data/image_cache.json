@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:45.936Z"
+    "cachedAt": "2026-07-19T02:13:45.166Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:45.928Z"
+    "cachedAt": "2026-07-19T02:13:45.738Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:46.525Z"
+    "cachedAt": "2026-07-19T02:13:45.773Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3763,7 +3763,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:47.135Z"
+    "cachedAt": "2026-07-19T02:13:46.388Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3785,35 +3785,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:45.931Z"
+    "cachedAt": "2026-07-19T02:13:45.179Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:46.543Z"
+    "cachedAt": "2026-07-19T02:13:46.342Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:46.539Z"
+    "cachedAt": "2026-07-19T02:13:45.815Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:46.539Z"
+    "cachedAt": "2026-07-19T02:13:46.300Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-18T13:04:45.919Z"
+    "cachedAt": "2026-07-19T02:13:45.677Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4742,7 +4742,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-15T13:26:53.588Z",
+    "cachedAt": "2026-07-19T02:13:45.130Z",
     "doubanUrl": "https://movie.douban.com/subject/38424043/",
     "doubanId": "38424043",
     "doubanMatchedTitle": "天籁与少年"
@@ -5025,5 +5025,52 @@
     "imdbUrl": "https://www.imdb.com/title/tt6173228/",
     "wikidataId": "Q25546393",
     "cachedAt": "2026-07-18T02:01:51.764Z"
+  },
+  "GjeTYXGCDU0": {
+    "title": "毛骨悚然的恋爱",
+    "url": "https://image.tmdb.org/t/p/original/k4Hwekr1WC2jqZq71jnZmGF6G6Y.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "毛骨悚然的恋爱",
+    "matchedTitle": "毛骨悚然的恋爱",
+    "tmdbId": 298610,
+    "tmdbUrl": "https://www.themoviedb.org/tv/298610",
+    "doubanUrl": "https://movie.douban.com/subject/37530010/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt40247521/",
+    "wikidataId": "Q138266416",
+    "cachedAt": "2026-07-19T02:13:45.079Z",
+    "doubanId": "37530010",
+    "doubanMatchedTitle": "毛骨悚然的恋爱"
+  },
+  "qZkpFnwTt06": {
+    "title": "五星周末",
+    "url": "https://image.tmdb.org/t/p/original/dFh4oN3mOoPKsfBxorGLzNG4Gtq.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "五星周末",
+    "matchedTitle": "五星周末",
+    "tmdbId": 283151,
+    "tmdbUrl": "https://www.themoviedb.org/tv/283151",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt35587659/",
+    "wikidataId": "",
+    "cachedAt": "2026-07-19T02:13:45.875Z"
+  },
+  "oFl0p2KkIm8": {
+    "title": "请保持名侦探原来的样子",
+    "url": "https://image.tmdb.org/t/p/original/yp3sMLiUXAetp0Rp6CQpDWOEss.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "请保持名侦探原来的样子",
+    "matchedTitle": "请保持名侦探原来的样子",
+    "tmdbId": 325021,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325021",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-19T02:13:45.948Z"
   }
 }
