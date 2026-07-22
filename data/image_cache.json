@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:31.750Z"
+    "cachedAt": "2026-07-22T13:41:01.579Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:31.743Z"
+    "cachedAt": "2026-07-22T13:41:02.154Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:32.447Z"
+    "cachedAt": "2026-07-22T13:41:02.160Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:33.160Z"
+    "cachedAt": "2026-07-22T13:41:02.767Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:31.753Z"
+    "cachedAt": "2026-07-22T13:41:01.595Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:32.464Z"
+    "cachedAt": "2026-07-22T13:41:02.736Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:32.456Z"
+    "cachedAt": "2026-07-22T13:41:02.195Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:32.456Z"
+    "cachedAt": "2026-07-22T13:41:02.646Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-22T02:10:31.758Z"
+    "cachedAt": "2026-07-22T13:41:02.063Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4749,7 +4749,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-19T02:13:45.130Z",
+    "cachedAt": "2026-07-22T13:41:01.545Z",
     "doubanUrl": "https://movie.douban.com/subject/38424043/",
     "doubanId": "38424043",
     "doubanMatchedTitle": "天籁与少年"
@@ -5190,5 +5190,20 @@
     "imdbUrl": "https://www.imdb.com/title/tt30063915/",
     "wikidataId": "Q124829706",
     "cachedAt": "2026-07-22T02:10:34.316Z"
+  },
+  "2dJ0cg4lxc1": {
+    "title": "杀人者的购物中心2",
+    "url": "https://image.tmdb.org/t/p/original/3T61ZGr2AAh0NySpax8QYrMVYWu.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "杀人者的购物中心2",
+    "matchedTitle": "杀人者的购物中心",
+    "tmdbId": 215072,
+    "tmdbUrl": "https://www.themoviedb.org/tv/215072",
+    "doubanUrl": "https://movie.douban.com/subject/36174946/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt26450613/",
+    "wikidataId": "Q123999260",
+    "cachedAt": "2026-07-22T13:41:01.482Z"
   }
 }
