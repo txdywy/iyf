@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.185Z"
+    "cachedAt": "2026-07-24T13:27:16.119Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.736Z"
+    "cachedAt": "2026-07-24T13:27:16.124Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.751Z"
+    "cachedAt": "2026-07-24T13:27:16.702Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:46.359Z"
+    "cachedAt": "2026-07-24T13:27:17.303Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.176Z"
+    "cachedAt": "2026-07-24T13:27:16.123Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:46.338Z"
+    "cachedAt": "2026-07-24T13:27:16.702Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.779Z"
+    "cachedAt": "2026-07-24T13:27:16.701Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.835Z"
+    "cachedAt": "2026-07-24T13:27:16.704Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.175Z"
+    "cachedAt": "2026-07-24T13:27:16.118Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5330,5 +5330,20 @@
     "imdbUrl": "https://www.imdb.com/title/tt43703359/",
     "wikidataId": "",
     "cachedAt": "2026-07-24T02:12:45.901Z"
+  },
+  "ouV3XRhBDoE": {
+    "title": "斯图尔特未能拯救宇宙",
+    "url": "https://image.tmdb.org/t/p/original/iQbTbwmLX5Nh1nlH21YUJPWt3Zo.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "斯图尔特未能拯救宇宙",
+    "matchedTitle": "斯图尔特未能拯救宇宙",
+    "tmdbId": 287620,
+    "tmdbUrl": "https://www.themoviedb.org/tv/287620",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt27497393/",
+    "wikidataId": "Q138836131",
+    "cachedAt": "2026-07-24T13:27:16.839Z"
   }
 }
