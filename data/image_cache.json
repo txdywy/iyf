@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:22.648Z"
+    "cachedAt": "2026-07-27T02:30:24.647Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:22.648Z"
+    "cachedAt": "2026-07-27T02:30:24.697Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.229Z"
+    "cachedAt": "2026-07-27T02:30:25.353Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3466,7 +3466,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-23T13:46:47.501Z"
+    "cachedAt": "2026-07-27T02:30:23.940Z"
   },
   "gnNdLKuQ6Q3": {
     "title": "顾问：书写死亡的男人",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.844Z"
+    "cachedAt": "2026-07-27T02:30:25.739Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:22.649Z"
+    "cachedAt": "2026-07-27T02:30:24.286Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.264Z"
+    "cachedAt": "2026-07-27T02:30:25.493Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.262Z"
+    "cachedAt": "2026-07-27T02:30:24.996Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.262Z"
+    "cachedAt": "2026-07-27T02:30:25.455Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T13:10:22.652Z"
+    "cachedAt": "2026-07-27T02:30:24.661Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5208,11 +5208,18 @@
   },
   "oXwdZAFJsY2": {
     "title": "宇宙帮帮忙",
+    "url": "https://image.tmdb.org/t/p/original/7oV37bvyNSQRTUNFlqSvoCJtiDV.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-23T13:46:47.497Z",
+    "query": "宇宙帮帮忙",
+    "matchedTitle": "宇宙帮帮忙",
+    "tmdbId": 329598,
+    "tmdbUrl": "https://www.themoviedb.org/tv/329598",
     "doubanUrl": "https://movie.douban.com/subject/38503139/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-27T02:30:23.429Z",
     "doubanId": "38503139",
     "doubanMatchedTitle": "宇宙帮帮忙"
   },
@@ -5296,7 +5303,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-24T02:12:45.126Z",
+    "cachedAt": "2026-07-27T02:30:23.940Z",
     "doubanUrl": "https://movie.douban.com/subject/38564651/",
     "doubanId": "38564651",
     "doubanMatchedTitle": "圆桌晚晴派"
@@ -5397,5 +5404,34 @@
     "version": 14,
     "notFound": true,
     "cachedAt": "2026-07-26T13:10:23.835Z"
+  },
+  "mHLrqVBpTu1": {
+    "title": "家乡美食大赛",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-07-27T02:30:23.915Z"
+  },
+  "ZpHzQuTPB2J": {
+    "title": "皇家造型师",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-07-27T02:30:26.051Z"
+  },
+  "gv4oVHx5oVC": {
+    "title": "兰森峡谷第2季",
+    "url": "https://image.tmdb.org/t/p/original/6G2p138whZGHsP3gmhINZVDkanB.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "兰森峡谷",
+    "matchedTitle": "兰森峡谷",
+    "tmdbId": 240993,
+    "tmdbUrl": "https://www.themoviedb.org/tv/240993",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt28088031/",
+    "wikidataId": "Q132296748",
+    "cachedAt": "2026-07-27T02:30:27.190Z"
   }
 }
