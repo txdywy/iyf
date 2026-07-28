@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:22:59.384Z"
+    "cachedAt": "2026-07-28T02:05:17.944Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:22:59.372Z"
+    "cachedAt": "2026-07-28T02:05:17.965Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.085Z"
+    "cachedAt": "2026-07-28T02:05:18.598Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.827Z"
+    "cachedAt": "2026-07-28T02:05:19.306Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:22:59.391Z"
+    "cachedAt": "2026-07-28T02:05:17.965Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.143Z"
+    "cachedAt": "2026-07-28T02:05:18.660Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.135Z"
+    "cachedAt": "2026-07-28T02:05:18.630Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.146Z"
+    "cachedAt": "2026-07-28T02:05:18.661Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:22:59.419Z"
+    "cachedAt": "2026-07-28T02:05:17.941Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5412,14 +5412,17 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T02:30:23.915Z"
+    "cachedAt": "2026-07-27T02:30:23.915Z",
+    "doubanUrl": "https://movie.douban.com/subject/38572017/",
+    "doubanId": "38572017",
+    "doubanMatchedTitle": "家乡美食大赛"
   },
   "ZpHzQuTPB2J": {
     "title": "皇家造型师",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:00.847Z"
+    "cachedAt": "2026-07-28T02:05:19.364Z"
   },
   "gv4oVHx5oVC": {
     "title": "兰森峡谷第2季",
@@ -5456,6 +5459,21 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T14:23:01.582Z"
+    "cachedAt": "2026-07-28T02:05:19.990Z"
+  },
+  "J7Rr1gDSle1": {
+    "title": "VIVANT第2季",
+    "url": "https://image.tmdb.org/t/p/original/n4DrUi871TG43tcW6KFHoDtLifh.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "VIVANT",
+    "matchedTitle": "Drum: Vivant the Origin Story",
+    "tmdbId": 329879,
+    "tmdbUrl": "https://www.themoviedb.org/tv/329879",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-28T02:05:19.547Z"
   }
 }
