@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:32.604Z"
+    "cachedAt": "2026-07-29T13:59:37.129Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:32.610Z"
+    "cachedAt": "2026-07-29T13:59:37.664Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:33.156Z"
+    "cachedAt": "2026-07-29T13:59:37.678Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:33.738Z"
+    "cachedAt": "2026-07-29T13:59:38.247Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:32.647Z"
+    "cachedAt": "2026-07-29T13:59:37.125Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:33.225Z"
+    "cachedAt": "2026-07-29T13:59:38.263Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:33.179Z"
+    "cachedAt": "2026-07-29T13:59:37.693Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:33.197Z"
+    "cachedAt": "2026-07-29T13:59:37.729Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:32.618Z"
+    "cachedAt": "2026-07-29T13:59:37.150Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4749,7 +4749,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-26T02:24:09.967Z",
+    "cachedAt": "2026-07-29T13:59:37.090Z",
     "doubanUrl": "https://movie.douban.com/subject/38424043/",
     "doubanId": "38424043",
     "doubanMatchedTitle": "天籁与少年"
@@ -5459,7 +5459,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T02:08:34.327Z"
+    "cachedAt": "2026-07-29T13:59:38.869Z"
   },
   "J7Rr1gDSle1": {
     "title": "VIVANT第2季",
@@ -5505,5 +5505,20 @@
     "imdbUrl": "https://www.imdb.com/title/tt39496157/",
     "wikidataId": "Q114951736",
     "cachedAt": "2026-07-29T02:08:33.477Z"
+  },
+  "L9xPStktVHD": {
+    "title": "狂怒追缉",
+    "url": "https://image.tmdb.org/t/p/original/pS1NXKwQcj7JvOYMkSt38vNJZzz.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "狂怒追缉",
+    "matchedTitle": "狂怒追缉",
+    "tmdbId": 287238,
+    "tmdbUrl": "https://www.themoviedb.org/tv/287238",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36303968/",
+    "wikidataId": "",
+    "cachedAt": "2026-07-29T13:59:37.720Z"
   }
 }
