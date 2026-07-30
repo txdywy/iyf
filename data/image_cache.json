@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:14.427Z"
+    "cachedAt": "2026-07-30T13:51:00.607Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:14.397Z"
+    "cachedAt": "2026-07-30T13:51:01.116Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:14.996Z"
+    "cachedAt": "2026-07-30T13:51:01.667Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3466,7 +3466,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T02:30:23.940Z"
+    "cachedAt": "2026-07-30T13:51:00.465Z"
   },
   "gnNdLKuQ6Q3": {
     "title": "顾问：书写死亡的男人",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:15.630Z"
+    "cachedAt": "2026-07-30T13:51:01.789Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:14.409Z"
+    "cachedAt": "2026-07-30T13:51:00.446Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:15.079Z"
+    "cachedAt": "2026-07-30T13:51:01.783Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:15.032Z"
+    "cachedAt": "2026-07-30T13:51:01.128Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:15.051Z"
+    "cachedAt": "2026-07-30T13:51:01.302Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-30T01:58:14.409Z"
+    "cachedAt": "2026-07-30T13:51:01.031Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5305,7 +5305,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-27T02:30:23.940Z",
+    "cachedAt": "2026-07-30T13:51:00.372Z",
     "doubanUrl": "https://movie.douban.com/subject/38564651/",
     "doubanId": "38564651",
     "doubanMatchedTitle": "圆桌晚晴派"
@@ -5409,11 +5409,18 @@
   },
   "mHLrqVBpTu1": {
     "title": "家乡美食大赛",
+    "url": "https://image.tmdb.org/t/p/original/1ZOAVVMtbtnDmBxwlzfv8iU53ZP.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-27T02:30:23.915Z",
+    "query": "家乡美食大赛",
+    "matchedTitle": "家乡美食大赛",
+    "tmdbId": 330052,
+    "tmdbUrl": "https://www.themoviedb.org/tv/330052",
     "doubanUrl": "https://movie.douban.com/subject/38572017/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-07-30T13:50:59.942Z",
     "doubanId": "38572017",
     "doubanMatchedTitle": "家乡美食大赛"
   },
@@ -5520,5 +5527,35 @@
     "imdbUrl": "https://www.imdb.com/title/tt36303968/",
     "wikidataId": "",
     "cachedAt": "2026-07-29T13:59:37.720Z"
+  },
+  "QTNzpeaYHyd": {
+    "title": "怒火之拳",
+    "url": "https://image.tmdb.org/t/p/original/up9kAhzfN3wtnFi1D8AloWeHGDo.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "怒火之拳",
+    "matchedTitle": "怒火之拳",
+    "tmdbId": 292533,
+    "tmdbUrl": "https://www.themoviedb.org/tv/292533",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43492801/",
+    "wikidataId": "",
+    "cachedAt": "2026-07-30T13:51:01.434Z"
+  },
+  "vEQ16j241LF": {
+    "title": "九门",
+    "url": "https://image.tmdb.org/t/p/original/bkyBY4EYv1htCkgmgVNfVrJ7qqW.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "九门",
+    "matchedTitle": "九门",
+    "tmdbId": 271016,
+    "tmdbUrl": "https://www.themoviedb.org/tv/271016",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37118307/",
+    "wikidataId": "",
+    "cachedAt": "2026-07-30T13:51:01.558Z"
   }
 }
