@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.087Z"
+    "cachedAt": "2026-08-02T13:14:40.470Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.667Z"
+    "cachedAt": "2026-08-02T13:14:41.133Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:52.164Z"
+    "cachedAt": "2026-08-02T13:14:41.118Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:52.292Z"
+    "cachedAt": "2026-08-02T13:14:41.848Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.096Z"
+    "cachedAt": "2026-08-02T13:14:40.445Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:52.264Z"
+    "cachedAt": "2026-08-02T13:14:41.838Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.704Z"
+    "cachedAt": "2026-08-02T13:14:41.174Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:52.209Z"
+    "cachedAt": "2026-08-02T13:14:41.188Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.629Z"
+    "cachedAt": "2026-08-02T13:14:40.439Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5489,11 +5489,13 @@
     "matchedTitle": "御廷谣",
     "tmdbId": 295599,
     "tmdbUrl": "https://www.themoviedb.org/tv/295599",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35691844/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37937929/",
     "wikidataId": "",
-    "cachedAt": "2026-07-28T13:54:25.594Z"
+    "cachedAt": "2026-07-28T13:54:25.594Z",
+    "doubanId": "35691844",
+    "doubanMatchedTitle": "御廷谣"
   },
   "igEbmYnjyxO": {
     "title": "聪明镇",
@@ -5658,11 +5660,13 @@
     "matchedTitle": "谋杀俱乐部",
     "tmdbId": 330160,
     "tmdbUrl": "https://www.themoviedb.org/tv/330160",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38556192/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-01T02:24:40.285Z"
+    "cachedAt": "2026-08-01T02:24:40.285Z",
+    "doubanId": "38556192",
+    "doubanMatchedTitle": "谋杀俱乐部"
   },
   "EpK6UTbpgT6": {
     "title": "现在不是出轨的问题",
@@ -5676,7 +5680,10 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.056Z"
+    "cachedAt": "2026-08-02T13:14:40.399Z",
+    "doubanUrl": "https://movie.douban.com/subject/38461158/",
+    "doubanId": "38461158",
+    "doubanMatchedTitle": "宇宙年糕店"
   },
   "4b3m8zcfiSB": {
     "title": "姐姐家的产地直送第3季",
@@ -5687,11 +5694,13 @@
     "matchedTitle": "姐姐家的产地直送",
     "tmdbId": 258932,
     "tmdbUrl": "https://www.themoviedb.org/tv/258932",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37874592/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "Q128797033",
-    "cachedAt": "2026-08-01T02:24:41.230Z"
+    "cachedAt": "2026-08-01T02:24:41.230Z",
+    "doubanId": "37874592",
+    "doubanMatchedTitle": "姐姐家的产地直送3"
   },
   "ToP4R8yjg1C": {
     "title": "度假法则",
@@ -5725,9 +5734,39 @@
   },
   "XK9a7ymy8Eg": {
     "title": "战斗之地",
+    "url": "https://image.tmdb.org/t/p/original/qRlOEIiwkfLy6ERRMbyQNGQQ6Lc.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "战斗之地",
+    "matchedTitle": "战斗之地",
+    "tmdbId": 8840,
+    "tmdbUrl": "https://www.themoviedb.org/tv/8840",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt24512262/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-02T13:14:41.540Z"
+  },
+  "UwqMbtPPGR6": {
+    "title": "天才，女友",
+    "url": "https://image.tmdb.org/t/p/original/z1FtSOVSWow6n1Jj8jdtn8rfm4L.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "天才，女友",
+    "matchedTitle": "天才，女友",
+    "tmdbId": 289116,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289116",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37831535/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-02T13:14:41.365Z"
+  },
+  "2J9w0TaYRyJ": {
+    "title": "你的天空晴转恋",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-02T02:21:52.708Z"
+    "cachedAt": "2026-08-02T13:14:41.911Z"
   }
 }
