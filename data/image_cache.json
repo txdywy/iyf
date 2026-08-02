@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.803Z"
+    "cachedAt": "2026-08-02T02:21:51.087Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.826Z"
+    "cachedAt": "2026-08-02T02:21:51.667Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.368Z"
+    "cachedAt": "2026-08-02T02:21:52.164Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.904Z"
+    "cachedAt": "2026-08-02T02:21:52.292Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.221Z"
+    "cachedAt": "2026-08-02T02:21:51.096Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.438Z"
+    "cachedAt": "2026-08-02T02:21:52.264Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.280Z"
+    "cachedAt": "2026-08-02T02:21:51.704Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.411Z"
+    "cachedAt": "2026-08-02T02:21:52.209Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.799Z"
+    "cachedAt": "2026-08-02T02:21:51.629Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4749,10 +4749,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-07-29T13:59:37.090Z",
-    "doubanUrl": "https://movie.douban.com/subject/38424043/",
-    "doubanId": "38424043",
-    "doubanMatchedTitle": "天籁与少年"
+    "cachedAt": "2026-08-02T02:21:51.625Z"
   },
   "oGL69bMcUv2": {
     "title": "四大元素之火之爱链",
@@ -5672,17 +5669,14 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.171Z",
-    "doubanUrl": "https://movie.douban.com/subject/37501131/",
-    "doubanId": "37501131",
-    "doubanMatchedTitle": "现在不是出轨的问题"
+    "cachedAt": "2026-08-02T02:21:51.060Z"
   },
   "by4YL00y8hq": {
     "title": "宇宙年糕店",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-01T13:10:03.177Z"
+    "cachedAt": "2026-08-02T02:21:51.056Z"
   },
   "4b3m8zcfiSB": {
     "title": "姐姐家的产地直送第3季",
@@ -5701,10 +5695,18 @@
   },
   "ToP4R8yjg1C": {
     "title": "度假法则",
+    "url": "https://image.tmdb.org/t/p/original/Aus6aMkrXA4YTIIQSzzwJMHuXRd.jpg",
     "source": "tmdb",
     "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-01T13:10:04.936Z"
+    "query": "度假法则",
+    "matchedTitle": "度假法则",
+    "tmdbId": 319077,
+    "tmdbUrl": "https://www.themoviedb.org/tv/319077",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43625106/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-02T02:21:52.254Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -5720,5 +5722,12 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-01T13:10:03.653Z"
+  },
+  "XK9a7ymy8Eg": {
+    "title": "战斗之地",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-08-02T02:21:52.708Z"
   }
 }
