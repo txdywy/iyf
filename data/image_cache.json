@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.213Z"
+    "cachedAt": "2026-08-04T02:04:32.446Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.729Z"
+    "cachedAt": "2026-08-04T02:04:32.688Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.752Z"
+    "cachedAt": "2026-08-04T02:04:33.239Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:55.339Z"
+    "cachedAt": "2026-08-04T02:04:34.054Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.186Z"
+    "cachedAt": "2026-08-04T02:04:32.446Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:55.304Z"
+    "cachedAt": "2026-08-04T02:04:33.487Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.766Z"
+    "cachedAt": "2026-08-04T02:04:33.267Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.787Z"
+    "cachedAt": "2026-08-04T02:04:33.242Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-03T14:29:54.207Z"
+    "cachedAt": "2026-08-04T02:04:32.435Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5857,5 +5857,22 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-03T14:29:54.800Z"
+  },
+  "J9EtZ3teEe6": {
+    "title": "我的偶像总裁",
+    "url": "https://image.tmdb.org/t/p/original/5nIm7u64PRXFAHrfNYvOunROSDg.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "我的偶像总裁",
+    "matchedTitle": "我的偶像总裁",
+    "tmdbId": 296140,
+    "tmdbUrl": "https://www.themoviedb.org/tv/296140",
+    "doubanUrl": "https://movie.douban.com/subject/37441670/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt43648966/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-04T02:04:31.889Z",
+    "doubanId": "37441670",
+    "doubanMatchedTitle": "我的偶像总裁"
   }
 }
