@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.287Z"
+    "cachedAt": "2026-08-04T16:30:19.334Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.281Z"
+    "cachedAt": "2026-08-04T16:30:19.339Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.816Z"
+    "cachedAt": "2026-08-04T16:30:20.008Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.283Z"
+    "cachedAt": "2026-08-04T16:30:19.325Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.871Z"
+    "cachedAt": "2026-08-04T16:30:20.005Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.869Z"
+    "cachedAt": "2026-08-04T16:30:20.000Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.897Z"
+    "cachedAt": "2026-08-04T16:30:20.005Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T13:59:56.280Z"
+    "cachedAt": "2026-08-04T16:30:19.333Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5895,5 +5895,22 @@
     "cachedAt": "2026-08-04T13:59:56.903Z",
     "doubanId": "36721173",
     "doubanMatchedTitle": "人鱼"
+  },
+  "seed_kd_2026_15": {
+    "title": "菜鸟炊事兵",
+    "url": "https://image.tmdb.org/t/p/original/zRQylnX3LydtVfBYS8r5qD1bEhz.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "The Legend of Kitchen Soldier",
+    "matchedTitle": "The Legend of Kitchen Soldier",
+    "tmdbId": 295509,
+    "tmdbUrl": "https://www.themoviedb.org/tv/295509",
+    "doubanUrl": "https://movie.douban.com/subject/37194459/",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/The_Legend_of_Kitchen_Soldier",
+    "imdbUrl": "https://www.imdb.com/title/tt38626513/",
+    "wikidataId": "Q137410939",
+    "cachedAt": "2026-05-12T03:45:00.000Z",
+    "doubanId": "37194459",
+    "doubanMatchedTitle": "菜鸟炊事兵"
   }
 }
