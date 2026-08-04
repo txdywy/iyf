@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:32.446Z"
+    "cachedAt": "2026-08-04T13:59:56.287Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:32.688Z"
+    "cachedAt": "2026-08-04T13:59:56.281Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:33.239Z"
+    "cachedAt": "2026-08-04T13:59:56.816Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3770,7 +3770,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:34.054Z"
+    "cachedAt": "2026-08-04T13:59:57.423Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:32.446Z"
+    "cachedAt": "2026-08-04T13:59:56.283Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:33.487Z"
+    "cachedAt": "2026-08-04T13:59:56.871Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:33.267Z"
+    "cachedAt": "2026-08-04T13:59:56.869Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:33.242Z"
+    "cachedAt": "2026-08-04T13:59:56.897Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T02:04:32.435Z"
+    "cachedAt": "2026-08-04T13:59:56.280Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5548,11 +5548,13 @@
     "matchedTitle": "九门",
     "tmdbId": 271016,
     "tmdbUrl": "https://www.themoviedb.org/tv/271016",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26811535/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37118307/",
     "wikidataId": "",
-    "cachedAt": "2026-07-30T13:51:01.558Z"
+    "cachedAt": "2026-07-30T13:51:01.558Z",
+    "doubanId": "26811535",
+    "doubanMatchedTitle": "九门"
   },
   "ovFEzJjkJ93": {
     "title": "终极反击计划",
@@ -5852,11 +5854,13 @@
     "matchedTitle": "夜语记",
     "tmdbId": 330440,
     "tmdbUrl": "https://www.themoviedb.org/tv/330440",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37229293/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-03T14:29:54.800Z"
+    "cachedAt": "2026-08-03T14:29:54.800Z",
+    "doubanId": "37229293",
+    "doubanMatchedTitle": "夜语记"
   },
   "J9EtZ3teEe6": {
     "title": "我的偶像总裁",
@@ -5874,5 +5878,22 @@
     "cachedAt": "2026-08-04T02:04:31.889Z",
     "doubanId": "37441670",
     "doubanMatchedTitle": "我的偶像总裁"
+  },
+  "WxNjy1AmuW9": {
+    "title": "人鱼",
+    "url": "https://image.tmdb.org/t/p/original/cuKDM4sgWbbyJn6z35caK7t8Fz.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "人鱼",
+    "matchedTitle": "人鱼",
+    "tmdbId": 273119,
+    "tmdbUrl": "https://www.themoviedb.org/tv/273119",
+    "doubanUrl": "https://movie.douban.com/subject/36721173/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-04T13:59:56.903Z",
+    "doubanId": "36721173",
+    "doubanMatchedTitle": "人鱼"
   }
 }
