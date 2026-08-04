@@ -32,7 +32,7 @@ No test suite exists.
 **Single-file scraper** (`scripts/scrape.mjs`, ~1570 lines): ES module, runs the entire pipeline in `main()`:
 
 1. Scrape YFSP API (30 pages) → `Map<mediaKey, show>`
-2. Split into KDramas / Variety / Other, merge with hardcoded seed libraries (SEED_KDRAMAS, SEED_VARIETY)
+2. Split into KDramas / Variety / Other, merge with hardcoded seed libraries (SEED_KDRAMAS, SEED_VARIETY); title aliases and last-published enrichment are used to keep accepted cards stable when YFSP IDs/pages change
 3. Discover new shows via keyword search → `discoverNewKDramas()` with AI screening
 4. Load previous `data/shows.json` → restore cached AI scores onto show objects (so cache filter skips them)
 5. AI scoring via `callModelsAPI()`: batched 25/batch, 7-day cache, viewer persona (66 watched shows in system prompt)
@@ -41,7 +41,7 @@ No test suite exists.
    - On 429: reads `Retry-After` header, waits, retries once; OpenRouter account-level limit detected → single 60s wait
    - No retry loop for missed shows — cache + next cron run picks them up
 6. Enrichment chain (sequential): TMDB posters → Wikidata links → YFSP URL verification → Douban links → TMDB/Wikipedia descriptions → AI descriptions
-7. Drop shows missing `coverImg` or `primaryUrl` → write `data/shows.json`
+7. Drop shows missing `coverImg` or `primaryUrl`, while carrying forward last-published valid enrichment → write `data/shows.json`; a continuity guard rejects catastrophic category drops
 
 **Frontend** (`js/app.js`, ~290 lines): IIFE, fetches `data/shows.json` at runtime, renders card grid with tabs (Korean / 2026 / Variety / Latest / Classic), filters (status/score/search), and sorting (recommend/score/newest/popular).
 
@@ -51,13 +51,13 @@ GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKE
 
 ## Key Data Flow
 
-Show object fields: `id`, `title`, `year`, `score`, `playCount`, `actor`, `description`, `mediaType` ('电视剧'/'综艺'), `regional` ('韩国'/'大陆'), `category`, `recommendScore`, `coverImg`, `primaryUrl`, plus enrichment URLs (tmdbUrl, doubanUrl, wikipediaUrl, imdbUrl, yfspUrl) and AI fields (aiScore, aiReason, aiScoredAt).
+Show object fields: `id`, `title`, `titleAliases`, `year`, `score`, `playCount`, `actor`, `description`, `mediaType` ('电视剧'/'综艺'), `regional` ('韩国'/'大陆'), `category`, `recommendScore`, `coverImg`, `primaryUrl`, plus enrichment URLs (tmdbUrl, doubanUrl, wikipediaUrl, imdbUrl, yfspUrl) and AI fields (aiScore, aiReason, aiScoredAt).
 
 Link priority: `tmdbUrl > doubanUrl > wikipediaUrl > imdbUrl > yfspUrl` → `primaryUrl`.
 
 ## Recommendation Scoring
 
-`scoreKDrama()`: Genre boost (comedy +30, romance +25, horror -30) + negative content penalty (-40/keyword) + `sourceScore*5` + play count tiers + freshness bonus + classic bonus.
+`scoreKDrama()`: Genre boost (comedy +25, romance +20, horror -30; military/cooking/growth subtopics also receive positive weight) + negative content penalty (-40/keyword) + quality score + play count tiers + freshness bonus + classic bonus.
 
 `scoreVariety()`: Similar but with `VarietyExclude` blacklist (returns -1 to exclude entirely).
 
@@ -65,7 +65,7 @@ AI blending: `recommendScore += (aiScore - 50) * 0.5` (max ±25 adjustment).
 
 ## Title Matching
 
-`normalizeTitle()` strips non-CJK/non-letter chars, removes season/year suffixes. `TITLE_ALIAS_MAP` maps known variants. Matching: exact → edit distance ≤ 1 (for len ≥ 5) → substring containment (len ≥ 4).
+`normalizeTitle()` strips non-CJK/non-letter chars, removes season/year suffixes. `TITLE_ALIAS_MAP` maps known variants into symmetric groups. Matching: exact → aliases → edit distance ≤ 1 (for len ≥ 5) → substring containment (len ≥ 4). Cache reuse also falls back to a verified title match when the live/seed ID changes.
 
 ## Conventions
 

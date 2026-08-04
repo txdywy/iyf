@@ -150,6 +150,7 @@
     if (query) {
       shows = shows.filter(s =>
         (s.title || '').toLowerCase().includes(query) ||
+        (Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : (s.titleAliases || '')).toLowerCase().includes(query) ||
         (s.name || '').toLowerCase().includes(query) ||
         (s.actor || '').toLowerCase().includes(query) ||
         (s.contentType || (s.genres || []).join('/') || '').toLowerCase().includes(query)

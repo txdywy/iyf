@@ -29,8 +29,8 @@ function instantSetTimeout(fn) {
   return 0;
 }
 
-function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); }, dateImpl = Date } = {}) {
-  const writes = new Map();
+function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); }, dateImpl = Date, initialFiles = {} } = {}) {
+  const writes = new Map(Object.entries(initialFiles).map(([path, content]) => [String(path), String(content)]));
   const context = {
     console: { log() {}, warn() {}, error() {} },
     process: { env },
@@ -64,11 +64,18 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         parseUpdateStatus,
         findLiveTitleMatch,
         scoreYfspCandidate,
+        scoreKDrama,
         scoreVariety,
         aiScoreShows,
         aiEvaluateDiscovery,
         isRenderableShow,
         dedupByTitle,
+        titleMatches,
+        restorePreviousCategory,
+        mergePreviousShowState,
+        findReusableTMDBCache,
+        assertOutputContinuity,
+        SEED_KDRAMAS,
         enrichCoversFromTMDB,
         applyYfspSearchFields,
         searchDoubanSubject,
@@ -250,6 +257,103 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
     ),
     -1,
     'YFSP search should reject stale variety pages with old dated completion status even when publish year is current'
+  );
+}
+
+// ── Durable catalog and identity regressions ──────────────────────────
+{
+  const { helpers } = loadScrapeHelpers();
+  const liveShows = new Map([
+    ['RyHxZP9EKpL', {
+      id: 'RyHxZP9EKpL',
+      title: '菜鸟炊事兵',
+      mediaType: '电视剧',
+      regional: '韩国',
+      year: 2026,
+      score: 8.9,
+    }],
+  ]);
+  const aliasMatch = helpers.findLiveTitleMatch(
+    { title: '菜鸟伙房兵', mediaType: '电视剧', regional: '韩国', year: 2026, isSerial: true },
+    liveShows,
+    '电视剧',
+    show => show.regional === '韩国'
+  );
+  assert.equal(aliasMatch?.id, 'RyHxZP9EKpL', '菜鸟伙房兵 should match the canonical 菜鸟炊事兵 entry');
+  assert.equal(helpers.titleMatches('The Legend of Kitchen Soldier', '菜鸟炊事兵'), true, 'English and Chinese titles should share one identity');
+
+  const seed = helpers.SEED_KDRAMAS.find(show => show.title === '菜鸟炊事兵');
+  assert.ok(seed, 'strongly recommended discovered dramas should have a durable seed entry');
+  assert.ok(seed.titleAliases?.includes('菜鸟伙房兵'), 'durable seed should preserve the user-facing title alias');
+  const genericComedyScore = helpers.scoreKDrama({
+    title: '普通喜剧', year: 2026, score: 8.9, playCount: 53208,
+    contentType: '喜剧·奇幻', description: '改编自漫画的轻松故事。',
+  });
+  assert.ok(helpers.scoreKDrama(seed) > genericComedyScore, 'recommendation scoring should recognize the user-confirmed military/cooking growth angle');
+
+  const cached = {
+    title: '菜鸟炊事兵',
+    url: 'https://image.tmdb.org/t/p/original/kitchen-soldier.jpg',
+    source: 'tmdb',
+    version: 14,
+    tmdbId: 295509,
+  };
+  const recovered = helpers.findReusableTMDBCache(
+    { RyHxZP9EKpL: cached },
+    { id: 'seed_kd_2026_kitchen', title: '菜鸟伙房兵' }
+  );
+  assert.equal(recovered?.tmdbId, 295509, 'TMDB cache should survive a title alias and seed/live ID change');
+
+  const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
+  const { helpers: cacheHelpers } = loadScrapeHelpers({
+    initialFiles: { [cachePath]: JSON.stringify({ RyHxZP9EKpL: cached }) },
+  });
+  const sourceLessSeed = {
+    id: 'seed_kd_2026_kitchen',
+    seedId: 'seed_kd_2026_kitchen',
+    title: '菜鸟伙房兵',
+    mediaType: '电视剧',
+    regional: '韩国',
+    coverImg: '',
+  };
+  await cacheHelpers.enrichCoversFromTMDB([sourceLessSeed]);
+  assert.equal(sourceLessSeed.coverImg, cached.url, 'a source-less seed should recover its last TMDB cover from the title-indexed cache');
+  assert.equal(sourceLessSeed.coverSource, 'tmdb', 'title-indexed cache recovery should retain the TMDB source marker');
+
+  const previous = {
+    id: 'RyHxZP9EKpL',
+    title: '菜鸟炊事兵',
+    coverImg: cached.url,
+    coverSource: 'tmdb',
+    primaryUrl: 'https://www.themoviedb.org/tv/295509',
+    primaryUrlSource: 'tmdb',
+    tmdbUrl: 'https://www.themoviedb.org/tv/295509',
+    doubanUrl: 'https://movie.douban.com/subject/37194459/',
+  };
+  const current = {
+    id: 'new-live-id',
+    title: '菜鸟伙房兵',
+    coverImg: 'https://static.yfsp.tv/poster.gif',
+    coverSource: 'yfsp',
+    primaryUrl: 'https://www.yfsp.tv/play/new-live-id',
+    primaryUrlSource: 'yfsp',
+  };
+  const merged = helpers.mergePreviousShowState(current, previous);
+  assert.equal(merged.coverImg, previous.coverImg, 'a transient low-quality refresh should not replace the last published TMDB cover');
+  assert.equal(merged.tmdbUrl, previous.tmdbUrl, 'stable enrichment links should survive a live ID/title refresh');
+
+  const targetMap = new Map([['new-live-id', current]]);
+  helpers.restorePreviousCategory(targetMap, [previous], 'korean_drama', '电视剧', () => 100, 'disc_kd');
+  assert.equal(targetMap.get('new-live-id')?.coverImg, previous.coverImg, 'previously published cards should be merged when the source returns an alias');
+
+  assert.doesNotThrow(
+    () => helpers.assertOutputContinuity({ koreanDramas: Array(40).fill({}), chineseVariety: Array(40).fill({}) }, { koreanDramas: Array(50).fill({}), chineseVariety: Array(50).fill({}) }),
+    'normal output variation should pass the continuity guard'
+  );
+  assert.throws(
+    () => helpers.assertOutputContinuity({ koreanDramas: Array(4).fill({}), chineseVariety: Array(40).fill({}) }, { koreanDramas: Array(50).fill({}), chineseVariety: Array(50).fill({}) }),
+    /DATA_GUARD/,
+    'a catastrophic category drop should stop the scraper before it overwrites the previous output'
   );
 }
 
@@ -516,6 +620,8 @@ assert.match(scrape, /'最后一排的男孩': 'Notes from the Last Row'/, '最�
 assert.match(scrape, /function stableDiscoveredId\(/, 'discovered shows without YFSP IDs should get stable title-based IDs');
 assert.match(scrape, /restorePreviousRecommendations\(kdramaMap, varietyMap, prevShows\)/, 'previously accepted recommendations should be restored before each fresh discovery run');
 assert.match(scrape, /titleMatches\(cached\.title, show\.title\)/, 'TMDB cover cache reuse should tolerate cleaned season titles');
+assert.match(scrape, /菜鸟炊事兵.*菜鸟伙房兵/s, 'the 菜鸟炊事兵 seed should preserve the user-facing alias 菜鸟伙房兵');
+assert.match(app, /Array\.isArray\(s\.titleAliases\)/, 'frontend search should include alternate show titles');
 assert.match(scrape, /id: it\.mediaKey \|\| it\.episodeKey \|\| stableDiscoveredId\(/, 'API items without media IDs should not collapse into an empty liveShows key');
 assert.match(scrape, /isTMDBImageUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
