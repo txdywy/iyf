@@ -226,10 +226,20 @@ const TITLE_ALIAS_MAP = {
   '披荆斩棘的哥哥': ['披荆斩棘', 'Call Me by Fire'],
   'BTS综艺年代记': ['BTS Variety Chronicle', 'Run BTS!'],
   '新进职员姜会长': ['新进社员姜会长', 'The New Employee Chairman Kang'],
+  '菜鸟炊事兵': ['菜鸟伙房兵', 'The Legend of Kitchen Soldier'],
 };
 
+// 将别名组反向索引,这样用户输入的俗称、英文名和数据源正式名都能互相匹配。
+// 仅在初始化时构建,避免 titleMatches 高频调用时反复遍历整个别名表。
+const TITLE_ALIAS_GROUPS = new Map();
+for (const [canonical, aliases] of Object.entries(TITLE_ALIAS_MAP)) {
+  const group = [...new Set([canonical, ...aliases])];
+  for (const title of group) TITLE_ALIAS_GROUPS.set(normalizeTitle(title), group);
+}
+
 function titleCandidates(title = '') {
-  return [title, ...(TITLE_ALIAS_MAP[title] || [])].filter(Boolean);
+  const group = TITLE_ALIAS_GROUPS.get(normalizeTitle(title));
+  return [...new Set([title, ...(group || TITLE_ALIAS_MAP[title] || [])])].filter(Boolean);
 }
 
 function editDistance(a, b) {
@@ -370,14 +380,67 @@ function loadPreviousShows() {
   }
 }
 
+const PREVIOUS_STABLE_FIELDS = [
+  'coverImg', 'coverSource', 'yfspCoverImg', 'primaryUrl', 'primaryUrlSource', 'url',
+  'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'wikidataId',
+  'tmdbId', 'doubanId', 'doubanMatchedTitle', 'linkMatchedTitle',
+  'description', 'descriptionSource', 'titleAliases',
+];
+
+function sameShowIdentity(a, b) {
+  if (!a?.title || !b?.title) return false;
+  if (a.id && b.id && a.id === b.id) return true;
+  if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
+  if (!titleMatches(a.title, b.title)) return false;
+
+  // normalizeTitle 会去掉季号,但续保时不能把不同季合并成一张卡。
+  const aSeason = seasonKey(a.title);
+  const bSeason = seasonKey(b.title);
+  if (aSeason !== bSeason) return false;
+  if (a.year && b.year && Math.abs(a.year - b.year) > 1) return false;
+  return true;
+}
+
+function mergePreviousShowState(current, previous) {
+  if (!previous) return { ...current };
+  const merged = { ...previous, ...current };
+
+  // 当前抓取结果优先更新播放量、集数、状态等动态字段;
+  // 但富化链接和已发布封面不能因一次空响应/换 ID 被抹掉。
+  for (const field of PREVIOUS_STABLE_FIELDS) {
+    if (!current[field] && previous[field]) merged[field] = previous[field];
+  }
+
+  // 上次已发布的是 TMDB 高清图时,不要被本轮 YFSP 低质量图覆盖。
+  if (isTMDBImageUrl(previous.coverImg) && !isTMDBImageUrl(current.coverImg)) {
+    merged.coverImg = previous.coverImg;
+    merged.coverSource = previous.coverSource || 'tmdb';
+  }
+  if ((!current.description || current.description.length < 20) && previous.description) {
+    merged.description = previous.description;
+    merged.descriptionSource = previous.descriptionSource;
+  }
+  return merged;
+}
+
 function restorePreviousCategory(targetMap, previous, category, mediaType, scoreFn, fallbackPrefix) {
-  const knownTitles = new Set([...targetMap.values()].map(s => normalizeTitle(s.title)));
   let restored = 0;
+
+  // 同标题或同 ID 的新抓取对象保留动态更新,同时继承上次已经验证过的富化结果。
+  for (const [id, current] of [...targetMap.entries()]) {
+    const prev = previous.find(candidate => sameShowIdentity(candidate, current));
+    if (!prev) continue;
+    const merged = mergePreviousShowState(current, prev);
+    merged.category = category;
+    merged.mediaType = merged.mediaType || mediaType;
+    merged.recommendScore = scoreFn(merged);
+    attachLinkFields(merged, merged.yfspUrl, merged.doubanUrl);
+    targetMap.set(id, merged);
+  }
 
   for (const prev of previous) {
     if (!prev?.title || prev.seedId) continue;
-    const norm = normalizeTitle(prev.title);
-    if (!norm || knownTitles.has(norm)) continue;
+    if ([...targetMap.values()].some(current => sameShowIdentity(current, prev))) continue;
 
     const show = {
       ...prev,
@@ -392,7 +455,6 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
     attachLinkFields(show, show.yfspUrl, show.doubanUrl);
 
     targetMap.set(show.id, show);
-    knownTitles.add(norm);
     restored++;
   }
 
@@ -506,6 +568,8 @@ const KDramaGenreBoost = {
   '身份': 12, '伪装': 12, '冒充': 12, '替身': 12,
   '漫改': 8, '改编': 8,
   '办公室': 8, '职场剧': 8,
+  // 轻松喜剧的细分偏好: 军营成长、做饭/美食题材也属于用户明确喜欢的解压内容
+  '军营': 8, '军旅': 8, '成长': 8, '炊事': 8, '厨艺': 8, '美食': 8,
 };
 
 const KDramaNegative = [
@@ -690,6 +754,8 @@ const AI_SCORE_SYSTEM = `你是"剧荒救星"推荐助手。根据观众的实�
 
 高分剧参考: 请回答1988(9.7), 善意的竞争(8.8), 机智的医生生活(9.5), 酒鬼都市女人们(8.8), 妈妈朋友的儿子(8.3), 那家伙是黑炎龙(8.1)
 
+用户正反馈案例: 菜鸟炊事兵(也称菜鸟伙房兵 / The Legend of Kitchen Soldier)被明确评价为“好看、搞笑有趣、强烈推荐”。这说明轻松喜剧之外,军营成长、奇幻设定和做饭/生活化看点也应得到正向评价。
+
 反面教材(类型匹配但质量差/口碑差,评分应低):
 - 凌晨两点的灰姑娘: 类型是喜剧+爱情,但豆瓣5分,剧本质差弃剧,说明类型不决定一切
 - 医到孤岛爱上你: 剧情薄弱,医岛题材没拍好,看了弃剧
@@ -717,6 +783,7 @@ const AI_DISCOVERY_SYSTEM = `你是"剧荒救星"新剧筛选助手。根据观�
 - 接受: 纯剧情/历史古装(偶尔)
 - 不喜欢: 恐怖/丧尸/血腥/过于沉重悲剧
 - 偏好平台: tvN > MBC > SBS > JTBC > ENA > Netflix
+- 正反馈案例: 菜鸟炊事兵(菜鸟伙房兵),轻松搞笑、奇幻、军营成长题材可收录
 
 反面教材(不应收录或评分应低的):
 - 凌晨两点的灰姑娘: 喜剧+爱情,但口碑极差(豆瓣5分),类型好不代表值得看
@@ -941,6 +1008,7 @@ const SEED_KDRAMAS = [
   { id:'seed_kd_2026_12', title:'赌金', year:2026, score:7.2, playCount:71886, contentType:'剧情', actor:'朴宝英,金圣喆,李光洙,金熙元', description:'朴宝英与李光洙主演的剧情剧。正在连载,阵容豪华。', totalEpisodes:16, isComplete:false, currentEpisode:2, regional:'韩国', lang:'韩语', isSerial:true },
   { id:'seed_kd_2026_13', title:'魔女之吻', year:2026, score:6.7, playCount:356464, contentType:'爱情·奇幻', actor:'朴敏英,魏嘏隽,金正贤', description:'朴敏英与魏嘏隽主演的奇幻爱情。12集完结。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2026_14', title:'今天开始是人类', year:2026, score:7.2, playCount:335117, contentType:'爱情·奇幻', actor:'金惠奫,朴所罗门,张东柱', description:'金惠奫与朴所罗门主演的奇幻爱情。12集完结。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
+  { id:'seed_kd_2026_15', title:'菜鸟炊事兵', titleAliases:['菜鸟伙房兵', 'The Legend of Kitchen Soldier'], year:2026, score:8.9, playCount:53208, contentType:'喜剧·奇幻', actor:'朴志训,尹敬浩,韩东希,李洪耐,郑雄仁', description:'改编自同名漫画的军营成长喜剧。菜鸟新兵在游戏教学的帮助下开启炊事兵生活,奇幻设定和生活化笑点并存,轻松有趣又解压。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'韩国', lang:'韩语', isSerial:true },
   // ── 2025 热播韩剧 ──
   { id:'seed_kd_2025_01', title:'背着善宰跑', year:2025, score:9.0, playCount:500000, contentType:'喜剧·爱情·奇幻', actor:'边佑锡,金惠奫', description:'穿越时空的甜蜜奇幻爱情,顶级偶像和铁粉的浪漫故事。2025年现象级韩剧,轻松治愈必看。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2025_02', title:'妈妈朋友的儿子', year:2025, score:8.3, playCount:350000, contentType:'喜剧·爱情', actor:'丁海寅,庭沼珉', description:'青梅竹马长大后的甜蜜重逢恋爱。治愈系浪漫喜剧,满满的温暖和笑料。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
@@ -1098,7 +1166,7 @@ async function main() {
     const liveMatch = findLiveTitleMatch(s, liveShows, '电视剧', show => show.regional === '韩国');
     const existingKey = liveMatch?.id || s.id;
     if (kdramaMap.has(existingKey)) continue;
-    let show = { ...s, mediaType:'电视剧', type:4, coverImg:'', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
+    let show = { ...s, mediaType:'电视剧', type:4, coverImg:s.coverImg || '', updateMsg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
     show.recommendScore = scoreKDrama(show);
     show.category = 'korean_drama';
@@ -1133,7 +1201,7 @@ async function main() {
     const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
     const existingKey = liveMatch?.id || s.id;
     if (varietyMap.has(existingKey)) continue;
-    let show = { ...s, mediaType:'综艺', type:5, coverImg:'', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
+    let show = { ...s, mediaType:'综艺', type:5, coverImg:s.coverImg || '', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
     show.recommendScore = scoreVariety(show);
     show.category = 'variety';
@@ -1296,6 +1364,7 @@ async function main() {
     otherDramas: renderableOtherDramas,
   };
 
+  assertOutputContinuity(output, prevShows);
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
   writeFileSyncAtomic(SHOWS_FILE, JSON.stringify(output, null, 2), 'utf-8');
   saveHistory(output);
@@ -1305,6 +1374,22 @@ async function main() {
 
 function isRecommendationCategory(show) {
   return show.category === 'korean_drama' || show.category === 'variety';
+}
+
+function assertOutputContinuity(output, previous) {
+  const checks = [
+    ['koreanDramas', '韩剧'],
+    ['chineseVariety', '综艺'],
+  ];
+  for (const [field, label] of checks) {
+    const previousCount = Array.isArray(previous?.[field]) ? previous[field].length : 0;
+    const currentCount = Array.isArray(output?.[field]) ? output[field].length : 0;
+    if (previousCount < 10) continue;
+    const minimum = Math.max(5, Math.floor(previousCount * 0.5));
+    if (currentCount < minimum) {
+      throw new Error(`[DATA_GUARD] ${label}数量从 ${previousCount} 部骤降到 ${currentCount} 部,拒绝覆盖上一版推荐数据`);
+    }
+  }
 }
 
 // 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
@@ -1899,6 +1984,26 @@ function isReusableTMDBCoverCache(cached, show) {
     isTMDBImageUrl(cached.url);
 }
 
+function findReusableTMDBCache(cache, show) {
+  const directCandidates = [
+    cache?.[show.id],
+    show.seedId && show.seedId !== show.id ? cache?.[show.seedId] : null,
+  ].filter(Boolean);
+  const direct = directCandidates.find(entry => isReusableTMDBCoverCache(entry, show));
+  if (direct) return direct;
+
+  // 直播 ID 可能变化,而种子也可能是后来才补入的。标题是最后一道稳定身份锚点,
+  // 通过已验证的 TMDB titleMatches 复用历史缓存,避免“缓存还在、卡片却消失”。
+  return Object.values(cache || {}).find(entry => isReusableTMDBCoverCache(entry, show)) || null;
+}
+
+function findTMDBCacheEntry(cache, show) {
+  return findReusableTMDBCache(cache, show)
+    || cache?.[show.id]
+    || (show.seedId && show.seedId !== show.id ? cache?.[show.seedId] : null)
+    || null;
+}
+
 // 韩剧/综艺标题 → TMDB 搜索用英文名映射(提高命中率)
 const TITLE_EN_MAP = {
   // 韩剧 - 使用TMDB能精确匹配的搜索词
@@ -2179,7 +2284,7 @@ async function enrichCoversFromTMDB(shows) {
     } else if (show.coverImg) {
       show.yfspCoverImg = show.coverImg;
     }
-    const cached = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
+    const cached = findTMDBCacheEntry(cache, show);
     if (isReusableTMDBCoverCache(cached, show)) {
       show.coverImg = cached.url;
       show.coverSource = 'tmdb';
@@ -2188,6 +2293,7 @@ async function enrichCoversFromTMDB(shows) {
       show.wikipediaUrl = cached.wikipediaUrl || '';
       show.imdbUrl = cached.imdbUrl || '';
       show.wikidataId = cached.wikidataId || '';
+      if (!cache[show.id]) cache[show.id] = { ...cached, title: show.title };
     } else if (cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
       show.coverImg = show.yfspCoverImg;
       show.coverSource = 'yfsp';
@@ -2205,7 +2311,7 @@ async function enrichCoversFromTMDB(shows) {
   const isLowQualityYfspCover = (url = '') => /\.gif(?:\?|$)/i.test(url);
   const NOT_FOUND_RETRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
   const toFetch = shows.filter(s => {
-    const cached = cache[s.id] || (s.seedId && s.seedId !== s.id ? cache[s.seedId] : null);
+    const cached = findTMDBCacheEntry(cache, s);
     if (isReusableTMDBCoverCache(cached, s)) return false;
     if (cached?.notFound) {
       // gif 封面质量太差，始终尝试刷新
