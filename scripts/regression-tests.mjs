@@ -59,11 +59,14 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
   const executable = scrape
     .replace(/^import .*$/gm, '')
     .replace(/const __dirname = dirname\(fileURLToPath\(import\.meta\.url\)\);/, "const __dirname = '/tmp/iyf-test/scripts';")
-    .replace(/main\(\)\.catch[\s\S]*$/m, '') + `
+    .replace(/const run = process\.argv\.includes\('--recalculate-existing'\)[\s\S]*$/m, '') + `
       globalThis.__helpers = {
         parseUpdateStatus,
         findLiveTitleMatch,
+        applyLiveFields,
         scoreYfspCandidate,
+        calculateYfspHotness,
+        applyYfspHotness,
         scoreKDrama,
         scoreVariety,
         aiScoreShows,
@@ -263,6 +266,41 @@ function aiFetchWithContent(content, counter = { count: 0 }) {
 // ── Durable catalog and identity regressions ──────────────────────────
 {
   const { helpers } = loadScrapeHelpers();
+  const now = Date.parse('2026-08-05T00:00:00Z');
+  const recentHot = helpers.calculateYfspHotness({
+    playCount: 100000,
+    publishTime: '2026-08-01T00:00:00Z',
+    year: 2026,
+  }, now);
+  const oldHot = helpers.calculateYfspHotness({
+    playCount: 100000,
+    publishTime: '2025-01-01T00:00:00Z',
+    year: 2025,
+  }, now);
+  const yearFallbackHot = helpers.calculateYfspHotness({ playCount: 100000, year: 2026 }, now);
+  assert.equal(recentHot.releaseDateSource, 'publishTime', 'exact YFSP publish time should be the release-time source');
+  assert.equal(yearFallbackHot.releaseDateSource, 'year', 'year should be an explicit fallback release-time source');
+  assert.ok(recentHot.hotnessScore > oldHot.hotnessScore, 'recent releases with the same plays should have higher hotness');
+  assert.ok(recentHot.playsPerDay > oldHot.playsPerDay, 'hotness should expose the release-time-adjusted daily play rate');
+  assert.ok(recentHot.hotnessScore > yearFallbackHot.hotnessScore, 'year-only fallback should be discounted versus an exact recent publish time');
+
+  const hotnessShow = { title: '普通剧情', year: 2026, score: 8, contentType: '剧情', playCount: 100000, publishTime: '2026-08-01T00:00:00Z' };
+  const hotnessBefore = helpers.calculateYfspHotness(hotnessShow, now).hotnessScore;
+  assert.equal(helpers.applyYfspHotness(hotnessShow, now), hotnessBefore, 'applying YFSP hotness should return the calculated score');
+  assert.equal(hotnessShow.yfspHotness, hotnessBefore, 'YFSP hotness should be persisted on the show');
+  assert.ok(hotnessShow.yfspPlayRate > 0 && hotnessShow.yfspAgeDays > 0, 'YFSP play rate and age should be persisted');
+  assert.ok(
+    helpers.scoreKDrama({ ...hotnessShow, playCount: 1000000 }, now) > helpers.scoreKDrama({ ...hotnessShow, playCount: 1000 }, now),
+    'recommendation scoring should include the release-time-adjusted YFSP hotness'
+  );
+
+  const liveApplied = helpers.applyLiveFields(
+    { title: '热度测试', score: 7, playCount: 100, publishTime: '' },
+    { id: 'live-id', title: '热度测试', score: 8.5, playCount: 99999, publishTime: '2026-08-01T00:00:00Z', yfspUrl: 'https://www.yfsp.tv/play/live-id' }
+  );
+  assert.equal(liveApplied.playCount, 99999, 'live YFSP play count should replace a stale seed estimate');
+  assert.equal(liveApplied.publishTime, '2026-08-01T00:00:00Z', 'live YFSP publish time should flow into seed-backed shows');
+
   const liveShows = new Map([
     ['RyHxZP9EKpL', {
       id: 'RyHxZP9EKpL',

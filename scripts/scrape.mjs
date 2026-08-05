@@ -128,7 +128,7 @@ function normalizeItem(it) {
     regional: it.regional || '',
     lang: it.lang || '',
     score: parseFloat(it.score) || 0,
-    playCount: it.playCount || 0,
+    playCount: it.playCount ?? it.hot ?? 0,
     contentType: it.contentType || '',
     cidMapper: it.cidMapper || '',
     actor: it.actor || '',
@@ -360,6 +360,10 @@ function applyLiveFields(seedShow, liveMatch) {
     updateMsg: liveMatch.updateMsg || seedShow.updateMsg || '',
     ...(hasLiveData ? liveStatus : {}),
     publishTime: liveMatch.publishTime || seedShow.publishTime || '',
+    score: liveMatch.score || seedShow.score || 0,
+    playCount: liveMatch.playCount || seedShow.playCount || 0,
+    contentType: liveMatch.contentType || seedShow.contentType || '',
+    actor: liveMatch.actor || seedShow.actor || '',
     scrapedAt: liveMatch.scrapedAt || seedShow.scrapedAt || '',
     isLive: true,
     yfspUrl: liveMatch.yfspUrl || liveMatch.url || '',
@@ -529,8 +533,9 @@ function applyYfspSearchFields(show, found) {
   if (!show.actor && found.actor) show.actor = found.actor;
   if (!show.regional && found.regional) show.regional = found.regional;
   if (!show.lang && found.lang) show.lang = found.lang;
-  if (!show.score && found.score) show.score = found.score;
-  if (!show.playCount && found.playCount) show.playCount = found.playCount;
+  if (found.score) show.score = found.score;
+  if (found.playCount) show.playCount = found.playCount;
+  if (found.publishTime) show.publishTime = found.publishTime;
 }
 
 async function verifyYfspUrl(show, url) {
@@ -604,7 +609,74 @@ const VarietyExclude = ['浪姐', '乘风', '姐姐们', '女儿们的恋爱', '
 const VarietyFunnyKeywords = ['搞笑', '喜剧', '幽默', '欢乐', '爆笑', '脱口秀', '相声', '小品', '游戏', '旅行', '生活', '美食', '户外', '露营', '做饭', '轻松', '下饭', '田园', '农场', '搭档'];
 const VarietyHighWeightHosts = ['沈腾', '贾玲', '邓超', '陈赫', '鹿晗', '大张伟', '杨迪', '何炅', '撒贝宁', '李诞', '岳云鹏', '黄子韬', '孙红雷', '黄渤', '贾冰', '白敬亭', '范丞丞', '刘宇宁', '沙溢', '王鹤棣', '秦霄贤', '郭麒麟', '王祖蓝', '薛之谦', '张艺兴', '王嘉尔'];
 
-function scoreKDrama(s) {
+const YFSP_HOTNESS = Object.freeze({
+  max: 20,
+  volumeWeight: 8,
+  velocityWeight: 12,
+  volumeLogRange: 6,
+  velocityLogRange: 5,
+  yearFallbackConfidence: 0.45,
+});
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function getYfspReleaseInfo(show, now = Date.now()) {
+  const publishTime = typeof show.publishTime === 'string' ? show.publishTime : '';
+  const publishedMs = /\d{4}-\d{2}/u.test(publishTime) ? Date.parse(publishTime) : NaN;
+  if (Number.isFinite(publishedMs) && publishedMs <= now + DAY_MS) {
+    return { timestamp: publishedMs, source: 'publishTime' };
+  }
+
+  const year = Number(show.year);
+  if (Number.isInteger(year) && year >= 1900 && year <= CURRENT_YEAR + 1) {
+    return { timestamp: Date.UTC(year, 0, 1), source: 'year' };
+  }
+  return { timestamp: 0, source: 'unknown' };
+}
+
+function calculateYfspHotness(show, now = Date.now()) {
+  const playCount = Math.max(0, Number(show.playCount) || 0);
+  const release = getYfspReleaseInfo(show, now);
+  const ageDays = release.timestamp
+    ? Math.max(1, (now - release.timestamp) / DAY_MS)
+    : 0;
+  const playsPerDay = ageDays ? playCount / ageDays : 0;
+  const volumeScore = Math.min(
+    YFSP_HOTNESS.volumeWeight,
+    Math.log10(playCount + 1) / YFSP_HOTNESS.volumeLogRange * YFSP_HOTNESS.volumeWeight,
+  );
+  const velocityScore = Math.min(
+    YFSP_HOTNESS.velocityWeight,
+    Math.log10(playsPerDay + 1) / YFSP_HOTNESS.velocityLogRange * YFSP_HOTNESS.velocityWeight,
+  );
+  const releaseConfidence = release.source === 'publishTime'
+    ? 1
+    : release.source === 'year'
+      ? YFSP_HOTNESS.yearFallbackConfidence
+      : 0;
+  const hotnessScore = Math.min(
+    YFSP_HOTNESS.max,
+    Math.max(0, Math.round(volumeScore + velocityScore * releaseConfidence)),
+  );
+
+  return {
+    hotnessScore,
+    playCount,
+    playsPerDay,
+    ageDays,
+    releaseDateSource: release.source,
+  };
+}
+
+function applyYfspHotness(show, now = Date.now()) {
+  const metrics = calculateYfspHotness(show, now);
+  show.yfspHotness = metrics.hotnessScore;
+  show.yfspPlayRate = Math.round(metrics.playsPerDay);
+  show.yfspAgeDays = metrics.ageDays ? Math.round(metrics.ageDays) : 0;
+  show.yfspReleaseDateSource = metrics.releaseDateSource;
+  return metrics.hotnessScore;
+}
+
+function scoreKDrama(s, now = Date.now()) {
   let sc = 0;
   const t = `${s.cidMapper} ${s.contentType} ${s.description} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(KDramaGenreBoost)) if (t.includes(g)) sc += b;
@@ -614,14 +686,14 @@ function scoreKDrama(s) {
   // 低分剧惩罚: 评分<7 的剧大幅降分,避免类型匹配好但质量差的剧排到前面
   if (s.score > 0 && s.score < 7) sc -= 40;
   else if (s.score > 0 && s.score < 7.5) sc -= 20;
-  if (s.playCount > 100000) sc += 15; else if (s.playCount > 50000) sc += 10; else if (s.playCount > 10000) sc += 5;
+  sc += applyYfspHotness(s, now);
   if (s.year >= CURRENT_YEAR) sc += 25; else if (s.year >= CURRENT_YEAR - 1) sc += 15; else if (s.year >= CURRENT_YEAR - 2) sc += 8;
   if (s.score >= 8.5 && s.year >= 2015) sc += 25;
   if (s.isComplete) sc += 10;
   return Math.max(0, Math.round(sc));
 }
 
-function scoreVariety(s) {
+function scoreVariety(s, now = Date.now()) {
   let sc = 0;
   const t = `${s.cidMapper} ${s.contentType} ${s.description} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(VarietyBoost)) if (t.includes(g)) sc += b;
@@ -630,11 +702,8 @@ function scoreVariety(s) {
   // 评分加成
   if (s.score > 0) sc += s.score * 5;
 
-  // 播放量加成
-  if (s.playCount > 500000) sc += 20;
-  else if (s.playCount > 100000) sc += 15;
-  else if (s.playCount > 50000) sc += 10;
-  else if (s.playCount > 10000) sc += 5;
+  // 爱壹帆累计播放量 + 上线后日均播放速度
+  sc += applyYfspHotness(s, now);
 
   // 年份新鲜度加成（综艺更强调新）
   if (s.year >= CURRENT_YEAR) sc += 30;
@@ -656,6 +725,44 @@ function scoreVariety(s) {
   sc += hostBoost * 3;
 
   return Math.max(0, Math.round(sc));
+}
+
+function applyAIRecommendationAdjustment(show) {
+  if (show.aiScore == null) return show.recommendScore;
+  if (show.category === 'variety') {
+    // 综艺使用更温和的调整,避免韩剧向 AI 误伤国产综艺
+    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.25));
+  } else if (show.aiScore >= 60) {
+    // 韩剧: 高分温和加成,低分强力惩罚
+    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.4));
+  } else {
+    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.8));
+  }
+  return show.recommendScore;
+}
+
+async function recalculateExistingData() {
+  const data = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
+  const now = Date.now();
+  const recalculate = (shows, scoreFn) => shows
+    .map(show => {
+      show.recommendScore = scoreFn(show, now);
+      applyAIRecommendationAdjustment(show);
+      return show;
+    })
+    .sort((a, b) => b.recommendScore - a.recommendScore);
+
+  data.koreanDramas = recalculate(data.koreanDramas || [], scoreKDrama);
+  data.chineseVariety = recalculate(data.chineseVariety || [], scoreVariety);
+  data.stats = {
+    ...(data.stats || {}),
+    koreanDramas: data.koreanDramas.length,
+    chineseVariety: data.chineseVariety.length,
+    otherDramas: (data.otherDramas || []).length,
+  };
+  data.lastUpdated = new Date(now).toISOString();
+  writeFileSyncAtomic(SHOWS_FILE, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+  console.log(`  已按爱壹帆热度重算 ${data.koreanDramas.length + data.chineseVariety.length} 部节目`);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1271,19 +1378,7 @@ async function main() {
     }
     // 混合评分: 规则分为主体, AI 分作为非对称调整
     // 高分奖励温和(+25 max),低分惩罚更重(-40 max),避免类型匹配好但口碑差的剧排到前面
-    if (show.aiScore != null) {
-      if (show.category === 'variety') {
-        // 综艺使用更温和的调整,避免韩剧向 AI 误伤国产综艺
-        show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.25));
-      } else {
-        // 韩剧: 高分温和加成,低分强力惩罚
-        if (show.aiScore >= 60) {
-          show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.4));
-        } else {
-          show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.8));
-        }
-      }
-    }
+    applyAIRecommendationAdjustment(show);
   }
   if (aiScores.size > 0) console.log(`  [AI] 已为 ${aiScores.size} 部节目调整推荐分`);
 
@@ -2399,4 +2494,5 @@ async function enrichCoversFromTMDB(shows) {
   console.log(`  新增/刷新 ${fetched} 个 TMDB 高清封面`);
 }
 
-main().catch(e => { console.error('[SCRAPER] Fatal:', e); process.exit(1); });
+const run = process.argv.includes('--recalculate-existing') ? recalculateExistingData : main;
+run().catch(e => { console.error('[SCRAPER] Fatal:', e); process.exit(1); });
