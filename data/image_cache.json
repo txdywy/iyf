@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:19.334Z"
+    "cachedAt": "2026-08-05T02:03:36.756Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:19.339Z"
+    "cachedAt": "2026-08-05T02:03:36.742Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:20.008Z"
+    "cachedAt": "2026-08-05T02:03:37.279Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:19.325Z"
+    "cachedAt": "2026-08-05T02:03:36.736Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:20.005Z"
+    "cachedAt": "2026-08-05T02:03:37.347Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:20.000Z"
+    "cachedAt": "2026-08-05T02:03:37.324Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:20.005Z"
+    "cachedAt": "2026-08-05T02:03:37.337Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-04T16:30:19.333Z"
+    "cachedAt": "2026-08-05T02:03:36.746Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5912,5 +5912,15 @@
     "cachedAt": "2026-05-12T03:45:00.000Z",
     "doubanId": "37194459",
     "doubanMatchedTitle": "菜鸟炊事兵"
+  },
+  "yQ1Mop9td1I": {
+    "title": "时光旅行老爸",
+    "source": "tmdb",
+    "version": 14,
+    "notFound": true,
+    "cachedAt": "2026-08-05T02:03:37.839Z",
+    "doubanUrl": "https://movie.douban.com/subject/38556716/",
+    "doubanId": "38556716",
+    "doubanMatchedTitle": "时光旅行老爸"
   }
 }
