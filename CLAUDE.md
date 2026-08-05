@@ -14,6 +14,9 @@ No package.json, no dependencies, no build tools. Pure vanilla JS.
 # Run scraper (requires Node.js 20+)
 node scripts/scrape.mjs
 
+# Recalculate the published recommendation scores without network calls
+node scripts/scrape.mjs --recalculate-existing
+
 # AI scoring — requires at least one token (AI runs automatically when present)
 GITHUB_TOKEN=ghp_xxx node scripts/scrape.mjs          # GitHub Models (primary, free with models:read)
 OPENROUTER_API_KEY=sk-or-xxx node scripts/scrape.mjs   # OpenRouter fallback (8 free models)
@@ -51,15 +54,17 @@ GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKE
 
 ## Key Data Flow
 
-Show object fields: `id`, `title`, `titleAliases`, `year`, `score`, `playCount`, `actor`, `description`, `mediaType` ('电视剧'/'综艺'), `regional` ('韩国'/'大陆'), `category`, `recommendScore`, `coverImg`, `primaryUrl`, plus enrichment URLs (tmdbUrl, doubanUrl, wikipediaUrl, imdbUrl, yfspUrl) and AI fields (aiScore, aiReason, aiScoredAt).
+Show object fields: `id`, `title`, `titleAliases`, `year`, `score`, `playCount`, `publishTime`, `actor`, `description`, `mediaType` ('电视剧'/'综艺'), `regional` ('韩国'/'大陆'), `category`, `recommendScore`, `coverImg`, `primaryUrl`, plus enrichment URLs (tmdbUrl, doubanUrl, wikipediaUrl, imdbUrl, yfspUrl), YFSP hotness fields (`yfspHotness`, `yfspPlayRate`, `yfspAgeDays`, `yfspReleaseDateSource`) and AI fields (aiScore, aiReason, aiScoredAt).
 
 Link priority: `tmdbUrl > doubanUrl > wikipediaUrl > imdbUrl > yfspUrl` → `primaryUrl`.
 
 ## Recommendation Scoring
 
-`scoreKDrama()`: Genre boost (comedy +25, romance +20, horror -30; military/cooking/growth subtopics also receive positive weight) + negative content penalty (-40/keyword) + quality score + play count tiers + freshness bonus + classic bonus.
+`scoreKDrama()`: Genre boost (comedy +25, romance +20, horror -30; military/cooking/growth subtopics also receive positive weight) + negative content penalty (-40/keyword) + quality score + YFSP hotness + freshness bonus + classic bonus.
 
-`scoreVariety()`: Similar but with `VarietyExclude` blacklist (returns -1 to exclude entirely).
+`scoreVariety()`: Similar, using the same YFSP hotness metric, with `VarietyExclude` blacklist (returns -1 to exclude entirely).
+
+YFSP hotness is capped at 20 points: cumulative play volume contributes 0–8 logarithmic points, while average plays per day since `publishTime` contributes 0–12. If only `year` is available, the inferred release date is marked as `year` and the velocity component is discounted to 45%; this keeps old seed cards usable without treating an estimated date as exact. Live/search matches replace stale seed play counts and publish times before scoring.
 
 AI blending: `recommendScore += (aiScore - 50) * 0.5` (max ±25 adjustment).
 
