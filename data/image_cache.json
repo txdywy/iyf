@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.123Z"
+    "cachedAt": "2026-08-06T02:07:20.522Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.133Z"
+    "cachedAt": "2026-08-06T02:07:20.544Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.642Z"
+    "cachedAt": "2026-08-06T02:07:21.033Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.107Z"
+    "cachedAt": "2026-08-06T02:07:20.494Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.702Z"
+    "cachedAt": "2026-08-06T02:07:21.143Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.696Z"
+    "cachedAt": "2026-08-06T02:07:21.097Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.701Z"
+    "cachedAt": "2026-08-06T02:07:21.129Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T13:57:43.120Z"
+    "cachedAt": "2026-08-06T02:07:20.494Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5932,11 +5932,13 @@
     "matchedTitle": "我的足球教练",
     "tmdbId": 203694,
     "tmdbUrl": "https://www.themoviedb.org/tv/203694",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37018941/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt21943588/",
     "wikidataId": "",
-    "cachedAt": "2026-08-05T13:57:44.590Z"
+    "cachedAt": "2026-08-05T13:57:44.590Z",
+    "doubanId": "37018941",
+    "doubanMatchedTitle": "足球教练 第四季"
   },
   "1KsGCyBYF2R": {
     "title": "图书馆员：下一章第2季",
@@ -5954,5 +5956,20 @@
     "cachedAt": "2026-08-05T13:57:44.608Z",
     "doubanId": "37315637",
     "doubanMatchedTitle": "图书馆员：下一章 第二季"
+  },
+  "EMI2oPzt1FM": {
+    "title": "百年孤独第2季",
+    "url": "https://image.tmdb.org/t/p/original/w8p5MkntL1bTI94INGLya1pHmTP.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "百年孤独",
+    "matchedTitle": "百年孤独",
+    "tmdbId": 207333,
+    "tmdbUrl": "https://www.themoviedb.org/tv/207333",
+    "doubanUrl": "https://movie.douban.com/subject/30482958/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt9892936/",
+    "wikidataId": "Q124175370",
+    "cachedAt": "2026-08-06T02:07:22.025Z"
   }
 }
