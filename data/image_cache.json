@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:31.825Z"
+    "cachedAt": "2026-08-07T12:55:06.804Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:31.963Z"
+    "cachedAt": "2026-08-07T12:55:07.152Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:32.492Z"
+    "cachedAt": "2026-08-07T12:55:07.477Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:31.773Z"
+    "cachedAt": "2026-08-07T12:55:06.789Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:32.687Z"
+    "cachedAt": "2026-08-07T12:55:07.899Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:32.543Z"
+    "cachedAt": "2026-08-07T12:55:07.530Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:32.554Z"
+    "cachedAt": "2026-08-07T12:55:07.563Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-07T02:28:31.762Z"
+    "cachedAt": "2026-08-07T12:55:06.765Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5993,5 +5993,22 @@
     "cachedAt": "2026-08-06T13:56:41.645Z",
     "doubanId": "36367173",
     "doubanMatchedTitle": "青春碎片"
+  },
+  "3PxuBhTD7Z8": {
+    "title": "我的荒糖恋爱",
+    "url": "https://image.tmdb.org/t/p/original/bDOQXrsfomnrAiPrjvN6cKBItKx.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "我的荒糖恋爱",
+    "matchedTitle": "我的荒糖恋爱",
+    "tmdbId": 291496,
+    "tmdbUrl": "https://www.themoviedb.org/tv/291496",
+    "doubanUrl": "https://movie.douban.com/subject/37233536/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36955608/",
+    "wikidataId": "Q137835829",
+    "cachedAt": "2026-08-07T12:55:06.409Z",
+    "doubanId": "37233536",
+    "doubanMatchedTitle": "我的荒糖恋爱"
   }
 }
