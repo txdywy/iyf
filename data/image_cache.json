@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:35.430Z"
+    "cachedAt": "2026-08-08T12:39:51.635Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.118Z"
+    "cachedAt": "2026-08-08T12:39:51.665Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.087Z"
+    "cachedAt": "2026-08-08T12:39:52.310Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:35.449Z"
+    "cachedAt": "2026-08-08T12:39:51.652Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.821Z"
+    "cachedAt": "2026-08-08T12:39:52.972Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.780Z"
+    "cachedAt": "2026-08-08T12:39:52.318Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.802Z"
+    "cachedAt": "2026-08-08T12:39:52.333Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:36.136Z"
+    "cachedAt": "2026-08-08T12:39:51.635Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -4749,7 +4749,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-05T03:06:55.048Z"
+    "cachedAt": "2026-08-08T12:39:52.278Z"
   },
   "oGL69bMcUv2": {
     "title": "四大元素之火之爱链",
@@ -6045,11 +6045,13 @@
     "matchedTitle": "斯特林角",
     "tmdbId": 283297,
     "tmdbUrl": "https://www.themoviedb.org/tv/283297",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37218815/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt35618070/",
     "wikidataId": "Q137917795",
-    "cachedAt": "2026-08-08T01:16:36.367Z"
+    "cachedAt": "2026-08-08T01:16:36.367Z",
+    "doubanId": "37218815",
+    "doubanMatchedTitle": "斯特林角"
   },
   "3A8Bfmgyizo": {
     "title": "换座位后发现身后的男生好像喜欢我",
