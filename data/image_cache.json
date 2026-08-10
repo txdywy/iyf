@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:31.413Z"
+    "cachedAt": "2026-08-10T01:27:08.164Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:32.088Z"
+    "cachedAt": "2026-08-10T01:27:08.159Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:32.080Z"
+    "cachedAt": "2026-08-10T01:27:08.696Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:31.415Z"
+    "cachedAt": "2026-08-10T01:27:08.186Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:32.784Z"
+    "cachedAt": "2026-08-10T01:27:09.284Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:32.130Z"
+    "cachedAt": "2026-08-10T01:27:08.744Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:32.156Z"
+    "cachedAt": "2026-08-10T01:27:08.769Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:31.437Z"
+    "cachedAt": "2026-08-10T01:27:08.159Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -5302,7 +5302,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-06T13:56:41.405Z"
+    "cachedAt": "2026-08-10T01:27:08.699Z"
   },
   "vfxyDD2E7YN": {
     "title": "大空港GATE24",
@@ -6138,10 +6138,12 @@
     "matchedTitle": "度假季",
     "tmdbId": 321623,
     "tmdbUrl": "https://www.themoviedb.org/tv/321623",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37283718/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36237567/",
     "wikidataId": "",
-    "cachedAt": "2026-08-09T12:41:32.312Z"
+    "cachedAt": "2026-08-09T12:41:32.312Z",
+    "doubanId": "37283718",
+    "doubanMatchedTitle": "度假季"
   }
 }
