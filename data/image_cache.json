@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.164Z"
+    "cachedAt": "2026-08-10T13:02:40.143Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.159Z"
+    "cachedAt": "2026-08-10T13:02:40.150Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.696Z"
+    "cachedAt": "2026-08-10T13:02:40.723Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.186Z"
+    "cachedAt": "2026-08-10T13:02:40.137Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:09.284Z"
+    "cachedAt": "2026-08-10T13:02:40.756Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.744Z"
+    "cachedAt": "2026-08-10T13:02:40.749Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.769Z"
+    "cachedAt": "2026-08-10T13:02:40.756Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T01:27:08.159Z"
+    "cachedAt": "2026-08-10T13:02:40.135Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -6123,11 +6123,13 @@
     "matchedTitle": "花开锦绣",
     "tmdbId": 287496,
     "tmdbUrl": "https://www.themoviedb.org/tv/287496",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36810153/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt31886947/",
     "wikidataId": "",
-    "cachedAt": "2026-08-09T12:41:32.251Z"
+    "cachedAt": "2026-08-09T12:41:32.251Z",
+    "doubanId": "36810153",
+    "doubanMatchedTitle": "花开锦绣"
   },
   "UbpdpVN2rzI": {
     "title": "度假季",
