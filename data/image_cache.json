@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.143Z"
+    "cachedAt": "2026-08-11T01:21:50.671Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.150Z"
+    "cachedAt": "2026-08-11T01:21:51.348Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.723Z"
+    "cachedAt": "2026-08-11T01:21:51.338Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.137Z"
+    "cachedAt": "2026-08-11T01:21:50.694Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.756Z"
+    "cachedAt": "2026-08-11T01:21:52.068Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.749Z"
+    "cachedAt": "2026-08-11T01:21:51.393Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.756Z"
+    "cachedAt": "2026-08-11T01:21:51.445Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-10T13:02:40.135Z"
+    "cachedAt": "2026-08-11T01:21:50.655Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -6016,10 +6016,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-08T01:16:35.428Z",
-    "doubanUrl": "https://movie.douban.com/subject/38589272/",
-    "doubanId": "38589272",
-    "doubanMatchedTitle": "姐姐快醒醒"
+    "cachedAt": "2026-08-11T01:21:50.628Z"
   },
   "6oHwyySKEP2": {
     "title": "财阀X刑警第2季",
@@ -6147,5 +6144,52 @@
     "cachedAt": "2026-08-09T12:41:32.312Z",
     "doubanId": "37283718",
     "doubanMatchedTitle": "度假季"
+  },
+  "NjvfTz4MVG6": {
+    "title": "披荆斩棘的哥哥",
+    "url": "https://image.tmdb.org/t/p/original/hB5wJgHi7g04zcTTn92bshEKkQ4.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "披荆斩棘的哥哥",
+    "matchedTitle": "披荆斩棘",
+    "tmdbId": 131040,
+    "tmdbUrl": "https://www.themoviedb.org/tv/131040",
+    "doubanUrl": "https://movie.douban.com/subject/35161214/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-05-10T03:17:09.708Z",
+    "doubanId": "35161214",
+    "doubanMatchedTitle": "披荆斩棘的哥哥"
+  },
+  "4EdRcqTVxU6": {
+    "title": "重器",
+    "url": "https://image.tmdb.org/t/p/original/2fPjN0qpF4AVWBKzxdYmkkLKdt.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "重器",
+    "matchedTitle": "重器",
+    "tmdbId": 291856,
+    "tmdbUrl": "https://www.themoviedb.org/tv/291856",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36984839/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-11T01:21:51.565Z"
+  },
+  "reii6j7Wql6": {
+    "title": "林间鸽踪",
+    "url": "https://image.tmdb.org/t/p/original/cA2NyvzIqjeAOXYlxtWcQWGSRZ8.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "林间鸽踪",
+    "matchedTitle": "林间鸽踪",
+    "tmdbId": 291350,
+    "tmdbUrl": "https://www.themoviedb.org/tv/291350",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36937503/",
+    "wikidataId": "Q135990617",
+    "cachedAt": "2026-08-11T01:21:51.799Z"
   }
 }
