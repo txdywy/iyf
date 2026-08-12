@@ -2328,7 +2328,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:18.970Z"
+    "cachedAt": "2026-08-12T12:59:42.230Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -2352,7 +2352,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:18.992Z"
+    "cachedAt": "2026-08-12T12:59:42.781Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2659,7 +2659,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:19.677Z"
+    "cachedAt": "2026-08-12T12:59:42.757Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3792,35 +3792,35 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:19.029Z"
+    "cachedAt": "2026-08-12T12:59:42.218Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:19.731Z"
+    "cachedAt": "2026-08-12T12:59:43.330Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:19.642Z"
+    "cachedAt": "2026-08-12T12:59:42.805Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:19.689Z"
+    "cachedAt": "2026-08-12T12:59:42.811Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-12T01:28:18.971Z"
+    "cachedAt": "2026-08-12T12:59:42.231Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -6109,7 +6109,7 @@
     "source": "tmdb",
     "version": 14,
     "notFound": true,
-    "cachedAt": "2026-08-09T12:41:31.379Z"
+    "cachedAt": "2026-08-12T12:59:42.209Z"
   },
   "s8mQNa4EKGF": {
     "title": "花开锦绣",
@@ -6206,5 +6206,20 @@
     "imdbUrl": "https://www.imdb.com/title/tt14321914/",
     "wikidataId": "Q111733643",
     "cachedAt": "2026-08-12T01:28:21.345Z"
+  },
+  "xza1KTBjxyp": {
+    "title": "侠探杰克第4季",
+    "url": "https://image.tmdb.org/t/p/original/dt5XNeYjR46lmVHQKiwfAmDHy9d.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "侠探杰克",
+    "matchedTitle": "侠探杰克",
+    "tmdbId": 108978,
+    "tmdbUrl": "https://www.themoviedb.org/tv/108978",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt9288030/",
+    "wikidataId": "Q109901438",
+    "cachedAt": "2026-08-12T12:59:43.853Z"
   }
 }

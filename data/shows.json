@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-08-12T01:31:13.718Z",
+  "lastUpdated": "2026-08-12T13:02:24.856Z",
   "stats": {
     "koreanDramas": 73,
     "chineseVariety": 102,
-    "otherDramas": 12,
-    "totalScraped": 40
+    "otherDramas": 13,
+    "totalScraped": 41
   },
   "koreanDramas": [
     {
@@ -48,7 +48,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 850,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -99,8 +99,8 @@
       "aiReason": "完美契合！漫改+奇幻+轻松喜剧，且符合你对《菜鸟炊事兵》的极高评价，必看。",
       "aiScoredAt": "2026-08-12T01:28:18.067Z",
       "yfspHotness": 13,
-      "yfspPlayRate": 582,
-      "yfspAgeDays": 91,
+      "yfspPlayRate": 579,
+      "yfspAgeDays": 92,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -143,8 +143,8 @@
       "wikidataId": "Q132561179",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 2330,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 2325,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -187,8 +187,8 @@
       "wikidataId": "Q131386568",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 9553,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 9533,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -232,7 +232,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 208,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -276,7 +276,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 232,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -287,7 +287,7 @@
       "playCount": 2033366,
       "contentType": "剧情·喜剧·职场",
       "actor": "李惠利,郑秀斌,姜惠元,吴友利,崔荣宰",
-      "description": "《善意的競爭》 為韓國OTT平台U+ Mobile TV於2025年2月10日起上線公開的原創韓國劇集，每週一至四更新，全16集。改編自同名NAVER網路漫畫，由微電影《未生：前傳》的金泰熙執導並兼任編劇，《晚秋》、《夢境》的閔藝智共同執筆劇本，講述比入學考試更激烈的生存競爭中，少女們之間發展出危險關係的懸疑驚悚劇。3月10日於TVING、Watcha播出。海外由Netflix於4月6日上線。\n",
+      "description": "在这所精英学校里，两位年轻学生面对无情的竞争、严苛的期望与虚假的承诺，进而建立了一段复杂而微妙的关系。",
       "totalEpisodes": 16,
       "isComplete": true,
       "currentEpisode": 16,
@@ -319,8 +319,8 @@
       "wikidataId": "Q127800838",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 3458,
-      "yfspAgeDays": 588,
+      "yfspPlayRate": 3455,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -364,7 +364,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 331,
-      "yfspAgeDays": 2415,
+      "yfspAgeDays": 2416,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -408,7 +408,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 425,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -452,7 +452,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 306,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -496,7 +496,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 303,
-      "yfspAgeDays": 1319,
+      "yfspAgeDays": 1320,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -543,8 +543,8 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 926,
-      "yfspAgeDays": 28,
+      "yfspPlayRate": 911,
+      "yfspAgeDays": 29,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -588,7 +588,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 475,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -632,7 +632,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 293,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -643,7 +643,7 @@
       "playCount": 4207174,
       "contentType": "喜剧·爱情",
       "actor": "金秀贤,金智媛,朴成焄,郭东延",
-      "description": "《淚之女王》，是韓國tvN於2024年3月9日起播出的週末連續劇，由《來自星星的你》、《藍色海洋的傳說》、《愛的迫降》的朴智恩編劇與《需要浪漫3》、《不可殺：永生之靈》的張榮佑導演和《黑道律師文森佐》、《小女子》的金熙元導演合作打造。此劇講述超市王子白賢祐（金秀賢飾）與百貨女王洪海仁（金智媛飾）結婚三年後，因不對頻的生活使婚姻遭遇危機，在克服驚險危機後兩人的愛情如奇蹟般再次綻放的故事。\n",
+      "description": "是世纪婚姻还是世纪战争？ 皇后集团第三代、百货女王洪海仁和龙头里里长的儿子、超市王子白贤宇。 一对经历了三年之痒危机的夫妻奇迹般地再次相爱。",
       "totalEpisodes": 16,
       "isComplete": true,
       "currentEpisode": 16,
@@ -675,8 +675,8 @@
       "wikidataId": "Q116921048",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 4410,
-      "yfspAgeDays": 954,
+      "yfspPlayRate": 4408,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -723,8 +723,8 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 15,
-      "yfspPlayRate": 2883,
-      "yfspAgeDays": 23,
+      "yfspPlayRate": 2825,
+      "yfspAgeDays": 24,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -768,7 +768,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 595,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -817,8 +817,8 @@
       "imdbUrl": "https://www.imdb.com/title/tt42206645/",
       "wikidataId": "Q136714294",
       "yfspHotness": 13,
-      "yfspPlayRate": 733,
-      "yfspAgeDays": 72,
+      "yfspPlayRate": 728,
+      "yfspAgeDays": 73,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -862,7 +862,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 236,
-      "yfspAgeDays": 4241,
+      "yfspAgeDays": 4242,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -905,8 +905,8 @@
       "wikidataId": "Q137711304",
       "isNew": false,
       "yfspHotness": 9,
-      "yfspPlayRate": 406,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 405,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -950,7 +950,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 142,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -993,8 +993,8 @@
       "wikidataId": "Q125121395",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 11435,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 11410,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1037,8 +1037,8 @@
       "wikidataId": "Q137843064",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 559,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 558,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1081,8 +1081,8 @@
       "wikidataId": "Q136527446",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 3052,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 3045,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1126,7 +1126,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 199,
-      "yfspAgeDays": 3510,
+      "yfspAgeDays": 3511,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1170,7 +1170,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 207,
-      "yfspAgeDays": 3145,
+      "yfspAgeDays": 3146,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1181,7 +1181,7 @@
       "playCount": 661136,
       "contentType": "喜剧·爱情",
       "actor": "文佳煐,崔显旭,林世美",
-      "description": "《那傢伙是黑炎龍》 為韓國tvN自2025年2月17日至3月24日間播出的月火连续剧，故事改編自惠珍小姐創作的同名Webtoon網路漫畫，由《流星》、《有利的詐欺》的李秀賢導演執導，文佳煐、崔顯旭、林世美与郭時暘主演。\n",
+      "description": "根据同名网络漫画改编的作品，讲述了2000年代初女主人公和男主人公在游戏中相遇，萌生爱情后实际相遇并发生的事情。",
       "totalEpisodes": 12,
       "isComplete": true,
       "currentEpisode": 12,
@@ -1213,8 +1213,8 @@
       "wikidataId": "Q127411915",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1124,
-      "yfspAgeDays": 588,
+      "yfspPlayRate": 1123,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1258,7 +1258,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 345,
-      "yfspAgeDays": 954,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1302,7 +1302,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 171,
-      "yfspAgeDays": 3510,
+      "yfspAgeDays": 3511,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1345,8 +1345,8 @@
       "wikidataId": "Q137217475",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 3844,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 3836,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1357,7 +1357,7 @@
       "playCount": 829404,
       "contentType": "喜剧·爱情·医疗",
       "actor": "朴信惠,朴炯植,尹博",
-      "description": "《低谷医生》 为韩国JTBC于2024年1月27日起播出的土日连续剧，由《舉重妖精金福珠》、《那個男人的記憶法》的导演吴贤钟执导，《金秘書為何那樣》、《我的室友是九尾狐》的编剧白先又执笔。剧情讲述南荷娜 和余正宇 在人生上升曲线上踩下刹车后的给“完蛋的人生”心肺复苏的故事。\n",
+      "description": "曾是校园竞争对手的两位才华横溢的医生偶然重逢，他们都面临着人生中最糟的低谷，并意外地在彼此身上找到了安慰。",
       "totalEpisodes": 16,
       "isComplete": true,
       "currentEpisode": 16,
@@ -1390,7 +1390,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 869,
-      "yfspAgeDays": 954,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1401,7 +1401,7 @@
       "playCount": 700000,
       "contentType": "喜剧·爱情",
       "actor": "安孝燮,金世正",
-      "description": "夏莉假扮闺蜜去相亲，试图将对方吓跑。但出乎意料的是，相亲对象是她任职公司的代表，而且还向她求婚。",
+      "description": "《社內相親》，為韓國SBS於2022年2月28日起播出的月火連續劇。本劇改編自Haehwa創作並由Yeondam出版的同名網路小說，及由Perilla編劇、NARAK繪製的同名網路漫畫，由《奇怪的搭檔》、《油膩的Melo》的朴敾虎導演與《沒禮貌的英愛小姐17》的韓雪熺、洪保熙編劇合作打造。此劇講述了隐藏身份代替相親的職員和公司社長間的浪漫愛情喜劇故事。\n",
       "totalEpisodes": 12,
       "isComplete": true,
       "currentEpisode": 12,
@@ -1434,7 +1434,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 416,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1445,7 +1445,7 @@
       "playCount": 500000,
       "contentType": "喜剧·爱情",
       "actor": "李俊昊,林允儿",
-      "description": "面临激烈的遗产争夺战时，这名富有魅力的继承人与他手下辛勤工作的员工发生冲突 — 因为他无法容忍对方迷人的招牌笑容。",
+      "description": "《歡迎來到王之國》，為韓國JTBC於2023年6月17日起播出的土日電視劇，由《有可能知道的人》、《妳的倒影》的導演林賢旭執導，《海賊：鬼怪的旗幟》、《殭屍校園》的編劇千成日開創，新人編劇崔綸執筆。講述無法忍受虛偽笑容的財閥繼承人具元，與因為職業關係即使不想笑也要一直保持開朗笑容的職員天嗣朗 相遇後，變得可以一起真正開懷大笑的浪漫愛情喜劇。\n",
       "totalEpisodes": 16,
       "isComplete": true,
       "currentEpisode": 16,
@@ -1478,7 +1478,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 379,
-      "yfspAgeDays": 1319,
+      "yfspAgeDays": 1320,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1522,7 +1522,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 340,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1566,7 +1566,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 265,
-      "yfspAgeDays": 1319,
+      "yfspAgeDays": 1320,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1613,8 +1613,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 15,
-      "yfspPlayRate": 2433,
-      "yfspAgeDays": 67,
+      "yfspPlayRate": 2416,
+      "yfspAgeDays": 68,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -1657,8 +1657,8 @@
       "wikidataId": "Q124616105",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 993,
-      "yfspAgeDays": 954,
+      "yfspPlayRate": 992,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1669,7 +1669,7 @@
       "playCount": 750000,
       "contentType": "剧情·喜剧·犯罪",
       "actor": "宋仲基,全汝彬",
-      "description": "一名义大利黑手党的顾问为了寻找埋藏在首尔建筑物下的金条而回到故国。他在展开行动时被卷入一场对抗大企业的法律斗争中，并且不情愿地与一名冷酷的女律师展开正义之争。",
+      "description": "《黑道律師文森佐》，為韓國tvN於2021年2月20日起播出的週末連續劇，由《成為王的男人》的金熙元導演與《熱血祭司》的朴才範編劇合作打造。此劇講述因組織內部糾紛而從義大利逃到韓國的黑手黨顧問文森佐·卡薩諾（宋仲基飾），在遇上律師洪車瑛（全汝彬飾）後，兩人以黑手黨的方式實現正義的故事。\n",
       "totalEpisodes": 20,
       "isComplete": true,
       "currentEpisode": 20,
@@ -1702,7 +1702,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 366,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1746,7 +1746,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 327,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1790,7 +1790,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 553,
-      "yfspAgeDays": 954,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1833,8 +1833,8 @@
       "wikidataId": "Q137700437",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1159,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1157,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1878,7 +1878,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 214,
-      "yfspAgeDays": 954,
+      "yfspAgeDays": 955,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1889,7 +1889,7 @@
       "playCount": 2552693,
       "contentType": "剧情·奇幻·动作",
       "actor": "柳承龙,韩孝周,赵寅成,车太贤,高允贞",
-      "description": "本剧是一部超能力英雄动作剧集，讲述藏起超能力生活于现在的孩子们和隐藏过去痛苦秘密生活着的父母们，一同面对跨越时代与世代席卷而来的巨大危机。",
+      "description": "《Moving》 為Disney+於2023年8月9日上線公開的原創韓國劇集，改編自韓國漫畫家姜草創作的同名網路漫畫，由《屍戰朝鮮2》、《超級市長》的導演朴仁濟執導，漫畫原作者姜草親自執筆。該劇講述隱藏超能力生活於現在的孩子們，與隱藏過去痛苦秘密的父母們，雙方共同面對跨越世代的巨大危險的超能力動作英雄故事。\n",
       "totalEpisodes": 20,
       "isComplete": true,
       "currentEpisode": 20,
@@ -1922,7 +1922,7 @@
       "isNew": false,
       "yfspHotness": 12,
       "yfspPlayRate": 1935,
-      "yfspAgeDays": 1319,
+      "yfspAgeDays": 1320,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -1966,7 +1966,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 162,
-      "yfspAgeDays": 2780,
+      "yfspAgeDays": 2781,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2010,7 +2010,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 114,
-      "yfspAgeDays": 3510,
+      "yfspAgeDays": 3511,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2053,8 +2053,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 3650,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 3642,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2098,7 +2098,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 127,
-      "yfspAgeDays": 3145,
+      "yfspAgeDays": 3146,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2145,7 +2145,7 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 14,
-      "yfspPlayRate": 1524,
+      "yfspPlayRate": 1490,
       "yfspAgeDays": 21,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -2193,8 +2193,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 956,
-      "yfspAgeDays": 49,
+      "yfspPlayRate": 947,
+      "yfspAgeDays": 50,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -2238,7 +2238,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 155,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2249,7 +2249,7 @@
       "regional": "韩国",
       "lang": "韩语",
       "score": 8.2,
-      "playCount": 4094033,
+      "playCount": 4102778,
       "contentType": "剧情",
       "cidMapper": "剧情·动作",
       "actor": "苏志燮,崔大勋,尹敬浩,金成圭,孙娜恩",
@@ -2268,7 +2268,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37523009/",
-      "scrapedAt": "2026-08-12T01:26:26.467Z",
+      "scrapedAt": "2026-08-12T12:57:32.934Z",
       "isLive": true,
       "recommendScore": 135,
       "category": "korean_drama",
@@ -2284,8 +2284,8 @@
       "firstSeenAt": "2026-06-27T02:47:00.724Z",
       "isNew": false,
       "yfspHotness": 20,
-      "yfspPlayRate": 235029,
-      "yfspAgeDays": 17,
+      "yfspPlayRate": 229215,
+      "yfspAgeDays": 18,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
     },
@@ -2333,8 +2333,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 345,
-      "yfspAgeDays": 80,
+      "yfspPlayRate": 343,
+      "yfspAgeDays": 81,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -2377,8 +2377,8 @@
       "wikidataId": "Q137668853",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 3648,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 3640,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2422,7 +2422,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 109,
-      "yfspAgeDays": 4606,
+      "yfspAgeDays": 4607,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2465,8 +2465,8 @@
       "wikidataId": "Q110244733",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 1960,
-      "yfspAgeDays": 1684,
+      "yfspPlayRate": 1959,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2513,8 +2513,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 712,
-      "yfspAgeDays": 37,
+      "yfspPlayRate": 703,
+      "yfspAgeDays": 38,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -2557,8 +2557,8 @@
       "wikidataId": "Q136945952",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 2528,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 2523,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2591,8 +2591,8 @@
       "scrapedAt": "2026-08-08T12:36:47.480Z",
       "isLive": false,
       "yfspHotness": 14,
-      "yfspPlayRate": 3499,
-      "yfspAgeDays": 4,
+      "yfspPlayRate": 3149,
+      "yfspAgeDays": 5,
       "yfspReleaseDateSource": "publishTime",
       "recommendScore": 117,
       "category": "korean_drama",
@@ -2649,8 +2649,8 @@
       "wikidataId": "Q130241021",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1502,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1499,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2697,8 +2697,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 608,
-      "yfspAgeDays": 70,
+      "yfspPlayRate": 604,
+      "yfspAgeDays": 71,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -2741,8 +2741,8 @@
       "wikidataId": "Q113197148",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 2003,
-      "yfspAgeDays": 1319,
+      "yfspPlayRate": 2002,
+      "yfspAgeDays": 1320,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2789,8 +2789,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 1054,
-      "yfspAgeDays": 45,
+      "yfspPlayRate": 1042,
+      "yfspAgeDays": 46,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -2833,8 +2833,8 @@
       "wikidataId": "Q137772351",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1598,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1595,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2880,8 +2880,8 @@
       "firstSeenAt": "2026-08-04T02:07:57.671Z",
       "isNew": true,
       "yfspHotness": 14,
-      "yfspPlayRate": 3049,
-      "yfspAgeDays": 7,
+      "yfspPlayRate": 2863,
+      "yfspAgeDays": 8,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
     },
@@ -2926,7 +2926,7 @@
       "isNew": false,
       "yfspHotness": 9,
       "yfspPlayRate": 322,
-      "yfspAgeDays": 223,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -2970,7 +2970,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 510,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3017,8 +3017,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 572,
-      "yfspAgeDays": 31,
+      "yfspPlayRate": 563,
+      "yfspAgeDays": 32,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -3051,7 +3051,7 @@
       "scrapedAt": "2026-08-07T12:52:17.064Z",
       "isLive": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 925,
+      "yfspPlayRate": 837,
       "yfspAgeDays": 5,
       "yfspReleaseDateSource": "publishTime",
       "recommendScore": 61,
@@ -3118,7 +3118,7 @@
       "imdbUrl": "",
       "wikidataId": "",
       "yfspHotness": 12,
-      "yfspPlayRate": 377,
+      "yfspPlayRate": 373,
       "yfspAgeDays": 47,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -3163,7 +3163,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 1648,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3210,8 +3210,8 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 1077,
-      "yfspAgeDays": 11,
+      "yfspPlayRate": 1034,
+      "yfspAgeDays": 12,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -3258,8 +3258,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 1039,
-      "yfspAgeDays": 37,
+      "yfspPlayRate": 1026,
+      "yfspAgeDays": 38,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -3306,8 +3306,8 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 627,
-      "yfspAgeDays": 25,
+      "yfspPlayRate": 615,
+      "yfspAgeDays": 26,
       "yfspReleaseDateSource": "publishTime"
     }
   ],
@@ -3351,8 +3351,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1300,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1297,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3394,8 +3394,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1524,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1521,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3437,8 +3437,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1569,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1566,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3481,7 +3481,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 106,
-      "yfspAgeDays": 4241,
+      "yfspAgeDays": 4242,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3523,8 +3523,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 941,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 939,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3567,8 +3567,8 @@
       "wikidataId": "Q17869295",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 2242,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 2237,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3610,8 +3610,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1255,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1253,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3658,8 +3658,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 622,
-      "yfspAgeDays": 51,
+      "yfspPlayRate": 616,
+      "yfspAgeDays": 52,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -3670,26 +3670,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.7,
-      "playCount": 2283278,
+      "playCount": 2300746,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "孙红雷,李乃文,郭京飞,刘宇宁,龚俊,陈星旭,王玉雯,林一",
       "description": "《地球超新鲜》第二季继续以快乐解压为核心基调，开启地球团的快乐旅程。节目路线将继续延着地球的脉络，探索更全面的世界文化旅行和体验。节目以旅行+奇趣体验+游戏任务+世界美食为四重看点，不仅延续赛道...",
       "coverImg": "https://image.tmdb.org/t/p/original/b0sU5blJ3Hwq7O71KCj7HhcRpPp.jpg",
-      "updateStatus": "更新到20260811(游戏加更第7期)",
+      "updateStatus": "更新到20260812(特辑)",
       "updateMsg": "周六",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 7,
+      "currentEpisode": 0,
       "isComplete": false,
-      "publishTime": "2026-08-11T04:11:00Z",
+      "publishTime": "2026-08-12T03:49:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/296202",
       "primaryUrl": "https://www.themoviedb.org/tv/296202",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37090502/",
-      "scrapedAt": "2026-08-12T01:26:32.973Z",
+      "scrapedAt": "2026-08-12T12:57:42.027Z",
       "isLive": true,
       "recommendScore": 221,
       "category": "variety",
@@ -3705,7 +3705,7 @@
       "firstSeenAt": "2026-07-08T02:16:07.185Z",
       "isNew": false,
       "yfspHotness": 20,
-      "yfspPlayRate": 2283278,
+      "yfspPlayRate": 2300746,
       "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
@@ -3749,8 +3749,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 897,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 895,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3793,8 +3793,8 @@
       "wikidataId": "Q24836510",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 2017,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 2013,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3836,8 +3836,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1435,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1432,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3880,7 +3880,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 103,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3922,8 +3922,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1883,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1879,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -3965,8 +3965,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 807,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 805,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4008,8 +4008,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 852,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 850,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4051,8 +4051,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1569,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1566,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4095,8 +4095,8 @@
       "wikidataId": "Q116248040",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1704,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1700,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4107,26 +4107,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.2,
-      "playCount": 1400075,
+      "playCount": 1409828,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "庞博,郭麒麟,黄渤,马思纯",
       "description": "节目将延续从小人物到喜剧之王的故事，汇聚来自全国各地脱口秀俱乐部的优秀单口喜剧演员和漫才组合。每一位小人物都将带着真实感与鲜活的生命力站上舞台，他们不设限不被定义，在喜剧的世界里野蛮生长，成为独...",
       "coverImg": "https://image.tmdb.org/t/p/original/6tCx5txPne3Kw9ouEh4ZViLOKXa.jpg",
-      "updateStatus": "更新到20260811(纯享版)",
+      "updateStatus": "更新到20260812(纯享版)",
       "updateMsg": "周五",
       "isSerial": true,
       "totalEpisodes": 0,
       "currentEpisode": 0,
       "isComplete": false,
-      "publishTime": "2026-08-11T04:11:00Z",
+      "publishTime": "2026-08-12T06:06:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/261391",
       "primaryUrl": "https://www.themoviedb.org/tv/261391",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37937537/",
-      "scrapedAt": "2026-08-12T01:26:26.467Z",
+      "scrapedAt": "2026-08-12T12:57:32.934Z",
       "isLive": true,
       "recommendScore": 195,
       "category": "variety",
@@ -4142,7 +4142,7 @@
       "firstSeenAt": "2026-07-02T13:53:51.275Z",
       "isNew": false,
       "yfspHotness": 20,
-      "yfspPlayRate": 1400075,
+      "yfspPlayRate": 1409828,
       "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -4185,8 +4185,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 511,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 510,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4228,8 +4228,8 @@
       "wikidataId": "Q30945908",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1793,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1789,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4271,8 +4271,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1390,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1387,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4315,7 +4315,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 171,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4357,8 +4357,8 @@
       "wikidataId": "Q109342823",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1166,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1163,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4400,8 +4400,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 986,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 984,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4443,8 +4443,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 744,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 743,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4487,7 +4487,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 174,
-      "yfspAgeDays": 4606,
+      "yfspAgeDays": 4607,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4530,7 +4530,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 142,
-      "yfspAgeDays": 3510,
+      "yfspAgeDays": 3511,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4572,8 +4572,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 1031,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1029,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4622,7 +4622,7 @@
       "imdbUrl": "https://www.imdb.com/title/tt31638277/",
       "wikidataId": "",
       "yfspHotness": 17,
-      "yfspPlayRate": 5835,
+      "yfspPlayRate": 5796,
       "yfspAgeDays": 71,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -4670,7 +4670,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 14,
-      "yfspPlayRate": 1309,
+      "yfspPlayRate": 1295,
       "yfspAgeDays": 44,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -4718,8 +4718,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 15,
-      "yfspPlayRate": 3114,
-      "yfspAgeDays": 60,
+      "yfspPlayRate": 3089,
+      "yfspAgeDays": 61,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -4766,7 +4766,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 19,
-      "yfspPlayRate": 57212,
+      "yfspPlayRate": 56632,
       "yfspAgeDays": 47,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -4810,7 +4810,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 165,
-      "yfspAgeDays": 4241,
+      "yfspAgeDays": 4242,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4853,8 +4853,55 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 83,
-      "yfspAgeDays": 10815,
+      "yfspAgeDays": 10816,
       "yfspReleaseDateSource": "year"
+    },
+    {
+      "id": "NjvfTz4MVG6",
+      "title": "披荆斩棘",
+      "year": 2026,
+      "score": 8.7,
+      "playCount": 45759,
+      "contentType": "真人秀",
+      "actor": "邵兵,孙楠,刘畊宏,满江,郭晓东",
+      "description": "《披荆斩棘2026》本季集结28位嘉宾，以「点燃」为核心主题，诠释新时代披荆斩棘内核，结合户外试炼与舞台公演，从一个人的点燃到一群人的共燃，记录嘉宾点燃自我、彼此照亮、群体共燃的成长历程，向外传...",
+      "totalEpisodes": 0,
+      "isComplete": false,
+      "currentEpisode": 0,
+      "regional": "大陆",
+      "lang": "国语",
+      "isSerial": true,
+      "mediaType": "综艺",
+      "type": 5,
+      "coverImg": "https://image.tmdb.org/t/p/original/hB5wJgHi7g04zcTTn92bshEKkQ4.jpg",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
+      "isLive": true,
+      "isClassic": false,
+      "seedId": "seed_var_2026_24",
+      "recommendScore": 156,
+      "category": "variety",
+      "yfspUrl": "",
+      "doubanUrl": "https://movie.douban.com/subject/35161214/",
+      "primaryUrl": "https://www.themoviedb.org/tv/131040",
+      "primaryUrlSource": "tmdb",
+      "url": "https://www.themoviedb.org/tv/131040",
+      "aiScore": 65,
+      "aiReason": "热血竞演类，节奏较快，与偏好类型关联度一般。",
+      "aiScoredAt": "2026-08-10T13:02:39.276Z",
+      "coverSource": "tmdb",
+      "tmdbUrl": "https://www.themoviedb.org/tv/131040",
+      "wikipediaUrl": "",
+      "imdbUrl": "",
+      "wikidataId": "",
+      "isNew": false,
+      "yfspHotness": 17,
+      "yfspPlayRate": 26485,
+      "yfspAgeDays": 2,
+      "yfspReleaseDateSource": "publishTime",
+      "cidMapper": "真人秀",
+      "updateStatus": "更新到20260809(超前企划(下))",
+      "updateMsg": "",
+      "publishTime": "2026-08-10T19:30:00Z"
     },
     {
       "id": "seed_var_2026_03",
@@ -4895,8 +4942,8 @@
       "wikidataId": "Q20645067",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1569,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1566,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -4943,7 +4990,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 11,
-      "yfspPlayRate": 237,
+      "yfspPlayRate": 235,
       "yfspAgeDays": 54,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -4990,8 +5037,8 @@
       "firstSeenAt": "2026-08-02T13:17:33.679Z",
       "isNew": true,
       "yfspHotness": 17,
-      "yfspPlayRate": 29196,
-      "yfspAgeDays": 1,
+      "yfspPlayRate": 22060,
+      "yfspAgeDays": 2,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
     },
@@ -5040,7 +5087,7 @@
       "isNew": false,
       "yfspHotness": 15,
       "yfspPlayRate": 668,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5090,7 +5137,7 @@
       "isNew": false,
       "yfspHotness": 12,
       "yfspPlayRate": 101,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5136,7 +5183,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 28,
-      "yfspAgeDays": 3145,
+      "yfspAgeDays": 3146,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5185,7 +5232,7 @@
       "isNew": false,
       "yfspHotness": 12,
       "yfspPlayRate": 141,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5232,7 +5279,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 16,
-      "yfspPlayRate": 5653,
+      "yfspPlayRate": 5563,
       "yfspAgeDays": 30,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5280,7 +5327,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 15,
-      "yfspPlayRate": 2587,
+      "yfspPlayRate": 2569,
       "yfspAgeDays": 71,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5328,7 +5375,7 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 17,
-      "yfspPlayRate": 14217,
+      "yfspPlayRate": 13882,
       "yfspAgeDays": 20,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5376,7 +5423,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 18,
-      "yfspPlayRate": 20202,
+      "yfspPlayRate": 19928,
       "yfspAgeDays": 35,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5419,8 +5466,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 1076,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1074,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -5462,8 +5509,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 9,
-      "yfspPlayRate": 435,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 434,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -5505,8 +5552,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1201,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1199,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -5548,8 +5595,8 @@
       "wikidataId": "Q97357250",
       "isNew": false,
       "yfspHotness": 10,
-      "yfspPlayRate": 83,
-      "yfspAgeDays": 4606,
+      "yfspPlayRate": 82,
+      "yfspAgeDays": 4607,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -5599,7 +5646,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 46,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5646,7 +5693,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 16,
-      "yfspPlayRate": 4145,
+      "yfspPlayRate": 4107,
       "yfspAgeDays": 52,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5693,7 +5740,7 @@
       "doubanMatchedTitle": "喜剧者联盟",
       "yfspHotness": 11,
       "yfspPlayRate": 38,
-      "yfspAgeDays": 3876,
+      "yfspAgeDays": 3877,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5739,7 +5786,7 @@
       "isNew": false,
       "yfspHotness": 8,
       "yfspPlayRate": 9,
-      "yfspAgeDays": 2415,
+      "yfspAgeDays": 2416,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5788,7 +5835,7 @@
       "doubanMatchedTitle": "露营俱乐部",
       "yfspHotness": 10,
       "yfspPlayRate": 21,
-      "yfspAgeDays": 2780,
+      "yfspAgeDays": 2781,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -5799,26 +5846,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.4,
-      "playCount": 857379,
+      "playCount": 879115,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "大张伟,许凯,周笔畅,彭昱畅,张真源,陈哲远",
       "description": "节目设定中，因时空乱流导致密逃星球面临危机，特调小队需进入六个相互关联的时空谜境寻找乱流根源并恢复秩序。节目采用时空竞速模式，成员携带有限的生存能量，需要在限定条件下完成任务。",
       "coverImg": "https://image.tmdb.org/t/p/original/yq6gJUXCFimaq1V8zvA27R2eODW.jpg",
-      "updateStatus": "更新到20260811(超前彩蛋)",
+      "updateStatus": "更新到20260812(第4期下)",
       "updateMsg": "周三",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 0,
+      "currentEpisode": 4,
       "isComplete": false,
-      "publishTime": "2026-08-11T04:12:00Z",
+      "publishTime": "2026-08-12T05:34:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/89861",
       "primaryUrl": "https://www.themoviedb.org/tv/89861",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37816907/",
-      "scrapedAt": "2026-08-12T01:26:20.765Z",
+      "scrapedAt": "2026-08-12T12:57:36.774Z",
       "isLive": true,
       "recommendScore": 130,
       "category": "variety",
@@ -5834,7 +5881,7 @@
       "firstSeenAt": "2026-08-02T02:25:02.783Z",
       "isNew": true,
       "yfspHotness": 20,
-      "yfspPlayRate": 857379,
+      "yfspPlayRate": 879115,
       "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5846,26 +5893,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8,
-      "playCount": 601236,
+      "playCount": 621011,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "谢霆锋,张勇,郑永麒,陈晓卿,李诞,屈雨瑜,杨艳彬,黎子安",
       "description": "《一饭封神》是一档大型美食竞技综艺。100位优秀厨师带着对中华美食的尊重与热爱，借助炉台灶火，利用手中厨刀锅具，通过在节目中不同形式的比拼和挑战，开启一场中国美食界的巅峰对决，看最终谁能问鼎“厨神”之位，一饭封神！",
       "coverImg": "https://image.tmdb.org/t/p/original/9dyojjMqquQX30ombDixuZsBISl.jpg",
-      "updateStatus": "更新到20260809(一饭家常菜第2期)",
+      "updateStatus": "更新到20260812(第3期上美食竞技纯享版)",
       "updateMsg": "周三",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 2,
+      "currentEpisode": 3,
       "isComplete": false,
-      "publishTime": "2026-08-09T03:43:00Z",
+      "publishTime": "2026-08-12T06:07:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/296217",
       "primaryUrl": "https://www.themoviedb.org/tv/296217",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37814254/",
-      "scrapedAt": "2026-08-12T01:26:34.601Z",
+      "scrapedAt": "2026-08-12T12:57:44.291Z",
       "isLive": true,
       "recommendScore": 128,
       "category": "variety",
@@ -5881,8 +5928,8 @@
       "firstSeenAt": "2026-07-23T13:49:06.524Z",
       "isNew": true,
       "yfspHotness": 20,
-      "yfspPlayRate": 206941,
-      "yfspAgeDays": 3,
+      "yfspPlayRate": 621011,
+      "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
     },
@@ -5930,7 +5977,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 17,
-      "yfspPlayRate": 10055,
+      "yfspPlayRate": 9925,
       "yfspAgeDays": 37,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -5942,26 +5989,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.8,
-      "playCount": 1171849,
+      "playCount": 1178767,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "黄晓明,王俊凯,昆凌,靳梦佳,张雅琪,林述巍,戴军,瞿颖,汪涵,尹浩宇,袁一琦",
       "description": "《中餐厅》是湖南卫视推出的青春合伙人经营体验节目，节目由5位青春合伙人从零开始经营一家中餐厅，互相协作并彼此关心和学习，在中餐厅内做出中国的味道。",
       "coverImg": "https://image.tmdb.org/t/p/original/z8JPfzKViBG51MRvTpo9U9vwyh0.jpg",
-      "updateStatus": "更新到20260807(第8期)",
+      "updateStatus": "更新到20260812(特别企划)",
       "updateMsg": "周五",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 8,
+      "currentEpisode": 0,
       "isComplete": false,
-      "publishTime": "2026-08-07T04:59:00Z",
+      "publishTime": "2026-08-12T05:24:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/91914",
       "primaryUrl": "https://www.themoviedb.org/tv/91914",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/27079327/",
-      "scrapedAt": "2026-08-12T01:26:18.751Z",
+      "scrapedAt": "2026-08-12T12:57:41.277Z",
       "isLive": true,
       "recommendScore": 127,
       "category": "variety",
@@ -5977,8 +6024,8 @@
       "firstSeenAt": "2026-07-28T13:56:48.128Z",
       "isNew": true,
       "yfspHotness": 20,
-      "yfspPlayRate": 241490,
-      "yfspAgeDays": 5,
+      "yfspPlayRate": 1178767,
+      "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6020,8 +6067,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1565,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1561,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -6063,8 +6110,8 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 11,
-      "yfspPlayRate": 1479,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 1476,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
     },
     {
@@ -6075,26 +6122,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.7,
-      "playCount": 591684,
+      "playCount": 596520,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "李维嘉,倪萍,倪子君,张泉灵",
       "description": "一档聚焦“中女群体”的女性生活观察类真人秀，节目邀请处于不同年龄、情感、事业和个人成长状态下的“中女”，以她们的生活为“中女”样本，去探讨关于情感婚姻、家庭关系、职场社交等深层次的30+女性议题，棚内由倪萍和李维嘉担任主MC，和真人秀嘉宾的亲朋、女性专家、飞行嘉宾以及由素人女性为主的“姐妹们嘴替团”一起，共同组成棚内观察团，以多元丰富的视角，共同探讨女性话题。",
       "coverImg": "https://image.tmdb.org/t/p/original/wioBS4QkmoHO0C35zlz00JlsrDd.jpg",
-      "updateStatus": "更新到20260809(姐姐请吃饭2第5期)",
+      "updateStatus": "更新到20260812(姐姐的母带2第5期上)",
       "updateMsg": "周六",
       "isSerial": true,
       "totalEpisodes": 0,
       "currentEpisode": 5,
       "isComplete": false,
-      "publishTime": "2026-08-09T04:12:00Z",
+      "publishTime": "2026-08-12T05:52:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/296215",
       "primaryUrl": "https://www.themoviedb.org/tv/296215",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37561356/",
-      "scrapedAt": "2026-08-12T01:26:31.347Z",
+      "scrapedAt": "2026-08-12T12:57:35.220Z",
       "isLive": true,
       "recommendScore": 124,
       "category": "variety",
@@ -6110,8 +6157,8 @@
       "firstSeenAt": "2026-07-11T02:12:55.824Z",
       "isNew": false,
       "yfspHotness": 20,
-      "yfspPlayRate": 205075,
-      "yfspAgeDays": 3,
+      "yfspPlayRate": 596520,
+      "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6158,7 +6205,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 16,
-      "yfspPlayRate": 4114,
+      "yfspPlayRate": 4083,
       "yfspAgeDays": 63,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -6170,7 +6217,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 9.5,
-      "playCount": 374427,
+      "playCount": 375631,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "孙浩,李静,戴军,李维嘉,沈凌,吴昕,武艺,高旭",
@@ -6189,7 +6236,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/38531729/",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
       "recommendScore": 122,
       "category": "variety",
@@ -6206,7 +6253,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 19,
-      "yfspPlayRate": 96840,
+      "yfspPlayRate": 86422,
       "yfspAgeDays": 4,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -6218,7 +6265,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.8,
-      "playCount": 35342,
+      "playCount": 36416,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "朱志鑫,张泽禹,张极,左航,苏新皓",
@@ -6237,7 +6284,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/38500062/",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
       "recommendScore": 120,
       "category": "variety",
@@ -6251,7 +6298,7 @@
       "firstSeenAt": "2026-08-04T16:33:07.032Z",
       "isNew": true,
       "yfspHotness": 16,
-      "yfspPlayRate": 21622,
+      "yfspPlayRate": 17222,
       "yfspAgeDays": 2,
       "yfspReleaseDateSource": "publishTime",
       "tmdbUrl": "https://www.themoviedb.org/tv/330926",
@@ -6302,8 +6349,8 @@
       "firstSeenAt": "2026-08-01T02:27:10.987Z",
       "isNew": true,
       "yfspHotness": 14,
-      "yfspPlayRate": 2297,
-      "yfspAgeDays": 11,
+      "yfspPlayRate": 2204,
+      "yfspAgeDays": 12,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
     },
@@ -6314,27 +6361,27 @@
       "type": 5,
       "regional": "大陆",
       "lang": "国语",
-      "score": 7.1,
-      "playCount": 427774,
+      "score": 7.2,
+      "playCount": 449402,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "代旭,杜海涛,薛凯琪,杨超越,张纯烨",
       "description": "《心动的信号》是由腾讯视频推出的一档恋爱社交推理真人秀节目。节目以信号小屋中发生的素人真实恋爱故事为主体，采用非传统意义上的星素结合方式，每期邀请明星嘉宾和心理学专家以场外观察员的身份，来反观6位素人单身男女日常相处的生活细节和情感走向，从而进行推理分析和心动连线。",
       "coverImg": "https://image.tmdb.org/t/p/original/5rFY9y60evb8qdJdoEYeIgQkIwQ.jpg",
-      "updateStatus": "更新到20260811(第2期下纯享)",
+      "updateStatus": "更新到20260812(超前彩蛋)",
       "updateMsg": "周一",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 2,
+      "currentEpisode": 0,
       "isComplete": false,
-      "publishTime": "2026-08-11T04:53:00Z",
+      "publishTime": "2026-08-12T05:29:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/103147",
       "primaryUrl": "https://www.themoviedb.org/tv/103147",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37815941/",
-      "scrapedAt": "2026-08-12T01:26:23.225Z",
+      "scrapedAt": "2026-08-12T12:57:47.299Z",
       "isLive": true,
       "recommendScore": 119,
       "category": "variety",
@@ -6350,7 +6397,7 @@
       "firstSeenAt": "2026-07-31T13:56:18.211Z",
       "isNew": true,
       "yfspHotness": 20,
-      "yfspPlayRate": 427774,
+      "yfspPlayRate": 449402,
       "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -6400,7 +6447,7 @@
       "isNew": false,
       "yfspHotness": 13,
       "yfspPlayRate": 262,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6449,7 +6496,7 @@
       "isNew": false,
       "yfspHotness": 12,
       "yfspPlayRate": 153,
-      "yfspAgeDays": 588,
+      "yfspAgeDays": 589,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6460,7 +6507,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.7,
-      "playCount": 1303654,
+      "playCount": 1308918,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "严浩翔,谢帝,艾热,派克特,功夫胖,盛宇,杨长青,刘嘉裕,米尔艾力,李斯丹妮,布瑞吉,翁杰,黄旭,杨博睿,吴嘉轩,白景屹,贰万,孙旸,李大奔,徐赢,郭颖",
@@ -6479,7 +6526,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/37561085/",
-      "scrapedAt": "2026-08-12T01:26:21.539Z",
+      "scrapedAt": "2026-08-12T12:57:31.360Z",
       "isLive": true,
       "recommendScore": 115,
       "category": "variety",
@@ -6495,7 +6542,7 @@
       "firstSeenAt": "2026-06-27T13:26:54.980Z",
       "isNew": false,
       "yfspHotness": 20,
-      "yfspPlayRate": 494445,
+      "yfspPlayRate": 419984,
       "yfspAgeDays": 3,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -6538,56 +6585,9 @@
       "wikidataId": "",
       "isNew": false,
       "yfspHotness": 12,
-      "yfspPlayRate": 5165,
-      "yfspAgeDays": 223,
+      "yfspPlayRate": 5153,
+      "yfspAgeDays": 224,
       "yfspReleaseDateSource": "year"
-    },
-    {
-      "id": "NjvfTz4MVG6",
-      "title": "披荆斩棘",
-      "year": 2026,
-      "score": 0,
-      "playCount": 35898,
-      "contentType": "真人秀",
-      "actor": "邵兵,孙楠,刘畊宏,满江,郭晓东",
-      "description": "《披荆斩棘2026》本季集结28位嘉宾，以「点燃」为核心主题，诠释新时代披荆斩棘内核，结合户外试炼与舞台公演，从一个人的点燃到一群人的共燃，记录嘉宾点燃自我、彼此照亮、群体共燃的成长历程，向外传...",
-      "totalEpisodes": 0,
-      "isComplete": false,
-      "currentEpisode": 0,
-      "regional": "大陆",
-      "lang": "国语",
-      "isSerial": true,
-      "mediaType": "综艺",
-      "type": 5,
-      "coverImg": "https://image.tmdb.org/t/p/original/hB5wJgHi7g04zcTTn92bshEKkQ4.jpg",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
-      "isLive": true,
-      "isClassic": false,
-      "seedId": "seed_var_2026_24",
-      "recommendScore": 112,
-      "category": "variety",
-      "yfspUrl": "",
-      "doubanUrl": "https://movie.douban.com/subject/35161214/",
-      "primaryUrl": "https://www.themoviedb.org/tv/131040",
-      "primaryUrlSource": "tmdb",
-      "url": "https://www.themoviedb.org/tv/131040",
-      "aiScore": 65,
-      "aiReason": "热血竞演类，节奏较快，与偏好类型关联度一般。",
-      "aiScoredAt": "2026-08-10T13:02:39.276Z",
-      "coverSource": "tmdb",
-      "tmdbUrl": "https://www.themoviedb.org/tv/131040",
-      "wikipediaUrl": "",
-      "imdbUrl": "",
-      "wikidataId": "",
-      "isNew": false,
-      "yfspHotness": 17,
-      "yfspPlayRate": 28771,
-      "yfspAgeDays": 1,
-      "yfspReleaseDateSource": "publishTime",
-      "cidMapper": "真人秀",
-      "updateStatus": "更新到20260809(超前企划(下))",
-      "updateMsg": "",
-      "publishTime": "2026-08-10T19:30:00Z"
     },
     {
       "id": "nB1mgySVvK3",
@@ -6636,7 +6636,7 @@
       "isNew": false,
       "yfspHotness": 13,
       "yfspPlayRate": 186,
-      "yfspAgeDays": 4241,
+      "yfspAgeDays": 4242,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6685,7 +6685,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 59,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6732,7 +6732,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 13,
-      "yfspPlayRate": 806,
+      "yfspPlayRate": 798,
       "yfspAgeDays": 49,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -6782,7 +6782,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 47,
-      "yfspAgeDays": 2415,
+      "yfspAgeDays": 2416,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6832,7 +6832,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 26,
-      "yfspAgeDays": 1684,
+      "yfspAgeDays": 1685,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6878,7 +6878,7 @@
       "isNew": false,
       "yfspHotness": 11,
       "yfspPlayRate": 53,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -6889,32 +6889,32 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 0,
-      "playCount": 14106,
+      "playCount": 15016,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "刘恋,朱洁静",
       "description": "由刘恋主理的一档女性向视频播客节目，每期邀请一位有故事女性嘉宾来到刘恋家中，展开轻松、真实的朋友式对谈。节目围绕成长、关系、职场、情绪与人生选择等话题，呈现不同女性在聚光灯之外鲜活、有共鸣的一面...",
       "coverImg": "https://static.yfsp.tv/upload/video/202608071816001681062.jpg",
-      "updateStatus": "更新到第1期加更",
+      "updateStatus": "更新到第2期",
       "updateMsg": "周三",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 1,
+      "currentEpisode": 2,
       "isComplete": false,
-      "publishTime": "2026-08-07T16:14:00Z",
+      "publishTime": "2026-08-12T10:00:00Z",
       "year": 2026,
       "url": "https://movie.douban.com/subject/38589272/",
       "primaryUrl": "https://movie.douban.com/subject/38589272/",
       "primaryUrlSource": "douban",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/38589272/",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
-      "yfspHotness": 14,
-      "yfspPlayRate": 3218,
-      "yfspAgeDays": 4,
+      "yfspHotness": 16,
+      "yfspPlayRate": 15016,
+      "yfspAgeDays": 1,
       "yfspReleaseDateSource": "publishTime",
-      "recommendScore": 92,
+      "recommendScore": 94,
       "category": "variety",
       "yfspCoverImg": "https://static.yfsp.tv/upload/video/202608071816001681062.jpg",
       "coverSource": "yfsp",
@@ -6972,7 +6972,7 @@
       "isNew": false,
       "yfspHotness": 13,
       "yfspPlayRate": 158,
-      "yfspAgeDays": 2049,
+      "yfspAgeDays": 2050,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7019,7 +7019,7 @@
       "isNew": false,
       "yfspHotness": 9,
       "yfspPlayRate": 11,
-      "yfspAgeDays": 2415,
+      "yfspAgeDays": 2416,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7069,7 +7069,7 @@
       "isNew": false,
       "yfspHotness": 12,
       "yfspPlayRate": 59,
-      "yfspAgeDays": 4606,
+      "yfspAgeDays": 4607,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7080,7 +7080,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 0,
-      "playCount": 61843,
+      "playCount": 62896,
       "contentType": "真人秀",
       "cidMapper": "真人秀",
       "actor": "黄晓明,李维嘉,沈梦辰,王霏霏,孟佳,金莎,孙丞潇,李斯丹妮,敖子逸,林述巍,董克平,侯玉瑞,徐萌,高文麒,曹雨,许菊云,朱诚心,兰桂均",
@@ -7099,7 +7099,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/38572017/",
-      "scrapedAt": "2026-08-12T01:26:24.033Z",
+      "scrapedAt": "2026-08-12T12:57:35.992Z",
       "isLive": true,
       "recommendScore": 85,
       "category": "variety",
@@ -7115,7 +7115,7 @@
       "firstSeenAt": "2026-07-30T13:54:51.728Z",
       "isNew": true,
       "yfspHotness": 17,
-      "yfspPlayRate": 21596,
+      "yfspPlayRate": 18810,
       "yfspAgeDays": 3,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
@@ -7167,7 +7167,7 @@
       "doubanMatchedTitle": "EXO的爬梯子世界旅行5 - 济州岛篇",
       "yfspHotness": 10,
       "yfspPlayRate": 26,
-      "yfspAgeDays": 3145,
+      "yfspAgeDays": 3146,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7213,7 +7213,7 @@
       "firstSeenAt": "2026-08-01T13:12:32.610Z",
       "isNew": true,
       "yfspHotness": 13,
-      "yfspPlayRate": 2284,
+      "yfspPlayRate": 2078,
       "yfspAgeDays": 5,
       "yfspReleaseDateSource": "publishTime",
       "source": "previous_output"
@@ -7245,7 +7245,7 @@
       "isAutoDiscovered": true,
       "yfspHotness": 11,
       "yfspPlayRate": 53,
-      "yfspAgeDays": 2415,
+      "yfspAgeDays": 2416,
       "yfspReleaseDateSource": "publishTime",
       "recommendScore": 83,
       "category": "variety",
@@ -7311,7 +7311,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 11,
-      "yfspPlayRate": 215,
+      "yfspPlayRate": 213,
       "yfspAgeDays": 56,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7361,7 +7361,7 @@
       "doubanMatchedTitle": "美食告白记 第一季",
       "yfspHotness": 9,
       "yfspPlayRate": 15,
-      "yfspAgeDays": 3510,
+      "yfspAgeDays": 3511,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7408,8 +7408,8 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 16,
-      "yfspPlayRate": 5353,
-      "yfspAgeDays": 21,
+      "yfspPlayRate": 5236,
+      "yfspAgeDays": 22,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7456,7 +7456,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 322,
+      "yfspPlayRate": 320,
       "yfspAgeDays": 60,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7502,7 +7502,7 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 14,
-      "yfspPlayRate": 2103,
+      "yfspPlayRate": 2027,
       "yfspAgeDays": 13,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7550,7 +7550,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 10,
-      "yfspPlayRate": 130,
+      "yfspPlayRate": 129,
       "yfspAgeDays": 50,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7601,7 +7601,7 @@
       "isNew": false,
       "yfspHotness": 10,
       "yfspPlayRate": 32,
-      "yfspAgeDays": 2780,
+      "yfspAgeDays": 2781,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7646,7 +7646,7 @@
       "isNew": false,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 419,
+      "yfspPlayRate": 416,
       "yfspAgeDays": 73,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7694,7 +7694,7 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 12,
-      "yfspPlayRate": 789,
+      "yfspPlayRate": 758,
       "yfspAgeDays": 12,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7742,8 +7742,8 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 14,
-      "yfspPlayRate": 6680,
-      "yfspAgeDays": 1,
+      "yfspPlayRate": 5030,
+      "yfspAgeDays": 2,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7788,7 +7788,7 @@
       "isNew": true,
       "source": "previous_output",
       "yfspHotness": 14,
-      "yfspPlayRate": 2160,
+      "yfspPlayRate": 2082,
       "yfspAgeDays": 13,
       "yfspReleaseDateSource": "publishTime"
     },
@@ -7835,7 +7835,7 @@
       "isNew": false,
       "yfspHotness": 8,
       "yfspPlayRate": 7,
-      "yfspAgeDays": 4971,
+      "yfspAgeDays": 4972,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7881,7 +7881,7 @@
       "isNew": false,
       "yfspHotness": 7,
       "yfspPlayRate": 4,
-      "yfspAgeDays": 2780,
+      "yfspAgeDays": 2781,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7927,7 +7927,7 @@
       "isNew": false,
       "yfspHotness": 9,
       "yfspPlayRate": 14,
-      "yfspAgeDays": 3145,
+      "yfspAgeDays": 3146,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -7977,7 +7977,7 @@
       "isNew": false,
       "yfspHotness": 14,
       "yfspPlayRate": 224,
-      "yfspAgeDays": 4606,
+      "yfspAgeDays": 4607,
       "yfspReleaseDateSource": "publishTime"
     },
     {
@@ -8027,49 +8027,89 @@
       "isNew": false,
       "yfspHotness": 8,
       "yfspPlayRate": 8,
-      "yfspAgeDays": 2780,
+      "yfspAgeDays": 2781,
       "yfspReleaseDateSource": "publishTime"
     }
   ],
   "otherDramas": [
     {
-      "id": "NKNYP287d65",
-      "title": "云秀行",
+      "id": "G3D93jBLAY4",
+      "title": "这一秒过火",
       "mediaType": "电视剧",
       "type": 4,
       "regional": "大陆",
       "lang": "国语",
-      "score": 5,
-      "playCount": 1563576,
-      "contentType": "剧情",
-      "cidMapper": "剧情·喜剧·爱情",
-      "actor": "李一桐,曾舜晞,邓为,代露娃,王以纶",
-      "description": "在传说中的九城，名门穷小姐范云和白切黑城主齐峥从彼此试探到相互信任，二人一路披荆斩棘为民谋利，最终收获友谊与爱情；范云也助齐峥平天下破陈规，解决九城危机，携手为民打造繁荣九城。",
-      "coverImg": "https://image.tmdb.org/t/p/original/6NoxYhG4ksBsPGtc7aIUtTAqWCM.jpg",
-      "updateStatus": "32集全",
+      "score": 5.7,
+      "playCount": 3693747,
+      "contentType": "爱情",
+      "cidMapper": "爱情·剧情",
+      "actor": "王楚然,张凌赫,毛孩,王籽苏,鹤秋,付辛博,沙宝亮,吴莫愁,胡杏儿,徐振轩,鹿骐",
+      "description": "《这一秒过火》讲述了民国乱世，备受冷眼的世家少爷慕容清峄与饱受苦难的复仇孤女任素素阴差阳错结缘相识。两人再重逢，却身份错位，陷入爱恨交织的极限拉扯中。二人历经世事波折与生离死别，最后携手直面乱世...",
+      "coverImg": "https://image.tmdb.org/t/p/original/4e1ycw3hY6aAtUGIsLOk80gTobn.jpg",
+      "updateStatus": "33集全",
       "updateMsg": "",
       "isSerial": false,
-      "totalEpisodes": 32,
-      "currentEpisode": 32,
+      "totalEpisodes": 33,
+      "currentEpisode": 33,
       "isComplete": true,
-      "publishTime": "2026-07-08T10:23:00Z",
+      "publishTime": "2026-08-10T12:12:00Z",
       "year": 2026,
-      "url": "https://www.themoviedb.org/tv/239901",
-      "primaryUrl": "https://www.themoviedb.org/tv/239901",
+      "url": "https://www.themoviedb.org/tv/289139",
+      "primaryUrl": "https://www.themoviedb.org/tv/289139",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
-      "doubanUrl": "https://movie.douban.com/subject/26970929/",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "doubanUrl": "https://movie.douban.com/subject/37096230/",
+      "scrapedAt": "2026-08-12T12:57:30.586Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
-      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202606201339493921573.jpg",
+      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202607191659385915776.jpg",
       "coverSource": "tmdb",
-      "tmdbUrl": "https://www.themoviedb.org/tv/239901",
+      "tmdbUrl": "https://www.themoviedb.org/tv/289139",
       "wikipediaUrl": "",
-      "imdbUrl": "https://www.imdb.com/title/tt29489359/",
+      "imdbUrl": "https://www.imdb.com/title/tt37443650/",
       "wikidataId": "",
-      "firstSeenAt": "2026-07-25T02:14:34.140Z",
+      "firstSeenAt": "2026-07-19T13:09:46.195Z",
+      "isNew": true
+    },
+    {
+      "id": "xza1KTBjxyp",
+      "title": "侠探杰克第4季",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "欧美",
+      "lang": "英语",
+      "score": 6.4,
+      "playCount": 1516,
+      "contentType": "剧情",
+      "cidMapper": "剧情·动作",
+      "actor": "阿兰·里奇森,安君,迪恩·阿姆斯特朗,马克·布鲁卡斯,凯文·考利甘",
+      "description": "雷彻在纽约地铁上察觉到一名女子形迹可疑，怀疑对方是人肉炸弹袭击者。随着调查逐步深入，他被卷入一场与恐怖组织交锋的隐秘暗战，一桩巨大阴谋浮出水面，自身性命也随之岌岌可危。",
+      "coverImg": "https://image.tmdb.org/t/p/original/dt5XNeYjR46lmVHQKiwfAmDHy9d.jpg",
+      "updateStatus": "更新到03",
+      "updateMsg": "周三",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 3,
+      "isComplete": false,
+      "publishTime": "2026-08-12T11:13:00Z",
+      "year": 2026,
+      "url": "https://www.themoviedb.org/tv/108978",
+      "primaryUrl": "https://www.themoviedb.org/tv/108978",
+      "primaryUrlSource": "tmdb",
+      "yfspUrl": "",
+      "doubanUrl": "",
+      "scrapedAt": "2026-08-12T12:57:30.586Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama",
+      "yfspCoverImg": "https://static.yfsp.tv/upload/video/202608121211511186132.gif",
+      "coverSource": "tmdb",
+      "tmdbUrl": "https://www.themoviedb.org/tv/108978",
+      "wikipediaUrl": "",
+      "imdbUrl": "https://www.imdb.com/title/tt9288030/",
+      "wikidataId": "Q109901438",
+      "firstSeenAt": "2026-08-12T13:02:24.856Z",
       "isNew": true
     },
     {
@@ -8080,7 +8120,7 @@
       "regional": "英国",
       "lang": "英语",
       "score": 7.4,
-      "playCount": 1321,
+      "playCount": 3018,
       "contentType": "剧情",
       "cidMapper": "剧情·悬疑",
       "actor": "阿德里安·斯卡伯勒,露西·菲尔普斯",
@@ -8099,7 +8139,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8120,26 +8160,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.8,
-      "playCount": 138430,
+      "playCount": 181438,
       "contentType": "剧情",
       "cidMapper": "剧情",
       "actor": "黄景瑜,蒋奇明,于和伟,闫佩伦,张佳宁",
       "description": "该剧讲述了改革开放初期1979年到1997年，陈一众、余高远、张丽慧、夏英杰、陆则铭五个法学院学生毕业后进入了司法领域不同的部门，在如火如荼的司法实践中见证历史、参与历史、与时俱进、不断成长的故...",
       "coverImg": "https://image.tmdb.org/t/p/original/2fPjN0qpF4AVWBKzxdYmkkLKdt.jpg",
-      "updateStatus": "更新到06",
+      "updateStatus": "更新到08",
       "updateMsg": "",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 6,
+      "currentEpisode": 8,
       "isComplete": false,
-      "publishTime": "2026-08-11T11:30:00Z",
+      "publishTime": "2026-08-12T11:32:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/291856",
       "primaryUrl": "https://www.themoviedb.org/tv/291856",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8160,7 +8200,7 @@
       "regional": "欧美",
       "lang": "英语",
       "score": 0,
-      "playCount": 6410,
+      "playCount": 7354,
       "contentType": "剧情",
       "cidMapper": "剧情",
       "actor": "崔茜·史皮瑞达可斯,库珀·利维,瑞恩·诺斯柯特,翠西亚·希弗",
@@ -8179,7 +8219,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
+      "scrapedAt": "2026-08-12T12:57:30.587Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8193,86 +8233,6 @@
       "isNew": true
     },
     {
-      "id": "UbpdpVN2rzI",
-      "title": "度假季",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "香港",
-      "lang": "英语",
-      "score": 5.2,
-      "playCount": 26537,
-      "contentType": "剧情",
-      "cidMapper": "剧情",
-      "actor": "林嘉欣,托比·斯蒂芬斯,李梅,钱裕扬,伊冯娜·查普曼",
-      "description": "在香港的顶级划船圈里，一群好友原本计划的夏日度假之旅却逐渐演变成了一场背叛与权力争斗，因为一些隐藏的幕后势力开始浮出水面。",
-      "coverImg": "https://image.tmdb.org/t/p/original/hKWXo8ZI5REOkTegsxPBMV1IZwL.jpg",
-      "updateStatus": "6集全",
-      "updateMsg": "周日",
-      "isSerial": false,
-      "totalEpisodes": 6,
-      "currentEpisode": 6,
-      "isComplete": true,
-      "publishTime": "2026-08-09T10:49:00Z",
-      "year": 2026,
-      "url": "https://www.themoviedb.org/tv/321623",
-      "primaryUrl": "https://www.themoviedb.org/tv/321623",
-      "primaryUrlSource": "tmdb",
-      "yfspUrl": "",
-      "doubanUrl": "https://movie.douban.com/subject/37283718/",
-      "scrapedAt": "2026-08-12T01:26:17.976Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama",
-      "yfspCoverImg": "https://static.yfsp.tv/upload/video/202608091105480566602.gif",
-      "coverSource": "tmdb",
-      "tmdbUrl": "https://www.themoviedb.org/tv/321623",
-      "wikipediaUrl": "",
-      "imdbUrl": "https://www.imdb.com/title/tt36237567/",
-      "wikidataId": "",
-      "firstSeenAt": "2026-08-09T12:44:23.721Z",
-      "isNew": true
-    },
-    {
-      "id": "G3D93jBLAY4",
-      "title": "这一秒过火",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 5.7,
-      "playCount": 3661324,
-      "contentType": "爱情",
-      "cidMapper": "爱情·剧情",
-      "actor": "王楚然,张凌赫,毛孩,王籽苏,鹤秋,付辛博,沙宝亮,吴莫愁,胡杏儿,徐振轩,鹿骐",
-      "description": "《这一秒过火》讲述了民国乱世，备受冷眼的世家少爷慕容清峄与饱受苦难的复仇孤女任素素阴差阳错结缘相识。两人再重逢，却身份错位，陷入爱恨交织的极限拉扯中。二人历经世事波折与生离死别，最后携手直面乱世...",
-      "coverImg": "https://image.tmdb.org/t/p/original/4e1ycw3hY6aAtUGIsLOk80gTobn.jpg",
-      "updateStatus": "33集全",
-      "updateMsg": "",
-      "isSerial": false,
-      "totalEpisodes": 33,
-      "currentEpisode": 33,
-      "isComplete": true,
-      "publishTime": "2026-08-10T12:12:00Z",
-      "year": 2026,
-      "url": "https://www.themoviedb.org/tv/289139",
-      "primaryUrl": "https://www.themoviedb.org/tv/289139",
-      "primaryUrlSource": "tmdb",
-      "yfspUrl": "",
-      "doubanUrl": "https://movie.douban.com/subject/37096230/",
-      "scrapedAt": "2026-08-12T01:26:18.751Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama",
-      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202607191659385915776.jpg",
-      "coverSource": "tmdb",
-      "tmdbUrl": "https://www.themoviedb.org/tv/289139",
-      "wikipediaUrl": "",
-      "imdbUrl": "https://www.imdb.com/title/tt37443650/",
-      "wikidataId": "",
-      "firstSeenAt": "2026-07-19T13:09:46.195Z",
-      "isNew": true
-    },
-    {
       "id": "vEQ16j241LF",
       "title": "九门",
       "mediaType": "电视剧",
@@ -8280,26 +8240,26 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.4,
-      "playCount": 4623150,
+      "playCount": 4814039,
       "contentType": "悬疑",
       "cidMapper": "悬疑·历险",
       "actor": "陈伟霆,陈瑶,曾舜晞,王劲松,王茂蕾,王奕婷,李乃文,释小龙",
       "description": "《九门》讲述了长沙风云再起之时，张启山（陈伟霆 饰）与吴老狗（曾舜晞 饰）强强联手，携手霍仙姑（陈瑶 饰）与九门诸人共赴冒险奇局。一桩401部队的神秘失踪事件，牵出百年尘封的惊天秘辛。生死抉择、...",
       "coverImg": "https://image.tmdb.org/t/p/original/bkyBY4EYv1htCkgmgVNfVrJ7qqW.jpg",
-      "updateStatus": "更新到23",
+      "updateStatus": "更新到24",
       "updateMsg": "",
       "isSerial": true,
       "totalEpisodes": 0,
-      "currentEpisode": 23,
+      "currentEpisode": 24,
       "isComplete": false,
-      "publishTime": "2026-08-11T08:01:00Z",
+      "publishTime": "2026-08-12T08:04:00Z",
       "year": 2026,
       "url": "https://www.themoviedb.org/tv/271016",
       "primaryUrl": "https://www.themoviedb.org/tv/271016",
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/26811535/",
-      "scrapedAt": "2026-08-12T01:26:19.961Z",
+      "scrapedAt": "2026-08-12T12:57:31.360Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8320,7 +8280,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 8.3,
-      "playCount": 6716345,
+      "playCount": 6735438,
       "contentType": "爱情",
       "cidMapper": "爱情·剧情",
       "actor": "宋威龙,张婧仪,田征,何明翰,杨雪儿,何瑞贤,练练,苗若芃,周铁,骆达华,赵龙豪,梁靖康",
@@ -8339,7 +8299,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/36618951/",
-      "scrapedAt": "2026-08-12T01:26:20.765Z",
+      "scrapedAt": "2026-08-12T12:57:32.153Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8360,7 +8320,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.1,
-      "playCount": 8265107,
+      "playCount": 8304499,
       "contentType": "爱情",
       "cidMapper": "爱情·古装",
       "actor": "何与,孟子义,孔雪儿,叶祖新,何润东,张峻宁,陈鹤一,林子烨,范帅琦,徐正溪,董子凡,赖伟明",
@@ -8379,7 +8339,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/36889962/",
-      "scrapedAt": "2026-08-12T01:26:21.539Z",
+      "scrapedAt": "2026-08-12T12:57:33.688Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8393,46 +8353,6 @@
       "isNew": true
     },
     {
-      "id": "s8mQNa4EKGF",
-      "title": "花开锦绣",
-      "mediaType": "电视剧",
-      "type": 4,
-      "regional": "大陆",
-      "lang": "国语",
-      "score": 8.1,
-      "playCount": 524281,
-      "contentType": "古装",
-      "cidMapper": "古装·爱情",
-      "actor": "丁禹兮,邓恩熙,尤靖茹,白澍,吕晓霖,张萌,迟蓬,范诗然,范湉湉,温峥嵘,董子凡,谭凯",
-      "description": "豪爽重情的私盐贩子赵凌虽出身草莽，却心怀壮志，他结识了遭人诬陷私通的世家名媛小姐傅庭芸，被迫一起逃亡，二人历经家族与朝廷的重重考验，与命运抗争，终成传奇良缘。",
-      "coverImg": "https://image.tmdb.org/t/p/original/efZaIRcLSDMIxfVcgdkiQVSCbMs.jpg",
-      "updateStatus": "更新到08",
-      "updateMsg": "",
-      "isSerial": true,
-      "totalEpisodes": 0,
-      "currentEpisode": 8,
-      "isComplete": false,
-      "publishTime": "2026-08-11T12:01:00Z",
-      "year": 2026,
-      "url": "https://www.themoviedb.org/tv/287496",
-      "primaryUrl": "https://www.themoviedb.org/tv/287496",
-      "primaryUrlSource": "tmdb",
-      "yfspUrl": "",
-      "doubanUrl": "https://movie.douban.com/subject/36810153/",
-      "scrapedAt": "2026-08-12T01:26:24.033Z",
-      "isLive": true,
-      "recommendScore": 0,
-      "category": "other_drama",
-      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202608091229232985224.jpg",
-      "coverSource": "tmdb",
-      "tmdbUrl": "https://www.themoviedb.org/tv/287496",
-      "wikipediaUrl": "",
-      "imdbUrl": "https://www.imdb.com/title/tt31886947/",
-      "wikidataId": "",
-      "firstSeenAt": "2026-08-09T12:44:23.721Z",
-      "isNew": true
-    },
-    {
       "id": "cwX4qHtZmR8",
       "title": "千香",
       "mediaType": "电视剧",
@@ -8440,7 +8360,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.3,
-      "playCount": 3456949,
+      "playCount": 3463392,
       "contentType": "古装",
       "cidMapper": "古装·爱情·奇幻",
       "actor": "宋威龙,鞠婧祎,叶盛佳,朱丽岚,刘梦芮,张志浩,郑合惠子,赵华为",
@@ -8459,7 +8379,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/35633152/",
-      "scrapedAt": "2026-08-12T01:26:27.288Z",
+      "scrapedAt": "2026-08-12T12:57:35.220Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
@@ -8473,6 +8393,126 @@
       "isNew": true
     },
     {
+      "id": "dhMKaymTa1B",
+      "title": "御廷谣",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 7.2,
+      "playCount": 3339206,
+      "contentType": "爱情",
+      "cidMapper": "爱情·古装",
+      "actor": "吴谨言,陈哲远,梁永棋,赵昭仪,张南",
+      "description": "改编自行烟烟的同名小说。孟廷辉，大平王朝有史以来个以女子进士科三元及第入翰林院的奇女子。十年前的她被他从死人堆里救出来，蓬头垢面口齿不清。十年后的她才学满腹、冠盖众人，于女子进士科上大方异彩，成...",
+      "coverImg": "https://image.tmdb.org/t/p/original/aoLCbjb0b4f4hbqAofvkyHgsogM.jpg",
+      "updateStatus": "更新到32",
+      "updateMsg": "",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 32,
+      "isComplete": false,
+      "publishTime": "2026-08-12T10:02:00Z",
+      "year": 2026,
+      "url": "https://www.themoviedb.org/tv/295599",
+      "primaryUrl": "https://www.themoviedb.org/tv/295599",
+      "primaryUrlSource": "tmdb",
+      "yfspUrl": "",
+      "doubanUrl": "https://movie.douban.com/subject/35691844/",
+      "scrapedAt": "2026-08-12T12:57:35.992Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama",
+      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202607281623422364413.jpg",
+      "coverSource": "tmdb",
+      "tmdbUrl": "https://www.themoviedb.org/tv/295599",
+      "wikipediaUrl": "",
+      "imdbUrl": "https://www.imdb.com/title/tt37937929/",
+      "wikidataId": "",
+      "firstSeenAt": "2026-08-12T13:02:24.856Z",
+      "isNew": true
+    },
+    {
+      "id": "s8mQNa4EKGF",
+      "title": "花开锦绣",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 8.3,
+      "playCount": 637654,
+      "contentType": "古装",
+      "cidMapper": "古装·爱情",
+      "actor": "丁禹兮,邓恩熙,尤靖茹,白澍,吕晓霖,张萌,迟蓬,范诗然,范湉湉,温峥嵘,董子凡,谭凯",
+      "description": "豪爽重情的私盐贩子赵凌虽出身草莽，却心怀壮志，他结识了遭人诬陷私通的世家名媛小姐傅庭芸，被迫一起逃亡，二人历经家族与朝廷的重重考验，与命运抗争，终成传奇良缘。",
+      "coverImg": "https://image.tmdb.org/t/p/original/efZaIRcLSDMIxfVcgdkiQVSCbMs.jpg",
+      "updateStatus": "更新到10",
+      "updateMsg": "",
+      "isSerial": true,
+      "totalEpisodes": 0,
+      "currentEpisode": 10,
+      "isComplete": false,
+      "publishTime": "2026-08-12T12:22:00Z",
+      "year": 2026,
+      "url": "https://www.themoviedb.org/tv/287496",
+      "primaryUrl": "https://www.themoviedb.org/tv/287496",
+      "primaryUrlSource": "tmdb",
+      "yfspUrl": "",
+      "doubanUrl": "https://movie.douban.com/subject/36810153/",
+      "scrapedAt": "2026-08-12T12:57:37.519Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama",
+      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202608091229232985224.jpg",
+      "coverSource": "tmdb",
+      "tmdbUrl": "https://www.themoviedb.org/tv/287496",
+      "wikipediaUrl": "",
+      "imdbUrl": "https://www.imdb.com/title/tt31886947/",
+      "wikidataId": "",
+      "firstSeenAt": "2026-08-09T12:44:23.721Z",
+      "isNew": true
+    },
+    {
+      "id": "NKNYP287d65",
+      "title": "云秀行",
+      "mediaType": "电视剧",
+      "type": 4,
+      "regional": "大陆",
+      "lang": "国语",
+      "score": 5,
+      "playCount": 1565737,
+      "contentType": "剧情",
+      "cidMapper": "剧情·喜剧·爱情",
+      "actor": "李一桐,曾舜晞,邓为,代露娃,王以纶",
+      "description": "在传说中的九城，名门穷小姐范云和白切黑城主齐峥从彼此试探到相互信任，二人一路披荆斩棘为民谋利，最终收获友谊与爱情；范云也助齐峥平天下破陈规，解决九城危机，携手为民打造繁荣九城。",
+      "coverImg": "https://image.tmdb.org/t/p/original/6NoxYhG4ksBsPGtc7aIUtTAqWCM.jpg",
+      "updateStatus": "32集全",
+      "updateMsg": "",
+      "isSerial": false,
+      "totalEpisodes": 32,
+      "currentEpisode": 32,
+      "isComplete": true,
+      "publishTime": "2026-07-08T10:23:00Z",
+      "year": 2026,
+      "url": "https://www.themoviedb.org/tv/239901",
+      "primaryUrl": "https://www.themoviedb.org/tv/239901",
+      "primaryUrlSource": "tmdb",
+      "yfspUrl": "",
+      "doubanUrl": "https://movie.douban.com/subject/26970929/",
+      "scrapedAt": "2026-08-12T12:57:39.020Z",
+      "isLive": true,
+      "recommendScore": 0,
+      "category": "other_drama",
+      "yfspCoverImg": "https://static.yfsp.tv/upload/user/202606201339493921573.jpg",
+      "coverSource": "tmdb",
+      "tmdbUrl": "https://www.themoviedb.org/tv/239901",
+      "wikipediaUrl": "",
+      "imdbUrl": "https://www.imdb.com/title/tt29489359/",
+      "wikidataId": "",
+      "firstSeenAt": "2026-07-25T02:14:34.140Z",
+      "isNew": true
+    },
+    {
       "id": "zPGDvwJlzVc",
       "title": "灿如繁星",
       "mediaType": "电视剧",
@@ -8480,7 +8520,7 @@
       "regional": "大陆",
       "lang": "国语",
       "score": 7.4,
-      "playCount": 2285215,
+      "playCount": 2292710,
       "contentType": "剧情",
       "cidMapper": "剧情",
       "actor": "虞书欣,陈靖可,谢可寅,马伯骞",
@@ -8499,7 +8539,7 @@
       "primaryUrlSource": "tmdb",
       "yfspUrl": "",
       "doubanUrl": "https://movie.douban.com/subject/36466246/",
-      "scrapedAt": "2026-08-12T01:26:34.601Z",
+      "scrapedAt": "2026-08-12T12:57:48.825Z",
       "isLive": true,
       "recommendScore": 0,
       "category": "other_drama",
