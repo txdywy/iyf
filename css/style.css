@@ -39,6 +39,11 @@ body {
 a { color: var(--accent-light); text-decoration: none; }
 a:hover { color: var(--pink); }
 
+:where(a, button, input, select):focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 3px;
+}
+
 /* ── Header ─────────────────────────────────────────────── */
 .header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
