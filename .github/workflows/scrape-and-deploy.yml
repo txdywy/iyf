@@ -23,7 +23,6 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
-      models: read
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -51,8 +50,8 @@ jobs:
       - name: Run Scraper
         run: node scripts/scrape.mjs
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
 
       - name: Validate scraped data

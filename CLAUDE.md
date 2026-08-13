@@ -18,11 +18,10 @@ node scripts/scrape.mjs
 # Recalculate the published recommendation scores without network calls
 node scripts/scrape.mjs --recalculate-existing
 
-# AI scoring — requires at least one token (AI runs automatically when present)
-GITHUB_TOKEN=ghp_xxx node scripts/scrape.mjs          # GitHub Models (primary, free with models:read)
-OPENROUTER_API_KEY=sk-or-xxx node scripts/scrape.mjs   # OpenRouter fallback
-
-# Both tokens recommended: GitHub Models → OpenRouter automatic fallback on 429
+# AI scoring — runs automatically when an OpenRouter key is present
+OPENROUTER_API_KEY=sk-or-xxx node scripts/scrape.mjs
+# Optional explicit model override; the default is OpenRouter's dynamic free router
+OPENROUTER_API_KEY=sk-or-xxx OPENROUTER_MODEL=openrouter/free node scripts/scrape.mjs
 
 # Serve frontend locally (must use HTTP, not file://)
 npx serve .
@@ -48,16 +47,16 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
 4. Enrich from TMDB/Wikidata/YFSP/Douban/Wikipedia, with bounded concurrency, tri-state link verification, negative caches and time budgets
 5. Reconcile status fields and compute final rule scores only after trusted-source enrichment
 6. AI scoring via `callModelsAPI()`: category-specific Korean-drama/variety prompts, batched 25/batch, versioned input-hash cache with staggered expiry
-   - Primary: GitHub Models (`openai/gpt-4.1-mini`)
-   - Fallback: at most three shuffled OpenRouter models within a shared four-minute AI budget
-   - LLM IDs, scores, booleans, reasons and descriptions are shape-checked and length-limited before use
+   - Uses OpenRouter's official `openrouter/free` dynamic route by default; `OPENROUTER_MODEL` can select an explicit model
+   - Requests use strict JSON Schema and a shared four-minute budget with a 30-second per-request deadline
+   - LLM IDs are constrained to the current batch and IDs, scores, booleans, reasons and descriptions are validated again before use
 7. Normalize output fields/URL hosts, drop non-renderable shows, and run continuity + schema guards before the atomic write
 
 **Frontend** (`js/app.js`): IIFE, conditionally fetches `data/shows.json`, renders the card grid and three optional external snapshot tabs. Remote-tab requests are abortable, versioned against stale responses, time-limited and cached for 15 minutes. External links and numeric fields are validated before rendering.
 
 **Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
 
-GitHub Actions secrets: `OPENROUTER_API_KEY` (OpenRouter fallback), `GITHUB_TOKEN` (auto-provided, needs `models: read` permission for GitHub Models API), `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images).
+GitHub Actions secrets: `OPENROUTER_API_KEY` (AI scoring) and `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images). `OPENROUTER_MODEL` is an optional Actions variable; when unset the scraper uses `openrouter/free`.
 
 ## Key Data Flow
 

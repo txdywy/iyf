@@ -84,6 +84,7 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         AI_SCORE_CACHE_VERSION,
         aiScoreShows,
         aiEvaluateDiscovery,
+        aiEnhanceDescriptions,
         isRenderableShow,
         dedupByTitle,
         titleMatches,
@@ -778,22 +779,35 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 // ── AI regressions ──────────────────────────
 {
   const openRouterCounter = { count: 0 };
+  let requestUrl = '';
+  let requestBody = null;
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: aiFetchWithContent('评分结果 [仅供参考]: [{"id":"drama-1","s":88,"r":"合适"}]', openRouterCounter),
+    fetchImpl: async (url, options) => {
+      openRouterCounter.count++;
+      requestUrl = url;
+      requestBody = JSON.parse(options.body);
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"drama-1","s":88,"r":"合适"}]}' } }] } });
+    },
   });
   const show = { id: 'drama-1', title: '浪漫律师', year: 2026, score: 8, playCount: 10000 };
   const scores = await helpers.aiScoreShows([show]);
-  assert.equal(scores.get('drama-1')?.score, 88, 'OpenRouter-only AI runs should parse bracketed-prose JSON arrays');
+  assert.equal(scores.get('drama-1')?.score, 88, 'OpenRouter-only AI runs should parse structured result objects');
   assert.equal(scores.get('drama-1')?.version, helpers.AI_SCORE_CACHE_VERSION, 'new AI results should carry the current cache version');
   assert.equal(scores.get('drama-1')?.inputHash, helpers.aiScoreInputHash(show), 'new AI results should be bound to the scored input');
   assert.equal(openRouterCounter.count, 1, 'OpenRouter-only AI runs should call the configured provider');
+  assert.equal(requestUrl, 'https://openrouter.ai/api/v1/chat/completions');
+  assert.equal(requestBody.model, 'openrouter/free', 'AI scoring should use OpenRouter\'s maintained free router by default');
+  assert.equal(requestBody.response_format?.type, 'json_schema', 'AI calls should request strict structured output');
+  assert.equal(requestBody.response_format?.json_schema?.strict, true);
+  assert.deepEqual(requestBody.response_format?.json_schema?.schema?.properties?.results?.items?.properties?.id?.enum, ['drama-1'], 'the schema must constrain output IDs to the current batch');
+  assert.equal(requestBody.provider?.require_parameters, true, 'the router should only select providers that support requested parameters');
 }
 
 {
   let messages = [];
   const { helpers } = loadScrapeHelpers({
-    env: { GITHUB_TOKEN: 'gh-test-key' },
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: async (_url, options) => {
       messages = JSON.parse(options.body).messages;
       return mockResponse({ json: { choices: [{ message: { content: '[{"id":"variety-1","s":82,"r":"轻松下饭"}]' } }] } });
@@ -815,7 +829,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 {
   const prettyCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
-    env: { GITHUB_TOKEN: 'gh-test-key' },
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: aiFetchWithContent('评分结果:\n```json\n[\n  {"id":"pretty-1","s":77,"r":"格式化 JSON"}\n]\n```', prettyCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'pretty-1', title: '格式化测试', year: 2026, score: 8, playCount: 10000 }]);
@@ -825,7 +839,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 {
   const objectCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
-    env: { GITHUB_TOKEN: 'gh-test-key' },
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: aiFetchWithContent('{"results":[{"id":"object-1","s":66,"r":"对象包装"}]}', objectCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'object-1', title: '对象包装测试', year: 2026, score: 8, playCount: 10000 }]);
@@ -833,24 +847,24 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 {
-  const githubCounter = { count: 0 };
+  const providerCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
-    env: { GITHUB_TOKEN: 'gh-test-key' },
-    fetchImpl: aiFetchWithContent('[]', githubCounter),
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: aiFetchWithContent('[]', providerCounter),
   });
   const cachedZero = { id: 'zero', title: '低分测试', aiScore: 0, aiScoredAt: new Date().toISOString(), year: 2026 };
   cachedZero.aiScoreVersion = helpers.AI_SCORE_CACHE_VERSION;
   cachedZero.aiScoreInputHash = helpers.aiScoreInputHash(cachedZero);
   const scores = await helpers.aiScoreShows([cachedZero]);
   assert.equal(scores.size, 0, 'fresh cached AI score 0 should not need rescoring');
-  assert.equal(githubCounter.count, 0, 'fresh cached AI score 0 should not call AI providers');
+  assert.equal(providerCounter.count, 0, 'fresh cached AI score 0 should not call AI providers');
 }
 
 {
-  const githubCounter = { count: 0 };
+  const providerCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
-    env: { GITHUB_TOKEN: 'gh-test-key' },
-    fetchImpl: aiFetchWithContent('[{"id":"changed","s":55,"r":"输入已变化"}]', githubCounter),
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: aiFetchWithContent('[{"id":"changed","s":55,"r":"输入已变化"}]', providerCounter),
   });
   const changed = {
     id: 'changed', title: '缓存输入变化', year: 2026, score: 8, playCount: 10000,
@@ -858,9 +872,72 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     aiScoreInputHash: 'stale-input-hash',
   };
   const scores = await helpers.aiScoreShows([changed]);
-  assert.equal(githubCounter.count, 1, 'a current-version cache entry with a stale input hash should be rescored');
+  assert.equal(providerCounter.count, 1, 'a current-version cache entry with a stale input hash should be rescored');
   assert.equal(scores.get('changed')?.score, 55, 'rescoring should replace the stale cached value, including a previous score of 0');
   assert.equal(scores.get('changed')?.inputHash, helpers.aiScoreInputHash(changed), 'the replacement score should carry the current input hash');
+}
+
+{
+  let fetchCount = 0;
+  const { helpers } = loadScrapeHelpers({
+    env: { GITHUB_TOKEN: 'retired-provider-token' },
+    fetchImpl: async () => { fetchCount++; throw new Error('retired GitHub Models must not be called'); },
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'no-provider', title: '无可用提供商', year: 2026 }]);
+  assert.equal(scores.size, 0);
+  assert.equal(fetchCount, 0, 'a GitHub token alone must not call the retired GitHub Models service');
+}
+
+{
+  let requestedModel = '';
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key', OPENROUTER_MODEL: 'vendor/custom:free' },
+    fetchImpl: async (_url, options) => {
+      requestedModel = JSON.parse(options.body).model;
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"override","s":0,"r":"明确低分"}]}' } }] } });
+    },
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'override', title: '模型覆盖测试', year: 2026 }]);
+  assert.equal(requestedModel, 'vendor/custom:free', 'OPENROUTER_MODEL should override the default router explicitly');
+  assert.equal(scores.get('override')?.score, 0, 'a valid returned score of zero must not be mistaken for a missing result');
+}
+
+{
+  const invalidCounter = { count: 0 };
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"wrong-batch-id","s":99,"r":"不应接受"},{"id":"expected-id","s":"99","r":"类型错误"}]}', invalidCounter),
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'expected-id', title: '批次边界测试', year: 2026 }]);
+  assert.equal(invalidCounter.count, 1);
+  assert.equal(scores.size, 0, 'HTTP 200 output with wrong IDs or schema types must be rejected');
+}
+
+{
+  let schemaName = '';
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      schemaName = JSON.parse(options.body).response_format?.json_schema?.name;
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"disc-1","ok":false,"s":12,"r":"内容风险"}]}' } }] } });
+    },
+  });
+  const discovered = [{ id: 'disc-1', title: '新发现', year: 2026, mediaType: '电视剧', regional: '韩国', score: 8, playCount: 10000 }];
+  const accepted = await helpers.aiEvaluateDiscovery(discovered);
+  assert.equal(schemaName, 'iyf_discovery');
+  assert.equal(accepted.length, 0, 'validated discovery decisions should filter explicitly rejected candidates');
+  assert.equal(discovered[0].aiDiscoveryScore, 12);
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"desc-1","d":"这是一段经过结构校验、适合展示的中文推荐文案。"}]}'),
+  });
+  const shows = [{ id: 'desc-1', title: '文案测试', year: 2026, description: '' }];
+  assert.equal(await helpers.aiEnhanceDescriptions(shows), 1);
+  assert.equal(shows[0].descriptionSource, 'ai');
+  assert.match(shows[0].description, /结构校验/u);
 }
 
 // ── Output filtering and de-duplication regressions ──────────────────────────
@@ -1099,6 +1176,8 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
+assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
+assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
 assert.match(scrape, /const refreshTargets = shows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
 assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
@@ -1125,6 +1204,8 @@ assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should b
 
 assert.match(workflow, /data\/history\.json/, 'workflow should include history.json in data commit handling');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
+assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
+assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.match(workflow, /paths-ignore:\n\s+- 'data\/\*\*'/, 'data-only bot commits should not retrigger the scraper workflow');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
 assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
