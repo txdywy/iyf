@@ -6,9 +6,26 @@
   'use strict';
 
   const DATA_URL = 'data/shows.json';
+  const VALID_TABS = new Set(['korean', 'year2026', 'variety2026', 'variety', 'new', 'classic', 'tvmaze', 'trakt', 'mdl']);
+  const REMOTE_CACHE_TTL_MS = 15 * 60 * 1000;
+  const REMOTE_REQUEST_TIMEOUT_MS = 12000;
+  const SOURCE_STALE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
+  const DEFAULT_SORT_BY_TAB = { new: 'newest' };
+  const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩剧时间表', trakt: 'Trakt.tv 热度', mdl: 'MyDramaList 社区' };
+  const REMOTE_LINK_HOSTS = Object.freeze({
+    tvmaze: new Set(['www.tvmaze.com']),
+    tvmazeImage: new Set(['static.tvmaze.com']),
+    trakt: new Set(['trakt.tv', 'www.trakt.tv']),
+    mdl: new Set(['mydramalist.com', 'www.mydramalist.com']),
+  });
   let allData = null;
   let currentShows = [];
   let activeTabName = 'korean';
+  const _tabSortPreferences = new Map();
+  let _tabRequestVersion = 0;
+  let _tabAbortController = null;
+  let _isTabLoading = false;
+  const _tabRequestTimeouts = new WeakMap();
 
 
   // ── 初始化 ──────────────────────────────────────────
@@ -17,20 +34,22 @@
   async function init() {
     bindTabs();
     bindFilters();
+    bindPosterFallbacks();
     await loadData();
   }
 
   async function loadData() {
     try {
-      const cacheBuster = Math.floor(Date.now() / 7200000);
-      const resp = await fetch(DATA_URL + '?t=' + cacheBuster);
+      // 保持稳定 URL，让浏览器用 ETag/Last-Modified 做条件请求。
+      const resp = await fetch(DATA_URL, { cache: 'no-cache' });
       if (!resp.ok) throw new Error('Data not found');
-      allData = await resp.json();
+      const data = await resp.json();
+      if (!isShowDataset(data)) throw new Error('Invalid show data');
+      allData = data;
       updateInfo();
       // 从 URL hash 恢复上次选择的标签,默认韩剧推荐
       const hashTab = location.hash.slice(1);
-      const validTabs = ['korean', 'year2026', 'variety2026', 'variety', 'new', 'classic'];
-      switchTab(validTabs.includes(hashTab) ? hashTab : 'korean');
+      switchTab(VALID_TABS.has(hashTab) ? hashTab : 'korean');
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('empty').style.display = 'block';
@@ -43,29 +62,55 @@
     if (!allData) return;
     const el = document.getElementById('updateInfo');
     const time = new Date(allData.lastUpdated);
-    const timeStr = time.toLocaleString('zh-CN', { hour12: false });
+    const timeStr = Number.isNaN(time.getTime()) ? '未知' : time.toLocaleString('zh-CN', { hour12: false });
     const kr = allData.stats?.koreanDramas ?? (allData.koreanDramas || []).length;
     const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
-    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺`;
+    const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
+    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}`;
   }
 
   // ── 标签切换 ──────────────────────────────────────────
   function bindTabs() {
-    document.querySelectorAll('.tab').forEach(btn => {
+    const tabs = [...document.querySelectorAll('.tab')];
+    tabs.forEach((btn, index) => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      btn.addEventListener('keydown', event => {
+        let nextIndex = null;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        if (nextIndex == null) return;
+        event.preventDefault();
+        tabs[nextIndex].focus();
+        switchTab(tabs[nextIndex].dataset.tab);
+      });
     });
   }
 
   function switchTab(tab) {
+    if (!VALID_TABS.has(tab)) tab = 'korean';
+    const requestVersion = cancelPendingTabRequest();
+    const sortSelect = document.getElementById('sortBy');
+    if (sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
     activeTabName = tab;
+    if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
     history.replaceState(null, '', '#' + tab);
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
       b.classList.toggle('active', active);
       b.setAttribute('aria-selected', active ? 'true' : 'false');
+      b.tabIndex = active ? 0 : -1;
     });
+    document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
 
     if (!allData) return;
+    if (REMOTE_TAB_LABELS[tab]) {
+      const info = document.getElementById('updateInfo');
+      if (info) info.textContent = `正在加载 ${REMOTE_TAB_LABELS[tab]}...`;
+    } else {
+      updateInfo();
+    }
 
     let shows = [];
     switch (tab) {
@@ -96,14 +141,11 @@
         ].filter(s => s.isClassic || s.score >= 8.5);
         break;
       case 'tvmaze':
-        fetchAndRenderTVmaze();
-        return;
+        return fetchAndRenderTVmaze(requestVersion);
       case 'trakt':
-        fetchAndRenderTrakt();
-        return;
+        return fetchAndRenderTrakt(requestVersion);
       case 'mdl':
-        fetchAndRenderMDL();
-        return;
+        return fetchAndRenderMDL(requestVersion);
     }
 
     currentShows = shows;
@@ -119,19 +161,33 @@
     document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300));
   }
 
+  function bindPosterFallbacks() {
+    const grid = document.getElementById('showGrid');
+    grid.addEventListener('error', event => {
+      const image = event.target;
+      if (!image || image.tagName !== 'IMG' || !image.closest('.card-poster')) return;
+      const placeholder = document.createElement('div');
+      placeholder.className = 'placeholder';
+      placeholder.textContent = image.dataset.fallbackIcon || '🎬';
+      image.replaceWith(placeholder);
+    }, true);
+  }
+
   function applyFilters(animate = false) {
+    // 异步标签仍在加载时保留 loading 状态,避免筛选事件用旧数据覆盖新标签。
+    if (_isTabLoading) return;
     let shows = [...currentShows];
 
     // 状态筛选
     const status = document.getElementById('filterStatus').value;
     if (status === 'ongoing') {
       shows = shows.filter(s => {
-        const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+        const complete = isShowComplete(s);
         return !complete;
       });
     } else if (status === 'complete') {
       shows = shows.filter(s => {
-        const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+        const complete = isShowComplete(s);
         return complete;
       });
     }
@@ -149,11 +205,11 @@
     const query = document.getElementById('searchInput').value.trim().toLowerCase();
     if (query) {
       shows = shows.filter(s =>
-        (s.title || '').toLowerCase().includes(query) ||
-        (Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : (s.titleAliases || '')).toLowerCase().includes(query) ||
-        (s.name || '').toLowerCase().includes(query) ||
-        (s.actor || '').toLowerCase().includes(query) ||
-        (s.contentType || (s.genres || []).join('/') || '').toLowerCase().includes(query)
+        toText(s.title).toLowerCase().includes(query) ||
+        toText(Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases).toLowerCase().includes(query) ||
+        toText(s.name).toLowerCase().includes(query) ||
+        toText(s.actor).toLowerCase().includes(query) ||
+        toText(s.contentType || (Array.isArray(s.genres) ? s.genres.join('/') : '')).toLowerCase().includes(query)
       );
     }
 
@@ -161,16 +217,16 @@
     const sort = document.getElementById('sortBy').value;
     switch (sort) {
       case 'recommend':
-        shows.sort((a, b) => (b.recommendScore || b.mdlRating || b.rating?.average || 0) - (a.recommendScore || a.mdlRating || a.rating?.average || 0));
+        shows.sort((a, b) => getShowNumber(b, 'recommend') - getShowNumber(a, 'recommend'));
         break;
       case 'score':
-        shows.sort((a, b) => (b.score || b.rating?.average || b.mdlRating || 0) - (a.score || a.rating?.average || a.mdlRating || 0));
+        shows.sort((a, b) => getShowNumber(b, 'score') - getShowNumber(a, 'score'));
         break;
       case 'newest':
         shows.sort((a, b) => getValidTime(b.publishTime || b.airDate || b.year) - getValidTime(a.publishTime || a.airDate || a.year));
         break;
       case 'popular':
-        shows.sort((a, b) => (b.playCount || b.watchers || 0) - (a.playCount || a.watchers || 0));
+        shows.sort((a, b) => getShowNumber(b, 'popular') - getShowNumber(a, 'popular'));
         break;
     }
 
@@ -185,6 +241,7 @@
     const empty = document.getElementById('empty');
 
     loading.style.display = 'none';
+    grid.setAttribute('aria-busy', 'false');
 
     if (!shows.length) {
       grid.innerHTML = '';
@@ -216,10 +273,7 @@
 
     const newBadge = show.isNew ? '<div class="card-new-badge">NEW</div>' : '';
 
-    const coverImg = safeExternalUrl(show.coverImg);
-    const posterContent = coverImg
-      ? `<img src="${escapeHtml(coverImg)}" alt="${escapeHtml(show.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>🎬</div>'">`
-      : '<div class="placeholder">🎬</div>';
+    const posterContent = renderPoster(show.coverImg, show.title, index, '🎬');
 
     const statusText = show.isComplete
       ? (show.totalEpisodes ? `已完结 · ${show.totalEpisodes}集` : '已完结')
@@ -231,18 +285,19 @@
 
     const statusClass = show.isComplete ? '' : 'ongoing';
 
-    const viewsText = show.playCount > 10000
-      ? (show.playCount / 10000).toFixed(1) + '万次播放'
-      : show.playCount > 0
-        ? show.playCount + '次播放'
+    const playCount = Math.max(0, toFiniteNumber(show.playCount));
+    const viewsText = playCount > 10000
+      ? (playCount / 10000).toFixed(1) + '万次播放'
+      : playCount > 0
+        ? playCount + '次播放'
         : '';
 
-    const actors = show.actor ? show.actor.split(',').slice(0, 3).join(' / ') : '';
+    const actors = toText(show.actor).split(',').filter(Boolean).slice(0, 3).join(' / ');
 
     const tags = [];
     if (show.regional) tags.push(`<span class="meta-tag region">${escapeHtml(show.regional)}</span>`);
-    if (show.contentType) {
-      show.contentType.split(/[·/]/).slice(0, 3).forEach(g => {
+    if (toText(show.contentType)) {
+      toText(show.contentType).split(/[·/]/).slice(0, 3).forEach(g => {
         tags.push(`<span class="meta-tag">${escapeHtml(g.trim())}</span>`);
       });
     }
@@ -250,7 +305,7 @@
       tags.push(`<span class="meta-tag">${escapeHtml(show.lang)}</span>`);
     }
 
-    const recommendWidth = Math.min(100, (show.recommendScore || 0) / 1.5);
+    const recommendWidth = Math.max(0, Math.min(100, toFiniteNumber(show.recommendScore) / 1.5));
 
     const actions = renderCardActions(show);
 
@@ -314,11 +369,11 @@
   function updateStats(shows) {
     const total = shows.length;
     const ongoing = shows.filter(s => {
-      const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+      const complete = isShowComplete(s);
       return !complete;
     }).length;
     const complete = shows.filter(s => {
-      const complete = s.isComplete ?? (s.status === 'Ended' || s.status === 'ended');
+      const complete = isShowComplete(s);
       return complete;
     }).length;
     const highScore = shows.filter(s => {
@@ -333,6 +388,11 @@
   }
 
   const _numTimers = new Map();
+
+  function isShowComplete(show) {
+    if (typeof show?.isComplete === 'boolean') return show.isComplete;
+    return ['ended', 'canceled', 'cancelled'].includes(toText(show?.status).toLowerCase());
+  }
 
   function animateNum(id, target) {
     const el = document.getElementById(id);
@@ -364,15 +424,73 @@
   let _cachedMaxYear = 0;
   function getCurrentDataYear() {
     if (_cachedMaxYear) return _cachedMaxYear;
-    // 从实际数据中的最大年份推导,而非更新时间戳(避免跨年时"新剧"tab 为空)
+    const clientYear = new Date().getFullYear();
+    const updatedYear = new Date(allData?.lastUpdated || 0).getFullYear();
+    const preferredYear = updatedYear >= 1900 && updatedYear <= clientYear ? updatedYear : clientYear;
     const allShows = [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || [])];
-    _cachedMaxYear = allShows.reduce((max, s) => Math.max(max, s.year || 0), 0);
-    return _cachedMaxYear || new Date().getFullYear();
+    if (allShows.some(show => toFiniteNumber(show?.year) === preferredYear)) {
+      _cachedMaxYear = preferredYear;
+      return _cachedMaxYear;
+    }
+    // 数据跨年暂未更新时回退到不晚于客户端年份的最新可用年份；待播预告不能劫持整页。
+    _cachedMaxYear = allShows.reduce((max, s) => {
+      const year = toFiniteNumber(s?.year);
+      return year >= 1900 && year <= clientYear ? Math.max(max, year) : max;
+    }, 0);
+    return _cachedMaxYear || clientYear;
   }
 
   function getValidTime(value) {
+    const year = toFiniteNumber(value, NaN);
+    if (Number.isInteger(year) && year >= 1900 && year <= 2200) return Date.UTC(year, 0, 1);
     const time = new Date(value || 0).getTime();
     return Number.isNaN(time) ? 0 : time;
+  }
+
+  function toFiniteNumber(value, fallback = 0) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+  }
+
+  function toText(value) {
+    return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  }
+
+  function toPositiveInteger(value) {
+    const number = toFiniteNumber(value, NaN);
+    return Number.isSafeInteger(number) && number > 0 ? number : 0;
+  }
+
+  function getShowNumber(show, kind) {
+    const candidates = kind === 'recommend'
+      ? [show?.recommendScore, show?.mdlRating, show?.rating?.average]
+      : kind === 'score'
+        ? [show?.score, show?.rating?.average, show?.mdlRating]
+        : [show?.playCount, show?.watchers];
+    for (const value of candidates) {
+      const number = toFiniteNumber(value, NaN);
+      if (Number.isFinite(number)) return number;
+    }
+    return 0;
+  }
+
+  function isShowDataset(value) {
+    return !!value && typeof value === 'object' &&
+      Array.isArray(value.koreanDramas) &&
+      Array.isArray(value.chineseVariety) &&
+      [...value.koreanDramas, ...value.chineseVariety].every(show => show && typeof show === 'object' && !Array.isArray(show));
+  }
+
+  function formatSourceUpdateInfo(label, value) {
+    const time = new Date(value || 0);
+    if (Number.isNaN(time.getTime())) return `${label} · 快照时间未知`;
+    const stale = Date.now() - time.getTime() > SOURCE_STALE_AFTER_MS;
+    return `${label}快照: ${time.toLocaleDateString('zh-CN')}${stale ? ' · 数据较旧' : ''}`;
+  }
+
+  function updateSourceInfo(label, value) {
+    const element = document.getElementById('updateInfo');
+    if (element) element.textContent = formatSourceUpdateInfo(label, value);
   }
 
   // 文本与属性上下文均安全：textContent→innerHTML 不会转义引号,
@@ -383,11 +501,96 @@
     return String(str).replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
   }
 
-  function safeExternalUrl(value) {
+  function safeExternalUrl(value, allowedHosts = null) {
     const url = String(value || '').trim();
-    // reject protocol-injection and attribute-breakout characters
-    if (!/^https?:\/\//i.test(url) || /["'<>]/.test(url)) return '';
-    return url;
+    // 拒绝协议注入、属性逃逸、控制字符和含凭据 URL。
+    if (!url || /["'<>\u0000-\u001F\u007F]/u.test(url)) return '';
+    try {
+      const parsed = new URL(url);
+      if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname || parsed.username || parsed.password) return '';
+      if (allowedHosts && !allowedHosts.has(parsed.hostname.toLowerCase())) return '';
+      return parsed.href;
+    } catch {
+      return '';
+    }
+  }
+
+  function renderPoster(value, title, index, fallbackIcon) {
+    const source = safeExternalUrl(value);
+    if (!source) return `<div class="placeholder">${fallbackIcon}</div>`;
+
+    const firstViewport = index < 4;
+    let responsive = '';
+    try {
+      const parsed = new URL(source);
+      if (parsed.hostname === 'image.tmdb.org' && /\/t\/p\/(?:original|w\d+)\//u.test(parsed.pathname)) {
+        const path342 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w342/');
+        const path500 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w500/');
+        const url342 = `${parsed.origin}${path342}${parsed.search}`;
+        const url500 = `${parsed.origin}${path500}${parsed.search}`;
+        responsive = ` srcset="${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w" sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, 280px"`;
+      }
+    } catch {}
+
+    return `<img src="${escapeHtml(source)}"${responsive} alt="${escapeHtml(title)}" loading="${firstViewport ? 'eager' : 'lazy'}"${firstViewport ? ' fetchpriority="high"' : ''} decoding="async" data-fallback-icon="${fallbackIcon}">`;
+  }
+
+  function cancelPendingTabRequest() {
+    _tabRequestVersion++;
+    _isTabLoading = false;
+    if (_tabAbortController) {
+      clearTimeout(_tabRequestTimeouts.get(_tabAbortController));
+      _tabAbortController.abort();
+    }
+    _tabAbortController = null;
+    return _tabRequestVersion;
+  }
+
+  function startRemoteTabRequest(requestVersion) {
+    if (requestVersion !== _tabRequestVersion) return null;
+    const controller = new AbortController();
+    _tabRequestTimeouts.set(controller, setTimeout(() => controller.abort(), REMOTE_REQUEST_TIMEOUT_MS));
+    _tabAbortController = controller;
+    _isTabLoading = true;
+    currentShows = [];
+
+    const grid = document.getElementById('showGrid');
+    grid.innerHTML = '';
+    grid.setAttribute('aria-busy', 'true');
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('empty').style.display = 'none';
+    return controller;
+  }
+
+  function isActiveTabRequest(tab, requestVersion, controller) {
+    return activeTabName === tab &&
+      requestVersion === _tabRequestVersion &&
+      controller === _tabAbortController;
+  }
+
+  function completeRemoteTab(tab, requestVersion, controller, shows) {
+    if (!isActiveTabRequest(tab, requestVersion, controller)) return false;
+    _isTabLoading = false;
+    currentShows = Array.isArray(shows) ? shows : [];
+    applyFilters(true);
+    return true;
+  }
+
+  function showRemoteTabError(tab, requestVersion, controller, message) {
+    if (!isActiveTabRequest(tab, requestVersion, controller)) return;
+    _isTabLoading = false;
+    const grid = document.getElementById('showGrid');
+    grid.setAttribute('aria-busy', 'false');
+    document.getElementById('loading').style.display = 'none';
+    const empty = document.getElementById('empty');
+    empty.style.display = 'block';
+    empty.innerHTML = `<p>${escapeHtml(message)}</p>`;
+  }
+
+  function finishRemoteTabRequest(controller) {
+    clearTimeout(_tabRequestTimeouts.get(controller));
+    _tabRequestTimeouts.delete(controller);
+    if (_tabAbortController === controller) _tabAbortController = null;
   }
 
   function debounce(fn, delay) {
@@ -399,41 +602,50 @@
   }
 
   // ── 外部数据源: TVmaze 韩剧时间表 ─────────────────────────
-  async function fetchAndRenderTVmaze() {
-    const grid = document.getElementById('showGrid');
-    const loading = document.getElementById('loading');
-    const empty = document.getElementById('empty');
-    loading.style.display = 'block';
-    empty.style.display = 'none';
-    grid.innerHTML = '';
+  let _tvmazeCache = null;
+  let _tvmazeCachedAt = 0;
+  async function fetchAndRenderTVmaze(requestVersion) {
+    const controller = startRemoteTabRequest(requestVersion);
+    if (!controller) return;
 
     try {
-      // 回溯最多 7 天找到有数据的日期(TVMaze 可能对某些日期无数据)
-      const showMap = new Map();
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
-        const data = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`).then(r => r.json());
-        for (const entry of data) {
-          const show = entry.show;
-          if (!show?.id || showMap.has(show.id)) continue;
-          showMap.set(show.id, { ...show, latestEpisode: entry, airDate: d });
+      let shows = _tvmazeCache;
+      if (!shows || Date.now() - _tvmazeCachedAt >= REMOTE_CACHE_TTL_MS) {
+        // 回溯最多 7 天找到有数据的日期(TVMaze 可能对某些日期无数据)
+        const showMap = new Map();
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+          const response = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`, { signal: controller.signal });
+          if (!response.ok) throw new Error(`TVmaze HTTP ${response.status}`);
+          const data = await response.json();
+          if (!Array.isArray(data)) throw new Error('TVmaze returned invalid data');
+          for (const entry of data) {
+            const show = entry?.show;
+            if (!show?.id || showMap.has(show.id)) continue;
+            showMap.set(show.id, { ...show, latestEpisode: entry, airDate: d });
+          }
+          if (showMap.size >= 5) break;
         }
-        if (showMap.size >= 5) break;
+        shows = [...showMap.values()].sort((a, b) => toFiniteNumber(b.rating?.average) - toFiniteNumber(a.rating?.average));
+        _tvmazeCache = shows;
+        _tvmazeCachedAt = Date.now();
       }
 
-      // 按评分降序
-      const shows = [...showMap.values()].sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0));
-      currentShows = shows;
-      applyFilters(true);
+      if (!completeRemoteTab('tvmaze', requestVersion, controller, shows)) return;
+      updateSourceInfo('TVmaze 韩剧时间表', new Date(_tvmazeCachedAt).toISOString());
 
       if (!shows.length) {
+        const empty = document.getElementById('empty');
         empty.style.display = 'block';
         empty.innerHTML = '<p>📡 今日暂无韩国电视剧播出</p>';
       }
     } catch (e) {
-      loading.style.display = 'none';
-      empty.style.display = 'block';
-      empty.innerHTML = '<p>😢 TVmaze 数据加载失败,请稍后刷新</p>';
+      const message = e?.name === 'AbortError'
+        ? '⌛ TVmaze 请求超时,请稍后重试'
+        : '😢 TVmaze 数据加载失败,请稍后刷新';
+      showRemoteTabError('tvmaze', requestVersion, controller, message);
+    } finally {
+      finishRemoteTabRequest(controller);
     }
   }
 
@@ -442,12 +654,15 @@
     const epInfo = ep ? `S${ep.season}E${ep.number}` : '';
     const airtime = ep?.airtime || '';
     const network = show.network?.name || '';
-    const genres = (show.genres || []).slice(0, 3);
-    const rating = show.rating?.average;
-    const img = show.image?.medium || show.image?.original || '';
-    const summary = (show.summary || '').replace(/<[^>]+>/g, '').slice(0, 120);
+    const genres = Array.isArray(show.genres) ? show.genres.slice(0, 3) : [];
+    const rating = toFiniteNumber(show.rating?.average, NaN);
+    const img = safeExternalUrl(show.image?.medium || show.image?.original || '', REMOTE_LINK_HOSTS.tvmazeImage);
+    const showUrl = safeExternalUrl(show.url, REMOTE_LINK_HOSTS.tvmaze);
+    const summary = toText(show.summary).replace(/<[^>]+>/g, '').slice(0, 120);
+    const complete = isShowComplete(show);
+    const statusText = complete ? '已完结' : show.status === 'Running' ? '连载中' : '待定/筹备';
     const posterContent = img
-      ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(show.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder>📺</div>'">`
+      ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(show.name)}" loading="lazy" decoding="async" data-fallback-icon="📺">`
       : '<div class="placeholder">📺</div>';
 
     return `
@@ -462,15 +677,15 @@
           <div class="card-schedule">
             ${epInfo ? `<span class="schedule-ep">${escapeHtml(epInfo)}</span>` : ''}
             ${airtime ? `<span class="schedule-time">🕐 ${escapeHtml(airtime)}</span>` : ''}
-            ${rating ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
+            ${Number.isFinite(rating) ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
           </div>
           <p class="card-desc">${escapeHtml(summary)}</p>
           <div class="card-footer">
-            <span class="card-status ${show.status === 'Running' ? 'ongoing' : ''}">${show.status === 'Running' ? '连载中' : '已完结'}</span>
+            <span class="card-status ${complete ? '' : 'ongoing'}">${statusText}</span>
             <span class="card-source-label">📡 TVmaze</span>
           </div>
           <div class="card-actions">
-            <a class="card-action source-tvmaze-link" href="${escapeHtml(show.url || '#')}" target="_blank" rel="noopener noreferrer">TVmaze 详情</a>
+            ${showUrl ? `<a class="card-action source-tvmaze-link" href="${escapeHtml(showUrl)}" target="_blank" rel="noopener noreferrer">TVmaze 详情</a>` : ''}
             <a class="card-action source-tmdb" href="https://www.themoviedb.org/search?query=${encodeURIComponent(show.name)}" target="_blank" rel="noopener noreferrer">TMDB</a>
           </div>
         </div>
@@ -478,54 +693,60 @@
   }
 
   // ── 外部数据源: Trakt.tv 全球热度 ─────────────────────────
-  let _traktShows = null;
-  async function fetchAndRenderTrakt() {
-    const grid = document.getElementById('showGrid');
-    const loading = document.getElementById('loading');
-    const empty = document.getElementById('empty');
-    loading.style.display = 'block';
-    empty.style.display = 'none';
-    grid.innerHTML = '';
+  let _traktCache = null;
+  async function fetchAndRenderTrakt(requestVersion) {
+    const controller = startRemoteTabRequest(requestVersion);
+    if (!controller) return;
 
     try {
-      if (!_traktShows) {
-        const resp = await fetch('data/trakt_shows.json');
+      if (!_traktCache) {
+        const resp = await fetch('data/trakt_shows.json', { signal: controller.signal });
         if (!resp.ok) throw new Error('Trakt data not found');
         const traktData = await resp.json();
-        _traktShows = traktData.shows || [];
+        if (!traktData || !Array.isArray(traktData.shows)) throw new Error('Invalid Trakt data');
+        _traktCache = {
+          shows: traktData.shows.filter(show => show && typeof show === 'object' && !Array.isArray(show)),
+          lastUpdated: traktData.lastUpdated,
+        };
       }
 
-      currentShows = _traktShows;
-      applyFilters(true);
+      if (!completeRemoteTab('trakt', requestVersion, controller, _traktCache.shows)) return;
+      updateSourceInfo('Trakt.tv 热度', _traktCache.lastUpdated);
 
-      if (!_traktShows.length) {
+      if (!_traktCache.shows.length) {
+        const empty = document.getElementById('empty');
         empty.style.display = 'block';
         empty.innerHTML = '<p>🔥 暂无 Trakt.tv 热度数据</p>';
       }
     } catch (e) {
-      loading.style.display = 'none';
-      empty.style.display = 'block';
-      empty.innerHTML = '<p>😢 Trakt.tv 数据加载失败</p>';
+      const message = e?.name === 'AbortError'
+        ? '⌛ Trakt.tv 请求超时,请稍后重试'
+        : '😢 Trakt.tv 数据加载失败';
+      showRemoteTabError('trakt', requestVersion, controller, message);
+    } finally {
+      finishRemoteTabRequest(controller);
     }
   }
 
   function renderTraktCard(show, index) {
-    const overview = (show.overview || '').slice(0, 150);
-    const genres = (show.genres || []).slice(0, 3);
-    const year = show.year || '';
-    const traktUrl = show.traktUrl || '';
-    const tmdbId = show.tmdbId || 0;
+    const overview = toText(show.overview).slice(0, 150);
+    const genres = Array.isArray(show.genres) ? show.genres.slice(0, 3) : [];
+    const rawYear = toPositiveInteger(show.year);
+    const year = rawYear >= 1900 && rawYear <= 2200 ? rawYear : 0;
+    const traktUrl = safeExternalUrl(show.traktUrl, REMOTE_LINK_HOSTS.trakt);
+    const tmdbId = toPositiveInteger(show.tmdbId);
+    const watchers = Math.max(0, toFiniteNumber(show.watchers));
 
     return `
       <article class="show-card source-trakt" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster"><div class="placeholder">🔥</div></div>
         <div class="card-body">
-          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${year})` : ''}</h3>
+          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${escapeHtml(String(year))})` : ''}</h3>
           ${show.titleCn ? `<div class="card-title-en">${escapeHtml(show.titleCn)}</div>` : ''}
           <div class="card-meta">
             ${genres.map(g => `<span class="meta-tag">${escapeHtml(g)}</span>`).join('')}
           </div>
-          ${show.watchers ? `<div class="card-trakt-hot">🔥 ${show.watchers.toLocaleString()} 人在追</div>` : ''}
+          ${watchers ? `<div class="card-trakt-hot">🔥 ${escapeHtml(Math.round(watchers).toLocaleString('zh-CN'))} 人在追</div>` : ''}
           <p class="card-desc">${escapeHtml(overview)}</p>
           <div class="card-footer">
             <span class="card-status ${show.status === 'ended' ? '' : 'ongoing'}">${show.status === 'ended' ? '已完结' : '连载中'}</span>
@@ -533,56 +754,65 @@
           </div>
           <div class="card-actions">
             ${traktUrl ? `<a class="card-action source-trakt-link" href="${escapeHtml(traktUrl)}" target="_blank" rel="noopener noreferrer">Trakt 详情</a>` : ''}
-            ${tmdbId ? `<a class="card-action source-tmdb" href="https://www.themoviedb.org/tv/${tmdbId}" target="_blank" rel="noopener noreferrer">TMDB</a>` : ''}
+            ${tmdbId ? `<a class="card-action source-tmdb" href="https://www.themoviedb.org/tv/${encodeURIComponent(tmdbId)}" target="_blank" rel="noopener noreferrer">TMDB</a>` : ''}
           </div>
         </div>
       </article>`;
   }
 
   // ── 外部数据源: MyDramaList 社区精选 ─────────────────────────
-  async function fetchAndRenderMDL() {
-    const grid = document.getElementById('showGrid');
-    const loading = document.getElementById('loading');
-    const empty = document.getElementById('empty');
-    loading.style.display = 'block';
-    empty.style.display = 'none';
-    grid.innerHTML = '';
+  let _mdlCache = null;
+  async function fetchAndRenderMDL(requestVersion) {
+    const controller = startRemoteTabRequest(requestVersion);
+    if (!controller) return;
 
     try {
-      const resp = await fetch('data/mdl_shows.json');
-      if (!resp.ok) throw new Error('MDL data not found');
-      const mdlData = await resp.json();
-      const shows = mdlData.shows || [];
+      if (!_mdlCache) {
+        const resp = await fetch('data/mdl_shows.json', { signal: controller.signal });
+        if (!resp.ok) throw new Error('MDL data not found');
+        const mdlData = await resp.json();
+        if (!mdlData || !Array.isArray(mdlData.shows)) throw new Error('Invalid MDL data');
+        const shows = mdlData.shows
+          .filter(show => show && typeof show === 'object' && !Array.isArray(show))
+          .map(show => ({ ...show, isComplete: true, status: 'ended' }))
+          .sort((a, b) => toFiniteNumber(b.mdlRating) - toFiniteNumber(a.mdlRating));
+        _mdlCache = { shows, lastUpdated: mdlData.lastUpdated };
+      }
 
-      // 按 MDL 评分降序
-      shows.sort((a, b) => (b.mdlRating || 0) - (a.mdlRating || 0));
-      currentShows = shows;
-      applyFilters(true);
+      if (!completeRemoteTab('mdl', requestVersion, controller, _mdlCache.shows)) return;
+      updateSourceInfo('MyDramaList 社区', _mdlCache.lastUpdated);
 
-      if (!shows.length) {
+      if (!_mdlCache.shows.length) {
+        const empty = document.getElementById('empty');
         empty.style.display = 'block';
         empty.innerHTML = '<p>🎯 暂无 MDL 社区精选数据</p>';
       }
     } catch (e) {
-      loading.style.display = 'none';
-      empty.style.display = 'block';
-      empty.innerHTML = '<p>😢 MDL 社区精选数据加载失败</p>';
+      const message = e?.name === 'AbortError'
+        ? '⌛ MDL 请求超时,请稍后重试'
+        : '😢 MDL 社区精选数据加载失败';
+      showRemoteTabError('mdl', requestVersion, controller, message);
+    } finally {
+      finishRemoteTabRequest(controller);
     }
   }
 
   function renderMDLCard(show, index) {
-    const genres = (show.genres || []).slice(0, 3);
-    const tags = (show.tags || []).slice(0, 3);
-    const year = show.year || '';
-    const rating = show.mdlRating || 0;
-    const watchers = show.watchers || 0;
-    const description = show.description || '';
+    const genres = Array.isArray(show.genres) ? show.genres.slice(0, 3) : [];
+    const tags = Array.isArray(show.tags) ? show.tags.slice(0, 3) : [];
+    const rawYear = toPositiveInteger(show.year);
+    const year = rawYear >= 1900 && rawYear <= 2200 ? rawYear : 0;
+    const rating = Math.max(0, Math.min(10, toFiniteNumber(show.mdlRating)));
+    const watchers = Math.max(0, toFiniteNumber(show.watchers));
+    const episodes = toPositiveInteger(show.episodes);
+    const description = toText(show.description).slice(0, 500);
+    const mdlUrl = safeExternalUrl(show.mdlUrl, REMOTE_LINK_HOSTS.mdl);
 
     return `
       <article class="show-card source-mdl" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster"><div class="placeholder">🎯</div></div>
         <div class="card-body">
-          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${year})` : ''}</h3>
+          <h3 class="card-title">${escapeHtml(show.title)}${year ? ` (${escapeHtml(String(year))})` : ''}</h3>
           ${show.titleEn ? `<div class="card-title-en">${escapeHtml(show.titleEn)}</div>` : ''}
           <div class="card-meta">
             ${show.network ? `<span class="meta-tag region">${escapeHtml(show.network)}</span>` : ''}
@@ -591,15 +821,15 @@
           ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="mdl-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
           <div class="card-mdl-stats">
             <span class="mdl-rating">⭐ ${rating.toFixed(1)}/10</span>
-            ${watchers ? `<span class="mdl-watchers">👁 ${watchers >= 1000 ? (watchers / 1000).toFixed(1) + 'k' : watchers} watchers</span>` : ''}
+            ${watchers ? `<span class="mdl-watchers">👁 ${escapeHtml(watchers >= 1000 ? (watchers / 1000).toFixed(1) + 'k' : String(Math.round(watchers)))} watchers</span>` : ''}
           </div>
           <p class="card-desc">${escapeHtml(description)}</p>
           <div class="card-footer">
-            <span class="card-status">${show.episodes ? show.episodes + '集完结' : '已完结'}</span>
+            <span class="card-status">${episodes ? escapeHtml(String(episodes)) + '集完结' : '已完结'}</span>
             <span class="card-source-label">🎯 MyDramaList</span>
           </div>
           <div class="card-actions">
-            ${show.mdlUrl ? `<a class="card-action source-mdl-link" href="${escapeHtml(show.mdlUrl)}" target="_blank" rel="noopener noreferrer">MDL 详情</a>` : ''}
+            ${mdlUrl ? `<a class="card-action source-mdl-link" href="${escapeHtml(mdlUrl)}" target="_blank" rel="noopener noreferrer">MDL 详情</a>` : ''}
             <a class="card-action source-tmdb" href="https://www.themoviedb.org/search?query=${encodeURIComponent(show.titleEn || show.title)}" target="_blank" rel="noopener noreferrer">TMDB</a>
           </div>
         </div>

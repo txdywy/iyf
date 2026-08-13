@@ -1,0 +1,66 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'data/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Regression & data validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.node-version'
+          package-manager-cache: false
+
+      - name: Syntax checks
+        run: |
+          node --check js/app.js
+          node --check scripts/scrape.mjs
+          node --check scripts/regression-tests.mjs
+          node --check scripts/build-public-data.mjs
+          node --check scripts/validate-data.mjs
+
+      - name: Regression tests
+        run: node --test
+
+      - name: Validate data and public artifact
+        run: |
+          node scripts/validate-data.mjs
+          node scripts/build-public-data.mjs --output "$RUNNER_TEMP/shows.json"
+
+      - name: Reject whitespace errors (pull request)
+        if: github.event_name == 'pull_request'
+        run: git diff --check "$BASE_SHA...HEAD"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
+      - name: Reject whitespace errors (push)
+        if: github.event_name == 'push'
+        run: |
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            git show --check --oneline HEAD
+          else
+            git diff --check "$BEFORE_SHA..$GITHUB_SHA"
+          fi
+        env:
+          BEFORE_SHA: ${{ github.event.before }}

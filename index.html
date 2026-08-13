@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.tvmaze.com; img-src 'self' https: data:; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>韩剧 & 轻松搞笑综艺推荐 - 新剧新综不错过</title>
   <meta name="description" content="精选韩剧和国内轻松搞笑综艺推荐,奔跑吧、王牌对王牌、现在就出发等新综实时追踪,轻松搞笑不踩雷">
   <meta name="theme-color" content="#0f0f13">
@@ -24,22 +26,22 @@
       <div class="container">
         <h1 class="logo">🎬 剧荒救星</h1>
         <p class="subtitle">韩剧精选 & 轻松搞笑新综追踪 · 剧荒救星</p>
-        <div class="update-info" id="updateInfo">加载中...</div>
+        <div class="update-info" id="updateInfo" role="status" aria-live="polite">加载中...</div>
       </div>
     </header>
 
     <!-- 导航标签 -->
     <nav class="tabs" aria-label="内容分类">
       <div class="container" role="tablist">
-        <button class="tab active" data-tab="korean" role="tab" aria-selected="true">🇰🇷 韩剧推荐</button>
-        <button class="tab" data-tab="year2026" role="tab" aria-selected="false">🔥 新剧</button>
-        <button class="tab" data-tab="variety2026" role="tab" aria-selected="false">😂 新综艺</button>
-        <button class="tab" data-tab="variety" role="tab" aria-selected="false">🎬 全部综艺</button>
-        <button class="tab" data-tab="new" role="tab" aria-selected="false">🆕 最新更新</button>
-        <button class="tab" data-tab="classic" role="tab" aria-selected="false">🏆 经典必看</button>
-        <button class="tab" data-tab="tvmaze" role="tab" aria-selected="false">📡 韩剧时间表</button>
-        <button class="tab" data-tab="trakt" role="tab" aria-selected="false">🔥 全球热度</button>
-        <button class="tab" data-tab="mdl" role="tab" aria-selected="false">🎯 社区精选</button>
+        <button id="tab-korean" class="tab active" data-tab="korean" role="tab" aria-controls="showGrid" aria-selected="true" tabindex="0">🇰🇷 韩剧推荐</button>
+        <button id="tab-year2026" class="tab" data-tab="year2026" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🔥 新剧</button>
+        <button id="tab-variety2026" class="tab" data-tab="variety2026" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">😂 新综艺</button>
+        <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🎬 全部综艺</button>
+        <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🆕 最新更新</button>
+        <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🏆 经典必看</button>
+        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">📡 韩剧时间表</button>
+        <button id="tab-trakt" class="tab" data-tab="trakt" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🔥 热度快照</button>
+        <button id="tab-mdl" class="tab" data-tab="mdl" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🎯 社区快照</button>
       </div>
     </nav>
 
@@ -48,7 +50,7 @@
       <div class="container">
         <div class="filter-row">
           <div class="filter-group">
-            <label>状态</label>
+            <label for="filterStatus">状态</label>
             <select id="filterStatus">
               <option value="all">全部</option>
               <option value="ongoing">连载中</option>
@@ -56,7 +58,7 @@
             </select>
           </div>
           <div class="filter-group">
-            <label>评分</label>
+            <label for="filterScore">评分</label>
             <select id="filterScore">
               <option value="0">不限</option>
               <option value="7">7分以上</option>
@@ -65,7 +67,7 @@
             </select>
           </div>
           <div class="filter-group">
-            <label>排序</label>
+            <label for="sortBy">排序</label>
             <select id="sortBy">
               <option value="recommend">推荐优先</option>
               <option value="score">评分最高</option>
@@ -74,7 +76,7 @@
             </select>
           </div>
           <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜索剧名/演员..." aria-label="搜索剧名或演员">
+            <input type="search" id="searchInput" placeholder="搜索剧名/演员..." aria-label="搜索剧名或演员" autocomplete="off">
           </div>
         </div>
       </div>
@@ -105,14 +107,14 @@
     <!-- 内容区域 -->
     <main class="content">
       <div class="container">
-        <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果">
+        <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-busy="true">
           <!-- JS 动态渲染 -->
         </div>
-        <div class="loading" id="loading">
+        <div class="loading" id="loading" role="status" aria-live="polite">
           <div class="spinner"></div>
           <p>正在加载推荐数据...</p>
         </div>
-        <div class="empty" id="empty" style="display:none">
+        <div class="empty" id="empty" role="status" aria-live="polite" style="display:none">
           <p>😢 暂无符合条件的推荐</p>
         </div>
       </div>

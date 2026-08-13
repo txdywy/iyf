@@ -2097,21 +2097,6 @@
     "doubanId": "37816907",
     "doubanMatchedTitle": "密室大逃脱 第八季"
   },
-  "seed_var_c01": {
-    "title": "奔跑吧兄弟",
-    "url": "https://image.tmdb.org/t/p/original/15SMnscZqd7HZ0bzruatOcKUlOV.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "Running Man",
-    "matchedTitle": "Running Man",
-    "tmdbId": 33238,
-    "tmdbUrl": "https://www.themoviedb.org/tv/33238",
-    "doubanUrl": "https://movie.douban.com/subject/10509888/",
-    "wikipediaUrl": "https://zh.wikipedia.org/wiki/Running_Man",
-    "imdbUrl": "https://www.imdb.com/title/tt2185037/",
-    "wikidataId": "Q21149",
-    "cachedAt": "2026-05-10T06:37:28.162Z"
-  },
   "seed_var_c02": {
     "title": "极限挑战第一季",
     "url": "https://image.tmdb.org/t/p/original/nYsiHMplUCBFazdAOVr1gQaGy34.jpg",
@@ -2323,13 +2308,6 @@
     "doubanId": "26864144",
     "doubanMatchedTitle": "跨界喜剧王 第一季"
   },
-  "PtVOviJzz0Q": {
-    "title": "喜剧者联盟",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.003Z"
-  },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
     "url": "https://image.tmdb.org/t/p/original/lO1kFUW4lF8gzi391r1vqaLCPEo.jpg",
@@ -2346,13 +2324,6 @@
     "cachedAt": "2026-05-10T06:37:46.621Z",
     "doubanId": "35165372",
     "doubanMatchedTitle": "脱口秀反跨年"
-  },
-  "Q8jNTFG8D0D": {
-    "title": "嘴强王者脱口秀之夜",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:34.996Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -2653,13 +2624,6 @@
     "cachedAt": "2026-06-02T12:56:58.255Z",
     "doubanId": "37480845",
     "doubanMatchedTitle": "刘在锡的民宿法则！"
-  },
-  "Z6XpGL4fvC2": {
-    "title": "姐姐对我来说是女人2",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.531Z"
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -3430,13 +3394,6 @@
     "wikidataId": "",
     "cachedAt": "2026-06-22T03:44:08.189Z"
   },
-  "MIutqyuwmKV": {
-    "title": "传奇办公室：中央情报第2季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-23T12:46:18.141Z"
-  },
   "m9vXBrcGOnF": {
     "title": "明天也要上班！",
     "url": "https://image.tmdb.org/t/p/original/qyWHhqbL6wbZeOCOwcfyAPQ3emk.jpg",
@@ -3453,30 +3410,6 @@
     "cachedAt": "2026-06-23T12:46:16.307Z",
     "doubanId": "37335462",
     "doubanMatchedTitle": "明天也要上班！"
-  },
-  "ZbJvbchbfWF": {
-    "title": "龙之家族第3季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-23T12:46:17.726Z"
-  },
-  "lUGFm0mawCB": {
-    "title": "忙忙碌碌寻宝藏·双人成行季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-03T02:24:18.588Z"
-  },
-  "gnNdLKuQ6Q3": {
-    "title": "顾问：书写死亡的男人",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-23T13:41:44.089Z",
-    "doubanUrl": "https://movie.douban.com/subject/37657579/",
-    "doubanId": "37657579",
-    "doubanMatchedTitle": "顾问：书写死亡的男人"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜",
@@ -3765,13 +3698,6 @@
     "doubanId": "27168175",
     "doubanMatchedTitle": "美食告白记 第一季"
   },
-  "bP71pZj8e7B": {
-    "title": "花儿与少年露营季Plus版",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-04T13:59:57.423Z"
-  },
   "jYWMjbpslLB": {
     "title": "感性露营",
     "url": "https://image.tmdb.org/t/p/original/kSxtUnAbhbwo7pmZomrV4bn1yvY.jpg",
@@ -3786,41 +3712,6 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-06-24T03:32:47.484Z"
-  },
-  "Ge7zvNr66y0": {
-    "title": "闺蜜的完美旅行",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:34.997Z"
-  },
-  "EgY2XLj7aM8": {
-    "title": "中国音乐公告牌",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:36.105Z"
-  },
-  "DngLFF0zUTI": {
-    "title": "继续宠爱十年音乐会",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.573Z"
-  },
-  "sPVy0ETHyT9": {
-    "title": "星期三是音乐节目",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.577Z"
-  },
-  "Vl9gticCaM3": {
-    "title": "改造露营车",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.009Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3947,13 +3838,6 @@
     "cachedAt": "2026-06-27T02:44:18.461Z",
     "doubanId": "37523009",
     "doubanMatchedTitle": "金特务：本色回归"
-  },
-  "kvF9L7KIOZA": {
-    "title": "从现在开始，不做朋友了吧",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-27T02:44:20.303Z"
   },
   "iGdaiZejfFA": {
     "title": "说唱巅峰对决",
@@ -4102,13 +3986,6 @@
     "doubanId": "37106219",
     "doubanMatchedTitle": "野樱桃"
   },
-  "pTKPMzhBQPV": {
-    "title": "非份之罪(粤)",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-06-29T15:39:26.245Z"
-  },
   "xkJrLBhZyCJ": {
     "title": "机器人女友",
     "url": "https://image.tmdb.org/t/p/original/JeTjIZhyE5cuqZeHBULmsUu9ni.jpg",
@@ -4186,13 +4063,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-03T02:32:53.880Z"
   },
-  "TuqOOE4DcA5": {
-    "title": "坠落就结束",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-03T02:32:53.892Z"
-  },
   "fNsVwGCpY29": {
     "title": "旋转亮片",
     "url": "https://image.tmdb.org/t/p/original/8SDMfPsVtfvDejURUH12zoVQhii.jpg",
@@ -4208,13 +4078,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-03T02:32:53.906Z"
   },
-  "4mZyairrX6R": {
-    "title": "在勿忘草盛开的城镇",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-03T02:32:54.539Z"
-  },
   "sswErGFnmtA": {
     "title": "悬案",
     "url": "https://image.tmdb.org/t/p/original/IgAmsxI2xFxUcHZRvEyEpl1myv.jpg",
@@ -4229,13 +4092,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt34625797/",
     "wikidataId": "",
     "cachedAt": "2026-07-03T13:53:50.047Z"
-  },
-  "lxEPTxnpJf2": {
-    "title": "羊毛战记第3季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-03T13:53:51.251Z"
   },
   "yqOyPip9uHV": {
     "title": "嫁入高门",
@@ -4283,16 +4139,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt21200262/",
     "wikidataId": "Q119658054",
     "cachedAt": "2026-07-04T13:15:07.995Z"
-  },
-  "wQLIPhzyQUA": {
-    "title": "致亲爱的丈夫完美妻子的谎言",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-04T02:30:53.419Z",
-    "doubanUrl": "https://movie.douban.com/subject/38484693/",
-    "doubanId": "38484693",
-    "doubanMatchedTitle": "致亲爱的丈夫~完美妻子的谎言~"
   },
   "02AxbVJ5IhD": {
     "title": "共感细胞",
@@ -4378,13 +4224,6 @@
     "cachedAt": "2026-07-06T02:44:33.231Z",
     "doubanId": "38397649",
     "doubanMatchedTitle": "孤单又灿烂的神：鬼怪十周年特辑"
-  },
-  "XANYznrCsb5": {
-    "title": "夫妇与16岁 疯狂的邻居",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-06T15:22:44.793Z"
   },
   "E7BknX24faE": {
     "title": "我的虚构",
@@ -4516,13 +4355,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-08T02:13:47.045Z"
   },
-  "vNvwcbQR2o6": {
-    "title": "35岁现在恋爱什么的也太不现实了",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-08T02:13:47.555Z"
-  },
   "14EVncaObc3": {
     "title": "密室大逃脱",
     "url": "https://image.tmdb.org/t/p/original/yq6gJUXCFimaq1V8zvA27R2eODW.jpg",
@@ -4571,16 +4403,6 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-07-09T02:32:44.771Z"
-  },
-  "20QLUfECsB5": {
-    "title": "想要幸福的政宗君",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-09T14:48:12.431Z",
-    "doubanUrl": "https://movie.douban.com/subject/38500381/",
-    "doubanId": "38500381",
-    "doubanMatchedTitle": "想要幸福的政宗君"
   },
   "4ONZA5o0339": {
     "title": "尝试第5季",
@@ -4674,20 +4496,6 @@
     "wikidataId": "Q132521516",
     "cachedAt": "2026-07-10T02:34:23.796Z"
   },
-  "CrISphy8gr0": {
-    "title": "老公要求我去出轨",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-10T14:12:15.261Z"
-  },
-  "IjmIW0s3NxF": {
-    "title": "胖者生存第3季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-11T13:09:34.263Z"
-  },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
     "url": "https://image.tmdb.org/t/p/original/wioBS4QkmoHO0C35zlz00JlsrDd.jpg",
@@ -4720,13 +4528,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-11T13:09:33.135Z"
   },
-  "LUzX5AeNDqK": {
-    "title": "夫妻的博弈(粤)",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-11T13:09:33.697Z"
-  },
   "ihZeoA7mtc6": {
     "title": "公寓黑风暴",
     "url": "https://image.tmdb.org/t/p/original/86V2NsVkdMsC8JTjnBF3uo0lIIJ.jpg",
@@ -4744,13 +4545,6 @@
     "doubanId": "37517390",
     "doubanMatchedTitle": "公寓黑风暴"
   },
-  "uuVXeTESwn9": {
-    "title": "天籁与少年",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-11T12:55:29.176Z"
-  },
   "oGL69bMcUv2": {
     "title": "四大元素之火之爱链",
     "url": "https://image.tmdb.org/t/p/original/3TYyy6SrirPMr3xBeG6PUriWD1A.jpg",
@@ -4765,20 +4559,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt36626299/",
     "wikidataId": "",
     "cachedAt": "2026-07-12T02:15:34.554Z"
-  },
-  "2xtfBWOACJ3": {
-    "title": "直到T恤干透",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-13T02:22:41.570Z"
-  },
-  "TQJpa0jBA16": {
-    "title": "夏色之云掀起恋爱与风暴",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-13T02:22:41.543Z"
   },
   "JCN8d4yymyC1": {
     "title": "小芳",
@@ -4824,13 +4604,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt27096916/",
     "wikidataId": "",
     "cachedAt": "2026-07-13T14:23:55.679Z"
-  },
-  "Y9tyuLlrLXJ": {
-    "title": "告白：第25年的秘密",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-13T14:23:56.079Z"
   },
   "DWuXixzVc2F": {
     "title": "给你梦想",
@@ -4939,13 +4712,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-16T02:09:21.728Z"
   },
-  "z9iOF255MaV": {
-    "title": "赴汤蹈火",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-17T13:48:12.431Z"
-  },
   "Vzb9sJrzEgK": {
     "title": "鬼谜东宫",
     "url": "https://image.tmdb.org/t/p/original/rq60ZPk4gUD3uTmvf1yDE4iMvTK.jpg",
@@ -5007,13 +4773,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt42206320/",
     "wikidataId": "Q140564833",
     "cachedAt": "2026-07-18T02:01:51.048Z"
-  },
-  "APmCF6AO3h5": {
-    "title": "未婚欺诈我所不知他的真面目",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-18T02:01:51.276Z"
   },
   "ByyzgfFR87A0": {
     "title": "爱来了别错过2026",
@@ -5297,13 +5056,6 @@
     "wikidataId": "Q94527193",
     "cachedAt": "2026-07-23T13:46:49.646Z"
   },
-  "YslFQPrSxY0": {
-    "title": "圆桌晚晴派",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-13T01:28:35.544Z"
-  },
   "vfxyDD2E7YN": {
     "title": "大空港GATE24",
     "url": "https://image.tmdb.org/t/p/original/axY8zSLIjUoaThP1RxxoBfdDUnH.jpg",
@@ -5394,13 +5146,6 @@
     "wikidataId": "",
     "cachedAt": "2026-07-26T02:24:10.923Z"
   },
-  "Wz59d0ZiUzP": {
-    "title": "八神瑛子：上野中央署组织犯罪对策课",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-26T13:10:23.835Z"
-  },
   "mHLrqVBpTu1": {
     "title": "家乡美食大赛",
     "url": "https://image.tmdb.org/t/p/original/1ZOAVVMtbtnDmBxwlzfv8iU53ZP.jpg",
@@ -5417,13 +5162,6 @@
     "cachedAt": "2026-07-30T13:50:59.942Z",
     "doubanId": "38572017",
     "doubanMatchedTitle": "家乡美食大赛"
-  },
-  "ZpHzQuTPB2J": {
-    "title": "皇家造型师",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-28T02:05:19.364Z"
   },
   "gv4oVHx5oVC": {
     "title": "兰森峡谷第2季",
@@ -5454,13 +5192,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt43712007/",
     "wikidataId": "",
     "cachedAt": "2026-07-27T14:23:00.315Z"
-  },
-  "qUIJG76lqG4": {
-    "title": "行尸走肉：死城第3季",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-07-30T01:58:16.292Z"
   },
   "J7Rr1gDSle1": {
     "title": "VIVANT第2季",
@@ -5667,13 +5398,6 @@
     "doubanId": "38556192",
     "doubanMatchedTitle": "谋杀俱乐部"
   },
-  "EpK6UTbpgT6": {
-    "title": "现在不是出轨的问题",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-02T02:21:51.060Z"
-  },
   "by4YL00y8hq": {
     "title": "宇宙年糕店",
     "url": "https://image.tmdb.org/t/p/original/dp8lfZ4iRErqgQzFufNuFAgC8G4.jpg",
@@ -5767,13 +5491,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt37831535/",
     "wikidataId": "",
     "cachedAt": "2026-08-02T13:14:41.365Z"
-  },
-  "2J9w0TaYRyJ": {
-    "title": "你的天空晴转恋",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-02T13:14:41.911Z"
   },
   "f8osMbIWdXB": {
     "title": "校园暗恋警报",
@@ -5918,16 +5635,6 @@
     "doubanId": "37194459",
     "doubanMatchedTitle": "菜鸟炊事兵"
   },
-  "yQ1Mop9td1I": {
-    "title": "时光旅行老爸",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-05T02:03:37.839Z",
-    "doubanUrl": "https://movie.douban.com/subject/38556716/",
-    "doubanId": "38556716",
-    "doubanMatchedTitle": "时光旅行老爸"
-  },
   "sGZbnWpDs1B": {
     "title": "足球教练第4季",
     "url": "https://image.tmdb.org/t/p/original/oe5z6bzSg2IVi4oa3gtS4yR4sKJ.jpg",
@@ -6011,13 +5718,6 @@
     "doubanId": "37233536",
     "doubanMatchedTitle": "我的荒糖恋爱"
   },
-  "ibi0Ecsy8Q0": {
-    "title": "姐姐快醒醒",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-11T01:21:50.628Z"
-  },
   "6oHwyySKEP2": {
     "title": "财阀X刑警第2季",
     "url": "https://image.tmdb.org/t/p/original/aSq93L2Ux3r44WUu9KBAKOdZik0.jpg",
@@ -6049,13 +5749,6 @@
     "cachedAt": "2026-08-08T01:16:36.367Z",
     "doubanId": "37218815",
     "doubanMatchedTitle": "斯特林角"
-  },
-  "3A8Bfmgyizo": {
-    "title": "换座位后发现身后的男生好像喜欢我",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-08T01:16:37.041Z"
   },
   "rilrengGylU": {
     "title": "我与沃尔特家男孩的生活第3季",
@@ -6103,13 +5796,6 @@
     "cachedAt": "2026-08-09T01:19:50.018Z",
     "doubanId": "37315469",
     "doubanMatchedTitle": "指尖浪漫 第二季"
-  },
-  "RhJUnSac02F": {
-    "title": "伦敦合伙人",
-    "source": "tmdb",
-    "version": 14,
-    "notFound": true,
-    "cachedAt": "2026-08-12T12:59:42.209Z"
   },
   "s8mQNa4EKGF": {
     "title": "花开锦绣",

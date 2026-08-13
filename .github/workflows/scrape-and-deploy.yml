@@ -10,35 +10,32 @@ on:
     paths-ignore:
       - 'data/**'
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-  models: read
+permissions: {}
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  scrape-and-deploy:
-    name: 抓取数据 & 部署
+  scrape:
+    name: 抓取数据 & 构建站点
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
+      models: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
+          package-manager-cache: false
 
       - name: Run regression tests
-        run: node scripts/regression-tests.mjs
+        run: node --test
 
       - name: Validate TMDB_TOKEN
         run: |
@@ -58,9 +55,22 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
 
+      - name: Validate scraped data
+        run: node scripts/validate-data.mjs
+
       - name: Commit updated data
         run: |
           if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json; then
+            # 抓取和校验耗时较长。若期间 main 已前进，不能把旧抓取器生成的数据
+            # rebase 到新 schema 上；新 main push 已会排队触发一次完整工作流。
+            git fetch --no-tags origin main
+            base_sha="$GITHUB_SHA"
+            remote_sha="$(git rev-parse origin/main)"
+            if [ "$remote_sha" != "$base_sha" ]; then
+              echo "::error::main advanced from $base_sha to $remote_sha while scraping; refusing to publish stale-schema data."
+              exit 1
+            fi
+
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add data/shows.json data/image_cache.json data/discovery.json
@@ -68,23 +78,23 @@ jobs:
             git commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
 
             pushed=false
+            local_sha="$(git rev-parse HEAD)"
             for i in 1 2 3; do
-              if git pull --rebase origin main; then
-                if git push origin main; then
-                  pushed=true
-                  break
-                fi
-              else
-                # Resolve data file conflicts: keep our freshly scraped data commit.
-                # During rebase: --theirs = local commit, --ours = remote main.
-                git checkout --theirs data/shows.json data/image_cache.json data/discovery.json data/history.json 2>/dev/null || true
-                git add data/shows.json data/image_cache.json data/discovery.json
-                git add -f data/history.json
-                if GIT_EDITOR=true git rebase --continue && git push origin main; then
-                  pushed=true
-                  break
-                fi
-                git rebase --abort 2>/dev/null || true
+              if git push origin HEAD:main; then
+                pushed=true
+                break
+              fi
+
+              git fetch --no-tags origin main
+              remote_sha="$(git rev-parse origin/main)"
+              if [ "$remote_sha" = "$local_sha" ]; then
+                # The server accepted the push but the client lost the response.
+                pushed=true
+                break
+              fi
+              if [ "$remote_sha" != "$base_sha" ]; then
+                echo "::error::main advanced to $remote_sha before the data push; refusing to rebase stale-schema output."
+                exit 1
               fi
               echo "Push attempt $i failed, retrying..."
               sleep 5
@@ -96,23 +106,35 @@ jobs:
             fi
           fi
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
       - name: Build Pages artifact
         run: |
           mkdir -p site/data
           cp index.html site/
           cp -R css js site/
-          cp data/shows.json site/data/
+          node scripts/build-public-data.mjs --output site/data/shows.json
           cp data/mdl_shows.json site/data/
           cp data/trakt_shows.json site/data/
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: 'site'
 
+  deploy:
+    name: 部署 GitHub Pages
+    needs: scrape
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
