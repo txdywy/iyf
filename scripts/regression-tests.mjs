@@ -805,6 +805,31 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 {
+  const batchSizes = [];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      batchSizes.push(ids.length);
+      return mockResponse({ json: { choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, s: 70, r: '批次结果' })),
+      }) } }] } });
+    },
+  });
+  const shows = Array.from({ length: 11 }, (_, index) => ({
+    id: `batch-${index}`,
+    title: `批次测试${index}`,
+    year: 2026,
+    score: 8,
+    playCount: 10000,
+  }));
+  const scores = await helpers.aiScoreShows(shows);
+  assert.deepEqual(batchSizes, [10, 1], 'AI batches should stay small enough for the free router to finish structured output');
+  assert.equal(scores.size, 11);
+}
+
+{
   let messages = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1177,6 +1202,9 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
 assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
+assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded for free-router latency');
+assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
+assert.match(scrape, /timeout = 60000,/, 'individual free-router requests should allow a complete structured response');
 assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
 assert.match(scrape, /const refreshTargets = shows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
@@ -1205,6 +1233,7 @@ assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should b
 assert.match(workflow, /data\/history\.json/, 'workflow should include history.json in data commit handling');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
 assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
+assert.match(workflow, /name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: 25/, 'the scrape job should leave room for its bounded AI latency budget');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.match(workflow, /paths-ignore:\n\s+- 'data\/\*\*'/, 'data-only bot commits should not retrigger the scraper workflow');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');

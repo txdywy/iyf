@@ -46,9 +46,9 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
 3. Discover new shows via dynamic current-year keyword search
 4. Enrich from TMDB/Wikidata/YFSP/Douban/Wikipedia, with bounded concurrency, tri-state link verification, negative caches and time budgets
 5. Reconcile status fields and compute final rule scores only after trusted-source enrichment
-6. AI scoring via `callModelsAPI()`: category-specific Korean-drama/variety prompts, batched 25/batch, versioned input-hash cache with staggered expiry
+6. AI scoring via `callModelsAPI()`: category-specific Korean-drama/variety prompts, batched 10/batch, versioned input-hash cache with staggered expiry
    - Uses OpenRouter's official `openrouter/free` dynamic route by default; `OPENROUTER_MODEL` can select an explicit model
-   - Requests use strict JSON Schema and a shared four-minute budget with a 30-second per-request deadline
+   - Requests use strict JSON Schema and a shared eight-minute budget with a 60-second per-request deadline, sized for free-router latency
    - LLM IDs are constrained to the current batch and IDs, scores, booleans, reasons and descriptions are validated again before use
 7. Normalize output fields/URL hosts, drop non-renderable shows, and run continuity + schema guards before the atomic write
 

@@ -1119,14 +1119,14 @@ async function recalculateExistingData() {
 const OPENROUTER_API = 'https://openrouter.ai/api/v1/chat/completions';
 // OpenRouter 官方免费路由会从当前可用的 :free 模型中动态选择，避免静态模型 ID 退役后整轮 404。
 const OPENROUTER_FREE_MODEL = 'openrouter/free';
-const AI_BATCH_SIZE = 25;
+const AI_BATCH_SIZE = 10;
 const AI_SCORE_CACHE_VERSION = 2;
-const AI_TOTAL_BUDGET_MS = 4 * 60 * 1000;
+const AI_TOTAL_BUDGET_MS = 8 * 60 * 1000;
 let _aiDeadline = 0;
 
 async function callModelsAPI(messages, {
   temperature = 0.3,
-  timeout = 30000,
+  timeout = 60000,
   responseSchema,
   validateRows = rows => rows,
 } = {}) {

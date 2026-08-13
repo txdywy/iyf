@@ -20,7 +20,7 @@ jobs:
   scrape:
     name: 抓取数据 & 构建站点
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     permissions:
       contents: write
     steps:
