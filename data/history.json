@@ -1,23 +1,4 @@
 {
-  "2026-07-16": {
-    "timestamp": "2026-07-16T13:43:56.204Z",
-    "koreanDramasCount": 65,
-    "chineseVarietyCount": 91,
-    "topKoreanDramas": [
-      "背着善宰跑",
-      "凌晨两点的灰姑娘",
-      "订阅男友",
-      "21世纪大君夫人",
-      "孤单又灿烂的神-鬼怪"
-    ],
-    "topVariety": [
-      "青春环游记",
-      "现在就出发",
-      "哈哈哈哈哈",
-      "奔跑吧",
-      "向往的生活"
-    ]
-  },
   "2026-07-17": {
     "timestamp": "2026-07-17T13:50:34.682Z",
     "koreanDramasCount": 66,
@@ -552,6 +533,25 @@
   },
   "2026-08-14": {
     "timestamp": "2026-08-14T13:02:57.024Z",
+    "koreanDramasCount": 73,
+    "chineseVarietyCount": 122,
+    "topKoreanDramas": [
+      "背着善宰跑",
+      "孤单又灿烂的神-鬼怪",
+      "21世纪大君夫人",
+      "订阅男友",
+      "给你梦想"
+    ],
+    "topVariety": [
+      "哈哈哈哈哈",
+      "萌探探探案",
+      "欢乐喜剧人",
+      "奔跑吧",
+      "现在就出发"
+    ]
+  },
+  "2026-08-15": {
+    "timestamp": "2026-08-15T01:02:26.967Z",
     "koreanDramasCount": 73,
     "chineseVarietyCount": 122,
     "topKoreanDramas": [
