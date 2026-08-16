@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-16T01:00:43.194Z",
+    "cachedAt": "2026-08-16T12:29:42.680Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5937,12 +5937,18 @@
     "title": "伦敦合伙人",
     "year": 2026,
     "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/a6D6QHnWQTTNGAmllEmIZ0HTiV9.jpg",
     "source": "tmdb",
     "version": 14,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-13T05:23:05.028Z",
+    "query": "伦敦合伙人",
+    "matchedTitle": "伦敦合伙人",
+    "tmdbId": 331587,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331587",
     "doubanUrl": "https://movie.douban.com/subject/38595189/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-16T12:29:42.863Z",
     "doubanId": "38595189",
     "doubanMatchedTitle": "伦敦合伙人"
   },
@@ -5950,11 +5956,18 @@
     "title": "姐姐快醒醒",
     "year": 2026,
     "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/bKfugrl9Dk3Mqy6JHz1t3OV1bz2.jpg",
     "source": "tmdb",
     "version": 14,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-13T05:23:05.028Z"
+    "query": "姐姐快醒醒",
+    "matchedTitle": "姐姐快醒醒",
+    "tmdbId": 331686,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331686",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-16T12:29:42.902Z"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -5964,7 +5977,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:42.561Z"
+    "cachedAt": "2026-08-16T12:29:42.702Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5974,7 +5987,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.179Z"
+    "cachedAt": "2026-08-16T12:29:42.697Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5984,7 +5997,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:42.582Z"
+    "cachedAt": "2026-08-16T12:29:41.984Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -5994,7 +6007,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.180Z"
+    "cachedAt": "2026-08-16T12:29:43.429Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6004,7 +6017,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-13T05:23:07.225Z"
+    "cachedAt": "2026-08-16T12:29:43.541Z"
   },
   "YslFQPrSxY0": {
     "title": "圆桌晚晴派",
@@ -6014,7 +6027,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-13T05:23:07.454Z"
+    "cachedAt": "2026-08-16T12:29:43.576Z"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
@@ -6024,7 +6037,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.152Z"
+    "cachedAt": "2026-08-16T12:29:44.107Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6034,7 +6047,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.833Z"
+    "cachedAt": "2026-08-16T12:29:44.261Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6044,7 +6057,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.933Z"
+    "cachedAt": "2026-08-16T12:29:44.337Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6054,7 +6067,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:43.833Z"
+    "cachedAt": "2026-08-16T12:29:44.832Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6064,7 +6077,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-13T05:23:08.166Z"
+    "cachedAt": "2026-08-16T12:29:44.120Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -6239,7 +6252,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T01:00:42.502Z"
+    "cachedAt": "2026-08-16T12:29:41.983Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6365,11 +6378,13 @@
     "matchedTitle": "整个世界，只有你连上了我",
     "tmdbId": 239830,
     "tmdbUrl": "https://www.themoviedb.org/tv/239830",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36539548/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt40807419/",
     "wikidataId": "",
-    "cachedAt": "2026-08-15T00:57:24.149Z"
+    "cachedAt": "2026-08-15T00:57:24.149Z",
+    "doubanId": "36539548",
+    "doubanMatchedTitle": "整个世界，只有你连上了我"
   },
   "RKxj2m1iUT7": {
     "title": "寒冷",
@@ -6418,5 +6433,24 @@
     "cachedAt": "2026-08-16T01:00:43.300Z",
     "doubanId": "37456785",
     "doubanMatchedTitle": "西伦敦暗线"
+  },
+  "PwLAKyPFpPE": {
+    "title": "我们的少年时代2",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/uSecRplGEI0sqQg83ePtTh1hvFu.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "我们的少年时代2",
+    "matchedTitle": "我们的少年时代2",
+    "tmdbId": 331830,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331830",
+    "doubanUrl": "https://movie.douban.com/subject/27119491/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-16T12:29:44.301Z",
+    "doubanId": "27119491",
+    "doubanMatchedTitle": "我们的少年时代2"
   }
 }
