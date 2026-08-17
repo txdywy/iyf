@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-17T00:58:43.421Z",
+    "cachedAt": "2026-08-17T12:34:01.860Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5977,7 +5977,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:42.863Z"
+    "cachedAt": "2026-08-17T12:34:01.882Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5987,7 +5987,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:43.445Z"
+    "cachedAt": "2026-08-17T12:34:01.903Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5997,7 +5997,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:42.864Z"
+    "cachedAt": "2026-08-17T12:34:01.323Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6007,7 +6007,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:43.436Z"
+    "cachedAt": "2026-08-17T12:34:02.405Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6037,7 +6037,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:43.408Z"
+    "cachedAt": "2026-08-17T12:34:02.390Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6047,7 +6047,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:43.981Z"
+    "cachedAt": "2026-08-17T12:34:02.450Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6057,7 +6057,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:43.998Z"
+    "cachedAt": "2026-08-17T12:34:02.472Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6067,7 +6067,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:44.007Z"
+    "cachedAt": "2026-08-17T12:34:02.963Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6252,7 +6252,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T00:58:42.875Z"
+    "cachedAt": "2026-08-17T12:34:01.325Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6296,12 +6296,18 @@
     "title": "大哥小助理",
     "year": 2026,
     "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/bvWiTB9nHv2745RJepx4jfuhkjM.jpg",
     "source": "tmdb",
     "version": 14,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-14T01:27:26.836Z",
+    "query": "大哥小助理",
+    "matchedTitle": "大哥小助理",
+    "tmdbId": 331649,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331649",
     "doubanUrl": "https://movie.douban.com/subject/38603647/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-17T12:34:00.750Z",
     "doubanId": "38603647",
     "doubanMatchedTitle": "大哥小助理"
   },
@@ -6309,12 +6315,18 @@
     "title": "加油！汪汪",
     "year": 2026,
     "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/AsxjU5lxMDtvC7xRgfK8wtTQxjU.jpg",
     "source": "tmdb",
     "version": 14,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-14T01:27:26.851Z",
+    "query": "加油！汪汪",
+    "matchedTitle": "加油！汪汪",
+    "tmdbId": 331831,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331831",
     "doubanUrl": "https://movie.douban.com/subject/38596403/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "cachedAt": "2026-08-17T12:34:00.772Z",
     "doubanId": "38596403",
     "doubanMatchedTitle": "加油！汪汪"
   },
@@ -6326,10 +6338,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-14T01:27:27.409Z",
-    "doubanUrl": "https://movie.douban.com/subject/38595913/",
-    "doubanId": "38595913",
-    "doubanMatchedTitle": "一站到底·少年季 第二季"
+    "cachedAt": "2026-08-17T12:34:01.839Z"
   },
   "LLyctQ5kr1I": {
     "title": "等一下啦，春虎同学",
@@ -6469,5 +6478,39 @@
     "imdbUrl": "https://www.imdb.com/title/tt39127238/",
     "wikidataId": "",
     "cachedAt": "2026-08-17T00:58:43.477Z"
+  },
+  "aN4jOCt4jgE": {
+    "title": "藏锋",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/t0fGmHkylAIDQvG3AtqQk0IpDBa.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "藏锋",
+    "matchedTitle": "藏锋",
+    "tmdbId": 280133,
+    "tmdbUrl": "https://www.themoviedb.org/tv/280133",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36277135/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-17T12:34:02.433Z"
+  },
+  "B6Pk85dZKpD": {
+    "title": "绿灯军团",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/5ZmOP60VIEfM2cnt7CpAK1j9mEv.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "绿灯军团",
+    "matchedTitle": "绿灯军团",
+    "tmdbId": 95350,
+    "tmdbUrl": "https://www.themoviedb.org/tv/95350",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B6%A0%E5%85%89%E8%BB%8D%E5%9C%98_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
+    "imdbUrl": "https://www.imdb.com/title/tt26545992/",
+    "wikidataId": "Q110556821",
+    "cachedAt": "2026-08-17T12:34:02.704Z"
   }
 }
