@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-17T12:34:01.860Z",
+    "cachedAt": "2026-08-18T00:56:56.062Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5963,11 +5963,13 @@
     "matchedTitle": "姐姐快醒醒",
     "tmdbId": 331686,
     "tmdbUrl": "https://www.themoviedb.org/tv/331686",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38589272/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-16T12:29:42.902Z"
+    "cachedAt": "2026-08-16T12:29:42.902Z",
+    "doubanId": "38589272",
+    "doubanMatchedTitle": "姐姐快醒醒"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -5977,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:01.882Z"
+    "cachedAt": "2026-08-18T00:56:55.405Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5987,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:01.903Z"
+    "cachedAt": "2026-08-18T00:56:56.050Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5997,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:01.323Z"
+    "cachedAt": "2026-08-18T00:56:55.420Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6007,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:02.405Z"
+    "cachedAt": "2026-08-18T00:56:56.090Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6037,7 +6039,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:02.390Z"
+    "cachedAt": "2026-08-18T00:56:56.025Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6047,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:02.450Z"
+    "cachedAt": "2026-08-18T00:56:56.658Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6057,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:02.472Z"
+    "cachedAt": "2026-08-18T00:56:56.686Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6067,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:02.963Z"
+    "cachedAt": "2026-08-18T00:56:56.694Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6183,11 +6185,13 @@
     "matchedTitle": "脱口秀大会",
     "tmdbId": 93509,
     "tmdbUrl": "https://www.themoviedb.org/tv/93509",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34840339/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-08-13T05:23:09.515Z"
+    "cachedAt": "2026-08-13T05:23:09.515Z",
+    "doubanId": "34840339",
+    "doubanMatchedTitle": "脱口秀大会 第三季"
   },
   "8BHZVLidMe8": {
     "title": "脱口秀大会第2季",
@@ -6252,7 +6256,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:01.325Z"
+    "cachedAt": "2026-08-18T00:56:55.436Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
