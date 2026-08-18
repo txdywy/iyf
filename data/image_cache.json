@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-18T00:56:56.062Z",
+    "cachedAt": "2026-08-18T12:35:47.022Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:55.405Z"
+    "cachedAt": "2026-08-18T12:35:46.509Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.050Z"
+    "cachedAt": "2026-08-18T12:35:47.027Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:55.420Z"
+    "cachedAt": "2026-08-18T12:35:46.417Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.090Z"
+    "cachedAt": "2026-08-18T12:35:47.036Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6039,7 +6039,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.025Z"
+    "cachedAt": "2026-08-18T12:35:47.093Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.658Z"
+    "cachedAt": "2026-08-18T12:35:47.655Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.686Z"
+    "cachedAt": "2026-08-18T12:35:47.666Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:56.694Z"
+    "cachedAt": "2026-08-18T12:35:47.654Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6204,11 +6204,13 @@
     "matchedTitle": "脱口秀大会",
     "tmdbId": 93509,
     "tmdbUrl": "https://www.themoviedb.org/tv/93509",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34431573/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-08-13T05:23:09.747Z"
+    "cachedAt": "2026-08-13T05:23:09.747Z",
+    "doubanId": "34431573",
+    "doubanMatchedTitle": "脱口秀大会 第二季"
   },
   "3qXYEvtFrn4": {
     "title": "欢乐喜剧人第3季",
@@ -6256,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-18T00:56:55.436Z"
+    "cachedAt": "2026-08-18T12:35:46.404Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6516,5 +6518,41 @@
     "imdbUrl": "https://www.imdb.com/title/tt26545992/",
     "wikidataId": "Q110556821",
     "cachedAt": "2026-08-17T12:34:02.704Z"
+  },
+  "CzWgzZtvLUt": {
+    "title": "你为什么要爬山？",
+    "year": 2026,
+    "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/2Oh5cQFjM8CSW2JE8XVW0ezBtu6.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "你为什么要爬山？",
+    "matchedTitle": "你为什么要爬山？",
+    "tmdbId": 326901,
+    "tmdbUrl": "https://www.themoviedb.org/tv/326901",
+    "doubanUrl": "https://movie.douban.com/subject/37932658/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39387594/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-18T12:35:45.890Z",
+    "doubanId": "37932658",
+    "doubanMatchedTitle": "你为什么要爬山？"
+  },
+  "hXUxnwld7b7": {
+    "title": "T教授第5季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/jJ9SjrX7tEAwHigRq20TeANhH1Q.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "T教授",
+    "matchedTitle": "T教授",
+    "tmdbId": 126660,
+    "tmdbUrl": "https://www.themoviedb.org/tv/126660",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Professor_T._(British_TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt11981644/",
+    "wikidataId": "Q98744252",
+    "cachedAt": "2026-08-18T12:35:48.433Z"
   }
 }
