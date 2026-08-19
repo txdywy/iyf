@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-19T00:57:43.686Z",
+    "cachedAt": "2026-08-19T12:36:52.496Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.153Z"
+    "cachedAt": "2026-08-19T12:36:52.349Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.690Z"
+    "cachedAt": "2026-08-19T12:36:52.360Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.024Z"
+    "cachedAt": "2026-08-19T12:36:51.738Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.723Z"
+    "cachedAt": "2026-08-19T12:36:52.966Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6019,7 +6019,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T12:29:43.541Z"
+    "cachedAt": "2026-08-19T12:36:52.970Z"
   },
   "YslFQPrSxY0": {
     "title": "圆桌晚晴派",
@@ -6029,7 +6029,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T12:29:43.576Z"
+    "cachedAt": "2026-08-19T12:36:53.552Z"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
@@ -6039,7 +6039,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.801Z"
+    "cachedAt": "2026-08-19T12:36:53.062Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:44.372Z"
+    "cachedAt": "2026-08-19T12:36:53.583Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:44.373Z"
+    "cachedAt": "2026-08-19T12:36:53.672Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:44.419Z"
+    "cachedAt": "2026-08-19T12:36:54.180Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6079,7 +6079,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-16T12:29:44.120Z"
+    "cachedAt": "2026-08-19T12:36:53.552Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -6258,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T00:57:43.009Z"
+    "cachedAt": "2026-08-19T12:36:51.747Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6575,5 +6575,22 @@
     "cachedAt": "2026-08-19T00:57:42.474Z",
     "doubanId": "38188103",
     "doubanMatchedTitle": "不想睡的星期五"
+  },
+  "2J37ChGXyoD": {
+    "title": "师兄太稳健",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/2YCpWCqn1V5EzT3PORIcgzFPblg.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "师兄太稳健",
+    "matchedTitle": "师兄太稳健",
+    "tmdbId": 272938,
+    "tmdbUrl": "https://www.themoviedb.org/tv/272938",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37231342/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-19T12:36:53.614Z"
   }
 }
