@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-20T00:57:14.244Z",
+    "cachedAt": "2026-08-20T12:37:59.909Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.183Z"
+    "cachedAt": "2026-08-20T12:37:59.862Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.187Z"
+    "cachedAt": "2026-08-20T12:38:00.503Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:13.473Z"
+    "cachedAt": "2026-08-20T12:37:59.906Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.220Z"
+    "cachedAt": "2026-08-20T12:38:00.515Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6039,7 +6039,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.859Z"
+    "cachedAt": "2026-08-20T12:38:00.474Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.896Z"
+    "cachedAt": "2026-08-20T12:38:00.512Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.929Z"
+    "cachedAt": "2026-08-20T12:38:01.087Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:14.945Z"
+    "cachedAt": "2026-08-20T12:38:01.104Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6258,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:13.521Z"
+    "cachedAt": "2026-08-20T12:37:59.290Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6344,7 +6344,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-17T12:34:01.839Z"
+    "cachedAt": "2026-08-20T12:37:59.910Z"
   },
   "LLyctQ5kr1I": {
     "title": "等一下啦，春虎同学",
@@ -6601,9 +6601,26 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-20T00:57:13.463Z",
+    "cachedAt": "2026-08-20T12:37:59.253Z",
     "doubanUrl": "https://movie.douban.com/subject/37040714/",
     "doubanId": "37040714",
     "doubanMatchedTitle": "好，我们离婚吧"
+  },
+  "zZaL9Ghq0I9": {
+    "title": "蝉",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/zxReqRxX1UmPXMHQ9tGGeSFhxI9.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "蝉",
+    "matchedTitle": "蝉",
+    "tmdbId": 285250,
+    "tmdbUrl": "https://www.themoviedb.org/tv/285250",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt35964684/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-20T12:38:00.578Z"
   }
 }
