@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-21T01:00:58.988Z",
+    "cachedAt": "2026-08-21T12:36:42.882Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:58.467Z"
+    "cachedAt": "2026-08-21T12:36:42.140Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:59.049Z"
+    "cachedAt": "2026-08-21T12:36:42.860Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:58.949Z"
+    "cachedAt": "2026-08-21T12:36:42.809Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:59.380Z"
+    "cachedAt": "2026-08-21T12:36:42.911Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6039,7 +6039,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:59.477Z"
+    "cachedAt": "2026-08-21T12:36:43.484Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:59.631Z"
+    "cachedAt": "2026-08-21T12:36:43.587Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:59.634Z"
+    "cachedAt": "2026-08-21T12:36:43.607Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:01:00.012Z"
+    "cachedAt": "2026-08-21T12:36:43.640Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6258,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:58.685Z"
+    "cachedAt": "2026-08-21T12:36:42.183Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6498,11 +6498,13 @@
     "matchedTitle": "藏锋",
     "tmdbId": 280133,
     "tmdbUrl": "https://www.themoviedb.org/tv/280133",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35653123/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36277135/",
     "wikidataId": "",
-    "cachedAt": "2026-08-17T12:34:02.433Z"
+    "cachedAt": "2026-08-17T12:34:02.433Z",
+    "doubanId": "35653123",
+    "doubanMatchedTitle": "藏锋"
   },
   "B6Pk85dZKpD": {
     "title": "绿灯军团",
@@ -6601,7 +6603,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-21T01:00:58.407Z"
+    "cachedAt": "2026-08-21T12:36:42.102Z"
   },
   "zZaL9Ghq0I9": {
     "title": "蝉",
@@ -6648,10 +6650,29 @@
     "matchedTitle": "哈达克一家",
     "tmdbId": 231751,
     "tmdbUrl": "https://www.themoviedb.org/tv/231751",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37434220/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/The_Hardacres",
     "imdbUrl": "https://www.imdb.com/title/tt28489780/",
     "wikidataId": "Q124251312",
-    "cachedAt": "2026-08-21T01:01:00.583Z"
+    "cachedAt": "2026-08-21T01:01:00.583Z",
+    "doubanId": "37434220",
+    "doubanMatchedTitle": "哈达克一家 第二季"
+  },
+  "Foxy1hYRzRm": {
+    "title": "极昼血祭",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/bPlCqGAMcgwhAA4xFKlkMX7N5Oz.jpg",
+    "source": "tmdb",
+    "version": 14,
+    "query": "极昼血祭",
+    "matchedTitle": "极昼血祭",
+    "tmdbId": 303351,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303351",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt38553367/",
+    "wikidataId": "Q136404689",
+    "cachedAt": "2026-08-21T12:36:43.770Z"
   }
 }
