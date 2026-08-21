@@ -35,6 +35,17 @@ function validateUrl(value, label) {
   }
 }
 
+function isTMDBOriginalCover(value) {
+  try {
+    const url = new URL(value || '');
+    return url.protocol === 'https:' &&
+      url.hostname === 'image.tmdb.org' &&
+      /^\/t\/p\/original\//u.test(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function validateShows(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     errors.push('data/shows.json: root must be an object');
@@ -59,6 +70,16 @@ function validateShows(data) {
       if (seenIds.has(identity)) errors.push(`${label}: duplicate id ${show.id}`);
       seenIds.add(identity);
       if (!show.coverImg || !show.primaryUrl) errors.push(`${label}: missing renderable cover/link`);
+      if (category === 'koreanDramas' && !isTMDBOriginalCover(show.coverImg)) {
+        if (show.coverSource === 'yfsp' && show.tmdbCoverPending === true) {
+          warnings.push(`${label}: using a YFSP fallback cover while waiting for a TMDB original`);
+        } else {
+          errors.push(`${label}: Korean drama fallback cover must be marked as pending TMDB upgrade`);
+        }
+      }
+      if (Object.hasOwn(show, 'tmdbCoverPending') && typeof show.tmdbCoverPending !== 'boolean') {
+        errors.push(`${label}.tmdbCoverPending: must be boolean`);
+      }
       for (const field of URL_FIELDS) validateUrl(show[field], `${label}.${field}`);
       for (const field of ['score', 'playCount', 'recommendScore', 'year']) {
         if (Object.hasOwn(show, field) && !Number.isFinite(show[field])) errors.push(`${label}.${field}: must be finite`);
