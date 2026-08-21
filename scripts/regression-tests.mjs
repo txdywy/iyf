@@ -984,7 +984,8 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(hostile.yfspUrl, '');
 
   assert.equal(helpers.isRenderableShow({ seedId: 'seed_x', category: 'korean_drama', coverImg: '', primaryUrl: '' }), false, 'seed cards should still need a cover and primary link');
-  assert.equal(helpers.isRenderableShow({ id: 'fallback', title: '兜底节目', category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'recommendations with valid identity, fallback covers and links should remain renderable');
+  assert.equal(helpers.isRenderableShow({ id: 'fallback', title: '兜底节目', category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), false, 'Korean recommendations must not publish a non-TMDB fallback cover');
+  assert.equal(helpers.isRenderableShow({ id: 'variety-fallback', title: '综艺兜底', category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'non-Korean categories may still use a valid fallback cover');
 
   const deduped = helpers.dedupByTitle([
     { title: '非常律师禹英禑', tmdbUrl: 'https://www.themoviedb.org/tv/197067', recommendScore: 95 },
@@ -1110,6 +1111,53 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 
 {
   const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/tv/276470?language=zh-CN')) {
+        return mockResponse({ json: { id: 276470, name: '好吧离婚吧', poster_path: '/divorce-original.jpg' } });
+      }
+      if (textUrl.includes('/tv/276470/external_ids')) return mockResponse({ json: {} });
+      throw new Error(`unexpected TMDB direct lookup URL: ${textUrl}`);
+    },
+  });
+  const show = {
+    id: 'a8mnHC2VzyH',
+    title: '好，我们离婚吧',
+    year: 2026,
+    mediaType: '电视剧',
+    regional: '韩国',
+    category: 'korean_drama',
+    coverImg: 'https://static.yfsp.tv/upload/video/divorce.gif',
+    primaryUrl: 'https://www.yfsp.tv/play/a8mnHC2VzyH',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/divorce-original.jpg', 'the new Korean drama should use its manually verified TMDB poster');
+  assert.equal(show.coverSource, 'tmdb', 'manual TMDB ID matches should be marked as TMDB');
+  assert.equal(show.tmdbUrl, 'https://www.themoviedb.org/tv/276470', 'manual TMDB ID matches should retain the canonical TMDB link');
+}
+
+{
+  const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
+  const { helpers } = loadScrapeHelpers({
+    env: {},
+    initialFiles: {
+      [cachePath]: JSON.stringify({ lowres: {
+        title: '低清缓存', url: 'https://image.tmdb.org/t/p/w500/poster.jpg', source: 'tmdb', version: 14,
+      } }),
+    },
+  });
+  const show = {
+    id: 'lowres', title: '低清缓存', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: '', primaryUrl: 'https://www.themoviedb.org/tv/1',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/poster.jpg', 'cached TMDB w500 covers should be upgraded to original without another API call');
+  assert.equal(helpers.isRenderableShow(show), true, 'an upgraded TMDB original cover should remain renderable');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
@@ -1220,7 +1268,7 @@ assert.match(scrape, /titleMatches\(cached\.title, show\.title\)/, 'TMDB cover c
 assert.match(scrape, /菜鸟炊事兵.*菜鸟伙房兵/s, 'the 菜鸟炊事兵 seed should preserve the user-facing alias 菜鸟伙房兵');
 assert.match(app, /Array\.isArray\(s\.titleAliases\)/, 'frontend search should include alternate show titles');
 assert.match(scrape, /id: mediaKey \|\| episodeKey \|\| stableDiscoveredId\(/, 'API items without media IDs should not collapse into an empty liveShows key');
-assert.match(scrape, /isTMDBImageUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
+assert.match(scrape, /normalizeTMDBOriginalUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
 
 assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');

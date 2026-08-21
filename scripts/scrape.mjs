@@ -441,6 +441,7 @@ const TITLE_ALIAS_MAP = {
   'BTS综艺年代记': ['BTS Variety Chronicle', 'Run BTS!'],
   '新进职员姜会长': ['新进社员姜会长', 'The New Employee Chairman Kang'],
   '菜鸟炊事兵': ['菜鸟伙房兵', 'The Legend of Kitchen Soldier'],
+  '好，我们离婚吧': ['好吧离婚吧', '好吧，离婚吧', 'OK! Let\'s Get Divorced', 'Yeah, Let\'s Get a Divorce', '그래, 이혼하자'],
 };
 
 // 将别名组反向索引,这样用户输入的俗称、英文名和数据源正式名都能互相匹配。
@@ -700,8 +701,9 @@ function mergePreviousShowState(current, previous) {
   }
 
   // 上次已发布的是 TMDB 高清图时,不要被本轮 YFSP 低质量图覆盖。
-  if (isTMDBImageUrl(previous.coverImg) && !isTMDBImageUrl(current.coverImg)) {
-    merged.coverImg = previous.coverImg;
+  const previousTMDBCover = normalizeTMDBOriginalUrl(previous.coverImg);
+  if (previousTMDBCover && !isTMDBImageUrl(current.coverImg)) {
+    merged.coverImg = previousTMDBCover;
     merged.coverSource = previous.coverSource || 'tmdb';
   }
   if ((!current.description || current.description.length < 20) && previous.description &&
@@ -2146,7 +2148,12 @@ function normalizeOutputShow(show) {
 }
 
 function isRenderableShow(show) {
-  return !!(show?.id && show?.title && safeOutputUrl(show.coverImg) && safeOutputUrl(show.primaryUrl));
+  const isKoreanDrama = show?.category === 'korean_drama' ||
+    (show?.mediaType === '电视剧' && show?.regional === '韩国');
+  const hasCover = isKoreanDrama
+    ? isTMDBOriginalImageUrl(show.coverImg)
+    : !!safeOutputUrl(show.coverImg);
+  return !!(show?.id && show?.title && hasCover && safeOutputUrl(show.primaryUrl));
 }
 
 function assertOutputSchema(output) {
@@ -2756,9 +2763,10 @@ function loadImageCache() {
       delete cache[id];
       continue;
     }
-    // 升级已有 TMDB 图片 URL 分辨率: w780 → original (无需重新请求 API)
-    if (entry.url && entry.url.includes('/t/p/w780/')) {
-      entry.url = entry.url.replace('/t/p/w780/', '/t/p/original/');
+    // 升级已有 TMDB 图片 URL 分辨率: 任意 w* → original (无需重新请求 API)
+    const originalUrl = normalizeTMDBOriginalUrl(entry.url);
+    if (originalUrl && entry.url !== originalUrl) {
+      entry.url = originalUrl;
       entry.version = COVER_CACHE_VERSION;
     }
     // 清除旧版本 notFound 标记,让改进后的搜索逻辑重试
@@ -2774,12 +2782,29 @@ function saveImageCache(cache) {
   writeFileSyncAtomic(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
+function normalizeTMDBOriginalUrl(url = '') {
+  try {
+    const parsed = new URL(url);
+    if (!(parsed.protocol === 'https:' &&
+      parsed.hostname === 'image.tmdb.org' &&
+      /^\/t\/p\/(?:original|w\d+)\//u.test(parsed.pathname))) return '';
+    parsed.pathname = parsed.pathname.replace(/^\/t\/p\/(?:original|w\d+)\//u, '/t/p/original/');
+    return parsed.href;
+  } catch {
+    return '';
+  }
+}
+
 function isTMDBImageUrl(url = '') {
+  return !!normalizeTMDBOriginalUrl(url);
+}
+
+function isTMDBOriginalImageUrl(url = '') {
   try {
     const parsed = new URL(url);
     return parsed.protocol === 'https:' &&
       parsed.hostname === 'image.tmdb.org' &&
-      parsed.pathname.startsWith('/t/p/');
+      /^\/t\/p\/original\//u.test(parsed.pathname);
   } catch {
     return false;
   }
@@ -2795,7 +2820,7 @@ function isReusableTMDBCoverCache(cached, show) {
     seasonKey(cached.title) === seasonKey(show.title) &&
     (!cached.year || !show.year || cached.year === show.year) &&
     (!cached.mediaType || !show.mediaType || cached.mediaType === show.mediaType) &&
-    isTMDBImageUrl(cached.url);
+    isTMDBOriginalImageUrl(cached.url);
 }
 
 function findReusableTMDBCache(cache, show) {
@@ -2890,6 +2915,8 @@ const TITLE_EN_MAP = {
   '新进职员姜会长': 'The New Employee Chairman Kang',
   '明天也要上班！': '내일도 출근',
   '最后一排的男孩': 'Notes from the Last Row',
+  '好，我们离婚吧': 'OK! Let\'s Get Divorced',
+  '好吧离婚吧': 'OK! Let\'s Get Divorced',
   // 综艺 - 直接用中文搜索
   '极限挑战第一季': '极限挑战',
   '王牌对王牌': 'Ace vs Ace',
@@ -3001,14 +3028,18 @@ const TMDB_ID_MAP = {
   '明天也要上班！': { id: 289763, kind: 'tv' },
   '忙忙碌碌寻宝藏': { id: 259700, kind: 'tv' },
   '我们的宿舍': { id: 294253, kind: 'tv' },
+  '好，我们离婚吧': { id: 276470, kind: 'tv' },
+  '好吧离婚吧': { id: 276470, kind: 'tv' },
+  '그래, 이혼하자': { id: 276470, kind: 'tv' },
 };
 
-async function lookupTMDBDirect(show) {
+function getTMDBDirectEntry(show) {
   const candidates = [show.title, simplifyTitleForSearch(show.title)];
-  let entry = null;
-  for (const c of candidates) {
-    if (TMDB_ID_MAP[c]) { entry = TMDB_ID_MAP[c]; break; }
-  }
+  return candidates.map(candidate => TMDB_ID_MAP[candidate]).find(Boolean) || null;
+}
+
+async function lookupTMDBDirect(show) {
+  const entry = getTMDBDirectEntry(show);
   if (!entry) return null;
 
   const mediaKind = entry.kind;
@@ -3114,9 +3145,11 @@ async function enrichCoversFromTMDB(shows) {
   const cache = loadImageCache();
   let fetched = 0;
 
-  // 1. TMDB 缓存优先。爱壹帆原图只作为 TMDB 失败时的兜底。
+  // 1. TMDB 缓存优先。YFSP 原图只作为非韩剧或 TMDB 暂不可用时的内部兜底；韩剧最终必须有 TMDB 原图。
   for (const show of shows) {
-    if (isTMDBImageUrl(show.coverImg)) {
+    const originalCover = normalizeTMDBOriginalUrl(show.coverImg);
+    if (originalCover) {
+      show.coverImg = originalCover;
       show.coverSource = 'tmdb';
     } else if (show.coverImg) {
       show.yfspCoverImg = show.coverImg;
@@ -3151,6 +3184,8 @@ async function enrichCoversFromTMDB(shows) {
   const toFetch = shows.filter(s => {
     const cached = findTMDBCacheEntry(cache, s);
     if (isReusableTMDBCoverCache(cached, s)) return false;
+    // 直连映射是人工确认过的实体，不能被旧的 notFound 负缓存阻止重试。
+    if (getTMDBDirectEntry(s)) return true;
     if (cached?.notFound && cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION) {
       // gif 封面质量太差，始终尝试刷新
       if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
@@ -3235,7 +3270,7 @@ async function enrichCoversFromTMDB(shows) {
       }
       console.log(`    ✗ ${show.title}`);
     } else {
-      if (show.yfspCoverImg && !isTMDBImageUrl(show.coverImg)) {
+      if (show.yfspCoverImg && !isTMDBOriginalImageUrl(show.coverImg)) {
         show.coverImg = show.yfspCoverImg;
         show.coverSource = 'yfsp';
       }
