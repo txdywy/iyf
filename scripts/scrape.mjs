@@ -656,7 +656,7 @@ function loadPreviousShows() {
 }
 
 const PREVIOUS_STABLE_FIELDS = [
-  'coverImg', 'coverSource', 'yfspCoverImg', 'primaryUrl', 'primaryUrlSource', 'url',
+  'coverImg', 'coverSource', 'tmdbCoverPending', 'yfspCoverImg', 'primaryUrl', 'primaryUrlSource', 'url',
   'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'wikidataId',
   'tmdbId', 'doubanId', 'doubanMatchedTitle', 'linkMatchedTitle',
   'description', 'descriptionSource', 'titleAliases',
@@ -705,6 +705,7 @@ function mergePreviousShowState(current, previous) {
   if (previousTMDBCover && !isTMDBImageUrl(current.coverImg)) {
     merged.coverImg = previousTMDBCover;
     merged.coverSource = previous.coverSource || 'tmdb';
+    delete merged.tmdbCoverPending;
   }
   if ((!current.description || current.description.length < 20) && previous.description &&
       !current._sourceFields?.has?.('description')) {
@@ -2018,6 +2019,35 @@ function isRecommendationCategory(show) {
   return show.category === 'korean_drama' || show.category === 'variety';
 }
 
+function isKoreanDramaShow(show) {
+  return show?.category === 'korean_drama' ||
+    (show?.mediaType === '电视剧' && show?.regional === '韩国');
+}
+
+function syncTMDBCoverStatus(show) {
+  const originalCover = normalizeTMDBOriginalUrl(show?.coverImg);
+  if (originalCover) {
+    show.coverImg = originalCover;
+    show.coverSource = 'tmdb';
+    delete show.tmdbCoverPending;
+    return show;
+  }
+
+  if (!isKoreanDramaShow(show)) {
+    delete show.tmdbCoverPending;
+    return show;
+  }
+
+  if (safeOutputUrl(show.coverImg)) {
+    // YFSP 图可以先发布，但必须留下明确状态，供公开数据和下一轮刷新识别。
+    show.coverSource = 'yfsp';
+    show.tmdbCoverPending = true;
+  } else {
+    delete show.tmdbCoverPending;
+  }
+  return show;
+}
+
 function assertOutputContinuity(output, previous) {
   const checks = [
     ['koreanDramas', '韩剧'],
@@ -2130,6 +2160,7 @@ function normalizeOutputShow(show) {
   for (const field of ['coverImg', 'yfspCoverImg', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl']) {
     if (Object.hasOwn(show, field)) show[field] = safeOutputUrl(show[field]);
   }
+  syncTMDBCoverStatus(show);
   if (Object.hasOwn(show, 'score')) show.score = boundedScore(show.score);
   if (Object.hasOwn(show, 'aiScore')) show.aiScore = Math.max(0, Math.min(100, safeNumber(show.aiScore)));
   if (Object.hasOwn(show, 'recommendScore')) show.recommendScore = Math.max(0, Math.min(1000, safeNumber(show.recommendScore)));
@@ -2148,12 +2179,12 @@ function normalizeOutputShow(show) {
 }
 
 function isRenderableShow(show) {
-  const isKoreanDrama = show?.category === 'korean_drama' ||
-    (show?.mediaType === '电视剧' && show?.regional === '韩国');
-  const hasCover = isKoreanDrama
-    ? isTMDBOriginalImageUrl(show.coverImg)
-    : !!safeOutputUrl(show.coverImg);
-  return !!(show?.id && show?.title && hasCover && safeOutputUrl(show.primaryUrl));
+  const isKoreanDrama = isKoreanDramaShow(show);
+  const hasCover = !!safeOutputUrl(show.coverImg);
+  const coverStatusValid = !isKoreanDrama ||
+    isTMDBOriginalImageUrl(show.coverImg) ||
+    (show.coverSource === 'yfsp' && show.tmdbCoverPending === true);
+  return !!(show?.id && show?.title && hasCover && coverStatusValid && safeOutputUrl(show.primaryUrl));
 }
 
 function assertOutputSchema(output) {
@@ -3145,7 +3176,7 @@ async function enrichCoversFromTMDB(shows) {
   const cache = loadImageCache();
   let fetched = 0;
 
-  // 1. TMDB 缓存优先。YFSP 原图只作为非韩剧或 TMDB 暂不可用时的内部兜底；韩剧最终必须有 TMDB 原图。
+  // 1. TMDB 缓存优先。韩剧没有 TMDB 原图时保留 YFSP 图发布，并标记待升级状态。
   for (const show of shows) {
     const originalCover = normalizeTMDBOriginalUrl(show.coverImg);
     if (originalCover) {
@@ -3167,8 +3198,8 @@ async function enrichCoversFromTMDB(shows) {
     } else if (cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION &&
         cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
       show.coverImg = show.yfspCoverImg;
-      show.coverSource = 'yfsp';
     }
+    syncTMDBCoverStatus(show);
   }
 
   if (!TMDB_TOKEN) {
@@ -3181,6 +3212,7 @@ async function enrichCoversFromTMDB(shows) {
   //    yfsp 的 .gif 动图封面视为低质量，强制重新搜索。
   const isLowQualityYfspCover = (url = '') => /\.gif(?:\?|$)/i.test(url);
   const NOT_FOUND_RETRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
+  const TMDB_PENDING_RETRY_MS = 12 * 60 * 60 * 1000; // 对齐每天两次的定时任务
   const toFetch = shows.filter(s => {
     const cached = findTMDBCacheEntry(cache, s);
     if (isReusableTMDBCoverCache(cached, s)) return false;
@@ -3190,6 +3222,7 @@ async function enrichCoversFromTMDB(shows) {
       // gif 封面质量太差，始终尝试刷新
       if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
+      if (s.tmdbCoverPending && age >= TMDB_PENDING_RETRY_MS) return true;
       // 推荐类(韩剧/综艺)重试更积极(3天),其他类 7 天;
       // 避免每轮重复请求 TMDB 上根本不存在的条目(浪费 API、拖慢运行)
       const retryMs = isRecommendationCategory(s) ? 3 * 24 * 60 * 60 * 1000 : NOT_FOUND_RETRY_MS;
@@ -3240,6 +3273,7 @@ async function enrichCoversFromTMDB(shows) {
       show.wikipediaUrl = wikipediaUrl;
       show.imdbUrl = imdbUrl;
       show.wikidataId = wikidataId;
+      syncTMDBCoverStatus(show);
       fetched++;
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else if (img?.lookupState === 'not_found') {
@@ -3250,7 +3284,6 @@ async function enrichCoversFromTMDB(shows) {
         existing.cachedAt = new Date().toISOString();
         if (show.yfspCoverImg) {
           show.coverImg = show.yfspCoverImg;
-          show.coverSource = 'yfsp';
         }
       } else {
         cache[show.id] = {
@@ -3265,15 +3298,15 @@ async function enrichCoversFromTMDB(shows) {
         };
         if (show.yfspCoverImg) {
           show.coverImg = show.yfspCoverImg;
-          show.coverSource = 'yfsp';
         }
       }
+      syncTMDBCoverStatus(show);
       console.log(`    ✗ ${show.title}`);
     } else {
       if (show.yfspCoverImg && !isTMDBOriginalImageUrl(show.coverImg)) {
         show.coverImg = show.yfspCoverImg;
-        show.coverSource = 'yfsp';
       }
+      syncTMDBCoverStatus(show);
       console.log(`    ? ${show.title} (TMDB 暂时不可用,未写负缓存)`);
     }
   });

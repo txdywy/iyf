@@ -71,7 +71,14 @@ function validateShows(data) {
       seenIds.add(identity);
       if (!show.coverImg || !show.primaryUrl) errors.push(`${label}: missing renderable cover/link`);
       if (category === 'koreanDramas' && !isTMDBOriginalCover(show.coverImg)) {
-        errors.push(`${label}: Korean drama requires a TMDB original cover`);
+        if (show.coverSource === 'yfsp' && show.tmdbCoverPending === true) {
+          warnings.push(`${label}: using a YFSP fallback cover while waiting for a TMDB original`);
+        } else {
+          errors.push(`${label}: Korean drama fallback cover must be marked as pending TMDB upgrade`);
+        }
+      }
+      if (Object.hasOwn(show, 'tmdbCoverPending') && typeof show.tmdbCoverPending !== 'boolean') {
+        errors.push(`${label}.tmdbCoverPending: must be boolean`);
       }
       for (const field of URL_FIELDS) validateUrl(show[field], `${label}.${field}`);
       for (const field of ['score', 'playCount', 'recommendScore', 'year']) {
