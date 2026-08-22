@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22'
+          node-version-file: '.node-version'
           package-manager-cache: false
 
       - name: Run regression tests
@@ -59,7 +59,7 @@ jobs:
 
       - name: Commit updated data
         run: |
-          if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json; then
+          if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json data/history.json; then
             # 抓取和校验耗时较长。若期间 main 已前进，不能把旧抓取器生成的数据
             # rebase 到新 schema 上；新 main push 已会排队触发一次完整工作流。
             git fetch --no-tags origin main

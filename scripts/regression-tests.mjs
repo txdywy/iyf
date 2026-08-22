@@ -11,6 +11,7 @@ const app = read('js/app.js');
 const scrape = read('scripts/scrape.mjs');
 const publicBuild = read('scripts/build-public-data.mjs');
 const workflow = read('.github/workflows/scrape-and-deploy.yml');
+const validateData = read('scripts/validate-data.mjs');
 const index = read('index.html');
 const css = read('css/style.css');
 
@@ -21,6 +22,18 @@ function fixedDate(year) {
     }
     static now() {
       return new Date(`${year}-01-01T00:00:00Z`).getTime();
+    }
+  };
+}
+
+function fixedInstant(iso) {
+  const timestamp = Date.parse(iso);
+  return class FixedDate extends Date {
+    constructor(...args) {
+      super(...(args.length ? args : [iso]));
+    }
+    static now() {
+      return timestamp;
     }
   };
 }
@@ -80,6 +93,8 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         applyYfspHotness,
         scoreKDrama,
         scoreVariety,
+        isEligibleKDrama,
+        removeHardExcludedKDrama,
         passesKDramaDiscoveryThreshold,
         aiScoreInputHash,
         AI_SCORE_CACHE_VERSION,
@@ -94,6 +109,8 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         loadPreviousShows,
         findReusableTMDBCache,
         normalizeOutputShow,
+        searchTMDBImage,
+        isTMDBResultYearCompatible,
         repairKnownIdentityCorruption,
         assertOutputContinuity,
         SEED_KDRAMAS,
@@ -296,6 +313,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
   assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');
+  assert.match(renderCard({ title: '待升级封面', tmdbCoverPending: true, coverImg: '', recommendScore: 0 }, 0), /封面待升级/, 'pending TMDB cover status should be visible on recommendation cards');
   const unsafeCover = renderCard({ title: '坏图测试', coverImg: 'javascript:alert(1)', score: 0, recommendScore: 0 }, 0);
   assert.doesNotMatch(unsafeCover, /src="javascript:/, 'non-http cover URLs should render a placeholder instead of an image');
   assert.doesNotMatch(
@@ -380,6 +398,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   let fetchCount = 0;
   const helpers = loadAppHelpers({
     documentImpl: document,
+    dateImpl: fixedInstant('2026-08-22T00:00:00Z'),
     fetchImpl: async url => {
       fetchCount++;
       assert.equal(url, 'data/trakt_shows.json');
@@ -399,12 +418,35 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     chineseVariety: [],
   });
   await helpers.switchTab('trakt');
-  assert.match(elements.showGrid.innerHTML, /快照节目/, 'Trakt snapshot rows should render after a valid response');
-  assert.match(elements.updateInfo.textContent, /数据较旧/, 'old snapshot data should be clearly labeled stale');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /快照节目/, 'Trakt snapshots older than 14 days must not render stale rows');
+  assert.match(elements.updateInfo.textContent, /快照已过期，暂不展示/, 'expired Trakt snapshots should be clearly marked unavailable');
+  assert.match(elements.empty.innerHTML, /超过14天/, 'expired Trakt snapshots should explain why no rows are shown');
   assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false', 'successful remote rendering should clear aria-busy');
   helpers.switchTab('korean');
   await helpers.switchTab('trakt');
-  assert.equal(fetchCount, 1, 'revisiting Trakt within the cache TTL should reuse the validated snapshot');
+  assert.equal(fetchCount, 1, 'revisiting Trakt within the cache TTL should reuse the validated stale result');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl: fixedInstant('2026-08-22T00:00:00Z'),
+    fetchImpl: async url => {
+      assert.equal(url, 'data/mdl_shows.json');
+      return {
+        ok: true,
+        json: async () => ({
+          lastUpdated: '2026-08-21T00:00:00Z',
+          shows: [{ title: '新鲜 MDL 节目', mdlRating: 8.5 }],
+        }),
+      };
+    },
+  });
+  helpers.setAllData({ lastUpdated: '2026-08-22T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  await helpers.switchTab('mdl');
+  assert.match(elements.showGrid.innerHTML, /新鲜 MDL 节目/, 'fresh MDL snapshots should render normally');
+  assert.doesNotMatch(elements.updateInfo.textContent, /已过期/, 'fresh MDL snapshots should not be marked expired');
 }
 
 {
@@ -674,6 +716,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     primaryUrlSource: 'tmdb',
     tmdbUrl: 'https://www.themoviedb.org/tv/295509',
     doubanUrl: 'https://movie.douban.com/subject/37194459/',
+    scrapedAt: '2026-08-22T00:00:00Z',
   };
   const current = {
     id: 'new-live-id',
@@ -690,6 +733,15 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   const targetMap = new Map([['new-live-id', current]]);
   helpers.restorePreviousCategory(targetMap, [previous], 'korean_drama', '电视剧', () => 100, 'disc_kd');
   assert.equal(targetMap.get('new-live-id')?.coverImg, previous.coverImg, 'previously published cards should be merged when the source returns an alias');
+
+  const expiredMap = new Map();
+  const expiredResult = helpers.restorePreviousCategory(expiredMap, [{
+    id: 'expired', title: '已下架推荐', year: 2026, scrapedAt: '2026-06-01T00:00:00Z',
+    coverImg: 'https://image.tmdb.org/t/p/original/expired.jpg',
+    primaryUrl: 'https://www.yfsp.tv/play/expired',
+  }], 'korean_drama', '电视剧', () => 100, 'disc_kd');
+  assert.equal(expiredMap.size, 0, 'recommendations absent from the source beyond the retention window should retire');
+  assert.equal(expiredResult.expired, 1, 'retired recommendations should be counted for observability');
 
   assert.doesNotThrow(
     () => helpers.assertOutputContinuity({ koreanDramas: Array(40).fill({}), chineseVariety: Array(40).fill({}) }, { koreanDramas: Array(50).fill({}), chineseVariety: Array(50).fill({}) }),
@@ -990,6 +1042,13 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(helpers.isRenderableShow({ id: 'fallback-marked', title: '已标记兜底节目', category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', tmdbCoverPending: true, primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'marked Korean fallback covers should remain renderable');
   assert.equal(helpers.isRenderableShow({ id: 'variety-fallback', title: '综艺兜底', category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'non-Korean categories may still use a valid fallback cover');
 
+  const hardExcluded = new Map([
+    ['bad', { id: 'bad', title: '恐怖测试', description: '恐怖丧尸题材', category: 'korean_drama' }],
+    ['good', { id: 'good', title: '轻松测试', description: '轻松喜剧', category: 'korean_drama' }],
+  ]);
+  assert.equal(helpers.removeHardExcludedKDrama(hardExcluded), 1, 'hard Korean drama exclusions should apply to every ingestion path');
+  assert.equal(hardExcluded.has('good'), true, 'eligible Korean dramas should survive the final exclusion pass');
+
   const deduped = helpers.dedupByTitle([
     { title: '非常律师禹英禑', tmdbUrl: 'https://www.themoviedb.org/tv/197067', recommendScore: 95 },
     { title: '奇怪的律师禹英禑', tmdbUrl: 'https://www.themoviedb.org/tv/197067', recommendScore: 80 },
@@ -1217,6 +1276,71 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 
 {
   const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return mockResponse({ json: {
+          results: [{
+            id: 9001, name: '同名韩剧', original_name: '同名韩剧', first_air_date: '2019-01-01',
+            poster_path: '/wrong-remake.jpg', origin_country: ['KR'],
+          }],
+        } });
+      }
+      throw new Error(`unexpected TMDB mismatch URL: ${textUrl}`);
+    },
+  });
+  const found = await helpers.searchTMDBImage({ title: '同名韩剧', year: 2026, mediaType: '电视剧', regional: '韩国' });
+  assert.equal(found.lookupState, 'not_found', 'TMDB search should reject a same-title Korean drama from the wrong year');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return mockResponse({ json: {
+          results: [
+            { id: 9002, name: '同名韩剧', original_name: '同名韩剧', first_air_date: '2019-01-01', poster_path: '/old.jpg', origin_country: ['KR'] },
+            { id: 9003, name: '同名韩剧', original_name: '同名韩剧', first_air_date: '2025-12-01', poster_path: '/near.jpg', origin_country: ['KR'] },
+          ],
+        } });
+      }
+      if (textUrl.includes('/tv/9003/external_ids')) return mockResponse({ json: {} });
+      throw new Error(`unexpected TMDB year-compatible URL: ${textUrl}`);
+    },
+  });
+  const found = await helpers.searchTMDBImage({ title: '同名韩剧', year: 2026, mediaType: '电视剧', regional: '韩国' });
+  assert.equal(found.tmdbId, 9003, 'TMDB search should continue past an incompatible same-title result and accept a nearby year');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return mockResponse({ json: {
+          results: [{
+            id: 9004, name: '你好星期六', original_name: '你好星期六', first_air_date: '2022-01-01',
+            poster_path: '/long-running.jpg', origin_country: ['CN'],
+          }],
+        } });
+      }
+      if (textUrl.includes('/tv/9004/external_ids')) return mockResponse({ json: {} });
+      throw new Error(`unexpected TMDB long-running URL: ${textUrl}`);
+    },
+  });
+  const longRunning = await helpers.searchTMDBImage({ title: '你好星期六', year: 2026, mediaType: '综艺', regional: '大陆' });
+  assert.equal(longRunning.tmdbId, 9004, 'known long-running variety should allow its stable series year to differ from the current season');
+
+  const season = await helpers.searchTMDBImage({ title: '你好星期六第4季', year: 2026, mediaType: '综艺', regional: '大陆' });
+  assert.equal(season.lookupState, 'not_found', 'season-specific variety searches should not fall back to the base series entry');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
@@ -1308,6 +1432,9 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
+assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
+assert.match(scrape, /PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45/, 'restored recommendations should have a bounded retirement window');
+assert.match(scrape, /removeHardExcludedKDrama\(kdramaMap\)/, 'hard Korean drama exclusions should run after enrichment, not only on discovery');
 assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
 assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded for free-router latency');
 assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
@@ -1331,6 +1458,12 @@ assert.match(scrape, /normalizeTMDBOriginalUrl\(show\.coverImg\)[\s\S]*?show\.co
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
 assert.match(publicBuild, /'coverSource', 'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
+assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
+assert.match(app, /function isFreshSourceSnapshot\(/, 'remote snapshot rendering should enforce a freshness contract');
+assert.match(app, /_traktCachedAt/, 'Trakt snapshots should use a bounded cache TTL');
+assert.match(app, /_mdlCachedAt/, 'MDL snapshots should use a bounded cache TTL');
+assert.match(app, /快照已过期，暂不展示/, 'stale remote snapshots should be hidden with a clear message');
+assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
 
 assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
 assert.doesNotMatch(scrape, /seed_var_2026_17/, '待定版地球超新鲜 seed should be removed (duplicate of seed_var_2026_28)');
@@ -1339,7 +1472,9 @@ assert.match(scrape, /function dedupByTitle\(/, 'final output should dedup dupli
 assert.match(scrape, /koreanDramas = dedupByTitle\(/, 'korean drama output should be de-duplicated');
 assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should be de-duplicated');
 
-assert.match(workflow, /data\/history\.json/, 'workflow should include history.json in data commit handling');
+assert.match(workflow, /git diff --quiet data\/shows\.json data\/image_cache\.json data\/discovery\.json data\/history\.json/, 'history-only changes should trigger the data commit step');
+assert.match(workflow, /node-version-file: '\.node-version'/, 'scrape and validation workflows should share the repository Node version');
+assert.doesNotMatch(workflow, /node-version: '22'/, 'scrape workflow should not drift from .node-version');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
 assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
 assert.match(workflow, /name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: 25/, 'the scrape job should leave room for its bounded AI latency budget');
