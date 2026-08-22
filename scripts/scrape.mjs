@@ -715,8 +715,13 @@ function mergePreviousShowState(current, previous) {
   return merged;
 }
 
+// 旧推荐只在数据源暂时漏项时续保；连续多周未出现则退休，避免永久保留下架内容。
+const PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45;
+const PREVIOUS_RECOMMENDATION_RETENTION_MS = PREVIOUS_RECOMMENDATION_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
 function restorePreviousCategory(targetMap, previous, category, mediaType, scoreFn, fallbackPrefix) {
   let restored = 0;
+  let expired = 0;
 
   // 同标题或同 ID 的新抓取对象保留动态更新,同时继承上次已经验证过的富化结果。
   for (const [id, current] of [...targetMap.entries()]) {
@@ -733,6 +738,12 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
   for (const prev of previous) {
     if (!prev?.title || prev.seedId) continue;
     if ([...targetMap.values()].some(current => sameShowIdentity(current, prev))) continue;
+    const now = Date.now();
+    const lastSeen = Date.parse(prev.lastLiveAt || prev.scrapedAt || '');
+    if (!Number.isFinite(lastSeen) || lastSeen > now || now - lastSeen > PREVIOUS_RECOMMENDATION_RETENTION_MS) {
+      expired++;
+      continue;
+    }
 
     const show = reconcileShowStatus({
       ...prev,
@@ -750,14 +761,16 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
     restored++;
   }
 
-  return restored;
+  return { restored, expired };
 }
 
 function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
-  const restored =
-    restorePreviousCategory(kdramaMap, prevShows.koreanDramas, 'korean_drama', '电视剧', scoreKDrama, 'disc_kd') +
-    restorePreviousCategory(varietyMap, prevShows.chineseVariety, 'variety', '综艺', scoreVariety, 'disc_var');
+  const korean = restorePreviousCategory(kdramaMap, prevShows.koreanDramas, 'korean_drama', '电视剧', scoreKDrama, 'disc_kd');
+  const variety = restorePreviousCategory(varietyMap, prevShows.chineseVariety, 'variety', '综艺', scoreVariety, 'disc_var');
+  const restored = korean.restored + variety.restored;
+  const expired = korean.expired + variety.expired;
   if (restored) console.log(`  从上次结果续保 ${restored} 个已收录推荐`);
+  if (expired) console.log(`  退休 ${expired} 个超过 ${PREVIOUS_RECOMMENDATION_RETENTION_DAYS} 天未重新出现的推荐`);
 }
 
 function scoreYfspCandidate(show, result) {
@@ -920,6 +933,21 @@ const KDramaHardExclude = ['恐怖', '血腥', '丧尸', '虐杀', '猎奇', '�
 function hasHardKDramaExclusion(show) {
   const text = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''} ${show?.description || ''}`.toLowerCase();
   return KDramaHardExclude.some(keyword => text.includes(keyword));
+}
+
+function isEligibleKDrama(show) {
+  return !hasHardKDramaExclusion(show);
+}
+
+function removeHardExcludedKDrama(targetMap) {
+  let removed = 0;
+  for (const [id, show] of targetMap) {
+    if (!isEligibleKDrama(show)) {
+      targetMap.delete(id);
+      removed++;
+    }
+  }
+  return removed;
 }
 
 const VarietyBoost = {
@@ -1098,6 +1126,7 @@ async function recalculateExistingData() {
       else clearStaleAIScore(show);
       return show;
     })
+    .filter(show => scoreFn !== scoreKDrama || isEligibleKDrama(show))
     .sort((a, b) => b.recommendScore - a.recommendScore);
 
   data.koreanDramas = recalculate(data.koreanDramas || [], scoreKDrama);
@@ -1109,6 +1138,7 @@ async function recalculateExistingData() {
     otherDramas: (data.otherDramas || []).length,
   };
   data.recalculatedAt = new Date(now).toISOString();
+  assertOutputSchema(data);
   writeFileSyncAtomic(SHOWS_FILE, JSON.stringify(data, null, 2) + '\n', 'utf-8');
   // 同步执行缓存版本/已知实体污染迁移，避免下次定时任务重新注入旧链接。
   saveImageCache(loadImageCache());
@@ -1898,7 +1928,7 @@ async function main() {
   // 新发现韩剧在拿到剧情后再筛选，避免首轮空描述绕过恐怖/血腥等负面条件。
   const discoveryCandidates = [...kdramaMap.values()].filter(show => newKdramaCandidateIds.has(show.id));
   for (const show of discoveryCandidates) {
-    if (hasHardKDramaExclusion(show) || !passesKDramaDiscoveryThreshold(show)) kdramaMap.delete(show.id);
+    if (!isEligibleKDrama(show) || !passesKDramaDiscoveryThreshold(show)) kdramaMap.delete(show.id);
   }
   const ruleAcceptedCandidates = discoveryCandidates.filter(show => kdramaMap.has(show.id));
   if (ruleAcceptedCandidates.length) {
@@ -1911,6 +1941,9 @@ async function main() {
 
   allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   for (const show of allShowsList) reconcileShowStatus(show);
+  const removedBeforeAI = removeHardExcludedKDrama(kdramaMap);
+  if (removedBeforeAI) console.log(`  按最终内容规则移除 ${removedBeforeAI} 部不符合偏好的韩剧`);
+  allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   for (const show of kdramaMap.values()) show.recommendScore = scoreKDrama(show);
   for (const show of varietyMap.values()) show.recommendScore = scoreVariety(show);
 
@@ -1947,6 +1980,10 @@ async function main() {
 
   // AI 文案只用于展示，不反向污染同一轮推荐评分。
   await aiEnhanceDescriptions(allShowsList);
+  // AI 文案也属于最终展示内容，不能让它把已经过滤的硬排除词重新带回发布结果。
+  const removedAfterAI = removeHardExcludedKDrama(kdramaMap);
+  if (removedAfterAI) console.log(`  按 AI 文案复核移除 ${removedAfterAI} 部不符合偏好的韩剧`);
+  allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   // 所有 URL 富化完成后统一重算链接优先级
   for (const show of allShowsList) normalizeOutputShow(show);
 
@@ -3104,6 +3141,39 @@ async function lookupTMDBDirect(show) {
   };
 }
 
+// 长线综艺在 TMDB 通常只有一个系列条目，首播年份可能早于当前季很多年。
+// 只有这些人工确认过的系列允许在无年份搜索中跨年份复用，韩剧和季播综艺仍必须校验年份/季数。
+const TMDB_LONG_RUNNING_VARIETY_TITLES = new Set([
+  '你好星期六', '奔跑吧', '奔跑吧兄弟', '极限挑战', '快乐大本营',
+  '王牌对王牌', '明星大侦探', '脱口秀大会',
+].map(title => normalizeTitle(title)));
+
+function isLongRunningVarietyTitle(show) {
+  return show?.mediaType === '综艺' && !seasonKey(show.title) &&
+    TMDB_LONG_RUNNING_VARIETY_TITLES.has(normalizeTitle(simplifyTitleForSearch(show.title)));
+}
+
+function isTMDBResultSeasonCompatible(show, result) {
+  const expectedSeason = seasonKey(show.title);
+  const resultNames = [result?.title, result?.original_title, result?.name, result?.original_name].filter(Boolean);
+  const resultSeason = resultNames.map(seasonKey).find(Boolean) || '';
+  return expectedSeason ? resultSeason === expectedSeason : !resultSeason;
+}
+
+function isTMDBResultYearCompatible(show, result, { yearParam = '' } = {}) {
+  if (!isTMDBResultSeasonCompatible(show, result)) return false;
+  const expectedYear = boundedYear(show?.year);
+  if (!expectedYear) return true;
+
+  const resultYear = extractYear(result?.first_air_date || result?.release_date || '');
+  if (!resultYear) {
+    // 带年份的 TMDB 查询已经提供了额外约束；对未公布日期的条目保留命中机会。
+    return !!yearParam;
+  }
+  if (Math.abs(expectedYear - resultYear) <= 1) return true;
+  return isLongRunningVarietyTitle(show);
+}
+
 async function searchTMDBImage(show) {
   let hadTransientError = false;
   // 1. 优先用已知 TMDB ID 直接查找(跳过搜索,命中率 100%)
@@ -3142,7 +3212,7 @@ async function searchTMDBImage(show) {
           const isMatch = names.some(name =>
             expected.some(value => titleMatches(name, value))
           );
-          if (isMatch) {
+          if (isMatch && isTMDBResultYearCompatible(show, r, { yearParam })) {
             const external = await fetchTMDBJSON(`${mediaKind}/${r.id}/external_ids`).catch(error => {
               console.warn(`  [WARN] TMDB external IDs failed for "${show.title}": ${error.message}`);
               return null;

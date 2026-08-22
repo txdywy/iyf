@@ -86,7 +86,10 @@ function validateShows(data) {
       }
       if (show.score < 0 || show.score > 10) errors.push(`${label}.score: must be from 0 to 10`);
       if (show.aiScore != null && (!Number.isFinite(show.aiScore) || show.aiScore < 0 || show.aiScore > 100)) errors.push(`${label}.aiScore: must be from 0 to 100`);
-      if (!Number.isInteger(show.year) || show.year < 1900 || show.year > new Date().getFullYear() + 1) errors.push(`${label}.year: outside supported range`);
+      // YFSP 搜索结果有时没有可验证的发布日期，0 表示“年份未知”，不能让这类推荐在校验阶段被误杀。
+      if (!Number.isInteger(show.year) || (show.year !== 0 && (show.year < 1900 || show.year > new Date().getFullYear() + 1))) {
+        errors.push(`${label}.year: outside supported range`);
+      }
       if (show.playCount < 0 || show.playCount > 1e12) errors.push(`${label}.playCount: outside supported range`);
       if (show.recommendScore < 0 || show.recommendScore > 1000) errors.push(`${label}.recommendScore: outside supported range`);
       for (const field of ['currentEpisode', 'totalEpisodes']) {
@@ -118,7 +121,8 @@ function validateSnapshot(path) {
   if (!Array.isArray(data.shows)) errors.push(`${path}: shows must be an array`);
   const updated = Date.parse(data.lastUpdated || '');
   if (!Number.isFinite(updated)) errors.push(`${path}: invalid lastUpdated`);
-  else if (Date.now() - updated > 14 * 24 * 60 * 60 * 1000) warnings.push(`${path}: snapshot is older than 14 days; UI must label it as stale`);
+  else if (updated > Date.now() + 24 * 60 * 60 * 1000) errors.push(`${path}: lastUpdated is unexpectedly in the future`);
+  else if (Date.now() - updated > 14 * 24 * 60 * 60 * 1000) warnings.push(`${path}: snapshot is older than 14 days; UI must hide it until refreshed`);
 }
 
 function validateObjectFile(path) {

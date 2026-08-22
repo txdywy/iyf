@@ -267,6 +267,7 @@
     if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
+    if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
     if (show.year >= getCurrentDataYear()) badges.push('<span class="badge badge-new">新剧</span>');
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
@@ -482,10 +483,18 @@
   }
 
   function formatSourceUpdateInfo(label, value) {
-    const time = new Date(value || 0);
+    if (!value) return `${label} · 快照时间未知`;
+    const time = new Date(value);
     if (Number.isNaN(time.getTime())) return `${label} · 快照时间未知`;
     const stale = Date.now() - time.getTime() > SOURCE_STALE_AFTER_MS;
     return `${label}快照: ${time.toLocaleDateString('zh-CN')}${stale ? ' · 数据较旧' : ''}`;
+  }
+
+  function isFreshSourceSnapshot(value) {
+    const updated = Date.parse(value || '');
+    if (!Number.isFinite(updated)) return false;
+    const age = Date.now() - updated;
+    return age >= 0 && age <= SOURCE_STALE_AFTER_MS;
   }
 
   function updateSourceInfo(label, value) {
@@ -573,6 +582,16 @@
     _isTabLoading = false;
     currentShows = Array.isArray(shows) ? shows : [];
     applyFilters(true);
+    return true;
+  }
+
+  function renderExpiredRemoteSnapshot(tab, requestVersion, controller, label) {
+    if (!completeRemoteTab(tab, requestVersion, controller, [])) return false;
+    const info = document.getElementById('updateInfo');
+    if (info) info.textContent = `${label} · 快照已过期，暂不展示`;
+    const empty = document.getElementById('empty');
+    empty.style.display = 'block';
+    empty.innerHTML = `<p>⏳ ${escapeHtml(label)}快照已超过14天，暂不展示，等待下一次更新。</p>`;
     return true;
   }
 
@@ -694,22 +713,32 @@
 
   // ── 外部数据源: Trakt.tv 全球热度 ─────────────────────────
   let _traktCache = null;
+  let _traktCachedAt = 0;
   async function fetchAndRenderTrakt(requestVersion) {
     const controller = startRemoteTabRequest(requestVersion);
     if (!controller) return;
 
     try {
-      if (!_traktCache) {
+      if (!_traktCache || Date.now() - _traktCachedAt >= REMOTE_CACHE_TTL_MS) {
         const resp = await fetch('data/trakt_shows.json', { signal: controller.signal });
         if (!resp.ok) throw new Error('Trakt data not found');
         const traktData = await resp.json();
         if (!traktData || !Array.isArray(traktData.shows)) throw new Error('Invalid Trakt data');
+        const fresh = isFreshSourceSnapshot(traktData.lastUpdated);
         _traktCache = {
-          shows: traktData.shows.filter(show => show && typeof show === 'object' && !Array.isArray(show)),
+          shows: fresh
+            ? traktData.shows.filter(show => show && typeof show === 'object' && !Array.isArray(show))
+            : [],
           lastUpdated: traktData.lastUpdated,
+          unavailable: !fresh,
         };
+        _traktCachedAt = Date.now();
       }
 
+      if (_traktCache.unavailable) {
+        renderExpiredRemoteSnapshot('trakt', requestVersion, controller, 'Trakt.tv 热度');
+        return;
+      }
       if (!completeRemoteTab('trakt', requestVersion, controller, _traktCache.shows)) return;
       updateSourceInfo('Trakt.tv 热度', _traktCache.lastUpdated);
 
@@ -762,23 +791,32 @@
 
   // ── 外部数据源: MyDramaList 社区精选 ─────────────────────────
   let _mdlCache = null;
+  let _mdlCachedAt = 0;
   async function fetchAndRenderMDL(requestVersion) {
     const controller = startRemoteTabRequest(requestVersion);
     if (!controller) return;
 
     try {
-      if (!_mdlCache) {
+      if (!_mdlCache || Date.now() - _mdlCachedAt >= REMOTE_CACHE_TTL_MS) {
         const resp = await fetch('data/mdl_shows.json', { signal: controller.signal });
         if (!resp.ok) throw new Error('MDL data not found');
         const mdlData = await resp.json();
         if (!mdlData || !Array.isArray(mdlData.shows)) throw new Error('Invalid MDL data');
-        const shows = mdlData.shows
-          .filter(show => show && typeof show === 'object' && !Array.isArray(show))
-          .map(show => ({ ...show, isComplete: true, status: 'ended' }))
-          .sort((a, b) => toFiniteNumber(b.mdlRating) - toFiniteNumber(a.mdlRating));
-        _mdlCache = { shows, lastUpdated: mdlData.lastUpdated };
+        const fresh = isFreshSourceSnapshot(mdlData.lastUpdated);
+        const shows = fresh
+          ? mdlData.shows
+            .filter(show => show && typeof show === 'object' && !Array.isArray(show))
+            .map(show => ({ ...show, isComplete: true, status: 'ended' }))
+            .sort((a, b) => toFiniteNumber(b.mdlRating) - toFiniteNumber(a.mdlRating))
+          : [];
+        _mdlCache = { shows, lastUpdated: mdlData.lastUpdated, unavailable: !fresh };
+        _mdlCachedAt = Date.now();
       }
 
+      if (_mdlCache.unavailable) {
+        renderExpiredRemoteSnapshot('mdl', requestVersion, controller, 'MyDramaList 社区');
+        return;
+      }
       if (!completeRemoteTab('mdl', requestVersion, controller, _mdlCache.shows)) return;
       updateSourceInfo('MyDramaList 社区', _mdlCache.lastUpdated);
 
