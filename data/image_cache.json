@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-22T00:57:50.131Z",
+    "cachedAt": "2026-08-22T09:09:44.740Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:49.412Z"
+    "cachedAt": "2026-08-22T09:09:45.453Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:50.108Z"
+    "cachedAt": "2026-08-22T09:09:43.982Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:49.518Z"
+    "cachedAt": "2026-08-22T09:09:44.014Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:50.152Z"
+    "cachedAt": "2026-08-22T09:09:45.486Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:50.829Z"
+    "cachedAt": "2026-08-22T09:09:44.701Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:50.896Z"
+    "cachedAt": "2026-08-22T09:09:44.733Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:50.914Z"
+    "cachedAt": "2026-08-22T09:09:44.789Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6258,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T00:57:49.383Z"
+    "cachedAt": "2026-08-22T09:09:43.959Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6623,11 +6623,13 @@
     "matchedTitle": "蝉",
     "tmdbId": 285250,
     "tmdbUrl": "https://www.themoviedb.org/tv/285250",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37252177/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt35964684/",
     "wikidataId": "",
-    "cachedAt": "2026-08-20T12:38:00.578Z"
+    "cachedAt": "2026-08-20T12:38:00.578Z",
+    "doubanId": "37252177",
+    "doubanMatchedTitle": "蝉"
   },
   "2xYoMtUF0rD": {
     "title": "谜探路德维希第2季",
@@ -6640,11 +6642,13 @@
     "matchedTitle": "谜探路德维希",
     "tmdbId": 243360,
     "tmdbUrl": "https://www.themoviedb.org/tv/243360",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37100781/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Ludwig_(2024_TV_series)",
     "imdbUrl": "https://www.imdb.com/title/tt27846061/",
     "wikidataId": "Q124251270",
-    "cachedAt": "2026-08-21T01:01:00.502Z"
+    "cachedAt": "2026-08-21T01:01:00.502Z",
+    "doubanId": "37100781",
+    "doubanMatchedTitle": "谜探路德维希 第二季"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6676,11 +6680,13 @@
     "matchedTitle": "极昼血祭",
     "tmdbId": 303351,
     "tmdbUrl": "https://www.themoviedb.org/tv/303351",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37645071/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt38553367/",
     "wikidataId": "Q136404689",
-    "cachedAt": "2026-08-21T12:36:43.770Z"
+    "cachedAt": "2026-08-21T12:36:43.770Z",
+    "doubanId": "37645071",
+    "doubanMatchedTitle": "极昼血祭"
   },
   "mTmMCoTFAX1": {
     "title": "只要有空第5季",
