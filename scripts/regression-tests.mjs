@@ -453,6 +453,28 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({
     documentImpl: document,
+    dateImpl: fixedInstant('2026-08-22T00:00:00Z'),
+    fetchImpl: async url => {
+      assert.equal(url, 'data/mdl_shows.json');
+      return {
+        ok: true,
+        json: async () => ({
+          lastUpdated: '2026-06-24T00:00:00Z',
+          shows: [{ title: '过期 MDL 节目', mdlRating: 9.0 }],
+        }),
+      };
+    },
+  });
+  helpers.setAllData({ lastUpdated: '2026-08-22T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  await helpers.switchTab('mdl');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /过期 MDL 节目/, 'expired MDL snapshots must not render stale rows');
+  assert.match(elements.updateInfo.textContent, /快照已过期，暂不展示/, 'expired MDL snapshots should be clearly marked unavailable');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({
+    documentImpl: document,
     fetchImpl: async (url, options) => abortedFetch(options?.signal),
     setTimeoutImpl: (fn, delay) => setTimeout(fn, delay === 12000 ? 0 : delay),
   });
