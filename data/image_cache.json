@@ -1468,7 +1468,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:39.033Z"
+    "cachedAt": "2026-08-23T12:30:15.096Z"
   },
   "nB1mgySVvK3": {
     "title": "金星脱口秀",
@@ -1512,7 +1512,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:45.572Z"
+    "cachedAt": "2026-08-23T12:30:18.262Z"
   },
   "2P1Uv59abn6": {
     "title": "脱口秀小会",
@@ -1539,7 +1539,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:42.871Z"
+    "cachedAt": "2026-08-23T12:30:16.721Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -1549,7 +1549,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:46.542Z"
+    "cachedAt": "2026-08-23T12:30:18.840Z"
   },
   "PIIuQT8AFB0": {
     "title": "大侦探第十一季",
@@ -2207,7 +2207,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:40.815Z"
+    "cachedAt": "2026-08-23T12:30:15.637Z"
   },
   "Cj4bMbQNsF3": {
     "title": "跨界喜剧王",
@@ -3518,7 +3518,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:39.937Z"
+    "cachedAt": "2026-08-23T12:30:15.607Z"
   },
   "mLBFI69K9T2": {
     "title": "EXO的爬梯子世界旅行",
@@ -3725,11 +3725,13 @@
     "matchedTitle": "说唱巅峰对决2026",
     "tmdbId": 326694,
     "tmdbUrl": "https://www.themoviedb.org/tv/326694",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561085/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T10:53:23.717Z"
+    "cachedAt": "2026-08-23T10:53:23.717Z",
+    "doubanId": "37561085",
+    "doubanMatchedTitle": "说唱巅峰对决2026"
   },
   "cwX4qHtZmR8": {
     "title": "千香",
@@ -4160,7 +4162,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:43.987Z"
+    "cachedAt": "2026-08-23T12:30:17.732Z"
   },
   "WQHxpTl7SKD": {
     "title": "致命漫画",
@@ -5244,7 +5246,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:44.368Z"
+    "cachedAt": "2026-08-23T12:30:17.775Z"
   },
   "ToP4R8yjg1C": {
     "title": "度假法则",
@@ -5537,7 +5539,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:22.175Z"
+    "cachedAt": "2026-08-23T12:30:13.484Z"
   },
   "0VlHJhlX7O1": {
     "title": "斯特林角",
@@ -5788,7 +5790,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:41.527Z"
+    "cachedAt": "2026-08-23T12:30:16.192Z"
   },
   "sD4YZE9RktC": {
     "title": "脱口秀和Ta的朋友们第2季",
@@ -5798,7 +5800,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:37.438Z"
+    "cachedAt": "2026-08-23T12:30:14.544Z"
   },
   "x93IvAFw7l8": {
     "title": "妻子的浪漫旅行",
@@ -5825,7 +5827,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:41.787Z"
+    "cachedAt": "2026-08-23T12:30:16.673Z"
   },
   "rlLx4Pkay21": {
     "title": "脱口秀大会第3季",
@@ -5835,7 +5837,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:41.996Z"
+    "cachedAt": "2026-08-23T12:30:16.704Z"
   },
   "8BHZVLidMe8": {
     "title": "脱口秀大会第2季",
@@ -5845,7 +5847,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:43.792Z"
+    "cachedAt": "2026-08-23T12:30:17.721Z"
   },
   "3qXYEvtFrn4": {
     "title": "欢乐喜剧人第3季",
@@ -5855,7 +5857,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:37.405Z"
+    "cachedAt": "2026-08-23T12:30:14.538Z"
   },
   "45CQ2Mk2hG2": {
     "title": "欢乐喜剧人第2季",
@@ -5865,7 +5867,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:36.995Z"
+    "cachedAt": "2026-08-23T12:30:13.533Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -5875,7 +5877,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:37.885Z"
+    "cachedAt": "2026-08-23T12:30:14.592Z"
   },
   "bzag30c6aq5": {
     "title": "欢乐喜剧人第4季",
@@ -5885,7 +5887,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:36.571Z"
+    "cachedAt": "2026-08-23T12:30:14.024Z"
   },
   "OKPtdhLPVB5": {
     "title": "大哥小助理",
@@ -6092,7 +6094,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:23.381Z"
+    "cachedAt": "2026-08-23T12:30:12.946Z"
   },
   "hXUxnwld7b7": {
     "title": "T教授第5季",
@@ -6187,7 +6189,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:46.842Z"
+    "cachedAt": "2026-08-23T12:30:18.850Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6197,7 +6199,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:47.009Z"
+    "cachedAt": "2026-08-23T12:30:19.328Z"
   },
   "Foxy1hYRzRm": {
     "title": "极昼血祭",
@@ -6224,7 +6226,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:23.580Z"
+    "cachedAt": "2026-08-23T12:30:13.480Z"
   },
   "QnSyyKFjixv": {
     "title": "欲望的陷阱",
@@ -6271,7 +6273,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:38.498Z"
+    "cachedAt": "2026-08-23T12:30:15.073Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6281,7 +6283,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:39.009Z"
+    "cachedAt": "2026-08-23T12:30:15.075Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6291,7 +6293,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:39.730Z"
+    "cachedAt": "2026-08-23T12:30:15.123Z"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -6301,7 +6303,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:40.215Z"
+    "cachedAt": "2026-08-23T12:30:15.609Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6331,7 +6333,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:43.823Z"
+    "cachedAt": "2026-08-23T12:30:16.137Z"
   },
   "DngLFF0zUTI": {
     "title": "继续宠爱十年音乐会",
@@ -6341,7 +6343,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:44.540Z"
+    "cachedAt": "2026-08-23T12:30:17.249Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6351,7 +6353,7 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:44.695Z"
+    "cachedAt": "2026-08-23T12:30:16.667Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6371,6 +6373,6 @@
     "version": 15,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T10:53:45.251Z"
+    "cachedAt": "2026-08-23T12:30:18.254Z"
   }
 }
