@@ -658,7 +658,7 @@ function loadPreviousShows() {
 const PREVIOUS_STABLE_FIELDS = [
   'coverImg', 'coverSource', 'tmdbCoverPending', 'yfspCoverImg', 'primaryUrl', 'primaryUrlSource', 'url',
   'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'wikidataId',
-  'tmdbId', 'doubanId', 'doubanMatchedTitle', 'linkMatchedTitle',
+  'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'doubanId', 'doubanMatchedTitle', 'linkMatchedTitle',
   'description', 'descriptionSource', 'titleAliases',
   'yfspLookupState', 'yfspLookupCheckedAt', 'yfspLookupUrl', 'yfspRefreshCheckedAt',
 ];
@@ -2146,6 +2146,12 @@ function seasonKey(title = '') {
   return bare ? toSeasonKey(bare[1]) : '';
 }
 
+function seasonNumberFromTitle(title = '') {
+  const key = seasonKey(title);
+  const match = key.match(/^第(\d+)季$/u);
+  return match ? Number(match[1]) : 0;
+}
+
 function stripSeasonSuffix(title = '') {
   const text = safeText(title, 300).trim();
   if (!seasonKey(text)) return text;
@@ -2837,7 +2843,7 @@ const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
 // 标题/季数匹配规则变化时必须失效旧的正向缓存,否则旧错误封面会绕过新校验。
-const COVER_CACHE_VERSION = 15;
+const COVER_CACHE_VERSION = 16;
 // 与图片格式版本分离：旧版把 429/5xx 误记为 notFound，必须主动失效。
 const TMDB_NEGATIVE_CACHE_VERSION = 2;
 
@@ -2904,6 +2910,9 @@ function isTMDBOriginalImageUrl(url = '') {
 
 function isReusableTMDBCoverCache(cached, show) {
   const matchedTitle = safeText(cached?.matchedTitle, 300).trim();
+  const expectedSeasonNumber = seasonNumberFromTitle(show?.title);
+  const cachedSeasonNumber = Number(cached?.tmdbSeasonNumber);
+  const cachedSeasonUrlNumber = extractTMDBSeasonNumber(cached?.tmdbUrl);
   return cached &&
     typeof cached === 'object' &&
     cached.version === COVER_CACHE_VERSION &&
@@ -2914,6 +2923,7 @@ function isReusableTMDBCoverCache(cached, show) {
     isTMDBResultSeasonCompatible(show, { name: cached.title }) &&
     titleMatches(matchedTitle, show.title) &&
     isTMDBResultSeasonCompatible(show, { name: matchedTitle }) &&
+    (!expectedSeasonNumber || (cachedSeasonNumber === expectedSeasonNumber && cachedSeasonUrlNumber === expectedSeasonNumber)) &&
     (!cached.year || !show.year || cached.year === show.year) &&
     (!cached.mediaType || !show.mediaType || cached.mediaType === show.mediaType) &&
     isTMDBOriginalImageUrl(cached.url);
@@ -2989,6 +2999,8 @@ const TITLE_EN_MAP = {
   '贞淑的推销': 'A Virtuous Business',
   '好或坏的东载': 'Dongjae the Good or the Bad',
   '那家伙是黑炎龙': 'Black Flame Dragon',
+  '财阀X刑警': 'Flex X Cop',
+  '财阀X刑警第2季': 'Flex X Cop',
   // 2026 韩剧
   '爱情怎么翻译': 'The Art of Love',
   '订阅男友': 'Boyfriend on Demand',
@@ -3112,6 +3124,56 @@ async function fetchWikidataLinks(wikidataId) {
   } finally { clearTimeout(t); }
 }
 
+function extractTMDBSeriesId(url = '') {
+  const match = safeText(url, 500).match(/^https?:\/\/(?:www\.)?themoviedb\.org\/tv\/(\d+)(?:[/?#]|$)/iu);
+  return match ? Number(match[1]) : 0;
+}
+
+function extractTMDBSeasonNumber(url = '') {
+  const match = safeText(url, 500).match(/^https?:\/\/(?:www\.)?themoviedb\.org\/tv\/\d+\/season\/(\d+)(?:[/?#]|$)/iu);
+  return match ? Number(match[1]) : 0;
+}
+
+function getTMDBSeriesId(show, cacheEntry = null) {
+  for (const value of [
+    show?.tmdbSeriesId,
+    cacheEntry?.tmdbSeriesId,
+    show?.tmdbId,
+    cacheEntry?.tmdbId,
+  ]) {
+    const id = Number(value);
+    if (Number.isInteger(id) && id > 0) return id;
+  }
+  for (const url of [
+    show?.tmdbUrl,
+    show?.primaryUrl,
+    show?.url,
+    cacheEntry?.tmdbUrl,
+  ]) {
+    const id = extractTMDBSeriesId(url);
+    if (id) return id;
+  }
+  const directEntry = getTMDBDirectEntry(show);
+  if (directEntry?.kind === 'tv' && Number.isInteger(Number(directEntry.id)) && Number(directEntry.id) > 0) {
+    return Number(directEntry.id);
+  }
+  return 0;
+}
+
+async function fetchTMDBExternalMetadata(mediaKind, tmdbId, showTitle) {
+  const external = await fetchTMDBJSON(`${mediaKind}/${tmdbId}/external_ids`).catch(error => {
+    console.warn(`  [WARN] TMDB external IDs failed for "${showTitle}": ${error.message}`);
+    return null;
+  });
+  const wikidata = await fetchWikidataLinks(external?.wikidata_id);
+  return {
+    doubanUrl: wikidata.doubanUrl || '',
+    wikipediaUrl: wikidata.wikipediaUrl || '',
+    imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
+    wikidataId: external?.wikidata_id || '',
+  };
+}
+
 function simplifyTitleForSearch(title = '') {
   return stripSeasonSuffix(safeText(title, 300).replace(/\s*20\d{2}\s*$/u, ''));
 }
@@ -3147,22 +3209,58 @@ async function lookupTMDBDirect(show) {
   }
   if (!posterPath) return null;
 
-  const external = await fetchTMDBJSON(`${mediaKind}/${entry.id}/external_ids`).catch(error => {
-    console.warn(`  [WARN] TMDB external IDs failed for "${show.title}": ${error.message}`);
-    return null;
-  });
-  const wikidata = await fetchWikidataLinks(external?.wikidata_id);
+  const external = await fetchTMDBExternalMetadata(mediaKind, data.id, show.title);
   return {
     url: `${TMDB_IMG_BASE}${posterPath}`,
     tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${entry.id}`,
-    doubanUrl: wikidata.doubanUrl || '',
-    wikipediaUrl: wikidata.wikipediaUrl || '',
-    imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
-    wikidataId: external?.wikidata_id || '',
+    ...external,
     matchedTitle: data.name || data.original_name || data.title || data.original_title || '',
     tmdbId: data.id,
     mediaKind,
     query: `direct:${entry.id}`,
+  };
+}
+
+async function lookupTMDBSeasonById(show, seriesId) {
+  const seasonNumber = seasonNumberFromTitle(show?.title);
+  if (show?.mediaType === '电影' || !seasonNumber || !seriesId) return null;
+
+  const data = await fetchTMDBJSON(`tv/${seriesId}/season/${seasonNumber}?language=zh-CN`);
+  if (!data) return null;
+  const returnedSeasonNumber = Number(data.season_number);
+  if (Number.isInteger(returnedSeasonNumber) && returnedSeasonNumber !== seasonNumber) return null;
+
+  let posterPath = data.poster_path || '';
+  if (!posterPath) {
+    const images = await fetchTMDBJSON(`tv/${seriesId}/season/${seasonNumber}/images`);
+    posterPath = images?.posters?.[0]?.file_path || '';
+  }
+  if (!posterPath) return null;
+
+  const expectedYear = boundedYear(show?.year);
+  const firstEpisodeAirDate = Array.isArray(data.episodes)
+    ? data.episodes.find(episode => episode?.air_date)?.air_date
+    : '';
+  const seasonYear = extractYear(data.air_date || firstEpisodeAirDate || '');
+  if (expectedYear && seasonYear && Math.abs(expectedYear - seasonYear) > 1) return null;
+
+  const apiSeasonTitle = safeText(data.name, 200).trim();
+  const canonicalSeasonTitle = `第${seasonNumber}季`;
+  const matchedSeasonTitle = seasonKey(apiSeasonTitle) === canonicalSeasonTitle
+    ? apiSeasonTitle
+    : canonicalSeasonTitle;
+  const external = await fetchTMDBExternalMetadata('tv', seriesId, show.title);
+  return {
+    url: `${TMDB_IMG_BASE}${posterPath}`,
+    tmdbUrl: `${TMDB_WEB_BASE}/tv/${seriesId}/season/${seasonNumber}`,
+    ...external,
+    matchedTitle: `${simplifyTitleForSearch(show.title)}${matchedSeasonTitle}`,
+    tmdbId: Number(seriesId),
+    tmdbSeriesId: Number(seriesId),
+    tmdbSeasonId: Number(data.id) || 0,
+    tmdbSeasonNumber: seasonNumber,
+    mediaKind: 'tv',
+    query: `season-direct:${seriesId}:${seasonNumber}`,
   };
 }
 
@@ -3199,15 +3297,41 @@ function isTMDBResultYearCompatible(show, result, { yearParam = '' } = {}) {
   return isLongRunningVarietyTitle(show);
 }
 
-async function searchTMDBImage(show) {
+async function searchTMDBImage(show, { cacheEntry = null } = {}) {
   let hadTransientError = false;
-  // 1. 优先用已知 TMDB ID 直接查找(跳过搜索,命中率 100%)
-  try {
-    const direct = await lookupTMDBDirect(show);
-    if (direct) return direct;
-  } catch (error) {
-    hadTransientError = true;
-    console.warn(`  [WARN] TMDB direct lookup failed for "${show.title}": ${error.message}`);
+  const expectedSeasonNumber = seasonNumberFromTitle(show?.title);
+  const attemptedSeasonIds = new Set();
+
+  const lookupSeason = async seriesId => {
+    const normalizedSeriesId = Number(seriesId);
+    if (!expectedSeasonNumber || !Number.isInteger(normalizedSeriesId) || normalizedSeriesId <= 0 ||
+        attemptedSeasonIds.has(normalizedSeriesId)) return null;
+    attemptedSeasonIds.add(normalizedSeriesId);
+    return lookupTMDBSeasonById(show, normalizedSeriesId);
+  };
+
+  // 季播剧必须优先查具体 season。系列详情的海报通常是第一季/系列海报,
+  // 不能因为标题搜索命中系列就直接拿来发布。
+  if (expectedSeasonNumber) {
+    const directSeriesId = getTMDBSeriesId(show, cacheEntry);
+    if (directSeriesId) {
+      try {
+        const season = await lookupSeason(directSeriesId);
+        if (season) return season;
+      } catch (error) {
+        hadTransientError = true;
+        console.warn(`  [WARN] TMDB season lookup failed for "${show.title}": ${error.message}`);
+      }
+    }
+  } else {
+    // 非季播条目优先用已知 TMDB ID 直接查找(跳过搜索,命中率 100%)
+    try {
+      const direct = await lookupTMDBDirect(show);
+      if (direct) return direct;
+    } catch (error) {
+      hadTransientError = true;
+      console.warn(`  [WARN] TMDB direct lookup failed for "${show.title}": ${error.message}`);
+    }
   }
 
   const isKorean = show.regional === '韩国';
@@ -3237,19 +3361,36 @@ async function searchTMDBImage(show) {
           const isMatch = names.some(name =>
             expected.some(value => titleMatches(name, value))
           );
-          if (isMatch && isTMDBResultYearCompatible(show, r, { yearParam })) {
-            const external = await fetchTMDBJSON(`${mediaKind}/${r.id}/external_ids`).catch(error => {
-              console.warn(`  [WARN] TMDB external IDs failed for "${show.title}": ${error.message}`);
-              return null;
-            });
-            const wikidata = await fetchWikidataLinks(external?.wikidata_id);
+          if (!isMatch) continue;
+
+          if (expectedSeasonNumber) {
+            const seriesExpected = [
+              ...titleCandidates(simplified),
+              simplified,
+              enTitle,
+              query,
+            ].filter(Boolean);
+            const isSeriesMatch = names.some(name =>
+              seriesExpected.some(value => titleMatches(name, value))
+            );
+            if (!isSeriesMatch) continue;
+            try {
+              const season = await lookupSeason(r.id);
+              if (season) return season;
+            } catch (error) {
+              hadTransientError = true;
+              console.warn(`  [WARN] TMDB season lookup failed for "${show.title}": ${error.message}`);
+            }
+            // 找到系列但拿不到对应 season 时，绝不能回退到系列 poster。
+            continue;
+          }
+
+          if (isTMDBResultYearCompatible(show, r, { yearParam })) {
+            const external = await fetchTMDBExternalMetadata(mediaKind, r.id, show.title);
             return {
               url: `${TMDB_IMG_BASE}${r.poster_path}`,
               tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${r.id}`,
-              doubanUrl: wikidata.doubanUrl || '',
-              wikipediaUrl: wikidata.wikipediaUrl || '',
-              imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
-              wikidataId: external?.wikidata_id || '',
+              ...external,
               matchedTitle: r.name || r.original_name || r.title || r.original_title || '',
               tmdbId: r.id,
               mediaKind,
@@ -3290,6 +3431,9 @@ async function enrichCoversFromTMDB(shows) {
       show.wikipediaUrl = cached.wikipediaUrl || show.wikipediaUrl || '';
       show.imdbUrl = cached.imdbUrl || show.imdbUrl || '';
       show.wikidataId = cached.wikidataId || show.wikidataId || '';
+      if (cached.tmdbId) show.tmdbId = cached.tmdbId;
+      if (cached.tmdbSeriesId) show.tmdbSeriesId = cached.tmdbSeriesId;
+      if (cached.tmdbSeasonNumber) show.tmdbSeasonNumber = cached.tmdbSeasonNumber;
       if (!cache[show.id]) cache[show.id] = { ...cached, title: show.title, year: show.year, mediaType: show.mediaType };
     } else if (originalCover && cached?.source === 'tmdb' && show.yfspCoverImg) {
       // 旧的正向缓存可能来自更宽松的标题/季数规则。失效期间不能继续发布已知可能串季的 TMDB 图。
@@ -3340,7 +3484,7 @@ async function enrichCoversFromTMDB(shows) {
 
   // TMDB 为官方 API(token 鉴权、限速宽松),用有界并发显著缩短封面抓取耗时。
   await mapPool(toFetch, 4, async (show) => {
-    const img = await searchTMDBImage(show);
+    const img = await searchTMDBImage(show, { cacheEntry: findTMDBCacheEntry(cache, show) });
     if (img?.url) {
       const previousMetadata = findTMDBCacheEntry(cache, show) || {};
       const cacheMatchesEntity = previousMetadata.tmdbId && previousMetadata.tmdbId === img.tmdbId;
@@ -3360,6 +3504,9 @@ async function enrichCoversFromTMDB(shows) {
         matchedTitle: img.matchedTitle,
         tmdbId: img.tmdbId,
         tmdbUrl: img.tmdbUrl,
+        ...(img.tmdbSeriesId ? { tmdbSeriesId: img.tmdbSeriesId } : {}),
+        ...(img.tmdbSeasonId ? { tmdbSeasonId: img.tmdbSeasonId } : {}),
+        ...(img.tmdbSeasonNumber ? { tmdbSeasonNumber: img.tmdbSeasonNumber } : {}),
         doubanUrl,
         wikipediaUrl,
         imdbUrl,
@@ -3369,6 +3516,9 @@ async function enrichCoversFromTMDB(shows) {
       show.coverImg = img.url;
       show.coverSource = 'tmdb';
       show.tmdbUrl = img.tmdbUrl;
+      if (img.tmdbId) show.tmdbId = img.tmdbId;
+      if (img.tmdbSeriesId) show.tmdbSeriesId = img.tmdbSeriesId;
+      if (img.tmdbSeasonNumber) show.tmdbSeasonNumber = img.tmdbSeasonNumber;
       show.doubanUrl = doubanUrl;
       show.wikipediaUrl = wikipediaUrl;
       show.imdbUrl = imdbUrl;

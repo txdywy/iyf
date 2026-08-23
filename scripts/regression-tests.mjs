@@ -112,7 +112,10 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         normalizeOutputShow,
         searchTMDBImage,
         seasonKey,
+        seasonNumberFromTitle,
         simplifyTitleForSearch,
+        extractTMDBSeriesId,
+        extractTMDBSeasonNumber,
         isTMDBResultSeasonCompatible,
         isTMDBResultYearCompatible,
         repairKnownIdentityCorruption,
@@ -708,7 +711,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     title: '菜鸟炊事兵',
     url: 'https://image.tmdb.org/t/p/original/kitchen-soldier.jpg',
     source: 'tmdb',
-    version: 15,
+    version: 16,
     matchedTitle: '菜鸟炊事兵',
     tmdbId: 295509,
   };
@@ -1234,6 +1237,77 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 {
+  const { helpers } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/tv/220074/season/2?language=zh-CN')) {
+        return mockResponse({ json: {
+          id: 401234, name: '第 2 季', season_number: 2,
+          air_date: '2026-08-07', poster_path: '/flex-x-cop-season-2.jpg',
+        } });
+      }
+      if (textUrl.includes('/tv/220074/external_ids')) return mockResponse({ json: {} });
+      throw new Error(`unexpected TMDB season-direct URL: ${textUrl}`);
+    },
+  });
+  const found = await helpers.searchTMDBImage({
+    title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国',
+    tmdbUrl: 'https://www.themoviedb.org/tv/220074',
+  });
+  assert.equal(found.url, 'https://image.tmdb.org/t/p/original/flex-x-cop-season-2.jpg', 'known TMDB series IDs should resolve the exact season poster');
+  assert.equal(found.tmdbUrl, 'https://www.themoviedb.org/tv/220074/season/2', 'season matches should link to the TMDB season page');
+  assert.equal(found.tmdbId, 220074, 'season matches should retain the parent TMDB series ID');
+  assert.equal(found.tmdbSeasonNumber, 2, 'season matches should persist the numeric season for cache validation');
+  assert.equal(helpers.titleMatches(found.matchedTitle, '财阀X刑警第2季'), true, 'season matches should retain a cache-valid matched title');
+}
+
+{
+  const { helpers, writes } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    initialFiles: {
+      ['/tmp/iyf-test/scripts/../data/image_cache.json']: JSON.stringify({ flex: {
+        title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', source: 'tmdb',
+        version: 15, negativeLookupVersion: 2, notFound: true,
+      } }),
+    },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return mockResponse({ json: {
+          results: [{
+            id: 220074, name: '财阀X刑警', original_name: 'Flex X Cop',
+            first_air_date: '2024-01-26', poster_path: '/series-poster.jpg', origin_country: ['KR'],
+          }],
+        } });
+      }
+      if (textUrl.includes('/tv/220074/season/2')) {
+        return mockResponse({ json: {
+          id: 401234, name: '第 2 季', season_number: 2,
+          air_date: '2026-08-07', poster_path: '/searched-season-2.jpg',
+        } });
+      }
+      if (textUrl.includes('/tv/220074/external_ids')) return mockResponse({ json: {} });
+      throw new Error(`unexpected TMDB season-search URL: ${textUrl}`);
+    },
+  });
+  const show = {
+    id: 'flex', title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/flex.gif',
+    yfspCoverImg: 'https://static.yfsp.tv/flex.gif', coverSource: 'yfsp',
+    primaryUrl: 'https://www.yfsp.tv/play/flex',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/searched-season-2.jpg', 'a base-series search hit should be upgraded through its exact TMDB season endpoint');
+  assert.equal(show.tmdbUrl, 'https://www.themoviedb.org/tv/220074/season/2', 'enrichment should publish the season-level TMDB URL');
+  assert.equal(show.coverSource, 'tmdb', 'a successful season lookup should replace the YFSP fallback');
+  const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
+  assert.equal(savedCache.flex?.version, 16, 'season lookup should write the current cache version');
+  assert.equal(savedCache.flex?.tmdbSeasonNumber, 2, 'season lookup should make the season identity durable in cache');
+  assert.equal(helpers.isReusableTMDBCoverCache(savedCache.flex, show), true, 'a season cache must be reusable only after both numeric and URL season validation pass');
+}
+
+{
   const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
   const retryNow = Date.parse('2026-08-21T12:00:00Z');
   const RetryDate = class extends Date {
@@ -1249,7 +1323,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     dateImpl: RetryDate,
     initialFiles: {
       [cachePath]: JSON.stringify({ pending: {
-        title: '待补高清测试', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 15,
+        title: '待补高清测试', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
         negativeLookupVersion: 2, notFound: true, cachedAt: '2026-08-21T00:00:00Z',
       } }),
     },
@@ -1288,7 +1362,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     env: {},
     initialFiles: {
       [cachePath]: JSON.stringify({ lowres: {
-        title: '低清缓存', url: 'https://image.tmdb.org/t/p/w500/poster.jpg', source: 'tmdb', version: 15,
+        title: '低清缓存', url: 'https://image.tmdb.org/t/p/w500/poster.jpg', source: 'tmdb', version: 16,
         matchedTitle: '低清缓存',
       } }),
     },
@@ -1357,6 +1431,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
         } });
       }
       if (textUrl.includes('/tv/9004/external_ids')) return mockResponse({ json: {} });
+      if (textUrl.includes('/tv/9004/season/4')) return mockResponse({ status: 404 });
       throw new Error(`unexpected TMDB long-running URL: ${textUrl}`);
     },
   });
@@ -1372,6 +1447,10 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(helpers.seasonKey('杀人者的购物中心2'), '第2季', 'a trailing Chinese title number should be treated as a season marker');
   assert.equal(helpers.seasonKey('杀人者的购物中心 S02'), '第2季', 'S02 should normalize to the canonical season key');
   assert.equal(helpers.seasonKey('杀人者的购物中心 Season 2'), '第2季', 'Season 2 should normalize to the canonical season key');
+  assert.equal(helpers.seasonNumberFromTitle('财阀X刑警第2季'), 2, 'season titles should expose a numeric season for TMDB season endpoints');
+  assert.equal(helpers.extractTMDBSeriesId('https://www.themoviedb.org/tv/220074/season/2'), 220074, 'TMDB season URLs should resolve to their parent series ID');
+  assert.equal(helpers.extractTMDBSeasonNumber('https://www.themoviedb.org/tv/220074/season/2'), 2, 'TMDB season URLs should expose their numeric season');
+  assert.equal(helpers.extractTMDBSeriesId('https://example.com/tv/220074'), 0, 'non-TMDB URLs must not be treated as TMDB series IDs');
   assert.equal(helpers.seasonKey('请回答1988'), '', 'a four-digit year must not be treated as a season marker');
   assert.equal(helpers.simplifyTitleForSearch('杀人者的购物中心2'), '杀人者的购物中心', 'season suffixes should be removed from TMDB search fallbacks');
   assert.equal(
@@ -1390,7 +1469,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     title: '杀人者的购物中心2',
     url: 'https://image.tmdb.org/t/p/original/wrong-season.jpg',
     source: 'tmdb',
-    version: 15,
+    version: 16,
     matchedTitle: '杀人者的购物中心',
     year: 2026,
     mediaType: '电视剧',
@@ -1399,6 +1478,17 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     helpers.findReusableTMDBCache({ mismatched }, { id: 'mismatched', title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧' }),
     null,
     'a current-version cache with a base-series matchedTitle must still be rejected'
+  );
+  const missingSeasonMetadata = {
+    ...mismatched,
+    matchedTitle: '杀人者的购物中心第2季',
+    tmdbSeasonNumber: 2,
+    tmdbUrl: 'https://www.themoviedb.org/tv/215072',
+  };
+  assert.equal(
+    helpers.findReusableTMDBCache({ missingSeasonMetadata }, { id: 'missingSeasonMetadata', title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧' }),
+    null,
+    'a season cache pointing to the series page must not be reused after the season resolver upgrade'
   );
 }
 
@@ -1457,6 +1547,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
           }],
         } });
       }
+      if (textUrl.includes('/tv/215072/season/2')) return mockResponse({ status: 404 });
       throw new Error(`unexpected stale-cache TMDB URL: ${textUrl}`);
     },
   });
@@ -1470,7 +1561,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(show.coverImg, 'https://static.yfsp.tv/fallback.jpg', 'a rejected season match should keep the Korean fallback cover');
   const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
   assert.equal(savedCache.stale?.notFound, true, 'a rejected stale positive cache should become a negative cache entry');
-  assert.equal(savedCache.stale?.version, 15, 'the replacement negative cache should use the current cache version');
+  assert.equal(savedCache.stale?.version, 16, 'the replacement negative cache should use the current cache version');
   assert.equal('url' in (savedCache.stale || {}), false, 'a rejected stale positive cache must not retain its wrong TMDB URL');
 }
 
@@ -1567,10 +1658,13 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
-assert.match(scrape, /const COVER_CACHE_VERSION = 15;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
+assert.match(scrape, /const COVER_CACHE_VERSION = 16;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
 assert.doesNotMatch(scrape, /entry\.version = COVER_CACHE_VERSION/, 'TMDB URL resolution migration must not promote stale cache entries');
 assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
 assert.match(scrape, /isTMDBResultSeasonCompatible\(show, \{ name: matchedTitle \}\)/, 'TMDB cache reuse should revalidate the stored matched title season');
+assert.match(scrape, /tv\/\$\{seriesId\}\/season\/\$\{seasonNumber\}/, 'season-specific shows should resolve their TMDB season endpoint');
+assert.match(scrape, /cachedSeasonNumber === expectedSeasonNumber/, 'season-specific TMDB caches should retain and validate their numeric season');
+assert.match(scrape, /cachedSeasonUrlNumber === expectedSeasonNumber/, 'season-specific TMDB caches should point to the season page, not just carry a season flag');
 assert.match(scrape, /PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45/, 'restored recommendations should have a bounded retirement window');
 assert.match(scrape, /removeHardExcludedKDrama\(kdramaMap\)/, 'hard Korean drama exclusions should run after enrichment, not only on discovery');
 assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
