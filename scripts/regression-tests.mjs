@@ -108,8 +108,12 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         mergePreviousShowState,
         loadPreviousShows,
         findReusableTMDBCache,
+        isReusableTMDBCoverCache,
         normalizeOutputShow,
         searchTMDBImage,
+        seasonKey,
+        simplifyTitleForSearch,
+        isTMDBResultSeasonCompatible,
         isTMDBResultYearCompatible,
         repairKnownIdentityCorruption,
         assertOutputContinuity,
@@ -704,7 +708,8 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     title: '菜鸟炊事兵',
     url: 'https://image.tmdb.org/t/p/original/kitchen-soldier.jpg',
     source: 'tmdb',
-    version: 14,
+    version: 15,
+    matchedTitle: '菜鸟炊事兵',
     tmdbId: 295509,
   };
   const recovered = helpers.findReusableTMDBCache(
@@ -1244,7 +1249,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     dateImpl: RetryDate,
     initialFiles: {
       [cachePath]: JSON.stringify({ pending: {
-        title: '待补高清测试', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 14,
+        title: '待补高清测试', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 15,
         negativeLookupVersion: 2, notFound: true, cachedAt: '2026-08-21T00:00:00Z',
       } }),
     },
@@ -1283,7 +1288,8 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     env: {},
     initialFiles: {
       [cachePath]: JSON.stringify({ lowres: {
-        title: '低清缓存', url: 'https://image.tmdb.org/t/p/w500/poster.jpg', source: 'tmdb', version: 14,
+        title: '低清缓存', url: 'https://image.tmdb.org/t/p/w500/poster.jpg', source: 'tmdb', version: 15,
+        matchedTitle: '低清缓存',
       } }),
     },
   });
@@ -1359,6 +1365,113 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 
   const season = await helpers.searchTMDBImage({ title: '你好星期六第4季', year: 2026, mediaType: '综艺', regional: '大陆' });
   assert.equal(season.lookupState, 'not_found', 'season-specific variety searches should not fall back to the base series entry');
+}
+
+{
+  const { helpers } = loadScrapeHelpers();
+  assert.equal(helpers.seasonKey('杀人者的购物中心2'), '第2季', 'a trailing Chinese title number should be treated as a season marker');
+  assert.equal(helpers.seasonKey('杀人者的购物中心 S02'), '第2季', 'S02 should normalize to the canonical season key');
+  assert.equal(helpers.seasonKey('杀人者的购物中心 Season 2'), '第2季', 'Season 2 should normalize to the canonical season key');
+  assert.equal(helpers.seasonKey('请回答1988'), '', 'a four-digit year must not be treated as a season marker');
+  assert.equal(helpers.simplifyTitleForSearch('杀人者的购物中心2'), '杀人者的购物中心', 'season suffixes should be removed from TMDB search fallbacks');
+  assert.equal(
+    helpers.isTMDBResultYearCompatible(
+      { title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧' },
+      { name: '杀人者的购物中心', first_air_date: '2024-01-01' }
+    ),
+    false,
+    'a base-series TMDB result must not satisfy a season-specific Korean drama'
+  );
+}
+
+{
+  const { helpers } = loadScrapeHelpers();
+  const mismatched = {
+    title: '杀人者的购物中心2',
+    url: 'https://image.tmdb.org/t/p/original/wrong-season.jpg',
+    source: 'tmdb',
+    version: 15,
+    matchedTitle: '杀人者的购物中心',
+    year: 2026,
+    mediaType: '电视剧',
+  };
+  assert.equal(
+    helpers.findReusableTMDBCache({ mismatched }, { id: 'mismatched', title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧' }),
+    null,
+    'a current-version cache with a base-series matchedTitle must still be rejected'
+  );
+}
+
+{
+  const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
+  const { helpers, writes } = loadScrapeHelpers({
+    initialFiles: {
+      [cachePath]: JSON.stringify({ stale: {
+        title: '杀人者的购物中心2',
+        url: 'https://image.tmdb.org/t/p/w500/wrong-season.jpg',
+        source: 'tmdb',
+        version: 14,
+        matchedTitle: '杀人者的购物中心',
+      } }),
+    },
+  });
+  const show = {
+    id: 'stale', title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://image.tmdb.org/t/p/original/wrong-season.jpg',
+    yfspCoverImg: 'https://static.yfsp.tv/fallback.jpg', coverSource: 'tmdb',
+    primaryUrl: 'https://www.yfsp.tv/play/stale',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://static.yfsp.tv/fallback.jpg', 'an invalidated TMDB cache should immediately fall back to the saved YFSP cover');
+  assert.equal(show.coverSource, 'yfsp', 'an invalidated TMDB cache should be marked as a YFSP fallback');
+  assert.equal(show.tmdbCoverPending, true, 'an invalidated Korean cover should remain eligible for scheduled TMDB refresh');
+  const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
+  assert.equal(savedCache.stale?.version, 14, 'URL resolution migration must not promote an old positive cache to the current version');
+  assert.equal(savedCache.stale?.url, 'https://image.tmdb.org/t/p/original/wrong-season.jpg', 'old TMDB URLs may be normalized without making their match reusable');
+}
+
+{
+  const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
+  const { helpers, writes } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    initialFiles: {
+      [cachePath]: JSON.stringify({ stale: {
+        title: '杀人者的购物中心2',
+        url: 'https://image.tmdb.org/t/p/original/wrong-season.jpg',
+        source: 'tmdb',
+        version: 14,
+        matchedTitle: '杀人者的购物中心',
+      } }),
+    },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      if (textUrl.includes('/search/tv?')) {
+        return mockResponse({ json: {
+          results: [{
+            id: 215072,
+            name: '杀人者的购物中心',
+            original_name: '杀人者的购物中心',
+            first_air_date: '2024-01-17',
+            poster_path: '/wrong-season.jpg',
+            origin_country: ['KR'],
+          }],
+        } });
+      }
+      throw new Error(`unexpected stale-cache TMDB URL: ${textUrl}`);
+    },
+  });
+  const show = {
+    id: 'stale', title: '杀人者的购物中心2', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://image.tmdb.org/t/p/original/wrong-season.jpg',
+    yfspCoverImg: 'https://static.yfsp.tv/fallback.jpg', coverSource: 'tmdb',
+    primaryUrl: 'https://www.yfsp.tv/play/stale',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://static.yfsp.tv/fallback.jpg', 'a rejected season match should keep the Korean fallback cover');
+  const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
+  assert.equal(savedCache.stale?.notFound, true, 'a rejected stale positive cache should become a negative cache entry');
+  assert.equal(savedCache.stale?.version, 15, 'the replacement negative cache should use the current cache version');
+  assert.equal('url' in (savedCache.stale || {}), false, 'a rejected stale positive cache must not retain its wrong TMDB URL');
 }
 
 {
@@ -1454,7 +1567,10 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
+assert.match(scrape, /const COVER_CACHE_VERSION = 15;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
+assert.doesNotMatch(scrape, /entry\.version = COVER_CACHE_VERSION/, 'TMDB URL resolution migration must not promote stale cache entries');
 assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
+assert.match(scrape, /isTMDBResultSeasonCompatible\(show, \{ name: matchedTitle \}\)/, 'TMDB cache reuse should revalidate the stored matched title season');
 assert.match(scrape, /PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45/, 'restored recommendations should have a bounded retirement window');
 assert.match(scrape, /removeHardExcludedKDrama\(kdramaMap\)/, 'hard Korean drama exclusions should run after enrichment, not only on discovery');
 assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');

@@ -2127,8 +2127,32 @@ function normalizeSeasonNumber(value = '') {
 }
 
 function seasonKey(title = '') {
-  const match = title.match(/第([一二三四五六七八九十\d]+)季/u);
-  return match ? `第${normalizeSeasonNumber(match[1])}季` : '';
+  const text = safeText(title, 300).trim();
+  if (!text) return '';
+
+  const toSeasonKey = value => {
+    const normalized = normalizeSeasonNumber(value);
+    return /^[1-9]\d*$/u.test(normalized) ? `第${normalized}季` : '';
+  };
+  const chinese = text.match(/第\s*([一二三四五六七八九十\d]+)\s*季\s*$/u);
+  if (chinese) return toSeasonKey(chinese[1]);
+
+  const latin = text.match(/(?:Season|S)\s*(\d{1,2})\s*$/iu);
+  if (latin) return toSeasonKey(latin[1]);
+
+  // 中文标题常把季号直接贴在末尾(如“杀人者的购物中心2”)。
+  // 只识别汉字/右括号后的 1-2 位数字，避免把 1988 等年份误判成季数。
+  const bare = text.match(/[\p{Script=Han}）)\]】》]\s*([1-9]\d?)$/u);
+  return bare ? toSeasonKey(bare[1]) : '';
+}
+
+function stripSeasonSuffix(title = '') {
+  const text = safeText(title, 300).trim();
+  if (!seasonKey(text)) return text;
+  return text
+    .replace(/\s*(?:第[一二三四五六七八九十\d]+\s*季|(?:Season|S)\s*\d{1,2})\s*$/iu, '')
+    .replace(/([\p{Script=Han}）)\]】》])\s*[1-9]\d?\s*$/u, '$1')
+    .trim();
 }
 
 function shouldDedupByExternal(a, b) {
@@ -2812,7 +2836,8 @@ const TMDB_IMG_BASE = 'https://image.tmdb.org/t/p/original';
 const TMDB_WEB_BASE = 'https://www.themoviedb.org';
 const DOUBAN_MOVIE_BASE = 'https://movie.douban.com/subject';
 const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
-const COVER_CACHE_VERSION = 14;
+// 标题/季数匹配规则变化时必须失效旧的正向缓存,否则旧错误封面会绕过新校验。
+const COVER_CACHE_VERSION = 15;
 // 与图片格式版本分离：旧版把 429/5xx 误记为 notFound，必须主动失效。
 const TMDB_NEGATIVE_CACHE_VERSION = 2;
 
@@ -2835,7 +2860,6 @@ function loadImageCache() {
     const originalUrl = normalizeTMDBOriginalUrl(entry.url);
     if (originalUrl && entry.url !== originalUrl) {
       entry.url = originalUrl;
-      entry.version = COVER_CACHE_VERSION;
     }
     // 清除旧版本 notFound 标记,让改进后的搜索逻辑重试
     if (entry.notFound && (entry.version !== COVER_CACHE_VERSION || entry.negativeLookupVersion !== TMDB_NEGATIVE_CACHE_VERSION)) {
@@ -2879,13 +2903,17 @@ function isTMDBOriginalImageUrl(url = '') {
 }
 
 function isReusableTMDBCoverCache(cached, show) {
+  const matchedTitle = safeText(cached?.matchedTitle, 300).trim();
   return cached &&
     typeof cached === 'object' &&
     cached.version === COVER_CACHE_VERSION &&
     cached.source === 'tmdb' &&
     cached.url &&
+    matchedTitle &&
     titleMatches(cached.title, show.title) &&
-    seasonKey(cached.title) === seasonKey(show.title) &&
+    isTMDBResultSeasonCompatible(show, { name: cached.title }) &&
+    titleMatches(matchedTitle, show.title) &&
+    isTMDBResultSeasonCompatible(show, { name: matchedTitle }) &&
     (!cached.year || !show.year || cached.year === show.year) &&
     (!cached.mediaType || !show.mediaType || cached.mediaType === show.mediaType) &&
     isTMDBOriginalImageUrl(cached.url);
@@ -3085,10 +3113,7 @@ async function fetchWikidataLinks(wikidataId) {
 }
 
 function simplifyTitleForSearch(title = '') {
-  return title
-    .replace(/\s*20\d{2}\s*$/u, '')
-    .replace(/\s*第[一二三四五六七八九十\d]+季\s*$/u, '')
-    .trim();
+  return stripSeasonSuffix(safeText(title, 300).replace(/\s*20\d{2}\s*$/u, ''));
 }
 
 // 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
@@ -3134,7 +3159,7 @@ async function lookupTMDBDirect(show) {
     wikipediaUrl: wikidata.wikipediaUrl || '',
     imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
     wikidataId: external?.wikidata_id || '',
-    matchedTitle: data.name || data.original_name || '',
+    matchedTitle: data.name || data.original_name || data.title || data.original_title || '',
     tmdbId: data.id,
     mediaKind,
     query: `direct:${entry.id}`,
@@ -3225,7 +3250,7 @@ async function searchTMDBImage(show) {
               wikipediaUrl: wikidata.wikipediaUrl || '',
               imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
               wikidataId: external?.wikidata_id || '',
-              matchedTitle: r.name || r.original_name || '',
+              matchedTitle: r.name || r.original_name || r.title || r.original_title || '',
               tmdbId: r.id,
               mediaKind,
               query,
@@ -3256,7 +3281,8 @@ async function enrichCoversFromTMDB(shows) {
       show.yfspCoverImg = show.coverImg;
     }
     const cached = findTMDBCacheEntry(cache, show);
-    if (isReusableTMDBCoverCache(cached, show)) {
+    const reusable = isReusableTMDBCoverCache(cached, show);
+    if (reusable) {
       show.coverImg = cached.url;
       show.coverSource = 'tmdb';
       show.tmdbUrl = cached.tmdbUrl || show.tmdbUrl || '';
@@ -3265,6 +3291,10 @@ async function enrichCoversFromTMDB(shows) {
       show.imdbUrl = cached.imdbUrl || show.imdbUrl || '';
       show.wikidataId = cached.wikidataId || show.wikidataId || '';
       if (!cache[show.id]) cache[show.id] = { ...cached, title: show.title, year: show.year, mediaType: show.mediaType };
+    } else if (originalCover && cached?.source === 'tmdb' && show.yfspCoverImg) {
+      // 旧的正向缓存可能来自更宽松的标题/季数规则。失效期间不能继续发布已知可能串季的 TMDB 图。
+      show.coverImg = show.yfspCoverImg;
+      show.coverSource = 'yfsp';
     } else if (cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION &&
         cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
       show.coverImg = show.yfspCoverImg;
@@ -3348,27 +3378,20 @@ async function enrichCoversFromTMDB(shows) {
       console.log(`    ✓ ${show.title} → ${img.matchedTitle}`);
     } else if (img?.lookupState === 'not_found') {
       // 只有可靠的空搜索结果才写负缓存；429/5xx/超时会在下轮立即重试。
-      const existing = cache[show.id];
-      if (existing && typeof existing === 'object' && existing.url) {
-        existing.version = COVER_CACHE_VERSION;
-        existing.cachedAt = new Date().toISOString();
-        if (show.yfspCoverImg) {
-          show.coverImg = show.yfspCoverImg;
-        }
-      } else {
-        cache[show.id] = {
-          title: show.title,
-          year: show.year,
-          mediaType: show.mediaType,
-          source: 'tmdb',
-          version: COVER_CACHE_VERSION,
-          negativeLookupVersion: TMDB_NEGATIVE_CACHE_VERSION,
-          notFound: true,
-          cachedAt: new Date().toISOString(),
-        };
-        if (show.yfspCoverImg) {
-          show.coverImg = show.yfspCoverImg;
-        }
+      // 搜索已确认当前条目不匹配时，不能把旧正向缓存升级成当前版本。
+      // 否则下一轮仍会读到错误海报，并绕过负缓存的重试窗口。
+      cache[show.id] = {
+        title: show.title,
+        year: show.year,
+        mediaType: show.mediaType,
+        source: 'tmdb',
+        version: COVER_CACHE_VERSION,
+        negativeLookupVersion: TMDB_NEGATIVE_CACHE_VERSION,
+        notFound: true,
+        cachedAt: new Date().toISOString(),
+      };
+      if (show.yfspCoverImg) {
+        show.coverImg = show.yfspCoverImg;
       }
       syncTMDBCoverStatus(show);
       console.log(`    ✗ ${show.title}`);
