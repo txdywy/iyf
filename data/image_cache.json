@@ -3517,7 +3517,7 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-22T12:29:11.987Z",
+    "cachedAt": "2026-08-23T01:02:15.953Z",
     "doubanId": "38243034",
     "doubanMatchedTitle": "奋斗吧人生-演员篇"
   },
@@ -5979,7 +5979,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:11.992Z"
+    "cachedAt": "2026-08-23T01:02:16.566Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -5989,7 +5989,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:11.342Z"
+    "cachedAt": "2026-08-23T01:02:17.895Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -5999,7 +5999,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:11.344Z"
+    "cachedAt": "2026-08-23T01:02:15.872Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6009,7 +6009,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:12.636Z"
+    "cachedAt": "2026-08-23T01:02:16.872Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6019,7 +6019,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T12:36:52.970Z"
+    "cachedAt": "2026-08-23T01:02:16.563Z"
   },
   "YslFQPrSxY0": {
     "title": "圆桌晚晴派",
@@ -6029,7 +6029,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T12:36:53.552Z"
+    "cachedAt": "2026-08-23T01:02:17.184Z"
   },
   "Z6XpGL4fvC2": {
     "title": "姐姐对我来说是女人2",
@@ -6049,7 +6049,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:11.987Z"
+    "cachedAt": "2026-08-23T01:02:17.507Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6059,7 +6059,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:12.011Z"
+    "cachedAt": "2026-08-23T01:02:17.817Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6069,7 +6069,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:12.637Z"
+    "cachedAt": "2026-08-23T01:02:17.299Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6079,7 +6079,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-19T12:36:53.552Z"
+    "cachedAt": "2026-08-23T01:02:17.161Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -6258,7 +6258,7 @@
     "version": 14,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-22T12:29:11.342Z"
+    "cachedAt": "2026-08-23T01:02:15.170Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6725,5 +6725,15 @@
     "cachedAt": "2026-08-22T00:57:48.839Z",
     "doubanId": "38521318",
     "doubanMatchedTitle": "欲望的陷阱"
+  },
+  "y03WGrOpLlG": {
+    "title": "你好时光第2季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 14,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-08-23T01:02:15.924Z"
   }
 }
