@@ -5702,7 +5702,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9D%80%E4%BA%BA%E8%80%85%E7%9A%84%E8%B4%AD%E7%89%A9%E4%B8%AD%E5%BF%83",
     "imdbUrl": "https://www.imdb.com/title/tt26450613/",
     "wikidataId": "Q123999260",
-    "cachedAt": "2026-08-23T16:34:04.353Z"
+    "cachedAt": "2026-08-24T00:59:47.669Z"
   },
   "E9C0MqObZn9": {
     "title": "一饭封神第2季",
@@ -5738,11 +5738,13 @@
     "tmdbSeriesId": 247805,
     "tmdbSeasonId": 531901,
     "tmdbSeasonNumber": 5,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38556429/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
-    "cachedAt": "2026-08-23T16:34:04.814Z"
+    "cachedAt": "2026-08-23T16:34:04.814Z",
+    "doubanId": "38556429",
+    "doubanMatchedTitle": "只要有空 第五季"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -5772,7 +5774,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:05.466Z"
+    "cachedAt": "2026-08-24T00:59:47.769Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -5808,11 +5810,13 @@
     "tmdbSeriesId": 89861,
     "tmdbSeasonId": 526618,
     "tmdbSeasonNumber": 8,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37816907/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt12599910/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:05.559Z"
+    "cachedAt": "2026-08-23T16:34:05.559Z",
+    "doubanId": "37816907",
+    "doubanMatchedTitle": "密室大逃脱 第八季"
   },
   "7euCZd6epLB": {
     "title": "心动的信号第9季",
@@ -6292,7 +6296,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:15.003Z"
+    "cachedAt": "2026-08-24T00:59:47.752Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6302,7 +6306,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:15.770Z"
+    "cachedAt": "2026-08-24T00:59:47.717Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6312,7 +6316,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:16.083Z"
+    "cachedAt": "2026-08-24T00:59:48.335Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6352,7 +6356,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:16.537Z"
+    "cachedAt": "2026-08-24T00:59:48.388Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6382,7 +6386,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:17.761Z"
+    "cachedAt": "2026-08-24T00:59:48.446Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6432,7 +6436,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:18.370Z"
+    "cachedAt": "2026-08-24T00:59:48.433Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6442,7 +6446,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:18.409Z"
+    "cachedAt": "2026-08-24T00:59:49.015Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6494,7 +6498,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:19.046Z"
+    "cachedAt": "2026-08-24T00:59:49.051Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6544,7 +6548,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:19.639Z"
+    "cachedAt": "2026-08-24T00:59:49.172Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6554,7 +6558,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:19.993Z"
+    "cachedAt": "2026-08-24T00:59:49.747Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6574,7 +6578,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:20.320Z"
+    "cachedAt": "2026-08-24T00:59:49.831Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6584,7 +6588,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:20.684Z"
+    "cachedAt": "2026-08-24T00:59:49.148Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6594,7 +6598,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-23T16:34:20.983Z"
+    "cachedAt": "2026-08-24T00:59:51.023Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6635,5 +6639,22 @@
     "imdbUrl": "https://www.imdb.com/title/tt27846061/",
     "wikidataId": "Q124251270",
     "cachedAt": "2026-08-23T16:34:22.950Z"
+  },
+  "giKxhDloej5": {
+    "title": "赴海",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/kKEzUe4QNyosVf03fmcE9OZ5Xxi.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "赴海",
+    "matchedTitle": "赴海",
+    "tmdbId": 331312,
+    "tmdbUrl": "https://www.themoviedb.org/tv/331312",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt44359833/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-24T00:59:49.372Z"
   }
 }
