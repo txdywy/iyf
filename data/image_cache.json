@@ -5702,7 +5702,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9D%80%E4%BA%BA%E8%80%85%E7%9A%84%E8%B4%AD%E7%89%A9%E4%B8%AD%E5%BF%83",
     "imdbUrl": "https://www.imdb.com/title/tt26450613/",
     "wikidataId": "Q123999260",
-    "cachedAt": "2026-08-25T00:59:26.504Z"
+    "cachedAt": "2026-08-25T12:37:59.856Z"
   },
   "E9C0MqObZn9": {
     "title": "一饭封神第2季",
@@ -5774,7 +5774,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:26.672Z"
+    "cachedAt": "2026-08-25T12:38:01.264Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -5832,11 +5832,13 @@
     "tmdbSeriesId": 103147,
     "tmdbSeasonId": 533129,
     "tmdbSeasonNumber": 9,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37815941/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt11285912/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:05.563Z"
+    "cachedAt": "2026-08-23T16:34:05.563Z",
+    "doubanId": "37815941",
+    "doubanMatchedTitle": "心动的信号 第九季"
   },
   "ysN7YxFD5u2": {
     "title": "喜剧之王单口季第3季",
@@ -6298,7 +6300,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:26.734Z"
+    "cachedAt": "2026-08-25T12:38:00.155Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6308,7 +6310,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.122Z"
+    "cachedAt": "2026-08-25T12:38:00.432Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6318,7 +6320,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.297Z"
+    "cachedAt": "2026-08-25T12:38:00.725Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6358,7 +6360,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.373Z"
+    "cachedAt": "2026-08-25T12:38:00.694Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6388,7 +6390,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.341Z"
+    "cachedAt": "2026-08-25T12:38:00.730Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6438,7 +6440,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.737Z"
+    "cachedAt": "2026-08-25T12:38:01.004Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6448,7 +6450,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.905Z"
+    "cachedAt": "2026-08-25T12:38:01.276Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6500,7 +6502,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.982Z"
+    "cachedAt": "2026-08-25T12:38:01.517Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6550,10 +6552,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:27.998Z",
-    "doubanUrl": "https://movie.douban.com/subject/30470314/",
-    "doubanId": "30470314",
-    "doubanMatchedTitle": "继续宠爱·十年·音乐会"
+    "cachedAt": "2026-08-25T12:38:01.578Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6563,10 +6562,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:28.485Z",
-    "doubanUrl": "https://movie.douban.com/subject/30248953/",
-    "doubanId": "30248953",
-    "doubanMatchedTitle": "中国音乐公告牌"
+    "cachedAt": "2026-08-25T12:38:01.858Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6586,7 +6582,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:28.607Z"
+    "cachedAt": "2026-08-25T12:38:02.098Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6596,7 +6592,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:26.715Z"
+    "cachedAt": "2026-08-25T12:38:00.149Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6606,7 +6602,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-25T00:59:29.600Z"
+    "cachedAt": "2026-08-25T12:38:03.000Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6664,5 +6660,62 @@
     "imdbUrl": "https://www.imdb.com/title/tt44359833/",
     "wikidataId": "",
     "cachedAt": "2026-08-24T00:59:49.372Z"
+  },
+  "ZtfEK54FC70": {
+    "title": "舞蹈新风暴",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-08-25T12:38:00.115Z",
+    "doubanUrl": "https://movie.douban.com/subject/37817073/",
+    "doubanId": "37817073",
+    "doubanMatchedTitle": "舞蹈新风暴"
+  },
+  "Oq4Z8GUXr47": {
+    "title": "金色",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/k8qxAoprJ616KZq8k597WjrLm9z.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "金色",
+    "matchedTitle": "金色",
+    "tmdbId": 294487,
+    "tmdbUrl": "https://www.themoviedb.org/tv/294487",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37437772/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-25T12:38:01.605Z"
+  },
+  "YKHYc3bW6nD": {
+    "title": "烟灰",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/fwCzHbxVuS4hyAdsY9if5zd91AO.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "烟灰",
+    "matchedTitle": "烟灰",
+    "tmdbId": 317314,
+    "tmdbUrl": "https://www.themoviedb.org/tv/317314",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt44302417/",
+    "wikidataId": "",
+    "cachedAt": "2026-08-25T12:38:01.634Z"
+  },
+  "qytLLRLd01N": {
+    "title": "丁香花开的兽道第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-08-25T12:38:02.794Z"
   }
 }
