@@ -11,6 +11,9 @@
   const REMOTE_REQUEST_TIMEOUT_MS = 12000;
   const SOURCE_STALE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
   const DEFAULT_SORT_BY_TAB = { new: 'newest' };
+  const VALID_FILTER_STATUS = new Set(['all', 'ongoing', 'complete']);
+  const VALID_FILTER_SCORES = new Set(['0', '7', '8', '9']);
+  const VALID_SORTS = new Set(['recommend', 'score', 'newest', 'popular']);
   const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩剧时间表', trakt: 'Trakt.tv 热度', mdl: 'MyDramaList 社区' };
   const REMOTE_LINK_HOSTS = Object.freeze({
     tvmaze: new Set(['www.tvmaze.com']),
@@ -35,6 +38,8 @@
     bindTabs();
     bindFilters();
     bindPosterFallbacks();
+    window.addEventListener('popstate', handleUrlStateChange);
+    window.addEventListener('hashchange', handleUrlStateChange);
     await loadData();
   }
 
@@ -47,14 +52,21 @@
       if (!isShowDataset(data)) throw new Error('Invalid show data');
       allData = data;
       updateInfo();
-      // 从 URL hash 恢复上次选择的标签,默认韩剧推荐
-      const hashTab = location.hash.slice(1);
-      switchTab(VALID_TABS.has(hashTab) ? hashTab : 'korean');
+      const urlState = readUrlState();
+      restoreFilterControls(urlState);
+      if (urlState.sort) _tabSortPreferences.set(urlState.tab, urlState.sort);
+      switchTab(urlState.tab, { syncUrl: false });
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('empty').style.display = 'block';
-      document.getElementById('empty').innerHTML =
-        '<p>😢 暂无推荐数据</p><p style="font-size:0.85rem;margin-top:8px;color:#8888a0">数据正在抓取中,请稍后刷新...</p>';
+      const grid = document.getElementById('showGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        grid.setAttribute('aria-busy', 'false');
+      }
+      setEmptyState('😢 暂无推荐数据。数据正在抓取中，请稍后刷新。', '刷新页面', () => location.reload());
+      updateStats([]);
+      const info = document.getElementById('updateInfo');
+      if (info) info.textContent = '推荐数据加载失败，请重试';
     }
   }
 
@@ -67,6 +79,71 @@
     const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
     const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
     el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}`;
+  }
+
+  function readUrlState() {
+    const params = new URLSearchParams(location.search);
+    const hashTab = location.hash.slice(1).split('?')[0];
+    const status = params.get('status');
+    const score = params.get('score');
+    const sort = params.get('sort');
+    return {
+      tab: VALID_TABS.has(hashTab) ? hashTab : activeTabName,
+      status: VALID_FILTER_STATUS.has(status) ? status : 'all',
+      score: VALID_FILTER_SCORES.has(score) ? score : '0',
+      sort: VALID_SORTS.has(sort) ? sort : '',
+      query: params.get('q') || '',
+    };
+  }
+
+  function restoreFilterControls(state) {
+    const status = document.getElementById('filterStatus');
+    const score = document.getElementById('filterScore');
+    const sort = document.getElementById('sortBy');
+    const search = document.getElementById('searchInput');
+    if (status) status.value = state.status;
+    if (score) score.value = state.score;
+    if (sort) sort.value = state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend';
+    if (search) search.value = state.query;
+    updateResetVisibility();
+  }
+
+  function syncUrlState() {
+    const currentUrl = typeof location.href === 'string' && location.href
+      ? location.href
+      : `http://localhost/${location.hash || ''}`;
+    const url = new URL(currentUrl);
+    const status = document.getElementById('filterStatus')?.value || 'all';
+    const score = document.getElementById('filterScore')?.value || '0';
+    const sort = document.getElementById('sortBy')?.value || 'recommend';
+    const query = document.getElementById('searchInput')?.value.trim() || '';
+    if (status === 'all') url.searchParams.delete('status');
+    else url.searchParams.set('status', status);
+    if (score === '0') url.searchParams.delete('score');
+    else url.searchParams.set('score', score);
+    const defaultSort = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
+    if (sort === defaultSort) url.searchParams.delete('sort');
+    else url.searchParams.set('sort', sort);
+    if (query) url.searchParams.set('q', query);
+    else url.searchParams.delete('q');
+    url.hash = activeTabName;
+    history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function handleUrlStateChange() {
+    const state = readUrlState();
+    if (!allData) {
+      restoreFilterControls(state);
+      return;
+    }
+    _tabSortPreferences.set(state.tab, state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend');
+    if (state.tab !== activeTabName) {
+      switchTab(state.tab, { syncUrl: false });
+      restoreFilterControls(state);
+    } else {
+      restoreFilterControls(state);
+      applyFilters();
+    }
   }
 
   // ── 标签切换 ──────────────────────────────────────────
@@ -88,20 +165,23 @@
     });
   }
 
-  function switchTab(tab) {
+  function switchTab(tab, { syncUrl = true } = {}) {
     if (!VALID_TABS.has(tab)) tab = 'korean';
     const requestVersion = cancelPendingTabRequest();
     const sortSelect = document.getElementById('sortBy');
     if (sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
     activeTabName = tab;
     if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
-    history.replaceState(null, '', '#' + tab);
+    if (syncUrl) syncUrlState();
+    let activeButton = null;
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
       b.classList.toggle('active', active);
       b.setAttribute('aria-selected', active ? 'true' : 'false');
       b.tabIndex = active ? 0 : -1;
+      if (active) activeButton = b;
     });
+    activeButton?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
 
     if (!allData) return;
@@ -154,11 +234,22 @@
 
   // ── 筛选 ──────────────────────────────────────────
   function bindFilters() {
-    // 包一层箭头函数,避免事件对象被当作 animate 实参传入(否则筛选也会触发入场动画)。
-    document.getElementById('filterStatus').addEventListener('change', () => applyFilters());
-    document.getElementById('filterScore').addEventListener('change', () => applyFilters());
-    document.getElementById('sortBy').addEventListener('change', () => applyFilters());
-    document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300));
+    const applyAndSync = () => {
+      syncUrlState();
+      applyFilters();
+    };
+    document.getElementById('filterStatus').addEventListener('change', applyAndSync);
+    document.getElementById('filterScore').addEventListener('change', applyAndSync);
+    document.getElementById('sortBy').addEventListener('change', applyAndSync);
+    document.getElementById('searchInput').addEventListener('input', debounce(applyAndSync, 300));
+    document.getElementById('resetFilters').addEventListener('click', () => {
+      document.getElementById('filterStatus').value = 'all';
+      document.getElementById('filterScore').value = '0';
+      document.getElementById('sortBy').value = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
+      document.getElementById('searchInput').value = '';
+      syncUrlState();
+      applyFilters();
+    });
   }
 
   function bindPosterFallbacks() {
@@ -204,13 +295,22 @@
     // 搜索
     const query = document.getElementById('searchInput').value.trim().toLowerCase();
     if (query) {
-      shows = shows.filter(s =>
-        toText(s.title).toLowerCase().includes(query) ||
-        toText(Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases).toLowerCase().includes(query) ||
-        toText(s.name).toLowerCase().includes(query) ||
-        toText(s.actor).toLowerCase().includes(query) ||
-        toText(s.contentType || (Array.isArray(s.genres) ? s.genres.join('/') : '')).toLowerCase().includes(query)
-      );
+      shows = shows.filter(s => {
+        const titleMatches = toText(s.title).toLowerCase().includes(query);
+        if (titleMatches) return true;
+        return [
+          s.titleCn,
+          s.titleEn,
+          s.originalTitle,
+          s.name,
+          s.actor,
+          s.cast,
+          s.contentType,
+          s.network,
+          Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases,
+          s.genres,
+        ].some(value => toSearchText(value).toLowerCase().includes(query));
+      });
     }
 
     // 排序
@@ -238,18 +338,17 @@
   function renderShows(shows, animate = false) {
     const grid = document.getElementById('showGrid');
     const loading = document.getElementById('loading');
-    const empty = document.getElementById('empty');
 
     loading.style.display = 'none';
     grid.setAttribute('aria-busy', 'false');
 
     if (!shows.length) {
       grid.innerHTML = '';
-      empty.style.display = 'block';
+      setEmptyState('😢 暂无符合当前条件的推荐');
       return;
     }
 
-    empty.style.display = 'none';
+    clearEmptyState();
     // 仅在切换标签/首次加载时播放入场动画;筛选/搜索/排序时即时呈现,避免每次按键重放动画造成的抖动。
     grid.classList.toggle('animate', animate);
 
@@ -308,7 +407,8 @@
 
     const recommendWidth = Math.max(0, Math.min(100, toFiniteNumber(show.recommendScore) / 1.5));
 
-    const actions = renderCardActions(show);
+    const primaryAction = renderPrimaryAction(show);
+    const secondaryActions = renderSecondaryActions(show, primaryAction?.url || '');
 
     return `
       <article class="show-card" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
@@ -319,9 +419,10 @@
           ${show.score > 0 ? `<div class="card-score-float">⭐ ${escapeHtml(String(show.score))}</div>` : ''}
         </div>
         <div class="card-body">
-          <div class="recommend-bar" style="width:${recommendWidth}%"></div>
+          <div class="recommend-bar" style="width:${recommendWidth}%" role="img" aria-label="推荐度 ${Math.round(recommendWidth)}%"></div>
           <h3 class="card-title">${escapeHtml(show.title)}</h3>
           <div class="card-meta">${tags.join('')}</div>
+          ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
           ${actors ? `<div class="card-actors">🎭 ${escapeHtml(actors)}</div>` : ''}
           <p class="card-desc">${escapeHtml(show.description || '')}</p>
           ${show.aiReason ? `<p class="card-ai-reason">🤖 AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
@@ -330,41 +431,105 @@
             ${viewsText ? `<span class="card-views">👁 ${viewsText}</span>` : ''}
           </div>
           <div class="card-actions">
-            ${actions}
+            ${secondaryActions}
           </div>
         </div>
       </article>
     `;
   }
 
+  function renderPrimaryAction(show) {
+    const yfspUrl = safeExternalUrl(show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : ''));
+    const primaryUrl = yfspUrl || safeExternalUrl(show.primaryUrl) || safeExternalUrl(show.tmdbUrl) || safeExternalUrl(show.doubanUrl);
+    if (!primaryUrl) return null;
+    const label = yfspUrl ? '观看 / 详情' : '查看资料';
+    return {
+      url: primaryUrl,
+      html: `<a class="card-action primary" href="${escapeHtml(primaryUrl)}" target="_blank" rel="noopener noreferrer">${label}</a>`,
+    };
+  }
+
+  function renderSecondaryActions(show, primaryUrl) {
+    const actions = [];
+    addExternalAction(actions, show.tmdbUrl, 'source-tmdb', 'TMDB', primaryUrl);
+    addExternalAction(actions, show.doubanUrl, 'source-douban', '豆瓣', primaryUrl);
+    addExternalAction(actions, show.wikipediaUrl, 'source-wikipedia', 'Wiki', primaryUrl);
+    addExternalAction(actions, show.imdbUrl, 'source-imdb', 'IMDb', primaryUrl);
+    if (!actions.length) actions.push('<span class="card-action disabled" aria-disabled="true">暂无其他资料</span>');
+    return actions.join('');
+  }
+
+  // 兼容旧版回归测试与内部调用方;页面渲染使用上面的分层操作布局。
   function renderCardActions(show) {
     const actions = [];
+    const yfspUrl = safeExternalUrl(show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : ''));
+    addExternalAction(actions, yfspUrl, 'source-yfsp', '观看/详情');
     addExternalAction(actions, show.tmdbUrl, 'source-tmdb', 'TMDB资料');
     addExternalAction(actions, show.doubanUrl, 'source-douban', '豆瓣资料');
     addExternalAction(actions, show.wikipediaUrl, 'source-wikipedia', 'Wikipedia');
     addExternalAction(actions, show.imdbUrl, 'source-imdb', 'IMDb资料');
-
-    const yfspUrl = show.yfspUrl || (show.primaryUrlSource === 'yfsp' ? show.primaryUrl : '');
-    addExternalAction(actions, yfspUrl, 'source-yfsp', '观看/详情');
-
-    // 有资料链接但缺少观看链接时,显示灰色提示
-    if (!yfspUrl && actions.length > 0) {
-      actions.push('<span class="card-action disabled">暂无观看链接</span>');
-    }
-
-    if (!actions.length && show.primaryUrl) {
-      addExternalAction(actions, show.primaryUrl, 'source-yfsp', '资料链接');
-    }
-    if (!actions.length) {
-      actions.push('<span class="card-action disabled">待匹配链接</span>');
-    }
+    if (!yfspUrl && actions.length) actions.push('<span class="card-action disabled">暂无观看链接</span>');
+    if (!actions.length) actions.push('<span class="card-action disabled">待匹配链接</span>');
     return actions.join('');
   }
 
-  function addExternalAction(actions, url, sourceClass, label) {
+  function addExternalAction(actions, url, sourceClass, label, excludeUrl = '') {
     const safeUrl = safeExternalUrl(url);
-    if (!safeUrl) return;
+    if (!safeUrl || safeUrl === excludeUrl) return;
     actions.push(`<a class="card-action ${sourceClass}" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+  }
+
+  function setEmptyState(message, actionLabel = '', action = null) {
+    const empty = document.getElementById('empty');
+    const messageElement = document.getElementById('emptyMessage');
+    const actionElement = document.getElementById('emptyAction');
+    if (messageElement) messageElement.textContent = message;
+    if (actionElement) {
+      actionElement.textContent = actionLabel;
+      actionElement.hidden = typeof action !== 'function';
+      actionElement.onclick = typeof action === 'function' ? action : null;
+    }
+    if (empty) empty.style.display = 'block';
+  }
+
+  function clearEmptyState() {
+    const empty = document.getElementById('empty');
+    const actionElement = document.getElementById('emptyAction');
+    if (empty) empty.style.display = 'none';
+    if (actionElement) {
+      actionElement.hidden = true;
+      actionElement.onclick = null;
+    }
+  }
+
+  function updateResetVisibility() {
+    const button = document.getElementById('resetFilters');
+    if (!button) return;
+    const status = document.getElementById('filterStatus')?.value || 'all';
+    const score = document.getElementById('filterScore')?.value || '0';
+    const sort = document.getElementById('sortBy')?.value || 'recommend';
+    const query = document.getElementById('searchInput')?.value.trim() || '';
+    const defaultSort = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
+    button.hidden = status === 'all' && score === '0' && sort === defaultSort && !query;
+  }
+
+  function updateResultSummary(total) {
+    const summary = document.getElementById('resultSummary');
+    if (!summary) return;
+    if (!total) {
+      summary.textContent = '没有符合当前筛选条件的内容';
+      return;
+    }
+    const activeFilters = [];
+    const status = document.getElementById('filterStatus')?.value;
+    const score = document.getElementById('filterScore')?.value;
+    const query = document.getElementById('searchInput')?.value.trim();
+    if (status === 'ongoing') activeFilters.push('连载中');
+    if (status === 'complete') activeFilters.push('已完结');
+    if (score && score !== '0') activeFilters.push(`${score}分以上`);
+    if (query) activeFilters.push(`搜索“${query}”`);
+    const suffix = activeFilters.length ? ` · ${activeFilters.join(' · ')}` : '';
+    summary.textContent = `显示 ${total} 个推荐结果${suffix}`;
   }
 
   function updateStats(shows) {
@@ -386,6 +551,21 @@
     animateNum('statOngoing', ongoing);
     animateNum('statComplete', complete);
     animateNum('statHighScore', highScore);
+    updateResultSummary(total);
+    updateResetVisibility();
+  }
+
+  function resetStats() {
+    for (const [id, timer] of _numTimers) {
+      clearInterval(timer);
+      _numTimers.delete(id);
+    }
+    ['statTotal', 'statOngoing', 'statComplete', 'statHighScore'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.textContent = '0';
+    });
+    updateResultSummary(0);
+    updateResetVisibility();
   }
 
   const _numTimers = new Map();
@@ -403,6 +583,14 @@
 
     // 清理该元素上一次未完成的动画,避免多个 setInterval 叠加导致数字闪烁
     if (_numTimers.has(id)) clearInterval(_numTimers.get(id));
+
+    const prefersReducedMotion = typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      el.textContent = target;
+      _numTimers.delete(id);
+      return;
+    }
 
     const diff = target - current;
     const steps = Math.min(Math.abs(diff), 20);
@@ -455,6 +643,11 @@
 
   function toText(value) {
     return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  }
+
+  function toSearchText(value) {
+    if (Array.isArray(value)) return value.map(toSearchText).join(' ');
+    return toText(value);
   }
 
   function toPositiveInteger(value) {
@@ -562,12 +755,13 @@
     _tabAbortController = controller;
     _isTabLoading = true;
     currentShows = [];
+    resetStats();
 
     const grid = document.getElementById('showGrid');
     grid.innerHTML = '';
     grid.setAttribute('aria-busy', 'true');
     document.getElementById('loading').style.display = 'block';
-    document.getElementById('empty').style.display = 'none';
+    clearEmptyState();
     return controller;
   }
 
@@ -589,9 +783,7 @@
     if (!completeRemoteTab(tab, requestVersion, controller, [])) return false;
     const info = document.getElementById('updateInfo');
     if (info) info.textContent = `${label} · 快照已过期，暂不展示`;
-    const empty = document.getElementById('empty');
-    empty.style.display = 'block';
-    empty.innerHTML = `<p>⏳ ${escapeHtml(label)}快照已超过14天，暂不展示，等待下一次更新。</p>`;
+    setEmptyState(`⏳ ${label}快照已超过14天，暂不展示，等待下一次更新。`, '返回韩剧推荐', () => switchTab('korean'));
     return true;
   }
 
@@ -599,11 +791,15 @@
     if (!isActiveTabRequest(tab, requestVersion, controller)) return;
     _isTabLoading = false;
     const grid = document.getElementById('showGrid');
+    grid.innerHTML = '';
     grid.setAttribute('aria-busy', 'false');
     document.getElementById('loading').style.display = 'none';
-    const empty = document.getElementById('empty');
-    empty.style.display = 'block';
-    empty.innerHTML = `<p>${escapeHtml(message)}</p>`;
+    currentShows = [];
+    resetStats();
+    const label = REMOTE_TAB_LABELS[tab] || '远程数据';
+    const info = document.getElementById('updateInfo');
+    if (info) info.textContent = `${label}加载失败，请重试`;
+    setEmptyState(message, '重试', () => switchTab(tab));
   }
 
   function finishRemoteTabRequest(controller) {
@@ -654,9 +850,7 @@
       updateSourceInfo('TVmaze 韩剧时间表', new Date(_tvmazeCachedAt).toISOString());
 
       if (!shows.length) {
-        const empty = document.getElementById('empty');
-        empty.style.display = 'block';
-        empty.innerHTML = '<p>📡 今日暂无韩国电视剧播出</p>';
+        setEmptyState('📡 今日暂无韩国电视剧播出');
       }
     } catch (e) {
       const message = e?.name === 'AbortError'
@@ -743,9 +937,7 @@
       updateSourceInfo('Trakt.tv 热度', _traktCache.lastUpdated);
 
       if (!_traktCache.shows.length) {
-        const empty = document.getElementById('empty');
-        empty.style.display = 'block';
-        empty.innerHTML = '<p>🔥 暂无 Trakt.tv 热度数据</p>';
+        setEmptyState('🔥 暂无 Trakt.tv 热度数据');
       }
     } catch (e) {
       const message = e?.name === 'AbortError'
@@ -821,9 +1013,7 @@
       updateSourceInfo('MyDramaList 社区', _mdlCache.lastUpdated);
 
       if (!_mdlCache.shows.length) {
-        const empty = document.getElementById('empty');
-        empty.style.display = 'block';
-        empty.innerHTML = '<p>🎯 暂无 MDL 社区精选数据</p>';
+        setEmptyState('🎯 暂无 MDL 社区精选数据');
       }
     } catch (e) {
       const message = e?.name === 'AbortError'
