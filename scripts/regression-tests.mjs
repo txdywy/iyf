@@ -221,6 +221,8 @@ function createAppDocument() {
     showGrid: createDomElement({ id: 'showGrid' }),
     loading: createDomElement({ id: 'loading' }),
     empty: createDomElement({ id: 'empty' }),
+    emptyMessage: createDomElement({ id: 'emptyMessage' }),
+    emptyAction: createDomElement({ id: 'emptyAction' }),
     updateInfo: createDomElement({ id: 'updateInfo' }),
     sortBy: createDomElement({ id: 'sortBy', value: 'recommend' }),
     filterStatus: createDomElement({ id: 'filterStatus', value: 'all' }),
@@ -427,7 +429,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   await helpers.switchTab('trakt');
   assert.doesNotMatch(elements.showGrid.innerHTML, /快照节目/, 'Trakt snapshots older than 14 days must not render stale rows');
   assert.match(elements.updateInfo.textContent, /快照已过期，暂不展示/, 'expired Trakt snapshots should be clearly marked unavailable');
-  assert.match(elements.empty.innerHTML, /超过14天/, 'expired Trakt snapshots should explain why no rows are shown');
+  assert.match(elements.emptyMessage.textContent, /超过14天/, 'expired Trakt snapshots should explain why no rows are shown');
   assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false', 'successful remote rendering should clear aria-busy');
   helpers.switchTab('korean');
   await helpers.switchTab('trakt');
@@ -492,7 +494,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     chineseVariety: [],
   });
   await helpers.switchTab('trakt');
-  assert.match(elements.empty.innerHTML, /请求超时/, 'an active remote timeout should show a retryable timeout message');
+  assert.match(elements.emptyMessage.textContent, /请求超时/, 'an active remote timeout should show a retryable timeout message');
   assert.equal(elements.empty.style.display, 'block', 'an active remote timeout should reveal the error state');
   assert.equal(elements.loading.style.display, 'none', 'an active remote timeout should not leave the spinner running');
   assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false', 'an active remote timeout should clear aria-busy');
