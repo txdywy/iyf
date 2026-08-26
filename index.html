@@ -21,11 +21,12 @@
 </head>
 <body>
   <div id="app">
+    <a class="skip-link" href="#mainContent">跳到推荐内容</a>
     <!-- 头部 -->
     <header class="header">
       <div class="container">
         <h1 class="logo">🎬 剧荒救星</h1>
-        <p class="subtitle">韩剧精选 & 轻松搞笑新综追踪 · 剧荒救星</p>
+        <p class="subtitle">精选韩剧与轻松搞笑综艺，帮你快速找到下一部想看的内容</p>
         <div class="update-info" id="updateInfo" role="status" aria-live="polite">加载中...</div>
       </div>
     </header>
@@ -46,8 +47,9 @@
     </nav>
 
     <!-- 筛选栏 -->
-    <div class="filters">
+    <section class="filters" aria-labelledby="filterHeading">
       <div class="container">
+        <h2 class="sr-only" id="filterHeading">筛选和搜索</h2>
         <div class="filter-row">
           <div class="filter-group">
             <label for="filterStatus">状态</label>
@@ -79,12 +81,17 @@
             <input type="search" id="searchInput" placeholder="搜索剧名/演员..." aria-label="搜索剧名或演员" autocomplete="off">
           </div>
         </div>
+        <div class="filter-meta">
+          <span class="result-summary" id="resultSummary" role="status" aria-live="polite"></span>
+          <button class="filter-reset" id="resetFilters" type="button" hidden>清除筛选</button>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- 统计栏 -->
-    <div class="stats-bar">
+    <section class="stats-bar" aria-labelledby="statsHeading">
       <div class="container">
+        <h2 class="sr-only" id="statsHeading">推荐统计</h2>
         <div class="stat-item">
           <span class="stat-num" id="statTotal">0</span>
           <span class="stat-label">推荐总数</span>
@@ -102,12 +109,13 @@
           <span class="stat-label">高分佳作</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- 内容区域 -->
-    <main class="content">
+    <main class="content" id="mainContent" tabindex="-1">
       <div class="container">
-        <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-busy="true">
+        <h2 class="sr-only" id="contentHeading">推荐内容</h2>
+        <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-describedby="resultSummary" aria-live="polite" aria-busy="true">
           <!-- JS 动态渲染 -->
         </div>
         <div class="loading" id="loading" role="status" aria-live="polite">
@@ -115,7 +123,8 @@
           <p>正在加载推荐数据...</p>
         </div>
         <div class="empty" id="empty" role="status" aria-live="polite" style="display:none">
-          <p>😢 暂无符合条件的推荐</p>
+          <p id="emptyMessage">😢 暂无符合条件的推荐</p>
+          <button class="empty-action" id="emptyAction" type="button" hidden></button>
         </div>
       </div>
     </main>
