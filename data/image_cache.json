@@ -4904,11 +4904,13 @@
     "matchedTitle": "一路向海的少年",
     "tmdbId": 330926,
     "tmdbUrl": "https://www.themoviedb.org/tv/330926",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38500062/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.751Z"
+    "cachedAt": "2026-08-23T16:34:14.751Z",
+    "doubanId": "38500062",
+    "doubanMatchedTitle": "一路向海的少年"
   },
   "2APi9HEUIY6": {
     "title": "夜语记",
@@ -5695,7 +5697,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9D%80%E4%BA%BA%E8%80%85%E7%9A%84%E8%B4%AD%E7%89%A9%E4%B8%AD%E5%BF%83",
     "imdbUrl": "https://www.imdb.com/title/tt26450613/",
     "wikidataId": "Q123999260",
-    "cachedAt": "2026-08-28T08:43:25.100Z"
+    "cachedAt": "2026-08-28T11:00:35.668Z"
   },
   "E9C0MqObZn9": {
     "title": "一饭封神第2季",
@@ -5769,7 +5771,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.551Z"
+    "cachedAt": "2026-08-28T11:00:37.212Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -6305,7 +6307,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:25.468Z"
+    "cachedAt": "2026-08-28T11:00:36.028Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6315,7 +6317,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:25.459Z"
+    "cachedAt": "2026-08-28T11:00:36.255Z",
+    "doubanUrl": "https://movie.douban.com/subject/35460067/",
+    "doubanId": "35460067",
+    "doubanMatchedTitle": "嘴强王者脱口秀之夜"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6325,7 +6330,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.036Z"
+    "cachedAt": "2026-08-28T11:00:36.597Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6351,11 +6356,13 @@
     "tmdbSeriesId": 93509,
     "tmdbSeasonId": 306674,
     "tmdbSeasonNumber": 5,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35890182/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.471Z"
+    "cachedAt": "2026-08-23T16:34:16.471Z",
+    "doubanId": "35890182",
+    "doubanMatchedTitle": "脱口秀大会 第五季"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -6365,7 +6372,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:25.677Z"
+    "cachedAt": "2026-08-28T11:00:36.283Z",
+    "doubanUrl": "https://movie.douban.com/subject/26809886/",
+    "doubanId": "26809886",
+    "doubanMatchedTitle": "喜剧者联盟"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6397,7 +6407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.024Z"
+    "cachedAt": "2026-08-28T11:00:36.615Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6447,7 +6457,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.034Z"
+    "cachedAt": "2026-08-28T11:00:36.864Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6457,7 +6467,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.256Z"
+    "cachedAt": "2026-08-28T11:00:37.195Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6516,7 +6526,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:27.208Z"
+    "cachedAt": "2026-08-28T11:00:36.877Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6566,7 +6576,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.628Z"
+    "cachedAt": "2026-08-28T11:00:37.457Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6576,7 +6586,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:26.841Z"
+    "cachedAt": "2026-08-28T11:00:37.783Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6596,7 +6606,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:27.135Z"
+    "cachedAt": "2026-08-28T11:00:37.804Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6606,7 +6616,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:25.444Z"
+    "cachedAt": "2026-08-28T11:00:36.005Z",
+    "doubanUrl": "https://movie.douban.com/subject/30157129/",
+    "doubanId": "30157129",
+    "doubanMatchedTitle": "闺蜜的完美旅行"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6616,7 +6629,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-28T08:43:27.763Z"
+    "cachedAt": "2026-08-28T11:00:38.670Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6835,6 +6848,38 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-08-27T21:38:51.631Z"
+    "cachedAt": "2026-08-27T21:38:51.631Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816920/",
+    "doubanId": "37816920",
+    "doubanMatchedTitle": "我家那闺女2026"
+  },
+  "wkooR40Eji0": {
+    "title": "鼠惑",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/ipIcSJUXBenqEWXXhc0WYb9l4DN.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "鼠惑",
+    "matchedTitle": "鼠惑",
+    "tmdbId": 290193,
+    "tmdbUrl": "https://www.themoviedb.org/tv/290193",
+    "doubanUrl": "https://movie.douban.com/subject/37172401/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%BC%A0%E6%83%91",
+    "imdbUrl": "https://www.imdb.com/title/tt36996011/",
+    "wikidataId": "Q140198906",
+    "cachedAt": "2026-08-28T11:00:35.664Z",
+    "doubanId": "37172401",
+    "doubanMatchedTitle": "鼠惑"
+  },
+  "7QqV64Xt5Y9": {
+    "title": "人生复本第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-08-28T11:00:39.071Z"
   }
 }
