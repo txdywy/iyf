@@ -6,6 +6,10 @@
   'use strict';
 
   const DATA_URL = 'data/shows.json';
+  const DATA_CACHE_KEY = 'iyf:shows-cache:v1';
+  const DATA_CACHE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+  const INITIAL_RENDER_COUNT = 24;
+  const RENDER_BATCH_SIZE = 24;
   const VALID_TABS = new Set(['korean', 'year2026', 'variety2026', 'variety', 'new', 'classic', 'tvmaze', 'trakt', 'mdl']);
   const REMOTE_CACHE_TTL_MS = 15 * 60 * 1000;
   const REMOTE_REQUEST_TIMEOUT_MS = 12000;
@@ -15,6 +19,10 @@
   const VALID_FILTER_SCORES = new Set(['0', '7', '8', '9']);
   const VALID_SORTS = new Set(['recommend', 'score', 'newest', 'popular']);
   const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩剧时间表', trakt: 'Trakt.tv 热度', mdl: 'MyDramaList 社区' };
+  const SNAPSHOT_TAB_PATHS = Object.freeze({
+    trakt: 'data/trakt_shows.json',
+    mdl: 'data/mdl_shows.json',
+  });
   const REMOTE_LINK_HOSTS = Object.freeze({
     tvmaze: new Set(['www.tvmaze.com']),
     tvmazeImage: new Set(['static.tvmaze.com']),
@@ -29,6 +37,9 @@
   let _tabAbortController = null;
   let _isTabLoading = false;
   const _tabRequestTimeouts = new WeakMap();
+  const _snapshotAvailability = new Map();
+  let _filteredShows = [];
+  let _visibleShowCount = INITIAL_RENDER_COUNT;
 
 
   // ── 初始化 ──────────────────────────────────────────
@@ -37,6 +48,7 @@
   async function init() {
     bindTabs();
     bindFilters();
+    bindLoadMore();
     bindPosterFallbacks();
     window.addEventListener('popstate', handleUrlStateChange);
     window.addEventListener('hashchange', handleUrlStateChange);
@@ -44,6 +56,17 @@
   }
 
   async function loadData() {
+    const cached = readCachedData();
+    const renderedFromCache = Boolean(cached);
+
+    if (cached) {
+      allData = cached.data;
+      renderLoadedData({ animate: true });
+      if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 正在后台更新');
+    } else {
+      renderSkeletons();
+    }
+
     try {
       // 保持稳定 URL，让浏览器用 ETag/Last-Modified 做条件请求。
       const resp = await fetch(DATA_URL, { cache: 'no-cache' });
@@ -51,12 +74,22 @@
       const data = await resp.json();
       if (!isShowDataset(data)) throw new Error('Invalid show data');
       allData = data;
-      updateInfo();
-      const urlState = readUrlState();
-      restoreFilterControls(urlState);
-      if (urlState.sort) _tabSortPreferences.set(urlState.tab, urlState.sort);
-      switchTab(urlState.tab, { syncUrl: false });
+      saveDataCache(data);
+      if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
+      if (renderedFromCache) {
+        // 后台更新不抢走用户已经切换到的标签或筛选状态。
+        if (!REMOTE_TAB_LABELS[activeTabName]) {
+          switchTab(activeTabName, { syncUrl: false, animate: false });
+        }
+      } else {
+        renderLoadedData({ animate: true });
+      }
+      void refreshSnapshotTabVisibility();
     } catch (e) {
+      if (renderedFromCache) {
+        if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 网络更新失败，展示本地缓存');
+        return;
+      }
       document.getElementById('loading').style.display = 'none';
       const grid = document.getElementById('showGrid');
       if (grid) {
@@ -70,7 +103,59 @@
     }
   }
 
-  function updateInfo() {
+  function renderLoadedData({ animate = true } = {}) {
+    const urlState = readUrlState();
+    restoreFilterControls(urlState);
+    if (urlState.sort) _tabSortPreferences.set(urlState.tab, urlState.sort);
+    switchTab(urlState.tab, { syncUrl: false, animate });
+  }
+
+  function readCachedData() {
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      const raw = localStorage.getItem(DATA_CACHE_KEY);
+      if (!raw) return null;
+      const cached = JSON.parse(raw);
+      const cachedAt = Number(cached?.cachedAt);
+      if (!Number.isFinite(cachedAt) || Date.now() - cachedAt > DATA_CACHE_MAX_AGE_MS) return null;
+      if (!isShowDataset(cached?.data)) return null;
+      return { data: cached.data, cachedAt };
+    } catch {
+      return null;
+    }
+  }
+
+  function saveDataCache(data) {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({ version: 1, cachedAt: Date.now(), data }));
+    } catch {
+      // 隐私模式或存储空间不足时，在线渲染仍应正常工作。
+    }
+  }
+
+  function renderSkeletons(count = 6) {
+    const grid = document.getElementById('showGrid');
+    if (!grid) return;
+    grid.setAttribute('aria-busy', 'true');
+    grid.classList.remove('animate');
+    grid.innerHTML = Array.from({ length: count }, () => `
+      <article class="skeleton-card" aria-hidden="true">
+        <div class="skeleton-poster skeleton-shimmer"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+          <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+          <div class="skeleton-line skeleton-shimmer"></div>
+          <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+        </div>
+      </article>
+    `).join('');
+    updateLoadMore(0, 0);
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'block';
+  }
+
+  function updateInfo(notice = '') {
     if (!allData) return;
     const el = document.getElementById('updateInfo');
     const time = new Date(allData.lastUpdated);
@@ -78,7 +163,7 @@
     const kr = allData.stats?.koreanDramas ?? (allData.koreanDramas || []).length;
     const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
     const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
-    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}`;
+    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${notice}`;
   }
 
   function readUrlState() {
@@ -140,6 +225,7 @@
     if (state.tab !== activeTabName) {
       switchTab(state.tab, { syncUrl: false });
       restoreFilterControls(state);
+      applyFilters();
     } else {
       restoreFilterControls(state);
       applyFilters();
@@ -149,23 +235,26 @@
   // ── 标签切换 ──────────────────────────────────────────
   function bindTabs() {
     const tabs = [...document.querySelectorAll('.tab')];
-    tabs.forEach((btn, index) => {
+    tabs.forEach(btn => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
       btn.addEventListener('keydown', event => {
+        const visibleTabs = [...document.querySelectorAll('.tab')].filter(tab => !tab.hidden);
+        const index = visibleTabs.indexOf(btn);
+        if (index < 0) return;
         let nextIndex = null;
-        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
-        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % visibleTabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + visibleTabs.length) % visibleTabs.length;
         else if (event.key === 'Home') nextIndex = 0;
-        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else if (event.key === 'End') nextIndex = visibleTabs.length - 1;
         if (nextIndex == null) return;
         event.preventDefault();
-        tabs[nextIndex].focus();
-        switchTab(tabs[nextIndex].dataset.tab);
+        visibleTabs[nextIndex].focus();
+        switchTab(visibleTabs[nextIndex].dataset.tab);
       });
     });
   }
 
-  function switchTab(tab, { syncUrl = true } = {}) {
+  function switchTab(tab, { syncUrl = true, animate = true } = {}) {
     if (!VALID_TABS.has(tab)) tab = 'korean';
     const requestVersion = cancelPendingTabRequest();
     const sortSelect = document.getElementById('sortBy');
@@ -191,6 +280,7 @@
     } else {
       updateInfo();
     }
+    updateSnapshotTabButtons();
 
     let shows = [];
     switch (tab) {
@@ -201,10 +291,8 @@
         shows = (allData.koreanDramas || []).filter(s => s.year === getCurrentDataYear());
         break;
       case 'variety2026':
-        // 当年新综艺：当年新综艺 + 经典搞笑综艺
-        shows = (allData.chineseVariety || []).filter(s =>
-          s.year >= getCurrentDataYear() || s.isClassic
-        );
+        // 当年新综艺，经典节目统一放在“经典必看”标签中。
+        shows = (allData.chineseVariety || []).filter(s => s.year === getCurrentDataYear());
         break;
       case 'variety':
         shows = allData.chineseVariety || [];
@@ -229,7 +317,7 @@
     }
 
     currentShows = shows;
-    applyFilters(true);
+    applyFilters(animate);
   }
 
   // ── 筛选 ──────────────────────────────────────────
@@ -249,6 +337,24 @@
       document.getElementById('searchInput').value = '';
       syncUrlState();
       applyFilters();
+    });
+
+    const toggle = document.getElementById('filterToggle');
+    const controls = document.getElementById('filterControls');
+    toggle?.addEventListener('click', () => {
+      const open = controls?.classList.toggle('is-open') ?? false;
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+  }
+
+  function bindLoadMore() {
+    document.getElementById('loadMore')?.addEventListener('click', event => {
+      const nextCount = Math.min(_visibleShowCount + RENDER_BATCH_SIZE, _filteredShows.length);
+      if (nextCount === _visibleShowCount) return;
+      _visibleShowCount = nextCount;
+      renderVisibleShows();
+      updateResultSummary(_filteredShows.length, _visibleShowCount);
+      event.currentTarget.focus({ preventScroll: true });
     });
   }
 
@@ -331,19 +437,28 @@
     }
 
     renderShows(shows, animate);
-    updateStats(shows);
+    updateStats(shows, animate);
   }
 
   // ── 渲染 ──────────────────────────────────────────
   function renderShows(shows, animate = false) {
+    _filteredShows = Array.isArray(shows) ? shows : [];
+    _visibleShowCount = Math.min(INITIAL_RENDER_COUNT, _filteredShows.length);
+    renderVisibleShows(animate);
+  }
+
+  function renderVisibleShows(animate = false) {
     const grid = document.getElementById('showGrid');
     const loading = document.getElementById('loading');
+    const shows = _filteredShows;
+    if (!grid) return;
 
-    loading.style.display = 'none';
-    grid.setAttribute('aria-busy', 'false');
+    if (loading) loading.style.display = 'none';
+    if (grid) grid.setAttribute('aria-busy', 'false');
 
     if (!shows.length) {
-      grid.innerHTML = '';
+      if (grid) grid.innerHTML = '';
+      updateLoadMore(0, 0);
       setEmptyState('😢 暂无符合当前条件的推荐');
       return;
     }
@@ -357,7 +472,17 @@
     else if (activeTabName === 'trakt') renderer = renderTraktCard;
     else if (activeTabName === 'mdl') renderer = renderMDLCard;
 
-    grid.innerHTML = shows.map((show, i) => renderer(show, i)).join('');
+    const visibleShows = shows.slice(0, _visibleShowCount);
+    grid.innerHTML = visibleShows.map((show, i) => renderer(show, i)).join('');
+    updateLoadMore(visibleShows.length, shows.length);
+  }
+
+  function updateLoadMore(visibleCount, totalCount) {
+    const button = document.getElementById('loadMore');
+    if (!button) return;
+    const remaining = Math.max(0, totalCount - visibleCount);
+    button.hidden = remaining === 0;
+    button.textContent = remaining ? `加载更多（还有 ${remaining} 部）` : '加载更多';
   }
 
   function renderCard(show, index) {
@@ -513,7 +638,7 @@
     button.hidden = status === 'all' && score === '0' && sort === defaultSort && !query;
   }
 
-  function updateResultSummary(total) {
+  function updateResultSummary(total, visibleTotal = total) {
     const summary = document.getElementById('resultSummary');
     if (!summary) return;
     if (!total) {
@@ -529,10 +654,11 @@
     if (score && score !== '0') activeFilters.push(`${score}分以上`);
     if (query) activeFilters.push(`搜索“${query}”`);
     const suffix = activeFilters.length ? ` · ${activeFilters.join(' · ')}` : '';
-    summary.textContent = `显示 ${total} 个推荐结果${suffix}`;
+    const countText = visibleTotal < total ? `显示 ${visibleTotal} / ${total} 个推荐结果` : `显示 ${total} 个推荐结果`;
+    summary.textContent = `${countText}${suffix}`;
   }
 
-  function updateStats(shows) {
+  function updateStats(shows, animate = false) {
     const total = shows.length;
     const ongoing = shows.filter(s => {
       const complete = isShowComplete(s);
@@ -547,11 +673,12 @@
       return score >= 8;
     }).length;
 
-    animateNum('statTotal', total);
-    animateNum('statOngoing', ongoing);
-    animateNum('statComplete', complete);
-    animateNum('statHighScore', highScore);
-    updateResultSummary(total);
+    const updateNumber = animate ? animateNum : setStatNumber;
+    updateNumber('statTotal', total);
+    updateNumber('statOngoing', ongoing);
+    updateNumber('statComplete', complete);
+    updateNumber('statHighScore', highScore);
+    updateResultSummary(total, Math.min(_visibleShowCount, total));
     updateResetVisibility();
   }
 
@@ -569,6 +696,16 @@
   }
 
   const _numTimers = new Map();
+
+  function setStatNumber(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (_numTimers.has(id)) {
+      clearInterval(_numTimers.get(id));
+      _numTimers.delete(id);
+    }
+    el.textContent = target;
+  }
 
   function isShowComplete(show) {
     if (typeof show?.isComplete === 'boolean') return show.isComplete;
@@ -690,6 +827,42 @@
     return age >= 0 && age <= SOURCE_STALE_AFTER_MS;
   }
 
+  function setSnapshotTabAvailability(tab, available) {
+    if (!Object.hasOwn(SNAPSHOT_TAB_PATHS, tab)) return;
+    _snapshotAvailability.set(tab, Boolean(available));
+    updateSnapshotTabButtons();
+  }
+
+  function updateSnapshotTabButtons() {
+    for (const tab of Object.keys(SNAPSHOT_TAB_PATHS)) {
+      const button = document.getElementById(`tab-${tab}`);
+      const available = _snapshotAvailability.get(tab);
+      if (!button || available === undefined) continue;
+      const active = activeTabName === tab;
+      button.hidden = !available && !active;
+      button.setAttribute('aria-disabled', !available && active ? 'true' : 'false');
+    }
+  }
+
+  async function probeSnapshotTab(tab, path) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    try {
+      const response = await fetch(path, { cache: 'no-cache', signal: controller.signal });
+      if (!response.ok) throw new Error(`Snapshot HTTP ${response.status}`);
+      const data = await response.json();
+      setSnapshotTabAvailability(tab, Boolean(data && Array.isArray(data.shows) && isFreshSourceSnapshot(data.lastUpdated)));
+    } catch {
+      setSnapshotTabAvailability(tab, false);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  async function refreshSnapshotTabVisibility() {
+    await Promise.all(Object.entries(SNAPSHOT_TAB_PATHS).map(([tab, path]) => probeSnapshotTab(tab, path)));
+  }
+
   function updateSourceInfo(label, value) {
     const element = document.getElementById('updateInfo');
     if (element) element.textContent = formatSourceUpdateInfo(label, value);
@@ -721,16 +894,18 @@
     const source = safeExternalUrl(value);
     if (!source) return `<div class="placeholder">${fallbackIcon}</div>`;
 
-    const firstViewport = index < 4;
+    const firstViewport = index < 2;
     let responsive = '';
     try {
       const parsed = new URL(source);
       if (parsed.hostname === 'image.tmdb.org' && /\/t\/p\/(?:original|w\d+)\//u.test(parsed.pathname)) {
+        const path185 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w185/');
         const path342 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w342/');
         const path500 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w500/');
+        const url185 = `${parsed.origin}${path185}${parsed.search}`;
         const url342 = `${parsed.origin}${path342}${parsed.search}`;
         const url500 = `${parsed.origin}${path500}${parsed.search}`;
-        responsive = ` srcset="${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w" sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, 280px"`;
+        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), 374px"`;
       }
     } catch {}
 
@@ -755,12 +930,11 @@
     _tabAbortController = controller;
     _isTabLoading = true;
     currentShows = [];
+    _filteredShows = [];
+    _visibleShowCount = INITIAL_RENDER_COUNT;
     resetStats();
 
-    const grid = document.getElementById('showGrid');
-    grid.innerHTML = '';
-    grid.setAttribute('aria-busy', 'true');
-    document.getElementById('loading').style.display = 'block';
+    renderSkeletons(4);
     clearEmptyState();
     return controller;
   }
@@ -826,20 +1000,37 @@
     try {
       let shows = _tvmazeCache;
       if (!shows || Date.now() - _tvmazeCachedAt >= REMOTE_CACHE_TTL_MS) {
-        // 回溯最多 7 天找到有数据的日期(TVMaze 可能对某些日期无数据)
+        // 今天优先；回溯日期最多两路并发，避免空日期导致 7 次串行等待。
         const showMap = new Map();
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+        const dates = Array.from({ length: 7 }, (_, i) =>
+          new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+        );
+        const fetchSchedule = async d => {
           const response = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`, { signal: controller.signal });
           if (!response.ok) throw new Error(`TVmaze HTTP ${response.status}`);
           const data = await response.json();
           if (!Array.isArray(data)) throw new Error('TVmaze returned invalid data');
+          return { date: d, data };
+        };
+        const addSchedule = ({ date, data }) => {
           for (const entry of data) {
             const show = entry?.show;
             if (!show?.id || showMap.has(show.id)) continue;
-            showMap.set(show.id, { ...show, latestEpisode: entry, airDate: d });
+            showMap.set(show.id, { ...show, latestEpisode: entry, airDate: date });
           }
-          if (showMap.size >= 5) break;
+        };
+
+        addSchedule(await fetchSchedule(dates[0]));
+        for (let start = 1; start < dates.length && showMap.size < 5; start += 2) {
+          const batch = await Promise.all(dates.slice(start, start + 2).map(async d => {
+            try {
+              return await fetchSchedule(d);
+            } catch (error) {
+              if (error?.name === 'AbortError') throw error;
+              return null;
+            }
+          }));
+          batch.filter(Boolean).forEach(addSchedule);
         }
         shows = [...showMap.values()].sort((a, b) => toFiniteNumber(b.rating?.average) - toFiniteNumber(a.rating?.average));
         _tvmazeCache = shows;
@@ -919,6 +1110,7 @@
         const traktData = await resp.json();
         if (!traktData || !Array.isArray(traktData.shows)) throw new Error('Invalid Trakt data');
         const fresh = isFreshSourceSnapshot(traktData.lastUpdated);
+        setSnapshotTabAvailability('trakt', fresh);
         _traktCache = {
           shows: fresh
             ? traktData.shows.filter(show => show && typeof show === 'object' && !Array.isArray(show))
@@ -995,6 +1187,7 @@
         const mdlData = await resp.json();
         if (!mdlData || !Array.isArray(mdlData.shows)) throw new Error('Invalid MDL data');
         const fresh = isFreshSourceSnapshot(mdlData.lastUpdated);
+        setSnapshotTabAvailability('mdl', fresh);
         const shows = fresh
           ? mdlData.shows
             .filter(show => show && typeof show === 'object' && !Array.isArray(show))
