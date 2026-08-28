@@ -136,6 +136,7 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
 function loadAppHelpers({
   dateImpl = Date,
   documentImpl,
+  locationImpl,
   fetchImpl = async () => { throw new Error('unexpected fetch'); },
   setTimeoutImpl = setTimeout,
   clearTimeoutImpl = clearTimeout,
@@ -144,6 +145,7 @@ function loadAppHelpers({
     console,
     Date: dateImpl,
     URL,
+    URLSearchParams,
     AbortController,
     fetch: fetchImpl,
     setTimeout: setTimeoutImpl,
@@ -151,7 +153,7 @@ function loadAppHelpers({
     setInterval,
     clearInterval,
     history: { replaceState() {} },
-    location: { hash: '', slice(n) { return this.hash.slice(n); } },
+    location: locationImpl || { hash: '', slice(n) { return this.hash.slice(n); } },
     document: documentImpl || {
       addEventListener() {},
       querySelectorAll: () => [],
@@ -175,6 +177,7 @@ function loadAppHelpers({
       escapeHtml,
       safeExternalUrl,
       switchTab,
+      handleUrlStateChange,
       setAllData: value => { allData = value; },
       getCurrentShows: () => currentShows,
     };
@@ -207,6 +210,8 @@ function createDomElement({ id = '', value = '', textContent = '', dataset = {} 
         else classes.delete(name);
         return enabled;
       },
+      add: name => classes.add(name),
+      remove: name => classes.delete(name),
       contains: name => classes.has(name),
     },
     setAttribute(name, value) { attributes.set(name, String(value)); },
@@ -322,6 +327,10 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
   assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');
+  const responsivePoster = renderCard({ title: '响应式海报', coverImg: 'https://image.tmdb.org/t/p/original/poster.jpg', recommendScore: 0 }, 0);
+  assert.match(responsivePoster, /w185\/poster\.jpg 185w/, 'poster srcset should include a mobile-sized image candidate');
+  assert.match(responsivePoster, /sizes="\(max-width: 480px\) 112px/, 'poster sizes should match the compact mobile card width');
+  assert.match(renderCard({ title: '延迟海报', coverImg: 'https://image.tmdb.org/t/p/original/poster.jpg', recommendScore: 0 }, 2), /loading="lazy"/, 'non-viewport posters should remain lazy');
   assert.match(renderCard({ title: '待升级封面', tmdbCoverPending: true, coverImg: '', recommendScore: 0 }, 0), /封面待升级/, 'pending TMDB cover status should be visible on recommendation cards');
   const unsafeCover = renderCard({ title: '坏图测试', coverImg: 'javascript:alert(1)', score: 0, recommendScore: 0 }, 0);
   assert.doesNotMatch(unsafeCover, /src="javascript:/, 'non-http cover URLs should render a placeholder instead of an image');
@@ -360,6 +369,21 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   });
   previewHelpers.switchTab('year2026');
   assert.deepEqual(previewHelpers.getCurrentShows().map(s => s.title), ['当年剧'], 'a future preview must not hijack the current-year tab');
+
+  const newVarietyHelpers = loadAppHelpers({ dateImpl: fixedDate(2026) });
+  newVarietyHelpers.setAllData({
+    lastUpdated: '2026-08-13T00:00:00Z', stats: {}, koreanDramas: [],
+    chineseVariety: [
+      { title: '今年综艺', year: 2026, isClassic: false },
+      { title: '老牌经典', year: 2015, isClassic: true },
+    ],
+  });
+  newVarietyHelpers.switchTab('variety2026');
+  assert.deepEqual(
+    newVarietyHelpers.getCurrentShows().map(s => s.title),
+    ['今年综艺'],
+    'new variety tab should not mix classic shows into current-year results'
+  );
 }
 
 {
@@ -375,6 +399,39 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   helpers.switchTab('new');
   assert.equal(elements.sortBy.value, 'newest', 'latest tab should select newest sorting by default');
   assert.ok(elements.showGrid.innerHTML.indexOf('最新更新') < elements.showGrid.innerHTML.indexOf('较早更新'), 'latest tab should render newest publish time first');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const location = {
+    search: '?status=all',
+    hash: '#korean',
+    href: 'http://localhost/?status=all#korean',
+    slice(n) { return this.hash.slice(n); },
+  };
+  const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedDate(2026), locationImpl: location });
+  helpers.setAllData({
+    lastUpdated: '2026-08-13T00:00:00Z', stats: {}, chineseVariety: [],
+    koreanDramas: [
+      { title: '连载新剧', year: 2026, isComplete: false, isSerial: true, coverImg: '', primaryUrl: '' },
+      { title: '完结新剧', year: 2026, isComplete: true, isSerial: false, coverImg: '', primaryUrl: '' },
+    ],
+  });
+  helpers.switchTab('korean');
+
+  location.search = '?status=ongoing';
+  location.hash = '#korean';
+  location.href = 'http://localhost/?status=ongoing#korean';
+  helpers.handleUrlStateChange();
+  assert.match(elements.showGrid.innerHTML, /连载新剧/, 'URL state should apply the ongoing filter on the active tab');
+
+  location.search = '?status=complete';
+  location.hash = '#year2026';
+  location.href = 'http://localhost/?status=complete#year2026';
+  helpers.handleUrlStateChange();
+  assert.equal(elements.filterStatus.value, 'complete', 'URL navigation should restore the filter control');
+  assert.match(elements.showGrid.innerHTML, /完结新剧/, 'URL navigation should render the new tab with URL filters');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /连载新剧/, 'URL navigation should not leave the previous tab filter applied');
 }
 
 {
@@ -1654,6 +1711,14 @@ assert.match(app, /escapeHtml\(String\(show\.score\)\)/, 'score badge should esc
 assert.match(app, /escapeHtml\(String\(show\.score\)\)/, 'floating score should escape stringified output');
 assert.match(app, /toText\(s\.title\)\.toLowerCase\(\)\.includes\(query\)/, 'search should tolerate missing titles');
 assert.match(app, /function getValidTime\(/, 'date sorting should use a valid-time helper');
+assert.match(app, /function refreshSnapshotTabVisibility\(/, 'stale snapshot tabs should be checked before being exposed');
+assert.match(app, /function renderSkeletons\(/, 'slow initial loads should show layout-preserving skeletons');
+assert.match(app, /const INITIAL_RENDER_COUNT = 24;/, 'large result sets should render in bounded batches');
+assert.match(app, /focus\(\{ preventScroll: true \}\)/, 'loading more must not jump the page to the bottom');
+assert.match(index, /id="tab-trakt"[^>]* hidden/u, 'stale snapshot tabs should stay hidden until validated');
+assert.match(index, /id="tab-mdl"[^>]* hidden/u, 'stale snapshot tabs should stay hidden until validated');
+assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
+assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
 assert.doesNotMatch(app, /s\.year === 2026/, 'current-year tab should not hardcode 2026');
 assert.doesNotMatch(index, /2026新剧|2026新综艺|2026新综/, 'HTML copy should not hardcode one calendar year');
 assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should not subtract Date objects directly');
