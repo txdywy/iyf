@@ -142,6 +142,7 @@ function loadAppHelpers({
   fetchImpl = async () => { throw new Error('unexpected fetch'); },
   setTimeoutImpl = setTimeout,
   clearTimeoutImpl = clearTimeout,
+  windowImpl = { addEventListener() {}, matchMedia: () => ({ matches: false }) },
 } = {}) {
   const context = {
     console,
@@ -154,6 +155,7 @@ function loadAppHelpers({
     clearTimeout: clearTimeoutImpl,
     setInterval,
     clearInterval,
+    window: windowImpl,
     history: { replaceState() {} },
     location: locationImpl || { hash: '', slice(n) { return this.hash.slice(n); } },
     document: documentImpl || {
@@ -178,6 +180,8 @@ function loadAppHelpers({
       safeExternalUrl,
       switchTab,
       handleUrlStateChange,
+      bindLoadMore,
+      loadMoreShows,
       getScheduleDateKey,
       buildScheduleDateKeys,
       sortTVmazeShows,
@@ -205,6 +209,7 @@ function createDomElement({ id = '', value = '', textContent = '', dataset = {} 
     dataset,
     style: {},
     innerHTML: '',
+    hidden: false,
     tabIndex: -1,
     classList: {
       toggle(name, force) {
@@ -231,6 +236,7 @@ function createAppDocument() {
     empty: createDomElement({ id: 'empty' }),
     emptyMessage: createDomElement({ id: 'emptyMessage' }),
     emptyAction: createDomElement({ id: 'emptyAction' }),
+    loadMore: createDomElement({ id: 'loadMore' }),
     updateInfo: createDomElement({ id: 'updateInfo' }),
     sortBy: createDomElement({ id: 'sortBy', value: 'recommend' }),
     filterStatus: createDomElement({ id: 'filterStatus', value: 'all' }),
@@ -376,6 +382,42 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     ['今年综艺'],
     'new variety tab should not mix classic shows into current-year results'
   );
+}
+
+{
+  let intersectionCallback;
+  const { document, elements } = createAppDocument();
+  const windowImpl = {
+    addEventListener() {},
+    matchMedia: () => ({ matches: false }),
+    IntersectionObserver: class {
+      constructor(callback) {
+        intersectionCallback = callback;
+      }
+      observe() {}
+    },
+  };
+  const helpers = loadAppHelpers({ documentImpl: document, windowImpl });
+  helpers.setAllData({
+    lastUpdated: '2026-08-13T00:00:00Z',
+    stats: {},
+    chineseVariety: [],
+    koreanDramas: Array.from({ length: 30 }, (_, index) => ({
+      title: `自动加载测试${index}`,
+      year: 2026,
+    })),
+  });
+  helpers.switchTab('korean');
+  helpers.bindLoadMore();
+  assert.equal(elements.loadMore.hidden, false, 'the auto-load sentinel should remain active while more results exist');
+  assert.equal(typeof intersectionCallback, 'function', 'loading more should register an intersection callback');
+  intersectionCallback([{ isIntersecting: true }]);
+  assert.equal(
+    (elements.showGrid.innerHTML.match(/<article class="show-card/g) || []).length,
+    30,
+    'approaching the bottom should append the next batch without a click'
+  );
+  assert.equal(elements.loadMore.hidden, true, 'the auto-load sentinel should hide after all results are rendered');
 }
 
 {
@@ -1651,6 +1693,8 @@ assert.match(app, /fetchWithTimeout\(DATA_URL/, 'the primary data request should
 assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
 assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day request when history succeeds');
 assert.match(app, /insertAdjacentHTML\('beforeend'/, 'loading more should append cards without replacing existing DOM nodes');
+assert.match(app, /new window\.IntersectionObserver/, 'loading more should auto-trigger near the viewport bottom');
+assert.match(app, /AUTO_LOAD_ROOT_MARGIN/, 'auto-loading should prefetch before the user reaches the exact bottom');
 assert.match(app, /function renderSkeletons\(/, 'slow initial loads should show layout-preserving skeletons');
 assert.match(app, /const INITIAL_RENDER_COUNT = 24;/, 'large result sets should render in bounded batches');
 assert.match(app, /focus\(\{ preventScroll: true \}\)/, 'loading more must not jump the page to the bottom');
@@ -1658,6 +1702,8 @@ assert.match(index, /id="yearTabLabel"/, 'the current-year drama tab label shoul
 assert.match(index, /id="varietyYearTabLabel"/, 'the current-year variety tab label should be data-driven');
 assert.doesNotMatch(index, /id="tab-trakt"|id="tab-mdl"/u, 'retired snapshot tabs should not be exposed in the navigation');
 assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
+assert.match(index, /aria-live="polite"/, 'auto-load progress should be announced accessibly');
+assert.match(app, /继续下滑自动加载/, 'the fallback control should explain the auto-load behavior');
 assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
 assert.doesNotMatch(app, /s\.year === 2026/, 'current-year tab should not hardcode 2026');
 assert.doesNotMatch(index, /2026新剧|2026新综艺|2026新综/, 'HTML copy should not hardcode one calendar year');

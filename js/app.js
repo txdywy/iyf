@@ -45,6 +45,9 @@
   let _visibleShowCount = INITIAL_RENDER_COUNT;
   let _renderedShows = null;
   let _renderedShowCount = 0;
+  let _loadMoreObserver = null;
+  let _isLoadingMore = false;
+  const AUTO_LOAD_ROOT_MARGIN = '0px 0px 480px 0px';
 
 
   // ── 初始化 ──────────────────────────────────────────
@@ -374,14 +377,48 @@
   }
 
   function bindLoadMore() {
-    document.getElementById('loadMore')?.addEventListener('click', event => {
-      const nextCount = Math.min(_visibleShowCount + RENDER_BATCH_SIZE, _filteredShows.length);
-      if (nextCount === _visibleShowCount) return;
-      _visibleShowCount = nextCount;
+    const button = document.getElementById('loadMore');
+    if (!button) return;
+
+    button.addEventListener('click', event => {
+      if (loadMoreShows()) event.currentTarget.focus({ preventScroll: true });
+    });
+
+    if (typeof window === 'undefined') return;
+    const loadMoreOptions = { rootMargin: AUTO_LOAD_ROOT_MARGIN, threshold: 0.01 };
+    if (typeof window.IntersectionObserver === 'function') {
+      _loadMoreObserver = new window.IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) loadMoreShows();
+      }, loadMoreOptions);
+      _loadMoreObserver.observe(button);
+      return;
+    }
+
+    // 极旧浏览器兜底：滚动监听节流到 100ms,避免每个滚动事件都触发重排。
+    let scrollCheckTimer = 0;
+    const checkPosition = () => {
+      if (scrollCheckTimer) return;
+      scrollCheckTimer = setTimeout(() => {
+        scrollCheckTimer = 0;
+        if (!button.hidden && button.getBoundingClientRect().top <= window.innerHeight + 480) loadMoreShows();
+      }, 100);
+    };
+    window.addEventListener('scroll', checkPosition, { passive: true });
+    window.addEventListener('resize', checkPosition, { passive: true });
+    checkPosition();
+  }
+
+  function loadMoreShows() {
+    if (_isLoadingMore || _visibleShowCount >= _filteredShows.length) return false;
+    _isLoadingMore = true;
+    try {
+      _visibleShowCount = Math.min(_visibleShowCount + RENDER_BATCH_SIZE, _filteredShows.length);
       renderVisibleShows();
       updateResultSummary(_filteredShows.length, _visibleShowCount);
-      event.currentTarget.focus({ preventScroll: true });
-    });
+      return true;
+    } finally {
+      _isLoadingMore = false;
+    }
   }
 
   function bindPosterFallbacks() {
@@ -519,7 +556,7 @@
     if (!button) return;
     const remaining = Math.max(0, totalCount - visibleCount);
     button.hidden = remaining === 0;
-    button.textContent = remaining ? `加载更多（还有 ${remaining} 部）` : '加载更多';
+    button.textContent = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
   }
 
   function renderCard(show, index) {
