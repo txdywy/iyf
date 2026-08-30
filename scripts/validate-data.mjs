@@ -112,19 +112,6 @@ function validateShows(data) {
   else if (updated - Date.now() > 24 * 60 * 60 * 1000) errors.push('data/shows.json: lastUpdated is unexpectedly in the future');
 }
 
-function validateSnapshot(path) {
-  const data = readJSON(path);
-  if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    errors.push(`${path}: root must be an object`);
-    return;
-  }
-  if (!Array.isArray(data.shows)) errors.push(`${path}: shows must be an array`);
-  const updated = Date.parse(data.lastUpdated || '');
-  if (!Number.isFinite(updated)) errors.push(`${path}: invalid lastUpdated`);
-  else if (updated > Date.now() + 24 * 60 * 60 * 1000) errors.push(`${path}: lastUpdated is unexpectedly in the future`);
-  else if (Date.now() - updated > 14 * 24 * 60 * 60 * 1000) warnings.push(`${path}: snapshot is older than 14 days; UI must hide it until refreshed`);
-}
-
 function validateObjectFile(path) {
   const data = readJSON(path);
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
@@ -133,8 +120,6 @@ function validateObjectFile(path) {
 }
 
 validateShows(readJSON('data/shows.json'));
-validateSnapshot('data/trakt_shows.json');
-validateSnapshot('data/mdl_shows.json');
 validateObjectFile('data/image_cache.json');
 validateObjectFile('data/discovery.json');
 
