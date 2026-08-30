@@ -52,7 +52,7 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
    - LLM IDs are constrained to the current batch and IDs, scores, booleans, reasons and descriptions are validated again before use
 7. Normalize output fields/URL hosts, drop non-renderable shows, and run continuity + schema guards before the atomic write
 
-**Frontend** (`js/app.js`): IIFE, conditionally fetches `data/shows.json`, renders the card grid and three optional external snapshot tabs. Remote-tab requests are abortable, versioned against stale responses, time-limited and cached for 15 minutes. External links and numeric fields are validated before rendering.
+**Frontend** (`js/app.js`): IIFE, conditionally fetches `data/shows.json`, renders the card grid and the optional live TVmaze schedule tab. The primary data request and remote-tab requests are bounded, abortable, versioned against stale responses and cached where appropriate. Current-year tab labels follow the dataset year, old tab aliases remain bookmark-compatible, and progressive rendering appends only newly requested cards. External links and numeric fields are validated before rendering.
 
 **Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
 

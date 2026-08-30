@@ -1554,7 +1554,7 @@ async function aiEvaluateDiscovery(discovered) {
   }
 
   for (const s of discovered) {
-    const ai = results.get(s.id);
+    const ai = results.get(String(s.id));
     if (ai) {
       s.aiDiscoveryOk = ai.ok;
       s.aiDiscoveryScore = ai.score;
@@ -1562,7 +1562,10 @@ async function aiEvaluateDiscovery(discovered) {
     }
   }
 
-  const accepted = discovered.filter(s => s.aiDiscoveryOk !== false);
+  const unresolved = discovered.filter(s => !results.has(String(s.id)));
+  if (unresolved.length) console.warn(`  [AI] ${unresolved.length} 部未获得有效筛选结果，暂缓收录`);
+  // 新发现节目必须拿到结构完整且明确通过的 AI 决策；空响应/格式错误不能绕过内容门禁。
+  const accepted = discovered.filter(s => results.get(String(s.id))?.ok === true);
   console.log(`  [AI] 筛选结果: ${accepted.length}/${discovered.length} 部通过`);
   return accepted;
 }
@@ -1998,7 +2001,9 @@ async function main() {
   // ── 8.5. TMDB 封面覆盖率验证 ──
   const allRenderable = [...koreanDramas, ...chineseVariety, ...renderableOtherDramas];
   const missingTMDB = allRenderable.filter(s => s.coverSource !== 'tmdb');
-  const tmdbRate = ((allRenderable.length - missingTMDB.length) / allRenderable.length * 100).toFixed(1);
+  const tmdbRate = allRenderable.length
+    ? ((allRenderable.length - missingTMDB.length) / allRenderable.length * 100).toFixed(1)
+    : '0.0';
   console.log(`  TMDB 高清封面覆盖率: ${tmdbRate}% (${allRenderable.length - missingTMDB.length}/${allRenderable.length})`);
   if (missingTMDB.length > 0) {
     const kdMissing = missingTMDB.filter(s => s.category === 'korean_drama');
@@ -2072,6 +2077,7 @@ function syncTMDBCoverStatus(show) {
 
   if (!isKoreanDramaShow(show)) {
     delete show.tmdbCoverPending;
+    if (safeOutputUrl(show.coverImg)) show.coverSource = 'yfsp';
     return show;
   }
 
@@ -2099,7 +2105,25 @@ function assertOutputContinuity(output, previous) {
     if (currentCount < minimum) {
       throw new Error(`[DATA_GUARD] ${label}数量从 ${previousCount} 部骤降到 ${currentCount} 部,拒绝覆盖上一版推荐数据`);
     }
+    const comparablePrevious = previous[field].filter(show => show && (show.id || show.title));
+    const comparableCurrent = output[field].filter(show => show && (show.id || show.title));
+    if (comparablePrevious.length < 20 || comparableCurrent.length < minimum) continue;
+    const overlap = countIdentityOverlap(comparableCurrent, comparablePrevious);
+    const minOverlap = Math.max(3, Math.ceil(Math.min(comparablePrevious.length, comparableCurrent.length) * 0.15));
+    if (overlap < minOverlap) {
+      throw new Error(`[DATA_GUARD] ${label}与上一版身份重合度异常: ${overlap}/${comparablePrevious.length},拒绝覆盖上一版推荐数据`);
+    }
+    const previousTop = comparablePrevious.slice(0, Math.min(10, comparablePrevious.length));
+    const currentTop = comparableCurrent.slice(0, Math.min(10, comparableCurrent.length));
+    const topOverlap = countIdentityOverlap(currentTop, previousTop);
+    if (topOverlap < Math.min(2, previousTop.length)) {
+      throw new Error(`[DATA_GUARD] ${label}头部推荐与上一版重合度异常: ${topOverlap}/${previousTop.length},拒绝覆盖上一版推荐数据`);
+    }
   }
+}
+
+function countIdentityOverlap(current, previous) {
+  return previous.filter(candidate => current.some(show => sameShowIdentity(show, candidate))).length;
 }
 
 // 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
@@ -2255,12 +2279,16 @@ function isRenderableShow(show) {
 }
 
 function assertOutputSchema(output) {
+  const seenIds = new Set();
   for (const field of ['koreanDramas', 'chineseVariety', 'otherDramas']) {
     if (!Array.isArray(output?.[field]) || output[field].length > 1000) {
       throw new Error(`[DATA_GUARD] ${field} 不是合理的数组`);
     }
     for (const show of output[field]) {
       if (!isRenderableShow(show)) throw new Error(`[DATA_GUARD] ${field} 包含不可渲染节目`);
+      const id = String(show.id);
+      if (seenIds.has(id)) throw new Error(`[DATA_GUARD] 输出包含重复节目 ID: ${id}`);
+      seenIds.add(id);
     }
   }
   const bytes = Buffer.byteLength(JSON.stringify(output), 'utf8');
