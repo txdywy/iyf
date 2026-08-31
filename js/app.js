@@ -377,12 +377,8 @@
   }
 
   function bindLoadMore() {
-    const button = document.getElementById('loadMore');
-    if (!button) return;
-
-    button.addEventListener('click', event => {
-      if (loadMoreShows()) event.currentTarget.focus({ preventScroll: true });
-    });
+    const sentinel = document.getElementById('loadMore');
+    if (!sentinel) return;
 
     if (typeof window === 'undefined') return;
     const loadMoreOptions = { rootMargin: AUTO_LOAD_ROOT_MARGIN, threshold: 0.01 };
@@ -390,7 +386,7 @@
       _loadMoreObserver = new window.IntersectionObserver(entries => {
         if (entries.some(entry => entry.isIntersecting)) loadMoreShows();
       }, loadMoreOptions);
-      _loadMoreObserver.observe(button);
+      _loadMoreObserver.observe(sentinel);
       return;
     }
 
@@ -400,7 +396,7 @@
       if (scrollCheckTimer) return;
       scrollCheckTimer = setTimeout(() => {
         scrollCheckTimer = 0;
-        if (!button.hidden && button.getBoundingClientRect().top <= window.innerHeight + 480) loadMoreShows();
+        if (!sentinel.hidden && sentinel.getBoundingClientRect().top <= window.innerHeight + 480) loadMoreShows();
       }, 100);
     };
     window.addEventListener('scroll', checkPosition, { passive: true });
@@ -552,11 +548,11 @@
   }
 
   function updateLoadMore(visibleCount, totalCount) {
-    const button = document.getElementById('loadMore');
-    if (!button) return;
+    const sentinel = document.getElementById('loadMore');
+    if (!sentinel) return;
     const remaining = Math.max(0, totalCount - visibleCount);
-    button.hidden = remaining === 0;
-    button.textContent = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
+    sentinel.hidden = remaining === 0;
+    sentinel.textContent = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
   }
 
   function renderCard(show, index) {
