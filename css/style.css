@@ -345,12 +345,8 @@ a:visited { color: #8e86d1; }
   color: var(--accent-light);
   font: inherit;
   font-weight: 700;
-  cursor: pointer;
-}
-
-.load-more:hover {
-  background: rgba(108,92,231,0.24);
-  color: #fff;
+  text-align: center;
+  user-select: none;
 }
 
 .load-more[hidden] {

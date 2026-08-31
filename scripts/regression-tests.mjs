@@ -1695,14 +1695,16 @@ assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day
 assert.match(app, /insertAdjacentHTML\('beforeend'/, 'loading more should append cards without replacing existing DOM nodes');
 assert.match(app, /new window\.IntersectionObserver/, 'loading more should auto-trigger near the viewport bottom');
 assert.match(app, /AUTO_LOAD_ROOT_MARGIN/, 'auto-loading should prefetch before the user reaches the exact bottom');
+assert.doesNotMatch(app, /loadMore\.addEventListener\(['"]click/, 'loading more should not require a mouse click');
 assert.match(app, /function renderSkeletons\(/, 'slow initial loads should show layout-preserving skeletons');
 assert.match(app, /const INITIAL_RENDER_COUNT = 24;/, 'large result sets should render in bounded batches');
-assert.match(app, /focus\(\{ preventScroll: true \}\)/, 'loading more must not jump the page to the bottom');
 assert.match(index, /id="yearTabLabel"/, 'the current-year drama tab label should be data-driven');
 assert.match(index, /id="varietyYearTabLabel"/, 'the current-year variety tab label should be data-driven');
 assert.doesNotMatch(index, /id="tab-trakt"|id="tab-mdl"/u, 'retired snapshot tabs should not be exposed in the navigation');
 assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
 assert.match(index, /aria-live="polite"/, 'auto-load progress should be announced accessibly');
+assert.match(index, /id="loadMore"[^>]*role="status"/, 'the auto-load sentinel should be a non-interactive status region');
+assert.doesNotMatch(index, /id="loadMore"[^>]*type="button"/, 'the auto-load sentinel should not advertise a click action');
 assert.match(app, /继续下滑自动加载/, 'the fallback control should explain the auto-load behavior');
 assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
 assert.doesNotMatch(app, /s\.year === 2026/, 'current-year tab should not hardcode 2026');
