@@ -5697,7 +5697,7 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9D%80%E4%BA%BA%E8%80%85%E7%9A%84%E8%B4%AD%E7%89%A9%E4%B8%AD%E5%BF%83",
     "imdbUrl": "https://www.imdb.com/title/tt26450613/",
     "wikidataId": "Q123999260",
-    "cachedAt": "2026-09-01T03:15:09.362Z"
+    "cachedAt": "2026-09-01T15:58:41.867Z"
   },
   "E9C0MqObZn9": {
     "title": "一饭封神第2季",
@@ -5771,7 +5771,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:09.614Z"
+    "cachedAt": "2026-09-01T15:58:42.057Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -6213,11 +6213,13 @@
     "tmdbSeriesId": 104552,
     "tmdbSeasonId": 165645,
     "tmdbSeasonNumber": 4,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/27665179/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:13.601Z"
+    "cachedAt": "2026-08-23T16:34:13.601Z",
+    "doubanId": "27665179",
+    "doubanMatchedTitle": "欢乐喜剧人 第四季"
   },
   "3qXYEvtFrn4": {
     "title": "欢乐喜剧人第3季",
@@ -6233,11 +6235,13 @@
     "tmdbSeriesId": 104552,
     "tmdbSeasonId": 165644,
     "tmdbSeasonNumber": 3,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/26785171/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.057Z"
+    "cachedAt": "2026-08-23T16:34:14.057Z",
+    "doubanId": "26785171",
+    "doubanMatchedTitle": "欢乐喜剧人 第三季"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6253,11 +6257,13 @@
     "tmdbSeriesId": 104552,
     "tmdbSeasonId": 165646,
     "tmdbSeasonNumber": 5,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/30414465/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.081Z"
+    "cachedAt": "2026-08-23T16:34:14.081Z",
+    "doubanId": "30414465",
+    "doubanMatchedTitle": "欢乐喜剧人 第五季"
   },
   "sD4YZE9RktC": {
     "title": "脱口秀和Ta的朋友们第2季",
@@ -6273,11 +6279,13 @@
     "tmdbSeriesId": 261471,
     "tmdbSeasonId": 425698,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37296943/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33242190/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.261Z"
+    "cachedAt": "2026-08-23T16:34:14.261Z",
+    "doubanId": "37296943",
+    "doubanMatchedTitle": "脱口秀和Ta的朋友们 第二季"
   },
   "WuTfGtF5AyJ": {
     "title": "喜剧总动员第2季",
@@ -6307,7 +6315,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:09.962Z"
+    "cachedAt": "2026-09-01T15:58:42.078Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6317,7 +6325,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.208Z"
+    "cachedAt": "2026-09-01T15:58:42.761Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6327,7 +6335,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.225Z"
+    "cachedAt": "2026-09-01T15:58:42.779Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6369,7 +6377,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.557Z"
+    "cachedAt": "2026-09-01T15:58:42.870Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6401,7 +6409,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.799Z"
+    "cachedAt": "2026-09-01T15:58:43.306Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6453,7 +6461,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.833Z"
+    "cachedAt": "2026-09-01T15:58:43.495Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6463,7 +6471,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:11.113Z"
+    "cachedAt": "2026-09-01T15:58:43.492Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6524,7 +6532,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:09.607Z"
+    "cachedAt": "2026-09-01T15:58:42.161Z",
+    "doubanUrl": "https://movie.douban.com/subject/35558950/",
+    "doubanId": "35558950",
+    "doubanMatchedTitle": "脱口秀跨年2021"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6574,7 +6585,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:11.143Z"
+    "cachedAt": "2026-09-01T15:58:43.614Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6584,7 +6595,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:11.446Z"
+    "cachedAt": "2026-09-01T15:58:44.276Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6604,7 +6615,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:11.708Z"
+    "cachedAt": "2026-09-01T15:58:44.205Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6614,7 +6625,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:10.512Z"
+    "cachedAt": "2026-09-01T15:58:42.618Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6624,7 +6635,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-01T03:15:12.601Z"
+    "cachedAt": "2026-09-01T15:58:45.457Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
