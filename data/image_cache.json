@@ -1149,15 +1149,6 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/241860",
     "cachedAt": "2026-05-05T06:22:36.528Z"
   },
-  "GkSL9rght0A": {
-    "title": "黑暗荣耀第2季",
-    "url": "https://image.tmdb.org/t/p/original/4ANJBZETwHOmtofE5D0QjpCWB9w.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "tmdbId": 136283,
-    "tmdbUrl": "https://www.themoviedb.org/tv/136283",
-    "cachedAt": "2026-05-05T06:22:36.528Z"
-  },
   "e29GSPCy8zZ": {
     "title": "喀什恋歌",
     "url": "https://image.tmdb.org/t/p/original/hUQreV2LckQi25NTSIIGTP3yiJK.jpg",
@@ -5668,16 +5659,6 @@
     "negativeLookupVersion": 2,
     "notFound": true,
     "cachedAt": "2026-08-30T15:56:00.594Z"
-  },
-  "seed_kd_2023_01": {
-    "title": "黑暗荣耀第2季",
-    "year": 2023,
-    "mediaType": "电视剧",
-    "source": "tmdb",
-    "version": 16,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-30T15:56:01.176Z"
   },
   "2dJ0cg4lxc1": {
     "title": "杀人者的购物中心2",

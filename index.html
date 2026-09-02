@@ -27,7 +27,7 @@
       <div class="container">
         <h1 class="logo">🎬 剧荒救星</h1>
         <p class="subtitle">精选韩剧与轻松搞笑综艺，帮你快速找到下一部想看的内容</p>
-        <div class="update-info" id="updateInfo" role="status" aria-live="polite">加载中...</div>
+        <div class="update-info" id="updateInfo" role="status" aria-live="polite">加载中…</div>
       </div>
     </header>
 
@@ -38,10 +38,11 @@
         <button id="tab-year" class="tab" data-tab="year" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🔥 <span id="yearTabLabel">新剧</span></button>
         <button id="tab-varietyYear" class="tab" data-tab="varietyYear" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">😂 <span id="varietyYearTabLabel">新综艺</span></button>
         <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🎬 全部综艺</button>
-        <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🆕 最新更新</button>
+        <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🆕 新近加入</button>
         <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🏆 经典必看</button>
-        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">📡 韩剧时间表</button>
+        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">📡 韩国电视剧时间表</button>
       </div>
+      <p class="tabs-hint" id="tabsHint">左右滑动查看更多分类</p>
     </nav>
 
     <!-- 筛选栏 -->
@@ -78,7 +79,7 @@
             </div>
           </div>
           <div class="search-box">
-            <input type="search" id="searchInput" placeholder="搜索剧名/演员..." aria-label="搜索剧名或演员" autocomplete="off">
+            <input type="search" id="searchInput" placeholder="搜索当前分类中的剧名/演员…" aria-label="搜索当前分类中的剧名或演员" autocomplete="off">
           </div>
           <button class="filter-toggle" id="filterToggle" type="button" aria-controls="filterControls" aria-expanded="false">筛选与排序</button>
         </div>
@@ -92,10 +93,10 @@
     <!-- 统计栏 -->
     <section class="stats-bar" aria-labelledby="statsHeading">
       <div class="container">
-        <h2 class="sr-only" id="statsHeading">推荐统计</h2>
+        <h2 class="sr-only" id="statsHeading">当前筛选结果统计</h2>
         <div class="stat-item">
           <span class="stat-num" id="statTotal">0</span>
-          <span class="stat-label">推荐总数</span>
+          <span class="stat-label">当前结果</span>
         </div>
         <div class="stat-item">
           <span class="stat-num" id="statOngoing">0</span>
@@ -134,7 +135,7 @@
     <!-- 底部 -->
     <footer class="footer">
       <div class="container">
-        <p>数据来源: 爱壹帆 · 每日自动更新 · 仅供个人学习使用</p>
+        <p>数据来源: 爱壹帆 · 按日抓取，更新时间以页面显示为准 · 仅供个人学习使用</p>
         <p class="footer-note">推荐算法基于评分、人气、类型偏好综合计算</p>
       </div>
     </footer>

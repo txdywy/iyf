@@ -69,6 +69,19 @@ const DOUBAN_SEARCH_DELAY = 900;
 const TMDB_SEARCH_DELAY = 250;
 const WIKI_REQUEST_DELAY = 300;
 const AI_BATCH_DELAY = 1000;
+const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 * 60 * 1000;
+let _optionalEnrichmentDeadline = 0;
+
+function hasOptionalEnrichmentBudget() {
+  return !_optionalEnrichmentDeadline || Date.now() < _optionalEnrichmentDeadline;
+}
+
+function getOptionalEnrichmentTimeout(defaultTimeout) {
+  if (!_optionalEnrichmentDeadline) return defaultTimeout;
+  const remaining = _optionalEnrichmentDeadline - Date.now();
+  if (remaining <= 0) throw new Error('optional enrichment budget exhausted');
+  return Math.min(defaultTimeout, remaining);
+}
 
 // ════════════════════════════════════════════════════════════════
 // API 抓取
@@ -874,9 +887,13 @@ async function verifyYfspUrl(show, url) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12000);
+  const timeout = setTimeout(() => controller.abort(), getOptionalEnrichmentTimeout(12000));
   try {
-    const response = await fetch(parsedUrl.href, { headers: HEADERS, signal: controller.signal });
+    const response = await fetch(parsedUrl.href, {
+      headers: HEADERS,
+      signal: controller.signal,
+      redirect: 'error',
+    });
     if ([404, 410].includes(response.status)) {
       await response.body?.cancel?.().catch(() => {});
       return YFSP_VERIFY_STATUS.INVALID;
@@ -1102,6 +1119,7 @@ function scoreVariety(s, now = Date.now()) {
 
 function applyAIRecommendationAdjustment(show) {
   if (show.aiScore == null) return show.recommendScore;
+  show.aiScore = normalizeAIScore(show.aiScore);
   if (show.category === 'variety') {
     // 综艺使用更温和的调整,避免韩剧向 AI 误伤国产综艺
     show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.25));
@@ -1114,6 +1132,13 @@ function applyAIRecommendationAdjustment(show) {
   return show.recommendScore;
 }
 
+function normalizeAIScore(value) {
+  const score = safeNumber(value, NaN);
+  if (!Number.isFinite(score)) return 0;
+  // 旧版 AI 曾把 0-10 评分写入了 0-100 字段。兼容旧快照时按约定量纲修复。
+  return score > 0 && score <= 10 ? Math.round(score * 10) : Math.max(0, Math.min(100, score));
+}
+
 async function recalculateExistingData() {
   const data = JSON.parse(readFileSync(SHOWS_FILE, 'utf-8'));
   const now = Date.now();
@@ -1121,6 +1146,7 @@ async function recalculateExistingData() {
     .map(show => {
       repairKnownIdentityCorruption(show);
       reconcileShowStatus(show);
+      if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
       if (isFreshAIScore(show, now)) applyAIRecommendationAdjustment(show);
       else clearStaleAIScore(show);
@@ -1485,7 +1511,7 @@ async function aiScoreShows(shows) {
         }, ['s', 'r']),
         validateRows: candidateRows => validateAIResultRows(candidateRows, allowedIds, (item, id) => {
           if (typeof item?.s !== 'number' || !Number.isFinite(item.s) || item.s < 0 || item.s > 100 || typeof item.r !== 'string') return null;
-          return { id, s: item.s, r: safeText(item.r, 240) };
+          return { id, s: normalizeAIScore(item.s), r: safeText(item.r, 240) };
         }),
       });
 
@@ -1656,7 +1682,6 @@ const SEED_KDRAMAS = [
   { id:'seed_kd_2024_05', title:'贞淑的推销', year:2024, score:8.3, playCount:527698, contentType:'喜剧·剧情', actor:'金素妍,金善映,李世熙', description:'1990年代保险推销员的创业喜剧。金素妍主演,轻松有趣又充满正能量。', totalEpisodes:12, isComplete:true, currentEpisode:12, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2024_06', title:'好或坏的东载', year:2024, score:8.9, playCount:204186, contentType:'悬疑·犯罪·剧情', actor:'李浚赫,朴成雄', description:'秘密森林衍生剧。检察官东载游走灰色地带的故事。演技派对决,节奏紧凑。', totalEpisodes:10, isComplete:true, currentEpisode:10, regional:'韩国', lang:'韩语', isSerial:false },
   // ── 2022-2023 高口碑韩剧 ──
-  { id:'seed_kd_2023_01', title:'黑暗荣耀第2季', year:2023, score:9.5, playCount:2641606, contentType:'剧情·悬疑', actor:'宋慧乔,李到晛,林智妍,廉惠兰,朴成焄', description:'黑暗荣耀完结篇。复仇大结局震撼全球,Netflix年度现象级韩剧。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2023_02', title:'超异能族', year:2023, score:9.3, playCount:2552693, contentType:'剧情·奇幻·动作', actor:'柳承龙,韩孝周,赵寅成,车太贤,高允贞', description:'超能力家族的热血故事。Disney+口碑大爆,融合亲情与动作,笑泪交织。', totalEpisodes:20, isComplete:true, currentEpisode:20, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2022_01', title:'黑暗荣耀', year:2022, score:9.2, playCount:2776014, contentType:'剧情·悬疑', actor:'宋慧乔,李到晛,林智妍,廉惠兰,朴成焄', description:'校园暴力受害者精心布局复仇的故事。宋慧乔颠覆性演出,Netflix全球爆红。', totalEpisodes:8, isComplete:true, currentEpisode:8, regional:'韩国', lang:'韩语', isSerial:false },
   { id:'seed_kd_2022_02', title:'财阀家的小儿子', year:2022, score:7.9, playCount:3300465, contentType:'剧情·奇幻·职场', actor:'宋仲基,李星民,申贤彬', description:'重生为财阀家小儿子的逆袭人生。宋仲基主演,2022年末收视爆棚。', totalEpisodes:16, isComplete:true, currentEpisode:16, regional:'韩国', lang:'韩语', isSerial:false },
@@ -1923,10 +1948,15 @@ async function main() {
 
   // ── 7. 先完成可信来源富化，再做最终规则/AI 评分 ──
   let allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
-  await enrichCoversFromTMDB(allShowsList);
-  await enrichMissingYfspLinks(allShowsList);
-  await enrichDoubanLinks(allShowsList);
-  await enrichDescriptions(allShowsList);
+  _optionalEnrichmentDeadline = Date.now() + OPTIONAL_ENRICHMENT_BUDGET_MS;
+  try {
+    await enrichCoversFromTMDB(allShowsList);
+    await enrichMissingYfspLinks(allShowsList);
+    await enrichDoubanLinks(allShowsList);
+    await enrichDescriptions(allShowsList);
+  } finally {
+    _optionalEnrichmentDeadline = 0;
+  }
 
   // 新发现韩剧在拿到剧情后再筛选，避免首轮空描述绕过恐怖/血腥等负面条件。
   const discoveryCandidates = [...kdramaMap.values()].filter(show => newKdramaCandidateIds.has(show.id));
@@ -2253,7 +2283,7 @@ function normalizeOutputShow(show) {
   }
   syncTMDBCoverStatus(show);
   if (Object.hasOwn(show, 'score')) show.score = boundedScore(show.score);
-  if (Object.hasOwn(show, 'aiScore')) show.aiScore = Math.max(0, Math.min(100, safeNumber(show.aiScore)));
+  if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
   if (Object.hasOwn(show, 'recommendScore')) show.recommendScore = Math.max(0, Math.min(1000, safeNumber(show.recommendScore)));
   if (Object.hasOwn(show, 'playCount')) show.playCount = boundedPlayCount(show.playCount);
   show.year = boundedYear(show.year);
@@ -2275,7 +2305,13 @@ function isRenderableShow(show) {
   const coverStatusValid = !isKoreanDrama ||
     isTMDBOriginalImageUrl(show.coverImg) ||
     (show.coverSource === 'yfsp' && show.tmdbCoverPending === true);
-  return !!(show?.id && show?.title && hasCover && coverStatusValid && safeOutputUrl(show.primaryUrl));
+  return !!(show?.id && show?.title && hasCover && coverStatusValid && hasValidTMDBSeasonLink(show) && safeOutputUrl(show.primaryUrl));
+}
+
+function hasValidTMDBSeasonLink(show) {
+  const expectedSeason = seasonNumberFromTitle(show?.title);
+  if (!expectedSeason || !show?.tmdbUrl) return true;
+  return extractTMDBSeasonNumber(show.tmdbUrl) === expectedSeason;
 }
 
 function assertOutputSchema(output) {
@@ -2366,7 +2402,10 @@ function oldestCheckedFirst(field) {
 }
 
 async function enrichMissingYfspLinks(shows) {
-  const globalDeadline = Date.now() + YFSP_LOOKUP_BUDGET_MS;
+  const globalDeadline = Math.min(
+    Date.now() + YFSP_LOOKUP_BUDGET_MS,
+    _optionalEnrichmentDeadline || Number.POSITIVE_INFINITY,
+  );
   const verifiedThisRun = new Set();
   // 上一轮已确定无效且本轮又从来源回流的同一 URL 仍保持负缓存，不重新发布。
   for (const show of shows) {
@@ -2483,6 +2522,7 @@ function isDoubanFallbackAllowed(show, match) {
 
 async function searchDoubanSubject(show) {
   for (const query of titleCandidates(show.title)) {
+    if (!hasOptionalEnrichmentBudget()) return null;
     try {
       const results = await fetchDoubanSuggest(query);
       if (!Array.isArray(results)) continue;
@@ -2516,7 +2556,7 @@ async function searchDoubanSubject(show) {
 
 async function fetchDoubanSuggest(query) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
+  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000));
   try {
     const resp = await fetch(`https://movie.douban.com/j/subject_suggest?q=${encodeURIComponent(query)}`, {
       headers: {
@@ -2539,6 +2579,7 @@ async function enrichDoubanLinks(shows) {
   const cache = loadImageCache();
   let matched = 0;
   await mapPool(targets, 3, async (show) => {
+    if (!hasOptionalEnrichmentBudget()) return;
     const found = await searchDoubanSubject(show);
     if (found?.doubanUrl) {
       show.doubanUrl = found.doubanUrl;
@@ -2581,6 +2622,7 @@ async function enrichDescriptions(shows) {
   let enriched = 0;
 
   await mapPool(targets, 4, async (show) => {
+    if (!hasOptionalEnrichmentBudget()) return;
     const c = cache[show.id] || (show.seedId && show.seedId !== show.id ? cache[show.seedId] : null);
     const tmdbId = c?.tmdbId;
     const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
@@ -2603,12 +2645,23 @@ async function enrichDescriptions(shows) {
   // 补充 Wikipedia 描述 (优先中文,其次英文)
   const wikiTargets = shows.filter(s => s.wikipediaUrl && (!s.description || s.description.length < 80));
   for (const show of wikiTargets) {
+    if (!hasOptionalEnrichmentBudget()) break;
     try {
       const title = decodeURIComponent(show.wikipediaUrl.split('/wiki/')[1] || '');
       if (!title) continue;
       const lang = show.wikipediaUrl.includes('zh.wikipedia') ? 'zh' : show.wikipediaUrl.includes('ko.wikipedia') ? 'ko' : 'en';
       const apiUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-      const resp = await fetch(apiUrl, { headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] }, signal: AbortSignal.timeout(8000) });
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(8000));
+      let resp;
+      try {
+        resp = await fetch(apiUrl, {
+          headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
       if (resp.ok) {
         const data = await resp.json();
         if (data.extract && data.extract.length > (show.description || '').length) {
@@ -3016,7 +3069,6 @@ const TITLE_EN_MAP = {
   // 2022-2024 高口碑韩剧
   '泪之女王': 'Queen of Tears',
   '黑暗荣耀': 'The Glory',
-  '黑暗荣耀第2季': 'The Glory',
   '超异能族': 'Moving',
   '21世纪大君夫人': 'The Embracing Empress',
   '照明商店': 'Light Shop',
@@ -3109,7 +3161,7 @@ const TITLE_EN_MAP = {
 async function fetchTMDBJSON(path) {
   if (!TMDB_TOKEN) return null;
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
+  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000));
   try {
     const resp = await fetch(`https://api.themoviedb.org/3/${path}`, {
       headers: {
@@ -3130,7 +3182,7 @@ async function fetchTMDBJSON(path) {
 async function fetchWikidataLinks(wikidataId) {
   if (!wikidataId) return {};
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
+  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000));
   try {
     const resp = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${wikidataId}.json`, {
       headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
@@ -3327,6 +3379,7 @@ function isTMDBResultYearCompatible(show, result, { yearParam = '' } = {}) {
 
 async function searchTMDBImage(show, { cacheEntry = null } = {}) {
   let hadTransientError = false;
+  if (!hasOptionalEnrichmentBudget()) return { lookupState: 'unknown' };
   const expectedSeasonNumber = seasonNumberFromTitle(show?.title);
   const attemptedSeasonIds = new Set();
 
@@ -3371,6 +3424,7 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
   const shouldRetryWithoutYear = show.year && (mediaKind === 'tv' || !/20\d{2}|第[一二三四五六七八九十\d]+季/u.test(show.title));
 
   for (const query of queries) {
+    if (!hasOptionalEnrichmentBudget()) return { lookupState: 'unknown' };
     const yearParams = [
       show.year ? (mediaKind === 'movie' ? `&year=${show.year}` : `&first_air_date_year=${show.year}`) : '',
       shouldRetryWithoutYear ? '' : null,
@@ -3512,6 +3566,7 @@ async function enrichCoversFromTMDB(shows) {
 
   // TMDB 为官方 API(token 鉴权、限速宽松),用有界并发显著缩短封面抓取耗时。
   await mapPool(toFetch, 4, async (show) => {
+    if (!hasOptionalEnrichmentBudget()) return;
     const img = await searchTMDBImage(show, { cacheEntry: findTMDBCacheEntry(cache, show) });
     if (img?.url) {
       const previousMetadata = findTMDBCacheEntry(cache, show) || {};

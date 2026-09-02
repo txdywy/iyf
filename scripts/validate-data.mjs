@@ -46,6 +46,33 @@ function isTMDBOriginalCover(value) {
   }
 }
 
+function seasonNumberFromTitle(title = '') {
+  const text = String(title || '').trim();
+  const numerals = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 };
+  const chinese = text.match(/第\s*([一二三四五六七八九十\d]+)\s*季\s*$/u);
+  if (chinese) {
+    const value = chinese[1];
+    if (/^\d+$/u.test(value)) return Number(value);
+    if (value === '十') return 10;
+    if (value.startsWith('十')) return 10 + (numerals[value.slice(1)] || 0);
+    if (value.endsWith('十')) return (numerals[value.slice(0, -1)] || 1) * 10;
+    if (value.includes('十')) {
+      const [tens, ones] = value.split('十');
+      return (numerals[tens] || 1) * 10 + (numerals[ones] || 0);
+    }
+    return numerals[value] || 0;
+  }
+  const latin = text.match(/(?:Season|S)\s*(\d{1,2})\s*$/iu);
+  if (latin) return Number(latin[1]);
+  const bare = text.match(/[\p{Script=Han}）)\]】》]\s*([1-9]\d?)$/u);
+  return bare ? Number(bare[1]) : 0;
+}
+
+function tmdbSeasonNumber(value) {
+  const match = String(value || '').match(/^https?:\/\/(?:www\.)?themoviedb\.org\/tv\/\d+\/season\/(\d+)(?:[/?#]|$)/iu);
+  return match ? Number(match[1]) : 0;
+}
+
 function validateShows(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     errors.push('data/shows.json: root must be an object');
@@ -81,6 +108,10 @@ function validateShows(data) {
         errors.push(`${label}.tmdbCoverPending: must be boolean`);
       }
       for (const field of URL_FIELDS) validateUrl(show[field], `${label}.${field}`);
+      const expectedSeason = seasonNumberFromTitle(show.title);
+      if (expectedSeason && show.tmdbUrl && tmdbSeasonNumber(show.tmdbUrl) !== expectedSeason) {
+        errors.push(`${label}.tmdbUrl: season-specific title must link to its TMDB season page`);
+      }
       for (const field of ['score', 'playCount', 'recommendScore', 'year']) {
         if (Object.hasOwn(show, field) && !Number.isFinite(show[field])) errors.push(`${label}.${field}: must be finite`);
       }

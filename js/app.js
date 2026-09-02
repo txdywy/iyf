@@ -23,11 +23,13 @@
   });
   const REMOTE_CACHE_TTL_MS = 15 * 60 * 1000;
   const REMOTE_REQUEST_TIMEOUT_MS = 12000;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const DATA_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
   const DEFAULT_SORT_BY_TAB = { new: 'newest' };
   const VALID_FILTER_STATUS = new Set(['all', 'ongoing', 'complete']);
   const VALID_FILTER_SCORES = new Set(['0', '7', '8', '9']);
   const VALID_SORTS = new Set(['recommend', 'score', 'newest', 'popular']);
-  const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩剧时间表' };
+  const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩国电视剧时间表' };
   const REMOTE_LINK_HOSTS = Object.freeze({
     tvmaze: new Set(['www.tvmaze.com']),
     tvmazeImage: new Set(['static.tvmaze.com']),
@@ -182,10 +184,25 @@
     if (!el) return;
     const time = new Date(allData.lastUpdated);
     const timeStr = Number.isNaN(time.getTime()) ? '未知' : time.toLocaleString('zh-CN', { hour12: false });
+    const freshness = getDataFreshness(allData.lastUpdated);
     const kr = allData.stats?.koreanDramas ?? (allData.koreanDramas || []).length;
     const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
     const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
-    el.textContent = `最后更新: ${timeStr} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${notice}`;
+    const freshnessNotice = freshness.label ? ` · ${freshness.label}` : '';
+    const staleNotice = freshness.stale ? ' · 数据可能过期' : '';
+    el.textContent = `最后更新: ${timeStr}${freshnessNotice} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${staleNotice}${notice}`;
+  }
+
+  function getDataFreshness(value, now = Date.now()) {
+    const timestamp = new Date(value || 0).getTime();
+    if (!Number.isFinite(timestamp)) return { label: '', stale: false };
+    const age = now - timestamp;
+    if (age < DAY_MS) return { label: age < 60 * 60 * 1000 ? '刚刚更新' : '今天更新', stale: false };
+    const days = Math.floor(age / DAY_MS);
+    return {
+      label: days === 1 ? '昨天更新' : `约${days}天前更新`,
+      stale: age >= DATA_STALE_AFTER_MS,
+    };
   }
 
   function readUrlState() {
@@ -332,14 +349,14 @@
         break;
       case 'new':
         shows = [...(allData.koreanDramas || []), ...(allData.chineseVariety || [])]
-          .filter(s => s.year >= getCurrentDataYear())
-          .sort((a, b) => getValidTime(b.publishTime) - getValidTime(a.publishTime));
+          .filter(s => s.isNew === true)
+          .sort((a, b) => getNewestSortTime(b) - getNewestSortTime(a));
         break;
       case 'classic':
         shows = [
           ...(allData.koreanDramas || []),
           ...(allData.chineseVariety || [])
-        ].filter(s => s.isClassic || s.score >= 8.5);
+        ].filter(s => s.isClassic === true);
         break;
       case 'tvmaze':
         return fetchAndRenderTVmaze(requestVersion);
@@ -488,7 +505,7 @@
         shows.sort((a, b) => getShowNumber(b, 'score') - getShowNumber(a, 'score'));
         break;
       case 'newest':
-        shows.sort((a, b) => getValidTime(b.publishTime || b.airDate || b.year) - getValidTime(a.publishTime || a.airDate || a.year));
+        shows.sort((a, b) => getNewestSortTime(b) - getNewestSortTime(a));
         break;
       case 'popular':
         shows.sort((a, b) => getShowNumber(b, 'popular') - getShowNumber(a, 'popular'));
@@ -557,8 +574,10 @@
 
   function renderCard(show, index) {
     const badges = [];
-    if (Number.isFinite(show.aiScore)) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(show.aiScore))}/100</span>`);
-    if (show.score >= 8) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
+    const aiScore = normalizeAIScore(show.aiScore);
+    const score = toFiniteNumber(show.score, NaN);
+    if (Number.isFinite(aiScore)) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(aiScore))}/100</span>`);
+    if (Number.isFinite(score) && score > 0) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
@@ -573,7 +592,7 @@
     const statusText = show.isComplete
       ? (show.totalEpisodes ? `已完结 · ${show.totalEpisodes}集` : '已完结')
       : show.mediaType === '综艺'
-        ? (show.updateStatus || '更新中')
+        ? (show.updateStatus || show.updateMsg || '更新中')
         : show.currentEpisode
           ? `更新至第${show.currentEpisode}集${show.totalEpisodes ? ' / 共' + show.totalEpisodes + '集' : ''}`
           : show.updateStatus || '未知';
@@ -600,7 +619,7 @@
       tags.push(`<span class="meta-tag">${escapeHtml(show.lang)}</span>`);
     }
 
-    const recommendWidth = Math.max(0, Math.min(100, toFiniteNumber(show.recommendScore) / 1.5));
+    const recommendWidth = getRecommendationWidth(show);
 
     const primaryAction = renderPrimaryAction(show);
     const secondaryActions = renderSecondaryActions(show, primaryAction?.url || '');
@@ -611,10 +630,9 @@
           ${posterContent}
           ${newBadge}
           <div class="card-badges">${badges.join('')}</div>
-          ${show.score > 0 ? `<div class="card-score-float">⭐ ${escapeHtml(String(show.score))}</div>` : ''}
         </div>
         <div class="card-body">
-          <div class="recommend-bar" style="width:${recommendWidth}%" role="img" aria-label="推荐度 ${Math.round(recommendWidth)}%"></div>
+          <div class="recommend-bar" style="width:${recommendWidth}%" role="img" aria-label="相对推荐度 ${recommendWidth}%"></div>
           <h3 class="card-title">${escapeHtml(show.title)}</h3>
           <div class="card-meta">${tags.join('')}</div>
           ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
@@ -840,6 +858,13 @@
     return Number.isNaN(time) ? 0 : time;
   }
 
+  function getNewestSortTime(show) {
+    const value = activeTabName === 'new'
+      ? (show?.firstSeenAt || show?.scrapedAt || show?.publishTime || show?.airDate || show?.year)
+      : (show?.publishTime || show?.airDate || show?.year);
+    return getValidTime(value);
+  }
+
   function toFiniteNumber(value, fallback = 0) {
     const number = Number(value);
     return Number.isFinite(number) ? number : fallback;
@@ -865,6 +890,22 @@
       if (Number.isFinite(number)) return number;
     }
     return 0;
+  }
+
+  function normalizeAIScore(value) {
+    const score = toFiniteNumber(value, NaN);
+    if (!Number.isFinite(score)) return NaN;
+    // 旧版 AI 曾把 0-10 评分写入了 0-100 字段。兼容旧快照时按约定量纲修复。
+    return score > 0 && score <= 10 ? Math.round(score * 10) : score;
+  }
+
+  function getRecommendationWidth(show) {
+    const scores = currentShows
+      .map(item => getShowNumber(item, 'recommend'))
+      .filter(score => score > 0);
+    const score = Math.max(0, getShowNumber(show, 'recommend'));
+    const maximum = Math.max(1, ...scores, score);
+    return Math.round(Math.max(0, Math.min(100, score / maximum * 100)));
   }
 
   function isShowDataset(value) {
@@ -972,6 +1013,15 @@
     return true;
   }
 
+  function showRemoteTabStaleFallback(tab, requestVersion, controller) {
+    if (!isActiveTabRequest(tab, requestVersion, controller) || !Array.isArray(_tvmazeCache)) return false;
+    _isTabLoading = false;
+    currentShows = _tvmazeCache;
+    applyFilters(true);
+    updateSourceInfo(`${REMOTE_TAB_LABELS[tab]}（缓存可能已过期）`, new Date(_tvmazeCachedAt).toISOString());
+    return true;
+  }
+
   function showRemoteTabError(tab, requestVersion, controller, message) {
     if (!isActiveTabRequest(tab, requestVersion, controller)) return;
     _isTabLoading = false;
@@ -1045,6 +1095,13 @@
     });
   }
 
+  function isTVmazeDrama(show) {
+    const type = toText(show?.type).trim().toLowerCase();
+    if (type) return type === 'scripted';
+    return (Array.isArray(show?.genres) ? show.genres : [])
+      .some(genre => toText(genre).trim().toLowerCase() === 'drama');
+  }
+
   function formatScheduleDate(value) {
     const match = toText(value).match(/^\d{4}-(\d{2})-(\d{2})$/u);
     return match ? `${Number(match[1])}月${Number(match[2])}日` : '';
@@ -1072,7 +1129,7 @@
         const addSchedule = ({ date, data }) => {
           for (const entry of data) {
             const show = entry?.show;
-            if (!show?.id || showMap.has(show.id)) continue;
+            if (!show?.id || !isTVmazeDrama(show) || showMap.has(show.id)) continue;
             showMap.set(show.id, { ...show, latestEpisode: entry, airDate: date });
           }
         };
@@ -1106,9 +1163,10 @@
         setEmptyState('📡 今日暂无韩国电视剧播出');
       }
     } catch (e) {
+      if (showRemoteTabStaleFallback('tvmaze', requestVersion, controller)) return;
       const message = e?.name === 'AbortError'
-        ? '⌛ TVmaze 请求超时,请稍后重试'
-        : '😢 TVmaze 数据加载失败,请稍后刷新';
+        ? '⌛ TVmaze 请求超时，请稍后重试'
+        : '😢 TVmaze 数据加载失败，请稍后刷新';
       showRemoteTabError('tvmaze', requestVersion, controller, message);
     } finally {
       finishRemoteTabRequest(controller);

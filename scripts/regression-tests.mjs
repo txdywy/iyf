@@ -185,7 +185,14 @@ function loadAppHelpers({
       getScheduleDateKey,
       buildScheduleDateKeys,
       sortTVmazeShows,
+      isTVmazeDrama,
+      normalizeAIScore,
+      getDataFreshness,
       setAllData: value => { allData = value; },
+      setTVmazeCache: (shows, cachedAt = Date.now()) => {
+        _tvmazeCache = shows;
+        _tvmazeCachedAt = cachedAt;
+      },
       getCurrentShows: () => currentShows,
     };
   })();`);
@@ -426,13 +433,69 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   helpers.setAllData({
     lastUpdated: '2026-08-13T00:00:00Z', stats: {}, chineseVariety: [],
     koreanDramas: [
-      { id: 'older', title: '较早更新', year: 2026, publishTime: '2026-01-01', coverImg: '', primaryUrl: '' },
-      { id: 'newer', title: '最新更新', year: 2026, publishTime: '2026-08-01', coverImg: '', primaryUrl: '' },
+      { id: 'older', title: '较早更新', year: 2026, isNew: true, firstSeenAt: '2026-01-01', publishTime: '2026-01-01', coverImg: '', primaryUrl: '' },
+      { id: 'newer', title: '最新更新', year: 2026, isNew: true, firstSeenAt: '2026-08-01', publishTime: '2026-08-01', coverImg: '', primaryUrl: '' },
+      { id: 'current-but-not-new', title: '当年但非新加入', year: 2026, isNew: false, firstSeenAt: '2026-08-15', publishTime: '2026-08-15', coverImg: '', primaryUrl: '' },
     ],
   });
   helpers.switchTab('new');
   assert.equal(elements.sortBy.value, 'newest', 'latest tab should select newest sorting by default');
   assert.ok(elements.showGrid.innerHTML.indexOf('最新更新') < elements.showGrid.innerHTML.indexOf('较早更新'), 'latest tab should render newest publish time first');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /当年但非新加入/, 'new tab should require an explicit recently-added marker instead of the calendar year');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
+  helpers.setAllData({
+    lastUpdated: '2026-08-29T00:00:00Z', stats: {}, chineseVariety: [],
+    koreanDramas: [
+      { id: 'classic', title: '明确经典', year: 2015, isClassic: true, score: 7.8, coverImg: '', primaryUrl: '' },
+      { id: 'high-score', title: '高分但非经典', year: 2026, isClassic: false, score: 9.5, coverImg: '', primaryUrl: '' },
+    ],
+  });
+  helpers.switchTab('classic');
+  assert.match(elements.showGrid.innerHTML, /明确经典/, 'classic tab should include explicitly curated classics');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /高分但非经典/, 'classic tab should not turn every high-score or new show into a classic');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
+  helpers.setAllData({
+    lastUpdated: '2026-08-29T00:00:00Z', stats: {}, chineseVariety: [],
+    koreanDramas: [
+      { id: 'high-recommend', title: '高推荐', year: 2026, recommendScore: 200, aiScore: 9, score: 8.5, coverImg: '', primaryUrl: '' },
+      { id: 'low-recommend', title: '低推荐', year: 2026, recommendScore: 100, aiScore: 8.3, score: 7.5, coverImg: '', primaryUrl: '' },
+    ],
+  });
+  helpers.switchTab('korean');
+  assert.match(elements.showGrid.innerHTML, /相对推荐度 100%/, 'the strongest recommendation should fill the relative recommendation bar');
+  assert.match(elements.showGrid.innerHTML, /相对推荐度 50%/, 'relative recommendation bars should preserve differences between cards');
+  assert.match(elements.showGrid.innerHTML, /🤖 90\/100/, 'legacy 0-10 AI scores should render in the 0-100 scale');
+  assert.match(elements.showGrid.innerHTML, /🤖 83\/100/, 'decimal legacy AI scores should be normalized and rounded consistently');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /card-score-float/, 'score should not be duplicated as a poster overlay');
+}
+
+{
+  const helpers = loadAppHelpers({ dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
+  assert.deepEqual(plain(helpers.getDataFreshness('2026-08-29T15:30:00Z', Date.parse('2026-08-29T16:00:00Z'))), { label: '刚刚更新', stale: false });
+  assert.deepEqual(plain(helpers.getDataFreshness('2026-08-27T15:30:00Z', Date.parse('2026-08-29T16:00:00Z'))), { label: '约2天前更新', stale: true }, 'stale data should be called out after the freshness threshold');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
+  helpers.setAllData({
+    lastUpdated: '2026-08-29T00:00:00Z', stats: {},
+    koreanDramas: [{ id: 'drama', title: '汉江警察', year: 2026, coverImg: '', primaryUrl: '' }],
+    chineseVariety: [{ id: 'variety', title: '奔跑吧', mediaType: '综艺', year: 2026, updateMsg: '周五', coverImg: '', primaryUrl: '' }],
+  });
+  elements.searchInput.value = '奔跑吧';
+  helpers.switchTab('korean');
+  assert.match(elements.emptyMessage.textContent, /暂无符合/u, 'search should stay within the currently selected category');
+  helpers.switchTab('variety');
+  assert.match(elements.showGrid.innerHTML, /周五/u, 'variety cards should show the source update message when status text is absent');
 }
 
 {
@@ -497,7 +560,10 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
       return {
         ok: true,
         json: async () => date === '2026-08-29'
-          ? [{ show: { id: 1, name: '回退剧', status: 'Running', rating: { average: 7.5 }, genres: [], network: null, image: null, url: 'https://www.tvmaze.com/shows/1/fallback', summary: '' }, season: 1, number: 2, airtime: '20:00' }]
+          ? [
+            { show: { id: 2, name: 'Ask Us Anything', type: 'Reality', status: 'Running', rating: { average: 9.1 }, genres: [], network: null, image: null, url: 'https://www.tvmaze.com/shows/2/reality', summary: '' }, season: 1, number: 2, airtime: '19:00' },
+            { show: { id: 1, name: '回退剧', type: 'Scripted', status: 'Running', rating: { average: 7.5 }, genres: [], network: null, image: null, url: 'https://www.tvmaze.com/shows/1/fallback', summary: '' }, season: 1, number: 2, airtime: '20:00' },
+          ]
           : [],
       };
     },
@@ -506,7 +572,36 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   await helpers.switchTab('tvmaze');
   assert.equal(calls[0], '2026-08-30', 'TVmaze should request the Korea-local current date first');
   assert.match(elements.showGrid.innerHTML, /回退剧/, 'a failed current-day request should fall back to recent successful days');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /Ask Us Anything/, 'TVmaze Korean drama schedule should exclude reality and variety programmes');
   assert.match(elements.showGrid.innerHTML, /8月29日/, 'TVmaze cards should show the actual schedule date');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const cachedAt = Date.parse('2026-08-20T00:00:00Z');
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl: fixedInstant('2026-08-29T16:00:00Z'),
+    fetchImpl: async () => { throw new Error('TVmaze unavailable'); },
+  });
+  helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  helpers.setTVmazeCache([{
+    id: 3,
+    name: '缓存韩剧',
+    type: 'Scripted',
+    status: 'Running',
+    rating: { average: 8.2 },
+    genres: ['Drama'],
+    network: null,
+    image: null,
+    url: 'https://www.tvmaze.com/shows/3/cached',
+    summary: '',
+    latestEpisode: { season: 1, number: 4, airtime: '20:00' },
+    airDate: '2026-08-20',
+  }], cachedAt);
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.showGrid.innerHTML, /缓存韩剧/, 'TVmaze should reuse the last successful schedule when the remote request fails');
+  assert.match(elements.updateInfo.textContent, /缓存可能已过期/, 'stale TVmaze fallback should be disclosed in the source status');
 }
 
 // ── Scraper status parsing and matching regressions ──────────────────────────
@@ -838,6 +933,16 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   }).helpers;
   assert.equal(await valid.verifyYfspUrl(show, 'https://www.yfsp.tv/play/valid'), 'valid');
 
+  let verifyOptions;
+  const redirectGuard = loadScrapeHelpers({
+    fetchImpl: async (_url, options) => {
+      verifyOptions = options;
+      return mockResponse({ status: 503 });
+    },
+  }).helpers;
+  assert.equal(await redirectGuard.verifyYfspUrl(show, 'https://www.yfsp.tv/play/redirect'), 'unknown');
+  assert.equal(verifyOptions.redirect, 'error', 'YFSP verification should reject redirects instead of following an untrusted host');
+
   const missing = loadScrapeHelpers({ fetchImpl: async () => mockResponse({ status: 404 }) }).helpers;
   assert.equal(await missing.verifyYfspUrl(show, 'https://www.yfsp.tv/play/missing'), 'invalid');
 
@@ -912,6 +1017,15 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(requestBody.response_format?.json_schema?.strict, true);
   assert.deepEqual(requestBody.response_format?.json_schema?.schema?.properties?.results?.items?.properties?.id?.enum, ['drama-1'], 'the schema must constrain output IDs to the current batch');
   assert.equal(requestBody.provider?.require_parameters, true, 'the router should only select providers that support requested parameters');
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async () => mockResponse({ json: { choices: [{ message: { content: '[{"id":"legacy-ai","s":8.3,"r":"旧量纲"}]' } }] } }),
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'legacy-ai', title: '旧量纲测试', year: 2026 }]);
+  assert.equal(scores.get('legacy-ai')?.score, 83, 'AI results written in the legacy 0-10 scale should be normalized before persistence');
 }
 
 {
@@ -1107,6 +1221,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.equal(helpers.isRenderableShow({ id: 'fallback', title: '兜底节目', category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), false, 'Korean fallback covers must carry the pending TMDB marker');
   assert.equal(helpers.isRenderableShow({ id: 'fallback-marked', title: '已标记兜底节目', category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', tmdbCoverPending: true, primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'marked Korean fallback covers should remain renderable');
   assert.equal(helpers.isRenderableShow({ id: 'variety-fallback', title: '综艺兜底', category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg', coverSource: 'yfsp', primaryUrl: 'https://www.yfsp.tv/play/x' }), true, 'non-Korean categories may still use a valid fallback cover');
+  assert.equal(helpers.isRenderableShow({ id: 'wrong-season-link', title: '黑暗荣耀第2季', category: 'korean_drama', coverImg: 'https://image.tmdb.org/t/p/original/glory.jpg', coverSource: 'tmdb', tmdbUrl: 'https://www.themoviedb.org/tv/136283', primaryUrl: 'https://www.themoviedb.org/tv/136283' }), false, 'season-specific cards must not render with a series-level TMDB link');
 
   const hardExcluded = new Map([
     ['bad', { id: 'bad', title: '恐怖测试', description: '恐怖丧尸题材', category: 'korean_drama' }],
@@ -1683,15 +1798,23 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 // ── Source contract smoke checks ──────────────────────────
-assert.match(app, /escapeHtml\(String\(show\.aiScore\)\)/, 'AI score badge should escape stringified output');
+assert.match(app, /escapeHtml\(String\(aiScore\)\)/, 'AI score badge should escape normalized output');
 assert.match(app, /escapeHtml\(String\(show\.score\)\)/, 'score badge should escape stringified output');
-assert.match(app, /escapeHtml\(String\(show\.score\)\)/, 'floating score should escape stringified output');
+assert.doesNotMatch(app, /card-score-float/, 'poster score overlays should not duplicate the score badge');
 assert.match(app, /toText\(s\.title\)\.toLowerCase\(\)\.includes\(query\)/, 'search should tolerate missing titles');
 assert.match(app, /function getValidTime\(/, 'date sorting should use a valid-time helper');
+assert.match(app, /s\.isNew === true/, 'new tab should use the explicit recently-added marker');
+assert.match(app, /s\.isClassic === true/, 'classic tab should use explicit curation markers');
+assert.match(app, /function getRecommendationWidth\(/, 'recommendation bars should be relative to the current result set');
+assert.match(app, /show\.updateStatus \|\| show\.updateMsg/, 'variety cards should expose their update message fallback');
+assert.match(app, /function normalizeAIScore\(/, 'frontend should normalize legacy AI score units');
+assert.match(app, /function getDataFreshness\(/, 'data freshness should be calculated for the update status');
 assert.match(app, /const DATA_CACHE_VERSION = 2;/, 'front-end cache schema should be versioned for behavior changes');
 assert.match(app, /fetchWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
 assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
+assert.match(app, /function isTVmazeDrama\(/, 'TVmaze schedule should distinguish scripted dramas from variety and reality shows');
 assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day request when history succeeds');
+assert.match(app, /showRemoteTabStaleFallback/, 'remote tabs should reuse a stale cache when a refresh fails');
 assert.match(app, /insertAdjacentHTML\('beforeend'/, 'loading more should append cards without replacing existing DOM nodes');
 assert.match(app, /new window\.IntersectionObserver/, 'loading more should auto-trigger near the viewport bottom');
 assert.match(app, /AUTO_LOAD_ROOT_MARGIN/, 'auto-loading should prefetch before the user reaches the exact bottom');
@@ -1713,6 +1836,9 @@ assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should
 
 assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
 assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
+assert.match(scrape, /const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 \* 60 \* 1000;/, 'optional enrichment should have a shared time budget');
+assert.match(scrape, /getOptionalEnrichmentTimeout\(/, 'optional enrichment requests should honor the shared time budget');
+assert.match(scrape, /redirect: 'error'/, 'YFSP verification should not follow redirects to an untrusted host');
 assert.match(scrape, /const COVER_CACHE_VERSION = 16;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
 assert.doesNotMatch(scrape, /entry\.version = COVER_CACHE_VERSION/, 'TMDB URL resolution migration must not promote stale cache entries');
 assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
@@ -1746,10 +1872,15 @@ assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.co
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
 assert.match(publicBuild, /'coverSource', 'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
 assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
+const committedData = JSON.parse(read('data/shows.json'));
+assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');
+assert.doesNotMatch(JSON.stringify(committedData), /黑暗荣耀第2季/u, 'the catalog should not retain the unsupported standalone Glory season card');
 assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
 assert.match(scrape, /results\.get\(String\(s\.id\)\)\?\.ok === true/, 'AI discovery must fail closed when a candidate has no valid decision');
 assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
 assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
+assert.match(scrape, /function hasValidTMDBSeasonLink\(/, 'season-specific output should validate its TMDB URL');
+assert.match(validateData, /season-specific title must link to its TMDB season page/, 'data validation should reject series-level links for season titles');
 
 assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
 assert.doesNotMatch(scrape, /seed_var_2026_17/, '待定版地球超新鲜 seed should be removed (duplicate of seed_var_2026_28)');
