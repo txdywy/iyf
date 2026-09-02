@@ -1,23 +1,4 @@
 {
-  "2026-08-02": {
-    "timestamp": "2026-08-02T13:17:33.681Z",
-    "koreanDramasCount": 69,
-    "chineseVarietyCount": 100,
-    "topKoreanDramas": [
-      "背着善宰跑",
-      "订阅男友",
-      "酒鬼都市男女",
-      "21世纪大君夫人",
-      "孤单又灿烂的神-鬼怪"
-    ],
-    "topVariety": [
-      "青春环游记",
-      "现在就出发",
-      "哈哈哈哈哈",
-      "奔跑吧",
-      "欢乐喜剧人"
-    ]
-  },
   "2026-08-03": {
     "timestamp": "2026-08-03T14:32:21.799Z",
     "koreanDramasCount": 69,
@@ -551,15 +532,34 @@
     ]
   },
   "2026-08-31": {
-    "timestamp": "2026-08-31T01:26:34.658Z",
-    "koreanDramasCount": 66,
-    "chineseVarietyCount": 115,
+    "timestamp": "2026-08-31T18:42:56.059Z",
+    "koreanDramasCount": 65,
+    "chineseVarietyCount": 116,
     "topKoreanDramas": [
-      "请回答1988",
-      "孤单又灿烂的神-鬼怪",
       "21世纪大君夫人",
       "订阅男友",
-      "举重妖精金福珠"
+      "请回答1988",
+      "孤单又灿烂的神-鬼怪",
+      "死亡之花"
+    ],
+    "topVariety": [
+      "现在就出发",
+      "青春环游记",
+      "哈哈哈哈哈",
+      "欢乐喜剧人",
+      "奔跑吧"
+    ]
+  },
+  "2026-09-01": {
+    "timestamp": "2026-09-01T16:01:08.241Z",
+    "koreanDramasCount": 65,
+    "chineseVarietyCount": 115,
+    "topKoreanDramas": [
+      "21世纪大君夫人",
+      "订阅男友",
+      "孤单又灿烂的神-鬼怪",
+      "请回答1988",
+      "死亡之花"
     ],
     "topVariety": [
       "现在就出发",
