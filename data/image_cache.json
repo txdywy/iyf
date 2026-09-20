@@ -5752,7 +5752,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:04.517Z"
+    "cachedAt": "2026-09-20T03:03:37.442Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -6302,7 +6302,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:02.836Z"
+    "cachedAt": "2026-09-20T03:03:36.216Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6312,7 +6312,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:03.389Z"
+    "cachedAt": "2026-09-20T03:03:36.775Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6322,7 +6322,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:03.414Z"
+    "cachedAt": "2026-09-20T03:03:36.781Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6364,7 +6364,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:03.454Z"
+    "cachedAt": "2026-09-20T03:03:36.826Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6396,7 +6396,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:03.963Z"
+    "cachedAt": "2026-09-20T03:03:37.350Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6448,7 +6448,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:03.985Z"
+    "cachedAt": "2026-09-20T03:03:37.361Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6458,7 +6458,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:04.041Z"
+    "cachedAt": "2026-09-20T03:03:37.395Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6519,7 +6519,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:02.812Z"
+    "cachedAt": "2026-09-20T03:03:36.196Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6569,7 +6569,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:04.623Z"
+    "cachedAt": "2026-09-20T03:03:37.920Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6579,7 +6579,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:04.658Z"
+    "cachedAt": "2026-09-20T03:03:37.939Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6599,7 +6599,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:05.205Z"
+    "cachedAt": "2026-09-20T03:03:38.015Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6609,7 +6609,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:02.886Z"
+    "cachedAt": "2026-09-20T03:03:36.226Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6619,7 +6619,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:06.232Z"
+    "cachedAt": "2026-09-20T03:03:39.100Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -6699,11 +6699,13 @@
     "matchedTitle": "金色",
     "tmdbId": 294487,
     "tmdbUrl": "https://www.themoviedb.org/tv/294487",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37325370/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37437772/",
     "wikidataId": "",
-    "cachedAt": "2026-08-25T12:38:01.605Z"
+    "cachedAt": "2026-08-25T12:38:01.605Z",
+    "doubanId": "37325370",
+    "doubanMatchedTitle": "金色"
   },
   "YKHYc3bW6nD": {
     "title": "烟灰",
@@ -7126,11 +7128,13 @@
     "matchedTitle": "生逢其时",
     "tmdbId": 286686,
     "tmdbUrl": "https://www.themoviedb.org/tv/286686",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37233336/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt36218252/",
     "wikidataId": "",
-    "cachedAt": "2026-09-03T15:40:53.854Z"
+    "cachedAt": "2026-09-03T15:40:53.854Z",
+    "doubanId": "37233336",
+    "doubanMatchedTitle": "生逢其时"
   },
   "jyvbnjmUq6U": {
     "title": "绅士们第2季",
@@ -7216,7 +7220,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:14:57.212Z"
+    "cachedAt": "2026-09-20T03:03:36.823Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -7534,11 +7538,13 @@
     "matchedTitle": "兰香如故",
     "tmdbId": 282326,
     "tmdbUrl": "https://www.themoviedb.org/tv/282326",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36449295/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt32500958/",
     "wikidataId": "",
-    "cachedAt": "2026-09-11T15:45:46.790Z"
+    "cachedAt": "2026-09-11T15:45:46.790Z",
+    "doubanId": "36449295",
+    "doubanMatchedTitle": "兰香如故"
   },
   "3NHhqMNCDG9": {
     "title": "可以爱吗",
@@ -7618,7 +7624,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:14:56.592Z"
+    "cachedAt": "2026-09-20T03:03:35.664Z"
   },
   "kkDouz9bUj6": {
     "title": "审判萨达姆",
@@ -7692,7 +7698,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:14:56.022Z"
+    "cachedAt": "2026-09-20T03:03:35.652Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -7789,7 +7795,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:14:56.020Z"
+    "cachedAt": "2026-09-20T03:03:35.635Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -7842,11 +7848,13 @@
     "matchedTitle": "神秘的声音",
     "tmdbId": 318239,
     "tmdbUrl": "https://www.themoviedb.org/tv/318239",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38591066/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt41359588/",
     "wikidataId": "",
-    "cachedAt": "2026-09-19T02:51:21.548Z"
+    "cachedAt": "2026-09-19T02:51:21.548Z",
+    "doubanId": "38591066",
+    "doubanMatchedTitle": "神秘的声音"
   },
   "780lhU6e4gA": {
     "title": "乌鸦俱乐部",
@@ -7859,11 +7867,13 @@
     "matchedTitle": "乌鸦俱乐部",
     "tmdbId": 312585,
     "tmdbUrl": "https://www.themoviedb.org/tv/312585",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38383662/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt39443739/",
     "wikidataId": "",
-    "cachedAt": "2026-09-19T02:51:21.635Z"
+    "cachedAt": "2026-09-19T02:51:21.635Z",
+    "doubanId": "38383662",
+    "doubanMatchedTitle": "乌鸦俱乐部"
   },
   "MFuEaTx0MVB": {
     "title": "阿波罗陷落",
@@ -7873,7 +7883,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-19T15:15:05.701Z"
+    "cachedAt": "2026-09-20T03:03:38.476Z"
   },
   "p0GFwcp9es4": {
     "title": "古战场传奇：吾血之亲第2季",
