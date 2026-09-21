@@ -245,6 +245,7 @@ function createAppDocument() {
     emptyAction: createDomElement({ id: 'emptyAction' }),
     loadMore: createDomElement({ id: 'loadMore' }),
     updateInfo: createDomElement({ id: 'updateInfo' }),
+    resultSummary: createDomElement({ id: 'resultSummary' }),
     sortBy: createDomElement({ id: 'sortBy', value: 'recommend' }),
     filterStatus: createDomElement({ id: 'filterStatus', value: 'all' }),
     filterScore: createDomElement({ id: 'filterScore', value: '0' }),
@@ -574,6 +575,30 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   assert.match(elements.showGrid.innerHTML, /回退剧/, 'a failed current-day request should fall back to recent successful days');
   assert.doesNotMatch(elements.showGrid.innerHTML, /Ask Us Anything/, 'TVmaze Korean drama schedule should exclude reality and variety programmes');
   assert.match(elements.showGrid.innerHTML, /8月29日/, 'TVmaze cards should show the actual schedule date');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async (_url, { signal }) => abortedFetch(signal) });
+  helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  const pending = helpers.switchTab('tvmaze');
+  assert.match(elements.resultSummary.textContent, /正在加载/, 'loading the remote tab should not announce an empty result');
+  helpers.switchTab('korean');
+  await pending;
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document });
+  helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  helpers.setTVmazeCache([{
+    id: 4, name: '未评分韩剧', status: 'Running', rating: { average: 0 },
+    genres: [], image: null, url: 'https://www.tvmaze.com/shows/4/unrated', summary: '',
+    latestEpisode: { season: 1, number: 1, airtime: '21:00' }, airDate: '2026-08-29',
+  }]);
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.showGrid.innerHTML, /未评分韩剧/, 'unrated remote cards should still appear');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /⭐ 0\.0/, 'missing ratings must not display as a zero-star score');
 }
 
 {

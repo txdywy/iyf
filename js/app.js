@@ -995,6 +995,8 @@
     resetStats();
 
     renderSkeletons(4);
+    const summary = document.getElementById('resultSummary');
+    if (summary) summary.textContent = '正在加载时间表…';
     clearEmptyState();
     return controller;
   }
@@ -1203,7 +1205,7 @@
             ${airDate ? `<span class="schedule-date">${escapeHtml(airDate)}</span>` : ''}
             ${epInfo ? `<span class="schedule-ep">${escapeHtml(epInfo)}</span>` : ''}
             ${airtime ? `<span class="schedule-time">🕐 ${escapeHtml(airtime)}</span>` : ''}
-            ${Number.isFinite(rating) ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
+            ${rating > 0 ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
           </div>
           <p class="card-desc">${escapeHtml(summary)}</p>
           <div class="card-footer">
