@@ -80,9 +80,7 @@
 
     try {
       // 保持稳定 URL，让浏览器用 ETag/Last-Modified 做条件请求。
-      const resp = await fetchWithTimeout(DATA_URL, { cache: 'no-cache' }, DATA_REQUEST_TIMEOUT_MS);
-      if (!resp.ok) throw new Error('Data not found');
-      const data = await resp.json();
+      const data = await fetchJSONWithTimeout(DATA_URL, { cache: 'no-cache' }, DATA_REQUEST_TIMEOUT_MS);
       if (!isShowDataset(data)) throw new Error('Invalid show data');
       allData = data;
       saveDataCache(data);
@@ -147,11 +145,14 @@
     }
   }
 
-  async function fetchWithTimeout(url, options = {}, timeoutMs = DATA_REQUEST_TIMEOUT_MS) {
+  async function fetchJSONWithTimeout(url, options = {}, timeoutMs = DATA_REQUEST_TIMEOUT_MS) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      return await fetch(url, { ...options, signal: controller.signal });
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      if (!response.ok) throw new Error('Data not found');
+      // 正文仍在传输时继续计时，避免只收到响应头后页面无限等待。
+      return await response.json();
     } finally {
       clearTimeout(timeout);
     }

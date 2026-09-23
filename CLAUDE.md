@@ -54,7 +54,7 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
 
 **Frontend** (`js/app.js`): IIFE, conditionally fetches `data/shows.json`, renders the card grid and the optional live TVmaze schedule tab. The primary data request and remote-tab requests are bounded, abortable, versioned against stale responses and cached where appropriate. Current-year tab labels follow the dataset year, old tab aliases remain bookmark-compatible, and progressive rendering appends only newly requested cards. External links and numeric fields are validated before rendering.
 
-**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
+**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, adds content hashes to CSS/JS URLs in the published index, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
 
 GitHub Actions secrets: `OPENROUTER_API_KEY` (AI scoring) and `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images). `OPENROUTER_MODEL` is an optional Actions variable; when unset the scraper uses `openrouter/free`.
 

@@ -176,6 +176,7 @@ function loadAppHelpers({
     globalThis.__helpers = {
       renderCardActions,
       renderCard,
+      fetchJSONWithTimeout,
       escapeHtml,
       safeExternalUrl,
       switchTab,
@@ -300,6 +301,22 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 // ── Frontend behavior regressions ──────────────────────────
+{
+  let bodySignal;
+  const helpers = loadAppHelpers({
+    fetchImpl: async (_url, { signal }) => ({
+      ok: true,
+      json: () => {
+        bodySignal = signal;
+        return abortedFetch(signal);
+      },
+    }),
+  });
+  await assert.rejects(helpers.fetchJSONWithTimeout('data/shows.json', {}, 20), { name: 'AbortError' },
+    'the data deadline should abort a stalled response body, not only the response headers');
+  assert.equal(bodySignal.aborted, true);
+}
+
 {
   const { renderCardActions, renderCard, safeExternalUrl } = loadAppHelpers();
   const yfspOnly = renderCardActions({
@@ -1835,7 +1852,7 @@ assert.match(app, /show\.updateStatus \|\| show\.updateMsg/, 'variety cards shou
 assert.match(app, /function normalizeAIScore\(/, 'frontend should normalize legacy AI score units');
 assert.match(app, /function getDataFreshness\(/, 'data freshness should be calculated for the update status');
 assert.match(app, /const DATA_CACHE_VERSION = 2;/, 'front-end cache schema should be versioned for behavior changes');
-assert.match(app, /fetchWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
+assert.match(app, /fetchJSONWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
 assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
 assert.match(app, /function isTVmazeDrama\(/, 'TVmaze schedule should distinguish scripted dramas from variety and reality shows');
 assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day request when history succeeds');

@@ -108,8 +108,8 @@ jobs:
       - name: Build Pages artifact
         run: |
           mkdir -p site/data
-          cp index.html site/
           cp -R css js site/
+          node scripts/build-site-index.mjs --output site/index.html
           node scripts/build-public-data.mjs --output site/data/shows.json
 
       - name: Upload Pages artifact
