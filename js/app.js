@@ -6,7 +6,7 @@
   'use strict';
 
   const DATA_URL = 'data/shows.json';
-  const DATA_CACHE_VERSION = 2;
+  const DATA_CACHE_VERSION = 3;
   const DATA_CACHE_KEY = `iyf:shows-cache:v${DATA_CACHE_VERSION}`;
   const DATA_CACHE_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
   const DATA_CACHE_CLOCK_SKEW_MS = 5 * 60 * 1000;
@@ -25,7 +25,7 @@
   const REMOTE_REQUEST_TIMEOUT_MS = 12000;
   const DAY_MS = 24 * 60 * 60 * 1000;
   const DATA_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
-  const DEFAULT_SORT_BY_TAB = { new: 'newest' };
+  const DEFAULT_SORT_BY_TAB = { new: 'newest', tvmaze: 'newest' };
   const VALID_FILTER_STATUS = new Set(['all', 'ongoing', 'complete']);
   const VALID_FILTER_SCORES = new Set(['0', '7', '8', '9']);
   const VALID_SORTS = new Set(['recommend', 'score', 'newest', 'popular']);
@@ -36,6 +36,7 @@
   });
   const TVMAZE_TIME_ZONE = 'Asia/Seoul';
   let allData = null;
+  let _dataLoadFailed = false;
   let currentShows = [];
   let activeTabName = 'korean';
   const _tabSortPreferences = new Map();
@@ -62,6 +63,8 @@
     bindPosterFallbacks();
     window.addEventListener('popstate', handleUrlStateChange);
     window.addEventListener('hashchange', handleUrlStateChange);
+    // 时间表是独立来源，不应等待推荐 JSON 成功后才允许打开。
+    renderLoadedData();
     await loadData();
   }
 
@@ -72,9 +75,9 @@
     if (cached) {
       allData = cached.data;
       updateYearTabLabels();
-      renderLoadedData({ animate: true });
+      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false });
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 正在后台更新');
-    } else {
+    } else if (!REMOTE_TAB_LABELS[activeTabName]) {
       renderSkeletons();
     }
 
@@ -91,32 +94,39 @@
         if (!REMOTE_TAB_LABELS[activeTabName]) {
           switchTab(activeTabName, { syncUrl: false, animate: false });
         }
-      } else {
-        renderLoadedData({ animate: true });
+      } else if (!REMOTE_TAB_LABELS[activeTabName]) {
+        switchTab(activeTabName, { syncUrl: false });
       }
     } catch (e) {
       if (renderedFromCache) {
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 网络更新失败，展示本地缓存');
         return;
       }
-      document.getElementById('loading').style.display = 'none';
-      const grid = document.getElementById('showGrid');
-      if (grid) {
-        grid.innerHTML = '';
-        grid.setAttribute('aria-busy', 'false');
-      }
-      setEmptyState('😢 暂无推荐数据。数据正在抓取中，请稍后刷新。', '刷新页面', () => location.reload());
-      updateStats([]);
-      const info = document.getElementById('updateInfo');
-      if (info) info.textContent = '推荐数据加载失败，请重试';
+      _dataLoadFailed = true;
+      if (REMOTE_TAB_LABELS[activeTabName]) return;
+      showDataLoadError();
     }
+  }
+
+  function showDataLoadError() {
+    document.getElementById('loading').style.display = 'none';
+    const grid = document.getElementById('showGrid');
+    if (grid) {
+      grid.innerHTML = '';
+      grid.setAttribute('aria-busy', 'false');
+    }
+    updateLoadMore(0, 0);
+    setEmptyState('😢 推荐数据加载失败，请检查网络后刷新。', '刷新页面', () => location.reload());
+    updateStats([]);
+    const info = document.getElementById('updateInfo');
+    if (info) info.textContent = '推荐数据加载失败，请重试';
   }
 
   function renderLoadedData({ animate = true } = {}) {
     const urlState = readUrlState();
     restoreFilterControls(urlState);
     if (urlState.sort) _tabSortPreferences.set(urlState.tab, urlState.sort);
-    switchTab(urlState.tab, { syncUrl: false, animate });
+    switchTab(urlState.tab, { syncUrl: false, animate, rememberSort: false });
   }
 
   function readCachedData() {
@@ -270,10 +280,6 @@
 
   function handleUrlStateChange() {
     const state = readUrlState();
-    if (!allData) {
-      restoreFilterControls(state);
-      return;
-    }
     _tabSortPreferences.set(state.tab, state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend');
     if (state.tab !== activeTabName) {
       switchTab(state.tab, { syncUrl: false });
@@ -307,11 +313,11 @@
     });
   }
 
-  function switchTab(tab, { syncUrl = true, animate = true } = {}) {
+  function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true } = {}) {
     tab = normalizeTabName(tab);
     const requestVersion = cancelPendingTabRequest();
     const sortSelect = document.getElementById('sortBy');
-    if (sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
+    if (rememberSort && sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
     activeTabName = tab;
     if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
     if (syncUrl) syncUrlState();
@@ -326,7 +332,18 @@
     activeButton?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
 
-    if (!allData) return;
+    const newestOption = sortSelect?.querySelector?.('option[value="newest"]');
+    if (newestOption) newestOption.textContent = tab === 'tvmaze' ? '播出时间' : tab === 'new' ? '最近加入' : '最新发布';
+    if (!allData && !REMOTE_TAB_LABELS[tab]) {
+      currentShows = [];
+      _filteredShows = [];
+      _visibleShowCount = 0;
+      resetStats();
+      clearEmptyState();
+      if (_dataLoadFailed) showDataLoadError();
+      else renderSkeletons();
+      return;
+    }
     if (REMOTE_TAB_LABELS[tab]) {
       const info = document.getElementById('updateInfo');
       if (info) info.textContent = `正在加载 ${REMOTE_TAB_LABELS[tab]}...`;
@@ -397,6 +414,7 @@
   function bindLoadMore() {
     const sentinel = document.getElementById('loadMore');
     if (!sentinel) return;
+    document.getElementById('loadMoreButton')?.addEventListener('click', loadMoreShows);
 
     if (typeof window === 'undefined') return;
     const loadMoreOptions = { rootMargin: AUTO_LOAD_ROOT_MARGIN, threshold: 0.01 };
@@ -455,10 +473,7 @@
     // 状态筛选
     const status = document.getElementById('filterStatus').value;
     if (status === 'ongoing') {
-      shows = shows.filter(s => {
-        const complete = isShowComplete(s);
-        return !complete;
-      });
+      shows = shows.filter(isShowOngoing);
     } else if (status === 'complete') {
       shows = shows.filter(s => {
         const complete = isShowComplete(s);
@@ -506,7 +521,9 @@
         shows.sort((a, b) => getShowNumber(b, 'score') - getShowNumber(a, 'score'));
         break;
       case 'newest':
-        shows.sort((a, b) => getNewestSortTime(b) - getNewestSortTime(a));
+        shows = activeTabName === 'tvmaze'
+          ? sortTVmazeShows(shows)
+          : shows.sort((a, b) => getNewestSortTime(b) - getNewestSortTime(a));
         break;
       case 'popular':
         shows.sort((a, b) => getShowNumber(b, 'popular') - getShowNumber(a, 'popular'));
@@ -570,19 +587,22 @@
     if (!sentinel) return;
     const remaining = Math.max(0, totalCount - visibleCount);
     sentinel.hidden = remaining === 0;
-    sentinel.textContent = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
+    const status = document.getElementById('loadMoreStatus');
+    const message = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
+    if (status) status.textContent = message;
+    else sentinel.textContent = message;
   }
 
   function renderCard(show, index) {
     const badges = [];
     const aiScore = normalizeAIScore(show.aiScore);
     const score = toFiniteNumber(show.score, NaN);
-    if (Number.isFinite(aiScore)) badges.push(`<span class="badge badge-ai">🤖 ${escapeHtml(String(aiScore))}/100</span>`);
-    if (Number.isFinite(score) && score > 0) badges.push(`<span class="badge badge-score">⭐ ${escapeHtml(String(show.score))}</span>`);
+    if (Number.isFinite(aiScore)) badges.push(`<span class="badge badge-ai" title="AI口味匹配度，非观众评分">🤖 ${escapeHtml(String(aiScore))}/100</span>`);
+    if (Number.isFinite(score) && score > 0) badges.push(`<span class="badge badge-score" title="爱壹帆来源评分，满分10分">⭐ ${escapeHtml(String(show.score))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
-    if (show.year >= getCurrentDataYear()) badges.push('<span class="badge badge-new">新剧</span>');
+    if (show.year >= getCurrentDataYear()) badges.push(`<span class="badge badge-new">${show.mediaType === '综艺' ? '新综艺' : '新剧'}</span>`);
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
 
@@ -598,7 +618,7 @@
           ? `更新至第${show.currentEpisode}集${show.totalEpisodes ? ' / 共' + show.totalEpisodes + '集' : ''}`
           : show.updateStatus || '未知';
 
-    const statusClass = show.isComplete ? '' : 'ongoing';
+    const statusClass = isShowOngoing(show) ? 'ongoing' : '';
 
     const playCount = Math.max(0, toFiniteNumber(show.playCount));
     const viewsText = playCount > 10000
@@ -638,7 +658,7 @@
           <div class="card-meta">${tags.join('')}</div>
           ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
           ${actors ? `<div class="card-actors">🎭 ${escapeHtml(actors)}</div>` : ''}
-          <p class="card-desc">${escapeHtml(show.description || '')}</p>
+          <p class="card-desc">${show.descriptionSource === 'ai' ? 'AI生成推荐语：' : ''}${escapeHtml(show.description || '')}</p>
           ${show.aiReason ? `<p class="card-ai-reason">🤖 AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
           <div class="card-footer">
             <span class="card-status ${statusClass}">${escapeHtml(statusText)}</span>
@@ -749,10 +769,7 @@
 
   function updateStats(shows, animate = false) {
     const total = shows.length;
-    const ongoing = shows.filter(s => {
-      const complete = isShowComplete(s);
-      return !complete;
-    }).length;
+    const ongoing = shows.filter(isShowOngoing).length;
     const complete = shows.filter(s => {
       const complete = isShowComplete(s);
       return complete;
@@ -801,14 +818,22 @@
     return ['ended', 'canceled', 'cancelled'].includes(toText(show?.status).toLowerCase());
   }
 
+  function isShowOngoing(show) {
+    if (isShowComplete(show)) return false;
+    if (typeof show?.isSerial === 'boolean') return show.isSerial;
+    return toText(show?.status).toLowerCase() === 'running';
+  }
+
   function animateNum(id, target) {
     const el = document.getElementById(id);
     if (!el) return;
     const current = parseInt(el.textContent) || 0;
-    if (current === target) return;
-
     // 清理该元素上一次未完成的动画,避免多个 setInterval 叠加导致数字闪烁
-    if (_numTimers.has(id)) clearInterval(_numTimers.get(id));
+    if (_numTimers.has(id)) {
+      clearInterval(_numTimers.get(id));
+      _numTimers.delete(id);
+    }
+    if (current === target) return;
 
     const prefersReducedMotion = typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -894,10 +919,9 @@
   }
 
   function normalizeAIScore(value) {
+    if (value == null || value === '') return NaN;
     const score = toFiniteNumber(value, NaN);
-    if (!Number.isFinite(score)) return NaN;
-    // 旧版 AI 曾把 0-10 评分写入了 0-100 字段。兼容旧快照时按约定量纲修复。
-    return score > 0 && score <= 10 ? Math.round(score * 10) : score;
+    return Number.isFinite(score) && score >= 0 && score <= 100 ? score : NaN;
   }
 
   function getRecommendationWidth(show) {
@@ -911,9 +935,14 @@
 
   function isShowDataset(value) {
     return !!value && typeof value === 'object' &&
+      !Array.isArray(value) && Number.isFinite(Date.parse(value.lastUpdated || '')) &&
       Array.isArray(value.koreanDramas) &&
       Array.isArray(value.chineseVariety) &&
-      [...value.koreanDramas, ...value.chineseVariety].every(show => show && typeof show === 'object' && !Array.isArray(show));
+      value.koreanDramas.length <= 1000 && value.chineseVariety.length <= 1000 &&
+      [...value.koreanDramas, ...value.chineseVariety].every(show =>
+        show && typeof show === 'object' && !Array.isArray(show) &&
+        typeof show.id === 'string' && !!show.id.trim() &&
+        typeof show.title === 'string' && !!show.title.trim() && show.title.length <= 200);
   }
 
   function updateSourceInfo(label, value) {
@@ -1155,6 +1184,7 @@
         }
         if (!successfulDays) throw new Error('TVmaze schedule unavailable');
         shows = sortTVmazeShows([...showMap.values()]);
+        if (!isActiveTabRequest('tvmaze', requestVersion, controller) || controller.signal.aborted) return;
         _tvmazeCache = shows;
         _tvmazeCachedAt = Date.now();
       }
@@ -1178,7 +1208,9 @@
 
   function renderTVmazeCard(show, index) {
     const ep = show.latestEpisode;
-    const epInfo = ep ? `S${ep.season}E${ep.number}` : '';
+    const epInfo = ep
+      ? [Number.isInteger(ep.season) ? `S${ep.season}` : '', Number.isInteger(ep.number) ? `E${ep.number}` : '特别篇'].join('')
+      : '';
     const airtime = ep?.airtime || '';
     const airDate = formatScheduleDate(show.airDate);
     const network = show.network?.name || '';
@@ -1205,7 +1237,7 @@
           <div class="card-schedule">
             ${airDate ? `<span class="schedule-date">${escapeHtml(airDate)}</span>` : ''}
             ${epInfo ? `<span class="schedule-ep">${escapeHtml(epInfo)}</span>` : ''}
-            ${airtime ? `<span class="schedule-time">🕐 ${escapeHtml(airtime)}</span>` : ''}
+            ${airtime ? `<span class="schedule-time">🕐 ${escapeHtml(airtime)}（韩国时间）</span>` : ''}
             ${rating > 0 ? `<span class="schedule-rating">⭐ ${rating.toFixed(1)}</span>` : ''}
           </div>
           <p class="card-desc">${escapeHtml(summary)}</p>

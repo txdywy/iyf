@@ -369,6 +369,18 @@ a:visited { color: #8e86d1; }
   display: none;
 }
 
+#loadMoreButton {
+  margin-left: 12px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--accent-light);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* ── Show Card ──────────────────────────────────────────── */
 .show-card {
   display: block;

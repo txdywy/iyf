@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
@@ -43,7 +45,7 @@ function instantSetTimeout(fn) {
   return 0;
 }
 
-function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); }, dateImpl = Date, initialFiles = {} } = {}) {
+function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); }, dateImpl = Date, initialFiles = {}, setTimeoutImpl = instantSetTimeout, clearTimeoutImpl = () => {} } = {}) {
   const writes = new Map(Object.entries(initialFiles).map(([path, content]) => [String(path), String(content)]));
   const context = {
     console: { log() {}, warn() {}, error() {} },
@@ -51,8 +53,8 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
     fetch: fetchImpl,
     URL,
     AbortController,
-    setTimeout: instantSetTimeout,
-    clearTimeout() {},
+    setTimeout: setTimeoutImpl,
+    clearTimeout: clearTimeoutImpl,
     Date: dateImpl,
     Math,
     JSON,
@@ -101,6 +103,9 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         aiScoreShows,
         aiEvaluateDiscovery,
         aiEnhanceDescriptions,
+        enrichDescriptions,
+        discoverNewKDramas,
+        discoverNewVariety,
         isRenderableShow,
         dedupByTitle,
         titleMatches,
@@ -142,6 +147,8 @@ function loadAppHelpers({
   fetchImpl = async () => { throw new Error('unexpected fetch'); },
   setTimeoutImpl = setTimeout,
   clearTimeoutImpl = clearTimeout,
+  setIntervalImpl = setInterval,
+  clearIntervalImpl = clearInterval,
   windowImpl = { addEventListener() {}, matchMedia: () => ({ matches: false }) },
 } = {}) {
   const context = {
@@ -153,8 +160,8 @@ function loadAppHelpers({
     fetch: fetchImpl,
     setTimeout: setTimeoutImpl,
     clearTimeout: clearTimeoutImpl,
-    setInterval,
-    clearInterval,
+    setInterval: setIntervalImpl,
+    clearInterval: clearIntervalImpl,
     window: windowImpl,
     history: { replaceState() {} },
     location: locationImpl || { hash: '', slice(n) { return this.hash.slice(n); } },
@@ -174,6 +181,10 @@ function loadAppHelpers({
   };
   const executable = app.replace(/\}\)\(\);\s*$/m, `
     globalThis.__helpers = {
+      init,
+      animateNum,
+      loadData,
+      isShowDataset,
       renderCardActions,
       renderCard,
       fetchJSONWithTimeout,
@@ -233,6 +244,7 @@ function createDomElement({ id = '', value = '', textContent = '', dataset = {} 
     setAttribute(name, value) { attributes.set(name, String(value)); },
     getAttribute(name) { return attributes.get(name) ?? null; },
     addEventListener(name, listener) { listeners.set(name, listener); },
+    dispatch(name, event = {}) { return listeners.get(name)?.(event); },
     focus() {},
   };
 }
@@ -245,6 +257,13 @@ function createAppDocument() {
     emptyMessage: createDomElement({ id: 'emptyMessage' }),
     emptyAction: createDomElement({ id: 'emptyAction' }),
     loadMore: createDomElement({ id: 'loadMore' }),
+    loadMoreButton: createDomElement({ id: 'loadMoreButton' }),
+    loadMoreStatus: createDomElement({ id: 'loadMoreStatus' }),
+    resetFilters: createDomElement({ id: 'resetFilters' }),
+    statTotal: createDomElement({ id: 'statTotal', textContent: '0' }),
+    statOngoing: createDomElement({ id: 'statOngoing', textContent: '0' }),
+    statComplete: createDomElement({ id: 'statComplete', textContent: '0' }),
+    statHighScore: createDomElement({ id: 'statHighScore', textContent: '0' }),
     updateInfo: createDomElement({ id: 'updateInfo' }),
     resultSummary: createDomElement({ id: 'resultSummary' }),
     sortBy: createDomElement({ id: 'sortBy', value: 'recommend' }),
@@ -301,6 +320,175 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 // ── Frontend behavior regressions ──────────────────────────
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    locationImpl: { hash: '#new', search: '', href: 'http://localhost/#new' },
+    fetchImpl: async () => ({ ok: true, json: async () => ({ lastUpdated: '2026-09-27', koreanDramas: [], chineseVariety: [] }) }),
+  });
+  await helpers.init();
+  assert.equal(elements.sortBy.value, 'newest');
+  helpers.switchTab('korean', { animate: false });
+  assert.equal(elements.sortBy.value, 'recommend', 'the initial deep-link sort must not overwrite the Korean-tab preference');
+}
+
+{
+  let stopped = 0;
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, setIntervalImpl: () => 1, clearIntervalImpl: () => stopped++ });
+  helpers.animateNum('statTotal', 100);
+  helpers.animateNum('statTotal', 0);
+  assert.equal(stopped, 1, 'a new zero-result state must cancel a still-running counter even when the displayed number is already zero');
+  assert.equal(elements.statTotal.textContent, '0');
+}
+
+{
+  const candidate = { title: '待播节目', regional: '韩国', atypeName: '电视剧', score: 8, hot: 100000, postTime: '2026-09-27', lastName: '预告', contxt: 'upcoming' };
+  const { helpers } = loadScrapeHelpers({ fetchImpl: async () => mockResponse({ json: { data: { info: [{ result: [candidate] }] } } }) });
+  const discovered = await helpers.discoverNewKDramas(new Map(), new Map());
+  assert.equal(discovered.length, 1);
+  assert.equal(discovered[0].isSerial, false, 'discovery must not turn a trailer into a running drama');
+  candidate.atypeName = '综艺';
+  candidate.regional = '大陆';
+  const variety = await helpers.discoverNewVariety(new Map(), new Map());
+  assert.equal(variety.length, 1);
+  assert.equal(variety[0].isSerial, false, 'the same status rule must apply to discovered variety programmes');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document });
+  helpers.setAllData({ lastUpdated: '2026-09-27', chineseVariety: [], koreanDramas: [
+    { id: 'running', title: '真正连载', isSerial: true, isComplete: false },
+    { id: 'pending', title: '尚未开播', isSerial: false, isComplete: false },
+    { id: 'unknown', title: '资料待定' },
+  ] });
+  elements.filterStatus.value = 'ongoing';
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /真正连载/);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /尚未开播|资料待定/);
+  assert.equal(elements.statOngoing.textContent, 1, 'ongoing statistics must only count positively known running shows');
+  assert.ok(!helpers.isShowDataset({ koreanDramas: [{}], chineseVariety: [] }), 'malformed datasets must not enter the cache');
+  assert.ok(helpers.isShowDataset({ lastUpdated: '2026-09-27', koreanDramas: [{ id: 'valid', title: '有效节目' }], chineseVariety: [] }));
+  assert.doesNotMatch(helpers.renderCard({ title: '缺少AI分', aiScore: null }, 0), /🤖 0\/100/, 'missing AI scores must not become zero-score badges');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => { throw new Error('local data offline'); } });
+  helpers.setTVmazeCache([
+    { id: 1, name: '今天早场', airDate: '2026-09-27', latestEpisode: { season: 1, number: null, airtime: '18:00' }, rating: { average: 6 } },
+    { id: 2, name: '今天晚场', airDate: '2026-09-27', latestEpisode: { airtime: '22:00' }, rating: { average: 9 } },
+    { id: 3, name: '昨日高分', airDate: '2026-09-26', rating: { average: 10 } },
+  ]);
+  await helpers.switchTab('tvmaze');
+  await helpers.loadData();
+  assert.equal(elements.sortBy.value, 'newest', 'the schedule should default to chronological sorting');
+  assert.ok(elements.showGrid.innerHTML.indexOf('今天早场') < elements.showGrid.innerHTML.indexOf('今天晚场'));
+  assert.ok(elements.showGrid.innerHTML.indexOf('今天晚场') < elements.showGrid.innerHTML.indexOf('昨日高分'));
+  assert.match(elements.showGrid.innerHTML, /特别篇/);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /Enull|Eundefined/);
+  assert.match(elements.showGrid.innerHTML, /韩国时间/);
+  assert.notEqual(elements.empty.style.display, 'block', 'local data failure must not erase the independent schedule');
+  helpers.switchTab('korean');
+  assert.match(elements.emptyMessage.textContent, /加载失败/, 'returning to the failed local source should expose its retry state');
+  assert.equal(helpers.loadMoreShows(), false, 'a queued auto-load callback must not revive remote cards in a failed local tab');
+}
+
+{
+  let finishOldRequest;
+  let calls = 0;
+  const rows = prefix => Array.from({ length: 5 }, (_, i) => ({ show: { id: i + 1, name: `${prefix}${i}`, type: 'Scripted', status: 'Running' } }));
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => {
+    calls++;
+    if (calls === 1) return await new Promise(resolve => { finishOldRequest = resolve; });
+    return { ok: true, json: async () => rows('新请求') };
+  } });
+  helpers.setAllData({ lastUpdated: '2026-09-27', koreanDramas: [], chineseVariety: [] });
+  const oldRequest = helpers.switchTab('tvmaze');
+  helpers.switchTab('korean');
+  await helpers.switchTab('tvmaze');
+  finishOldRequest({ ok: true, json: async () => rows('已取消请求') });
+  await oldRequest;
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.showGrid.innerHTML, /新请求/);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /已取消请求/, 'late responses must not overwrite the newer shared cache');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document });
+  helpers.setAllData({ lastUpdated: '2026-09-27', koreanDramas: Array.from({ length: 30 }, (_, i) => ({ title: `键盘加载${i}` })), chineseVariety: [] });
+  helpers.switchTab('korean', { animate: false });
+  helpers.bindLoadMore();
+  elements.loadMoreButton.dispatch('click');
+  assert.equal((elements.showGrid.innerHTML.match(/<article class="show-card/g) || []).length, 30, 'manual keyboard-accessible loading must work alongside automatic loading');
+  assert.equal(elements.loadMore.hidden, true);
+}
+
+// Verify the actual deployment projection, not only the full source dataset.
+{
+  const buildDir = mkdtempSync(join(tmpdir(), 'iyf-projection-test-'));
+  try {
+    const output = join(buildDir, 'shows.json');
+    execFileSync(process.execPath, [join(root, 'scripts/build-public-data.mjs'), '--output', output]);
+    const published = JSON.parse(readFileSync(output, 'utf8'));
+    const source = JSON.parse(read('data/shows.json'));
+    for (const category of ['koreanDramas', 'chineseVariety']) {
+      assert.equal(published[category].length, source[category].length);
+      for (const [i, show] of source[category].entries()) {
+        for (const field of ['firstSeenAt', 'scrapedAt', 'updateMsg', 'descriptionSource']) {
+          assert.deepEqual(published[category][i][field], show[field], `public projection must retain ${field} for ${show.title}`);
+        }
+        assert.equal(published[category][i].aiScoreInputHash, undefined, 'internal scoring metadata must not leak into the public payload');
+      }
+    }
+    const helpers = loadAppHelpers();
+    assert.ok(helpers.isShowDataset(published), 'the deployed artifact must satisfy the frontend contract');
+  } finally {
+    rmSync(buildDir, { recursive: true });
+  }
+}
+
+{
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'test' },
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"low","ok":true,"s":39,"r":"不够推荐"},{"id":"threshold","ok":true,"s":40,"r":"达到门槛"}]}'),
+  });
+  const accepted = await helpers.aiEvaluateDiscovery([{ id: 'low', title: '低分' }, { id: 'threshold', title: '门槛' }]);
+  assert.deepEqual(plain(accepted.map(s => s.id)), ['threshold'], 'AI discovery must enforce the score threshold even if ok is true');
+}
+
+{
+  let scoredPrompt = '';
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'test' },
+    fetchImpl: async (_url, options) => {
+      scoredPrompt = JSON.parse(options.body).messages[1].content;
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"ai-desc","s":9,"r":"资料有限"}]}' } }] } });
+    },
+  });
+  await helpers.aiScoreShows([{ id: 'ai-desc', title: '生成文案', descriptionSource: 'ai', description: '模型虚构剧情' }]);
+  assert.doesNotMatch(scoredPrompt, /模型虚构剧情/, 'generated descriptions must not become scoring facts');
+  const live = helpers.normalizeItem({ mediaKey: 'source', title: '来源替换', description: '已验证来源剧情简介' });
+  const merged = helpers.mergePreviousShowState(live, { descriptionSource: 'ai', description: '旧AI文案' });
+  assert.equal(merged.descriptionSource, 'yfsp', 'replacing an AI description must replace its provenance too');
+}
+
+{
+  let abortedBody = false;
+  const { helpers } = loadScrapeHelpers({
+    setTimeoutImpl: fn => setTimeout(fn, 15), clearTimeoutImpl: clearTimeout,
+    fetchImpl: async (_url, { signal }) => ({ ok: true, json: async () => {
+      try { return await abortedFetch(signal); } finally { abortedBody = signal.aborted; }
+    } }),
+  });
+  await helpers.enrichDescriptions([{ id: 'wiki-only', title: '维基简介', wikipediaUrl: 'https://zh.wikipedia.org/wiki/Test', description: '' }]);
+  assert.equal(abortedBody, true, 'Wikipedia-only enrichment must run and abort a stalled response body');
+}
+
 {
   let bodySignal;
   const helpers = loadAppHelpers({
@@ -490,8 +678,8 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   helpers.switchTab('korean');
   assert.match(elements.showGrid.innerHTML, /相对推荐度 100%/, 'the strongest recommendation should fill the relative recommendation bar');
   assert.match(elements.showGrid.innerHTML, /相对推荐度 50%/, 'relative recommendation bars should preserve differences between cards');
-  assert.match(elements.showGrid.innerHTML, /🤖 90\/100/, 'legacy 0-10 AI scores should render in the 0-100 scale');
-  assert.match(elements.showGrid.innerHTML, /🤖 83\/100/, 'decimal legacy AI scores should be normalized and rounded consistently');
+  assert.match(elements.showGrid.innerHTML, /🤖 9\/100/, 'valid low AI scores must not be inflated by guessing their scale');
+  assert.match(elements.showGrid.innerHTML, /🤖 8.3\/100/, 'decimal AI scores must retain the declared 0-100 scale');
   assert.doesNotMatch(elements.showGrid.innerHTML, /card-score-float/, 'score should not be duplicated as a poster overlay');
 }
 
@@ -1067,7 +1255,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
     fetchImpl: async () => mockResponse({ json: { choices: [{ message: { content: '[{"id":"legacy-ai","s":8.3,"r":"旧量纲"}]' } }] } }),
   });
   const scores = await helpers.aiScoreShows([{ id: 'legacy-ai', title: '旧量纲测试', year: 2026 }]);
-  assert.equal(scores.get('legacy-ai')?.score, 83, 'AI results written in the legacy 0-10 scale should be normalized before persistence');
+  assert.equal(scores.get('legacy-ai')?.score, 8.3, 'the 0-100 response contract must preserve valid low scores');
 }
 
 {
@@ -1849,9 +2037,9 @@ assert.match(app, /s\.isNew === true/, 'new tab should use the explicit recently
 assert.match(app, /s\.isClassic === true/, 'classic tab should use explicit curation markers');
 assert.match(app, /function getRecommendationWidth\(/, 'recommendation bars should be relative to the current result set');
 assert.match(app, /show\.updateStatus \|\| show\.updateMsg/, 'variety cards should expose their update message fallback');
-assert.match(app, /function normalizeAIScore\(/, 'frontend should normalize legacy AI score units');
+assert.match(app, /function normalizeAIScore\(/, 'frontend should validate AI scores');
 assert.match(app, /function getDataFreshness\(/, 'data freshness should be calculated for the update status');
-assert.match(app, /const DATA_CACHE_VERSION = 2;/, 'front-end cache schema should be versioned for behavior changes');
+assert.match(app, /const DATA_CACHE_VERSION = 3;/, 'front-end cache schema should be versioned for behavior changes');
 assert.match(app, /fetchJSONWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
 assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
 assert.match(app, /function isTVmazeDrama\(/, 'TVmaze schedule should distinguish scripted dramas from variety and reality shows');
@@ -1868,7 +2056,7 @@ assert.match(index, /id="varietyYearTabLabel"/, 'the current-year variety tab la
 assert.doesNotMatch(index, /id="tab-trakt"|id="tab-mdl"/u, 'retired snapshot tabs should not be exposed in the navigation');
 assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
 assert.match(index, /aria-live="polite"/, 'auto-load progress should be announced accessibly');
-assert.match(index, /id="loadMore"[^>]*role="status"/, 'the auto-load sentinel should be a non-interactive status region');
+assert.match(index, /id="loadMoreStatus"[^>]*role="status"/, 'the auto-load status should remain a separate live region');
 assert.doesNotMatch(index, /id="loadMore"[^>]*type="button"/, 'the auto-load sentinel should not advertise a click action');
 assert.match(app, /继续下滑自动加载/, 'the fallback control should explain the auto-load behavior');
 assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
@@ -1918,7 +2106,6 @@ const committedData = JSON.parse(read('data/shows.json'));
 assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');
 assert.doesNotMatch(JSON.stringify(committedData), /黑暗荣耀第2季/u, 'the catalog should not retain the unsupported standalone Glory season card');
 assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
-assert.match(scrape, /results\.get\(String\(s\.id\)\)\?\.ok === true/, 'AI discovery must fail closed when a candidate has no valid decision');
 assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
 assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
 assert.match(scrape, /function hasValidTMDBSeasonLink\(/, 'season-specific output should validate its TMDB URL');
@@ -1936,7 +2123,8 @@ assert.match(workflow, /node-version-file: '\.node-version'/, 'scrape and valida
 assert.doesNotMatch(workflow, /node-version: '22'/, 'scrape workflow should not drift from .node-version');
 assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
 assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
-assert.match(workflow, /name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: 25/, 'the scrape job should leave room for its bounded AI latency budget');
+const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: (\d+)/)?.[1]);
+assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.match(workflow, /paths-ignore:\n\s+- 'data\/\*\*'/, 'data-only bot commits should not retrigger the scraper workflow');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');

@@ -50,9 +50,13 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
    - Uses OpenRouter's official `openrouter/free` dynamic route by default; `OPENROUTER_MODEL` can select an explicit model
    - Requests use strict JSON Schema and a shared eight-minute budget with a 60-second per-request deadline, sized for free-router latency
    - LLM IDs are constrained to the current batch and IDs, scores, booleans, reasons and descriptions are validated again before use
+   - Scores always use 0–100, including low values; new drama admission requires both `ok=true` and a score of at least 40
+   - Generated descriptions are labeled in the UI and excluded from scoring facts; prompt/cache version 3 invalidates earlier score-unit and factual-boundary behavior
 7. Normalize output fields/URL hosts, drop non-renderable shows, and run continuity + schema guards before the atomic write
 
 **Frontend** (`js/app.js`): IIFE, conditionally fetches `data/shows.json`, renders the card grid and the optional live TVmaze schedule tab. The primary data request and remote-tab requests are bounded, abortable, versioned against stale responses and cached where appropriate. Current-year tab labels follow the dataset year, old tab aliases remain bookmark-compatible, and progressive rendering appends only newly requested cards. External links and numeric fields are validated before rendering.
+
+TVmaze works independently of the recommendation JSON, defaults to date/time ordering, and labels Korean-local airtimes. Ongoing filters/statistics require an explicit running status rather than treating unknown/upcoming shows as running. Progressive loading has both automatic observation and a keyboard-accessible button. The public payload retains first-seen timestamps, update messages and description provenance; regression tests exercise the actual public builder to catch projection omissions.
 
 **Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, adds content hashes to CSS/JS URLs in the published index, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
 

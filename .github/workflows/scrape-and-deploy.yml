@@ -20,7 +20,9 @@ jobs:
   scrape:
     name: 抓取数据 & 构建站点
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # 核心30页 + 17次发现搜索各有15秒上限，再加两段8分钟富化/AI预算。
+    # 最坏路径超过25分钟，任务上限需留出构建与提交余量。
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
