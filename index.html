@@ -21,7 +21,7 @@
 </head>
 <body>
   <div id="app">
-    <a class="skip-link" href="#mainContent">跳到推荐内容</a>
+    <a class="skip-link" id="skipLink" href="#mainContent">跳到推荐内容</a>
     <!-- 头部 -->
     <header class="header">
       <div class="container">
@@ -117,6 +117,7 @@
     <main class="content" id="mainContent" tabindex="-1">
       <div class="container">
         <h2 class="sr-only" id="contentHeading">推荐内容</h2>
+        <noscript><p>请启用 JavaScript，以查看和筛选推荐内容。</p></noscript>
         <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-describedby="resultSummary" aria-busy="true">
           <!-- JS 动态渲染 -->
         </div>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-剧荒救星 — Korean drama & Chinese variety show recommendation static site. Scrapes YFSP (爱壹帆), enriches with TMDB/Wikidata/Douban/Wikipedia metadata, applies multi-factor recommendation scoring, deploys to GitHub Pages.
+剧荒救星 — Korean drama & Chinese variety show recommendation static site. Scrapes YFSP (爱壹帆), enriches with TMDB/Wikidata/Douban/Wikipedia metadata, applies multi-factor recommendation scoring, deploys the same validated artifact to Cloudflare Pages and GitHub Pages.
 
 No package.json or third-party runtime dependencies. The site is pure vanilla JS;
 small dependency-free Node scripts validate and project the deployment payload.
@@ -33,6 +33,9 @@ node scripts/validate-data.mjs
 
 # Build the minimized public recommendation payload
 node scripts/build-public-data.mjs --output /tmp/shows.json
+
+# Build the complete validated deployment artifact for both hosts
+node scripts/build-site.mjs
 ```
 
 The test suite is dependency-free and uses Node's built-in test runner. `scripts/regression-tests.mjs` can also be run directly while debugging.
@@ -58,7 +61,7 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
 
 TVmaze works independently of the recommendation JSON, defaults to date/time ordering, and labels Korean-local airtimes. Ongoing filters/statistics require an explicit running status rather than treating unknown/upcoming shows as running. Progressive loading has both automatic observation and a keyboard-accessible button. The public payload retains first-seen timestamps, update messages and description provenance; regression tests exercise the actual public builder to catch projection omissions.
 
-**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds a field-minimized Pages payload, adds content hashes to CSS/JS URLs in the published index, then deploys in a separate least-privilege job. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
+**Deployment** (`.github/workflows/scrape-and-deploy.yml`): Runs 2x/day (00:00/12:00 UTC), validates and commits data changes, builds the validated `site/` artifact via `scripts/build-site.mjs`, then deploys GitHub Pages in a separate least-privilege job. Cloudflare Pages watches main (including data commits), runs `node --test && node scripts/build-site.mjs`, and publishes `site/`. The shared builder projects only public fields, hashes CSS/JS URLs, includes a real 404 and Cloudflare cache/security headers, and rejects unexpected files or symlinks in output. `.github/workflows/validate.yml` runs the read-only quality gate on pull requests. Action references are pinned to immutable SHAs and updated by Dependabot.
 
 GitHub Actions secrets: `OPENROUTER_API_KEY` (AI scoring) and `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images). `OPENROUTER_MODEL` is an optional Actions variable; when unset the scraper uses `openrouter/free`.
 

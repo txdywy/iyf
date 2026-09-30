@@ -881,6 +881,10 @@ a:visited { color: #8e86d1; }
 }
 
 /* ── Animations ─────────────────────────────────────────── */
+.not-found { padding-top: 15vh; text-align: center; }
+.not-found p { margin: 24px 0; }
+.not-found .card-action { display: inline-flex; }
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

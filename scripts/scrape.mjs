@@ -509,6 +509,14 @@ function normalizedTitleMatches(a, b) {
   return false;
 }
 
+// 来源标题可以省略季号，但两边明确给出的不同季号不能靠编辑距离合并。
+// 保持此校验位于来源接纳入口，TMDB 仍可先匹配基系列再查指定 season。
+function haveCompatibleTitleSeasons(a, b) {
+  const aSeason = seasonKey(a);
+  const bSeason = seasonKey(b);
+  return !aSeason || !bSeason || aSeason === bSeason;
+}
+
 const DOUBAN_SUBJECT_URLS = {
   '孤单又灿烂的神-鬼怪': 'https://movie.douban.com/subject/26761935/',
   '酒鬼都市男女': 'https://movie.douban.com/subject/35460374/',
@@ -598,6 +606,7 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
     s.mediaType === mediaType &&
     (!regionMatcher || regionMatcher(s)) &&
     titleMatches(seed.title, s.title) &&
+    haveCompatibleTitleSeasons(seed.title, s.title) &&
     isYearCompatible(seed, s)
   );
   return candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0] || null;
@@ -756,8 +765,8 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
     if (!prev?.title || prev.seedId) continue;
     if ([...targetMap.values()].some(current => sameShowIdentity(current, prev))) continue;
     const now = Date.now();
-    const lastSeen = Date.parse(prev.lastLiveAt || prev.scrapedAt || '');
-    if (!Number.isFinite(lastSeen) || lastSeen > now || now - lastSeen > PREVIOUS_RECOMMENDATION_RETENTION_MS) {
+    const lastSeen = Math.max(comparableTimestamp(prev.lastLiveAt), comparableTimestamp(prev.scrapedAt));
+    if (!lastSeen || lastSeen > now || now - lastSeen > PREVIOUS_RECOMMENDATION_RETENTION_MS) {
       expired++;
       continue;
     }
@@ -791,7 +800,8 @@ function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
 }
 
 function scoreYfspCandidate(show, result) {
-  if (!result || typeof result !== 'object' || !titleMatches(show.title, result.title)) return -1;
+  if (!result || typeof result !== 'object' || !titleMatches(show.title, result.title) ||
+      !haveCompatibleTitleSeasons(show.title, result.title)) return -1;
   const resultMediaType = safeText(result.atypeName, 20);
   const resultRegion = safeText(result.regional, 40);
   if (show.mediaType && resultMediaType && resultMediaType !== show.mediaType) return -1;
@@ -858,6 +868,8 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
 }
 
 function applyYfspSearchFields(show, found) {
+  // 经过身份校验的成功搜索也证明节目仍在来源中，不能只靠首页曝光续保。
+  show.lastLiveAt = new Date().toISOString();
   show.updateStatus = found.updateStatus || show.updateStatus || '';
   const parsed = parseUpdateStatus(show.updateStatus);
   if (parsed.totalEpisodes) show.totalEpisodes = parsed.totalEpisodes;
@@ -916,7 +928,9 @@ async function verifyYfspUrl(show, url) {
       .replace(/-免费在线观看.*$/u, '')
       .replace(/-爱壹帆国际版.*$/u, '')
       .trim();
-    return titleMatches(show.title, cleanTitle) ? YFSP_VERIFY_STATUS.VALID : YFSP_VERIFY_STATUS.INVALID;
+    return titleMatches(show.title, cleanTitle) && haveCompatibleTitleSeasons(show.title, cleanTitle)
+      ? YFSP_VERIFY_STATUS.VALID
+      : YFSP_VERIFY_STATUS.INVALID;
   } catch (e) {
     console.warn(`  [WARN] yfsp verify failed for "${show.title}": ${e.message}`);
     return YFSP_VERIFY_STATUS.UNKNOWN;
@@ -951,8 +965,12 @@ const KDramaNegative = [
 ];
 const KDramaHardExclude = ['恐怖', '血腥', '丧尸', '虐杀', '猎奇', '极端暴力'];
 
+function sourceDescriptionForScoring(show, maxLength = 2000) {
+  return show?.descriptionSource === 'ai' ? '' : safeText(show?.description, maxLength);
+}
+
 function hasHardKDramaExclusion(show) {
-  const text = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''} ${show?.description || ''}`.toLowerCase();
+  const text = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''} ${sourceDescriptionForScoring(show)}`.toLowerCase();
   return KDramaHardExclude.some(keyword => text.includes(keyword));
 }
 
@@ -1072,7 +1090,7 @@ function applyYfspHotness(show, now = Date.now()) {
 
 function scoreKDrama(s, now = Date.now()) {
   let sc = 0;
-  const t = `${s.cidMapper} ${s.contentType} ${s.description} ${s.title}`.toLowerCase();
+  const t = `${s.cidMapper} ${s.contentType} ${sourceDescriptionForScoring(s)} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(KDramaGenreBoost)) if (t.includes(g)) sc += b;
   for (const kw of KDramaNegative) if (t.includes(kw)) sc -= 40;
   // 评分权重提高,让实际质量更有话语权(之前 ×5 太弱,类型加分容易掩盖质量差异)
@@ -1089,7 +1107,7 @@ function scoreKDrama(s, now = Date.now()) {
 
 function scoreVariety(s, now = Date.now()) {
   let sc = 0;
-  const t = `${s.cidMapper} ${s.contentType} ${s.description} ${s.title}`.toLowerCase();
+  const t = `${s.cidMapper} ${s.contentType} ${sourceDescriptionForScoring(s)} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(VarietyBoost)) if (t.includes(g)) sc += b;
   for (const kw of VarietyExclude) if (s.title.includes(kw)) return -1;
 
@@ -1433,7 +1451,7 @@ function aiScoreCategory(show) {
 function aiScoreInputHash(show) {
   const playCount = Math.max(0, safeNumber(show?.playCount));
   const playMagnitude = playCount > 0 ? Math.floor(Math.log10(playCount)) : 0;
-  const sourceDescription = show?.descriptionSource === 'ai' ? '' : safeText(show?.description, 500);
+  const sourceDescription = sourceDescriptionForScoring(show, 500);
   const input = JSON.stringify([
     AI_SCORE_CACHE_VERSION,
     aiScoreCategory(show),
@@ -1501,7 +1519,7 @@ async function aiScoreShows(shows) {
         title: safeText(s.title, 200),
         year: safeNumber(s.year),
         genre: safeText(s.contentType, 300),
-        desc: s.descriptionSource === 'ai' ? '' : safeText(s.description, 500),
+        desc: sourceDescriptionForScoring(s, 500),
         score: safeNumber(s.score),
         plays: Math.max(0, safeNumber(s.playCount)),
         actor: safeText(s.actor, 100),
@@ -1554,7 +1572,7 @@ async function aiEvaluateDiscovery(discovered) {
     const batch = discovered.slice(i, i + AI_BATCH_SIZE);
     const items = batch.map(s => ({
       id: safeText(s.id, 200), title: safeText(s.title, 200), year: safeNumber(s.year),
-      genre: safeText(s.contentType, 300), description: safeText(s.description, 500),
+      genre: safeText(s.contentType, 300), description: sourceDescriptionForScoring(s, 500),
       sourceScore: safeNumber(s.score), ruleScore: scoreKDrama(s),
       plays: Math.max(0, safeNumber(s.playCount)), actor: safeText(s.actor, 100),
     }));
@@ -1635,7 +1653,8 @@ async function aiEnhanceDescriptions(shows) {
       validateRows: candidateRows => validateAIResultRows(candidateRows, allowedIds, (item, id) => {
         if (typeof item?.d !== 'string') return null;
         const description = safeText(item?.d, 240);
-        return description ? { id, d: description } : null;
+        // 有风险词的生成文案只拒绝文案，不把可靠来源收录的节目一并移除。
+        return description && !hasHardKDramaExclusion({ description }) ? { id, d: description } : null;
       }),
     });
 
@@ -2022,11 +2041,8 @@ async function main() {
   }
   if (aiScores.size) console.log(`  [AI] 已为 ${aiScores.size} 个节目更新推荐分`);
 
-  // AI 文案只用于展示，不反向污染同一轮推荐评分。
+  // AI 文案只用于展示，评分/内容门禁只读取来源简介；风险词在文案生成入口拒绝。
   await aiEnhanceDescriptions(allShowsList);
-  // AI 文案也属于最终展示内容，不能让它把已经过滤的硬排除词重新带回发布结果。
-  const removedAfterAI = removeHardExcludedKDrama(kdramaMap);
-  if (removedAfterAI) console.log(`  按 AI 文案复核移除 ${removedAfterAI} 部不符合偏好的韩剧`);
   allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   // 所有 URL 富化完成后统一重算链接优先级
   for (const show of allShowsList) normalizeOutputShow(show);
@@ -2465,7 +2481,7 @@ async function enrichMissingYfspLinks(shows) {
       if (Date.now() >= stageDeadline) return;
       const found = await searchYfspTitle(show, { deadline: stageDeadline });
       show.yfspRefreshCheckedAt = new Date().toISOString();
-      if (found?.updateStatus) {
+      if (found?.url) {
         applyYfspSearchFields(show, found);
         refreshed++;
         console.log(`    ↻ ${show.title}: ${show.updateStatus}`);
@@ -2519,10 +2535,7 @@ function isSeasonSpecificTitle(title = '') {
 }
 
 function isDoubanSeasonCompatible(show, match) {
-  if (show.mediaType !== '综艺') return true;
-  const showSeason = seasonKey(show.title);
-  const matchSeason = seasonKey(match.doubanTitle);
-  return !showSeason || !matchSeason || showSeason === matchSeason;
+  return haveCompatibleTitleSeasons(show.title, match.doubanTitle);
 }
 
 function isDoubanFallbackAllowed(show, match) {
@@ -2543,6 +2556,8 @@ async function searchDoubanSubject(show) {
       for (const item of results.slice(0, 8)) {
         const names = [item.title, item.sub_title].filter(Boolean);
         if (!names.some(name => titleMatches(show.title, name))) continue;
+        // 主标题/英文副标题中的明确季号都要兼容，未知年份的 fallback 也不能绕过。
+        if (!names.every(name => haveCompatibleTitleSeasons(show.title, name))) continue;
         const match = {
           doubanUrl: `${DOUBAN_MOVIE_BASE}/${item.id}/`,
           doubanId: item.id,

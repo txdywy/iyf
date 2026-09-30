@@ -39,6 +39,7 @@ jobs:
           node --check scripts/regression-tests.mjs
           node --check scripts/build-public-data.mjs
           node --check scripts/build-site-index.mjs
+          node --check scripts/build-site.mjs
           node --check scripts/validate-data.mjs
 
       - name: Regression tests
@@ -46,9 +47,7 @@ jobs:
 
       - name: Validate data and public artifact
         run: |
-          node scripts/validate-data.mjs
-          node scripts/build-public-data.mjs --output "$RUNNER_TEMP/shows.json"
-          node scripts/build-site-index.mjs --output "$RUNNER_TEMP/index.html"
+          node scripts/build-site.mjs --output "$RUNNER_TEMP/iyf-site"
 
       - name: Reject whitespace errors (pull request)
         if: github.event_name == 'pull_request'
