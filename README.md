@@ -36,16 +36,19 @@ node scripts/scrape.mjs --recalculate-existing
 
 GitHub Pages 与 Cloudflare Pages 使用相同的 `scripts/build-site.mjs` 和 `site/` 产物。Cloudflare Pages 项目配置：
 
+Cloudflare 项目地址：[iyf-5l7.pages.dev](https://iyf-5l7.pages.dev/)。
+
 站点按自定义域名的根路径部署，404 页面也按根路径定位首页和样式。
 
 | 设置 | 值 |
 | --- | --- |
+| 项目名称 | `iyf` |
 | 仓库 | `txdywy/iyf` |
 | 生产分支 | `main` |
 | 构建命令 | `node --test && node scripts/build-site.mjs` |
 | 输出目录 | `site` |
 | Node.js | `22` |
 
-Cloudflare 的 Git 集成应接收 `main` 的代码和数据提交，避免定时抓取后网站数据停留在旧版。不要排除 `data/shows.json` 的构建触发。GitHub Pages 保留现有工作流作为备用发布产物。
+Cloudflare 的 Git 集成监听 `main` 的全部路径，代码和数据提交均可触发构建。不要排除 `data/shows.json`，以免定时抓取后网站数据停留在旧版。GitHub Pages 保留现有工作流作为备用发布产物。
 
 HTML 和 JSON 使用重新验证缓存，CSS/JS URL 带内容摘要；Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages Git 集成文档](https://developers.cloudflare.com/pages/configuration/git-integration/)。
