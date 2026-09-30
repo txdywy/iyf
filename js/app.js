@@ -43,6 +43,7 @@
   let _tabRequestVersion = 0;
   let _tabAbortController = null;
   let _isTabLoading = false;
+  let _tabLoadError = null;
   const _tabRequestTimeouts = new WeakMap();
   let _filteredShows = [];
   let _visibleShowCount = INITIAL_RENDER_COUNT;
@@ -50,6 +51,7 @@
   let _renderedShowCount = 0;
   let _loadMoreObserver = null;
   let _isLoadingMore = false;
+  let _recommendationMaximum = 1;
   const AUTO_LOAD_ROOT_MARGIN = '0px 0px 480px 0px';
 
 
@@ -61,6 +63,7 @@
     bindFilters();
     bindLoadMore();
     bindPosterFallbacks();
+    bindContentNavigation();
     window.addEventListener('popstate', handleUrlStateChange);
     window.addEventListener('hashchange', handleUrlStateChange);
     // 时间表是独立来源，不应等待推荐 JSON 成功后才允许打开。
@@ -75,7 +78,7 @@
     if (cached) {
       allData = cached.data;
       updateYearTabLabels();
-      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false });
+      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 正在后台更新');
     } else if (!REMOTE_TAB_LABELS[activeTabName]) {
       renderSkeletons();
@@ -85,17 +88,21 @@
       // 保持稳定 URL，让浏览器用 ETag/Last-Modified 做条件请求。
       const data = await fetchJSONWithTimeout(DATA_URL, { cache: 'no-cache' }, DATA_REQUEST_TIMEOUT_MS);
       if (!isShowDataset(data)) throw new Error('Invalid show data');
+      const unchanged = allData && JSON.stringify(data) === JSON.stringify(allData);
       allData = data;
+      _dataLoadFailed = false;
       saveDataCache(data);
       updateYearTabLabels();
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
+      // 同一快照无需重建卡片，保留阅读位置与当前焦点。
+      if (unchanged && renderedFromCache) return;
       if (renderedFromCache) {
         // 后台更新不抢走用户已经切换到的标签或筛选状态。
         if (!REMOTE_TAB_LABELS[activeTabName]) {
-          switchTab(activeTabName, { syncUrl: false, animate: false });
+          switchTab(activeTabName, { syncUrl: false, animate: false, preserveVisibleCount: true, scrollToTab: false });
         }
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
-        switchTab(activeTabName, { syncUrl: false });
+        switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
       }
     } catch (e) {
       if (renderedFromCache) {
@@ -279,6 +286,7 @@
   }
 
   function handleUrlStateChange() {
+    if (location.hash === '#mainContent') return;
     const state = readUrlState();
     _tabSortPreferences.set(state.tab, state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend');
     if (state.tab !== activeTabName) {
@@ -289,6 +297,16 @@
       restoreFilterControls(state);
       applyFilters();
     }
+  }
+
+  function bindContentNavigation() {
+    document.getElementById('skipLink')?.addEventListener('click', event => {
+      const main = document.getElementById('mainContent');
+      if (!main) return;
+      event.preventDefault();
+      main.focus({ preventScroll: true });
+      main.scrollIntoView?.({ block: 'start' });
+    });
   }
 
   // ── 标签切换 ──────────────────────────────────────────
@@ -313,7 +331,7 @@
     });
   }
 
-  function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true } = {}) {
+  function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true, preserveVisibleCount = false, scrollToTab = true } = {}) {
     tab = normalizeTabName(tab);
     const requestVersion = cancelPendingTabRequest();
     const sortSelect = document.getElementById('sortBy');
@@ -329,7 +347,7 @@
       b.tabIndex = active ? 0 : -1;
       if (active) activeButton = b;
     });
-    activeButton?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    if (scrollToTab) activeButton?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
 
     const newestOption = sortSelect?.querySelector?.('option[value="newest"]');
@@ -381,7 +399,7 @@
     }
 
     currentShows = shows;
-    applyFilters(animate);
+    applyFilters(animate, { preserveVisibleCount });
   }
 
   // ── 筛选 ──────────────────────────────────────────
@@ -465,9 +483,19 @@
     }, true);
   }
 
-  function applyFilters(animate = false) {
+  function applyFilters(animate = false, { preserveVisibleCount = false } = {}) {
     // 异步标签仍在加载时保留 loading 状态,避免筛选事件用旧数据覆盖新标签。
     if (_isTabLoading) return;
+    // 筛选只改变结果，不应清掉加载错误和恢复操作。
+    if (_tabLoadError?.tab === activeTabName) {
+      updateResetVisibility();
+      return;
+    }
+    if (_dataLoadFailed && !allData && !REMOTE_TAB_LABELS[activeTabName]) {
+      showDataLoadError();
+      updateResetVisibility();
+      return;
+    }
     let shows = [...currentShows];
 
     // 状态筛选
@@ -530,14 +558,15 @@
         break;
     }
 
-    renderShows(shows, animate);
+    renderShows(shows, animate, { preserveVisibleCount });
     updateStats(shows, animate);
   }
 
   // ── 渲染 ──────────────────────────────────────────
-  function renderShows(shows, animate = false) {
+  function renderShows(shows, animate = false, { preserveVisibleCount = false } = {}) {
     _filteredShows = Array.isArray(shows) ? shows : [];
-    _visibleShowCount = Math.min(INITIAL_RENDER_COUNT, _filteredShows.length);
+    _visibleShowCount = Math.min(preserveVisibleCount ? Math.max(INITIAL_RENDER_COUNT, _visibleShowCount) : INITIAL_RENDER_COUNT, _filteredShows.length);
+    _recommendationMaximum = currentShows.reduce((maximum, show) => Math.max(maximum, getShowNumber(show, 'recommend')), 1);
     renderVisibleShows(animate);
   }
 
@@ -925,11 +954,8 @@
   }
 
   function getRecommendationWidth(show) {
-    const scores = currentShows
-      .map(item => getShowNumber(item, 'recommend'))
-      .filter(score => score > 0);
     const score = Math.max(0, getShowNumber(show, 'recommend'));
-    const maximum = Math.max(1, ...scores, score);
+    const maximum = Math.max(_recommendationMaximum, score);
     return Math.round(Math.max(0, Math.min(100, score / maximum * 100)));
   }
 
@@ -1005,6 +1031,7 @@
   function cancelPendingTabRequest() {
     _tabRequestVersion++;
     _isTabLoading = false;
+    _tabLoadError = null;
     if (_tabAbortController) {
       clearTimeout(_tabRequestTimeouts.get(_tabAbortController));
       _tabAbortController.abort();
@@ -1057,6 +1084,7 @@
   function showRemoteTabError(tab, requestVersion, controller, message) {
     if (!isActiveTabRequest(tab, requestVersion, controller)) return;
     _isTabLoading = false;
+    _tabLoadError = { tab };
     const grid = document.getElementById('showGrid');
     grid.innerHTML = '';
     grid.setAttribute('aria-busy', 'false');

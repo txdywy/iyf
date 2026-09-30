@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 const warnings = [];
+const MAX_PUBLIC_CATEGORY_SHOWS = 1000;
+const PUBLIC_CATEGORIES = new Set(['koreanDramas', 'chineseVariety']);
+const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
 const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl'];
 const ALLOWED_HOSTS = new Set([
   'image.tmdb.org', 'www.themoviedb.org', 'movie.douban.com', 'www.imdb.com',
@@ -85,6 +88,9 @@ function validateShows(data) {
       errors.push(`data/shows.json: ${category} must be an array`);
       continue;
     }
+    if (PUBLIC_CATEGORIES.has(category) && shows.length > MAX_PUBLIC_CATEGORY_SHOWS) {
+      errors.push(`data/shows.json: ${category} must contain at most ${MAX_PUBLIC_CATEGORY_SHOWS} shows`);
+    }
     for (const [index, show] of shows.entries()) {
       const label = `${category}[${index}]`;
       if (!show || typeof show !== 'object' || Array.isArray(show)) {
@@ -104,8 +110,10 @@ function validateShows(data) {
           errors.push(`${label}: Korean drama fallback cover must be marked as pending TMDB upgrade`);
         }
       }
-      if (Object.hasOwn(show, 'tmdbCoverPending') && typeof show.tmdbCoverPending !== 'boolean') {
-        errors.push(`${label}.tmdbCoverPending: must be boolean`);
+      for (const field of BOOLEAN_FIELDS) {
+        if (Object.hasOwn(show, field) && typeof show[field] !== 'boolean') {
+          errors.push(`${label}.${field}: must be boolean`);
+        }
       }
       for (const field of URL_FIELDS) validateUrl(show[field], `${label}.${field}`);
       const expectedSeason = seasonNumberFromTitle(show.title);
@@ -113,7 +121,7 @@ function validateShows(data) {
         errors.push(`${label}.tmdbUrl: season-specific title must link to its TMDB season page`);
       }
       for (const field of ['score', 'playCount', 'recommendScore', 'year']) {
-        if (Object.hasOwn(show, field) && !Number.isFinite(show[field])) errors.push(`${label}.${field}: must be finite`);
+        if (!Number.isFinite(show[field])) errors.push(`${label}.${field}: must be finite`);
       }
       if (show.score < 0 || show.score > 10) errors.push(`${label}.score: must be from 0 to 10`);
       if (show.aiScore != null && (!Number.isFinite(show.aiScore) || show.aiScore < 0 || show.aiScore > 100)) errors.push(`${label}.aiScore: must be from 0 to 100`);

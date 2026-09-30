@@ -149,6 +149,7 @@ function loadAppHelpers({
   clearTimeoutImpl = clearTimeout,
   setIntervalImpl = setInterval,
   clearIntervalImpl = clearInterval,
+  localStorageImpl,
   windowImpl = { addEventListener() {}, matchMedia: () => ({ matches: false }) },
 } = {}) {
   const context = {
@@ -158,6 +159,7 @@ function loadAppHelpers({
     URLSearchParams,
     AbortController,
     fetch: fetchImpl,
+    localStorage: localStorageImpl,
     setTimeout: setTimeoutImpl,
     clearTimeout: clearTimeoutImpl,
     setInterval: setIntervalImpl,
@@ -192,6 +194,8 @@ function loadAppHelpers({
       safeExternalUrl,
       switchTab,
       handleUrlStateChange,
+      bindFilters,
+      bindContentNavigation,
       bindLoadMore,
       loadMoreShows,
       getScheduleDateKey,
@@ -270,6 +274,8 @@ function createAppDocument() {
     filterStatus: createDomElement({ id: 'filterStatus', value: 'all' }),
     filterScore: createDomElement({ id: 'filterScore', value: '0' }),
     searchInput: createDomElement({ id: 'searchInput', value: '' }),
+    skipLink: createDomElement({ id: 'skipLink' }),
+    mainContent: createDomElement({ id: 'mainContent' }),
   };
   const tabNames = ['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'tvmaze'];
   const tabs = tabNames.map(name => createDomElement({ id: `tab-${name}`, dataset: { tab: name } }));
@@ -320,6 +326,75 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 // ── Frontend behavior regressions ──────────────────────────
+{
+  const { document, elements } = createAppDocument();
+  const location = { hash: '#variety', search: '', href: 'http://localhost/#variety' };
+  const helpers = loadAppHelpers({ documentImpl: document, locationImpl: location });
+  helpers.setAllData({ lastUpdated: '2026-09-30', koreanDramas: [], chineseVariety: [{ title: '综艺节目' }] });
+  helpers.switchTab('variety', { syncUrl: false, animate: false });
+  helpers.bindContentNavigation();
+  let focused = false;
+  let scrolled = false;
+  let prevented = false;
+  elements.mainContent.focus = () => { focused = true; };
+  elements.mainContent.scrollIntoView = () => { scrolled = true; };
+  elements.skipLink.dispatch('click', { preventDefault() { prevented = true; } });
+  assert.ok(focused && scrolled && prevented, 'skip navigation should move focus to the content without changing the tab URL');
+  assert.equal(location.hash, '#variety');
+  location.hash = '#mainContent';
+  helpers.handleUrlStateChange();
+  assert.equal(elements.showGrid.getAttribute('aria-labelledby'), 'tab-variety', 'content anchors must not reroute to Korean recommendations');
+  assert.equal(helpers.getCurrentShows()[0].title, '综艺节目');
+}
+
+for (const changed of [false, true]) {
+  const { document, elements } = createAppDocument();
+  const cached = {
+    lastUpdated: '2026-09-30T00:00:00Z',
+    koreanDramas: Array.from({ length: 60 }, (_, i) => ({ id: `refresh-${i}`, title: `刷新节目${i}`, recommendScore: 100 - i })),
+    chineseVariety: [],
+  };
+  let finishFetch;
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    localStorageImpl: { getItem: () => JSON.stringify({ version: 3, cachedAt: Date.now(), data: cached }), setItem() {} },
+    fetchImpl: () => new Promise(resolve => { finishFetch = resolve; }),
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+  });
+  const pending = helpers.loadData();
+  helpers.loadMoreShows();
+  const before = elements.showGrid.innerHTML;
+  assert.match(elements.resultSummary.textContent, /48 \/ 60/);
+  const refreshed = structuredClone(cached);
+  if (changed) refreshed.koreanDramas[0].title = '本轮已更新';
+  finishFetch({ ok: true, json: async () => refreshed });
+  await pending;
+  assert.match(elements.resultSummary.textContent, /48 \/ 60/, 'a background refresh should preserve expanded results');
+  assert.equal((elements.showGrid.innerHTML.match(/<article class="show-card"/g) || []).length, 48);
+  if (changed) assert.match(elements.showGrid.innerHTML, /本轮已更新/, 'changed data should still update the visible cards');
+  else assert.equal(elements.showGrid.innerHTML, before, 'an unchanged snapshot should preserve the rendered cards');
+}
+
+for (const tab of ['korean', 'tvmaze']) {
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => { throw new Error('offline'); } });
+  helpers.bindFilters();
+  if (tab === 'tvmaze') await helpers.switchTab('tvmaze');
+  else await helpers.loadData();
+  const error = elements.emptyMessage.textContent;
+  const action = elements.emptyAction.onclick;
+  for (const [control, value] of [['filterStatus', 'ongoing'], ['filterScore', '8'], ['sortBy', 'score']]) {
+    elements[control].value = value;
+    elements[control].dispatch('change');
+    assert.equal(elements.emptyMessage.textContent, error, 'filters must preserve the current loading error');
+    assert.equal(elements.emptyAction.hidden, false, 'filters must preserve the recovery button');
+    assert.equal(elements.emptyAction.onclick === action || tab === 'korean', true);
+  }
+  helpers.setAllData({ lastUpdated: '2026-09-30', koreanDramas: [{ title: '切换成功', score: 9, isSerial: true }], chineseVariety: [] });
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /切换成功/, 'switching to a loaded category should clear the old remote error');
+}
+
 {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({
@@ -2132,12 +2207,11 @@ assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data pus
 assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');
 assert.match(workflow, /base_sha="\$GITHUB_SHA"/, 'workflow should bind scraped data to the code revision that produced it');
 assert.doesNotMatch(workflow, /git pull --rebase/, 'workflow should not rebase data generated by an older scraper onto newer main code');
-assert.match(workflow, /mkdir -p site/, 'workflow should build an explicit Pages artifact directory');
+assert.match(workflow, /node scripts\/build-site\.mjs/, 'all deployments should use the validated site builder');
 assert.match(workflow, /path: 'site'/, 'workflow should upload only the explicit site artifact');
 assert.doesNotMatch(workflow, /path: '\.'/, 'workflow should not upload the repository root');
 assert.doesNotMatch(workflow, /cp -R css js data site\//, 'workflow should not publish data files by broad directory copy');
-assert.match(workflow, /mkdir -p site\/data/, 'workflow should create an explicit public data artifact directory');
-assert.match(workflow, /node scripts\/build-public-data\.mjs --output site\/data\/shows\.json/, 'workflow should build a field-minimized public shows payload');
+assert.match(read('scripts/build-site.mjs'), /build-public-data\.mjs/, 'site builder should build a field-minimized public shows payload');
 assert.doesNotMatch(workflow, /cp data\/(?:mdl|trakt)_shows\.json/, 'workflow should not publish retired snapshot files');
 
 assert.doesNotMatch(css, /\.show-card:nth-child\(\d+\) \{ animation-delay:/, 'CSS nth-child animation delays should not duplicate inline delay');
