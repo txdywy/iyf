@@ -10,6 +10,11 @@ const warnings = [];
 const MAX_PUBLIC_CATEGORY_SHOWS = 1000;
 const PUBLIC_CATEGORIES = new Set(['koreanDramas', 'chineseVariety']);
 const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
+const TEXT_FIELDS = [
+  'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
+  'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
+  'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
+];
 const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl'];
 const ALLOWED_HOSTS = new Set([
   'image.tmdb.org', 'www.themoviedb.org', 'movie.douban.com', 'www.imdb.com',
@@ -27,9 +32,20 @@ function readJSON(path) {
 }
 
 function validateUrl(value, label) {
-  if (!value) return;
+  if (value == null) return;
+  if (typeof value !== 'string') {
+    errors.push(`${label}: must be a string or null`);
+    return;
+  }
+  const text = value.trim();
+  if (!text) return;
+  // 不让 URL 解析器静默删除内嵌控制字符或编码属性逃逸字符；合法路径中的单引号可保留。
+  if (/["<>\u0000-\u001F\u007F]/u.test(text)) {
+    errors.push(`${label}: unsafe URL`);
+    return;
+  }
   try {
-    const url = new URL(value);
+    const url = new URL(text);
     if (url.protocol !== 'https:' || url.username || url.password || !ALLOWED_HOSTS.has(url.hostname)) {
       errors.push(`${label}: unsafe URL`);
     }
@@ -50,7 +66,7 @@ function isTMDBOriginalCover(value) {
 }
 
 function seasonNumberFromTitle(title = '') {
-  const text = String(title || '').trim();
+  const text = typeof title === 'string' ? title.trim() : '';
   const numerals = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 };
   const chinese = text.match(/第\s*([一二三四五六七八九十\d]+)\s*季\s*$/u);
   if (chinese) {
@@ -72,7 +88,7 @@ function seasonNumberFromTitle(title = '') {
 }
 
 function tmdbSeasonNumber(value) {
-  const match = String(value || '').match(/^https?:\/\/(?:www\.)?themoviedb\.org\/tv\/\d+\/season\/(\d+)(?:[/?#]|$)/iu);
+  const match = typeof value === 'string' && value.trim().match(/^https?:\/\/(?:www\.)?themoviedb\.org\/tv\/\d+\/season\/(\d+)(?:[/?#]|$)/iu);
   return match ? Number(match[1]) : 0;
 }
 
@@ -99,10 +115,20 @@ function validateShows(data) {
       }
       if (typeof show.id !== 'string' || !show.id.trim()) errors.push(`${label}: missing id`);
       if (typeof show.title !== 'string' || !show.title.trim() || show.title.length > 200) errors.push(`${label}: invalid title`);
+      for (const field of TEXT_FIELDS) {
+        if (show[field] != null && typeof show[field] !== 'string') {
+          errors.push(`${label}.${field}: must be a string or null`);
+        }
+      }
+      if (show.titleAliases != null && (!Array.isArray(show.titleAliases) || show.titleAliases.some(value => typeof value !== 'string'))) {
+        errors.push(`${label}.titleAliases: must be an array of strings or null`);
+      }
       const identity = show.id;
       if (seenIds.has(identity)) errors.push(`${label}: duplicate id ${show.id}`);
       seenIds.add(identity);
-      if (!show.coverImg || !show.primaryUrl) errors.push(`${label}: missing renderable cover/link`);
+      if (typeof show.coverImg !== 'string' || !show.coverImg.trim() || typeof show.primaryUrl !== 'string' || !show.primaryUrl.trim()) {
+        errors.push(`${label}: missing renderable cover/link`);
+      }
       if (category === 'koreanDramas' && !isTMDBOriginalCover(show.coverImg)) {
         if (show.coverSource === 'yfsp' && show.tmdbCoverPending === true) {
           warnings.push(`${label}: using a YFSP fallback cover while waiting for a TMDB original`);
@@ -135,7 +161,7 @@ function validateShows(data) {
         const value = show[field] ?? 0;
         if (!Number.isInteger(value) || value < 0 || value > 999) errors.push(`${label}.${field}: must be an integer from 0 to 999`);
       }
-      if (/集全|全集|(?<!未)完结|收官/u.test(show.updateStatus || '') && show.isComplete !== true) {
+      if (typeof show.updateStatus === 'string' && /集全|全集|(?<!未)完结|收官/u.test(show.updateStatus) && show.isComplete !== true) {
         errors.push(`${label}: completion status contradicts isComplete`);
       }
       if (show.isComplete === true && show.isSerial === true) {
@@ -145,7 +171,10 @@ function validateShows(data) {
     const expected = data.stats?.[category];
     if (Number.isFinite(expected) && expected !== shows.length) errors.push(`stats.${category}: expected ${shows.length}, got ${expected}`);
   }
-  const updated = Date.parse(data.lastUpdated || '');
+  for (const field of ['generatedAt', 'sourceStatus']) {
+    if (data[field] != null && typeof data[field] !== 'string') errors.push(`data/shows.json.${field}: must be a string or null`);
+  }
+  const updated = typeof data.lastUpdated === 'string' ? Date.parse(data.lastUpdated) : NaN;
   if (!Number.isFinite(updated)) errors.push('data/shows.json: invalid lastUpdated');
   else if (Date.now() - updated > 7 * 24 * 60 * 60 * 1000) errors.push('data/shows.json: recommendation data is older than 7 days');
   else if (updated - Date.now() > 24 * 60 * 60 * 1000) errors.push('data/shows.json: lastUpdated is unexpectedly in the future');

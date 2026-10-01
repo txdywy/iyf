@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const pagesOrigin = 'https://iyf-5l7.pages.dev';
+const productionOrigins = [pagesOrigin, 'https://iyf.hackx64.eu.org'];
 
 function validateHook(value) {
   let url;
@@ -42,9 +43,9 @@ export async function deployCloudflare({
 
   const deadline = now() + timeoutMs;
   while (now() < deadline) {
-    const matches = await Promise.all(expected.map(async item => {
+    const matches = await Promise.all(productionOrigins.flatMap(origin => expected.map(async item => {
       try {
-        const response = await fetchImpl(`${pagesOrigin}${item.path}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
+        const response = await fetchImpl(`${origin}${item.path}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
         if (response.status !== item.status || hash(await response.text()) !== item.digest) return false;
         if (item.file === 'index.html') {
           if (response.headers.get('x-content-type-options') !== 'nosniff'
@@ -55,14 +56,14 @@ export async function deployCloudflare({
           && !response.headers.get('cache-control')?.includes('no-cache')) return false;
         return true;
       } catch { return false; }
-    }));
+    })));
     if (matches.every(Boolean)) {
       log(`Cloudflare production matches the validated artifact (lastUpdated: ${lastUpdated}).`);
-      return { lastUpdated, files: expected.length, origin: pagesOrigin };
+      return { lastUpdated, files: expected.length, origin: pagesOrigin, verifiedOrigins: [...productionOrigins] };
     }
     await delay(Math.min(pollIntervalMs, Math.max(0, deadline - now())));
   }
-  throw new Error('Cloudflare production did not match the validated artifact before the deployment timeout');
+  throw new Error(`Cloudflare production did not match the validated artifact before the deployment timeout (${productionOrigins.join(', ')})`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

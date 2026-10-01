@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
@@ -115,6 +115,116 @@ test('deployment build refuses symbolic links', () => {
     assert.equal(result.status, 1);
     assert.match(result.stderr, /must not follow a symbolic link/);
     assert.deepEqual(readdirSync(target), []);
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('deployment build resolves symbolic-link ancestors before checking protected directories', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-ancestor-'));
+  try {
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    const showsPath = join(sourceRoot, 'data/shows.json');
+    const before = read(showsPath);
+    const alias = join(temporary, 'source-alias');
+    symlinkSync(sourceRoot, alias, 'dir');
+    for (const directory of ['.git', 'data', 'scripts', 'css']) {
+      const output = join(alias, directory, 'nested', 'site');
+      const result = build(output, alias);
+      assert.ifError(result.error);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /must not overwrite the repository or its source directories/);
+      assert.equal(existsSync(join(sourceRoot, directory, 'nested')), false);
+      assert.equal(read(showsPath), before, 'a rejected aliased path must not change source data');
+    }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('deployment build recognizes source directories through filesystem case aliases', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-case-alias-'));
+  try {
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    mkdirSync(join(sourceRoot, '.git'));
+    const alias = join(temporary, 'SOURCE');
+    if (!existsSync(alias)) {
+      t.skip('this filesystem has no case aliases');
+      return;
+    }
+    const before = read(join(sourceRoot, 'data/shows.json'));
+    for (const directory of ['.GIT', 'DATA', 'CSS', 'SCRIPTS']) {
+      const output = join(alias, directory, 'case-site');
+      const result = build(output, sourceRoot);
+      assert.ifError(result.error);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /must not overwrite the repository or its source directories/);
+      assert.equal(existsSync(join(sourceRoot, directory.toLowerCase(), 'case-site')), false);
+      assert.equal(read(join(sourceRoot, 'data/shows.json')), before);
+    }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('deployment build allows harmless parent aliases such as system temporary-directory aliases', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-safe-ancestor-'));
+  try {
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    const before = read(join(sourceRoot, 'data/shows.json'));
+    const target = join(temporary, 'target');
+    mkdirSync(target);
+    const alias = join(temporary, 'target-alias');
+    symlinkSync(target, alias, 'dir');
+    const result = build(join(alias, 'nested', 'site'), sourceRoot);
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(existsSync(join(target, 'nested/site/data/shows.json')));
+    assert.equal(read(join(sourceRoot, 'data/shows.json')), before);
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('deployment build refuses hard-linked public files before overwriting a source inode', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-hardlink-'));
+  try {
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    const showsPath = join(sourceRoot, 'data/shows.json');
+    const before = read(showsPath);
+    for (const path of ['index.html', 'data/shows.json']) {
+      const output = join(temporary, path === 'index.html' ? 'html-site' : 'json-site');
+      const target = join(output, path);
+      mkdirSync(dirname(target), { recursive: true });
+      linkSync(showsPath, target);
+      const result = build(output, sourceRoot);
+      assert.ifError(result.error);
+      assert.equal(result.status, 1);
+      assert.ok(result.stderr.includes(`must not overwrite a hard-linked file: ${path}`), result.stderr);
+      assert.equal(read(showsPath), before, 'the source JSON must remain intact after rejecting a hard link');
+      assert.equal(read(target), before, 'the aliased output file must remain intact too');
+      assert.equal(existsSync(join(output, 'js/app.js')), false, 'rejection must precede all build writes');
+    }
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('deployment build rejects structured render text without changing source data or creating output', () => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-invalid-text-'));
+  try {
+    const data = JSON.parse(read(join(root, 'data/shows.json')));
+    data.koreanDramas[0].aiReason = { toString: 'broken' };
+    const sourceRoot = createBuildFixture(join(temporary, 'source'), data);
+    const showsPath = join(sourceRoot, 'data/shows.json');
+    const before = read(showsPath);
+    const output = join(temporary, 'site');
+    const result = build(output, sourceRoot);
+    assert.ifError(result.error);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /koreanDramas\[0\]\.aiReason: must be a string or null/);
+    assert.equal(existsSync(output), false);
+    assert.equal(read(showsPath), before);
   } finally {
     rmSync(temporary, { recursive: true, force: true });
   }
