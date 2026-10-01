@@ -40,6 +40,7 @@ jobs:
           node --check scripts/build-public-data.mjs
           node --check scripts/build-site-index.mjs
           node --check scripts/build-site.mjs
+          node --check scripts/deploy-cloudflare.mjs
           node --check scripts/validate-data.mjs
 
       - name: Regression tests

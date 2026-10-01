@@ -34,7 +34,7 @@ node scripts/scrape.mjs --recalculate-existing
 
 ## 发布
 
-GitHub Pages 与 Cloudflare Pages 使用相同的 `scripts/build-site.mjs` 和 `site/` 产物。Cloudflare Pages 项目配置：
+GitHub Actions 在抓取、校验和提交成功后构建 `site/`，再通过独立任务发布 GitHub Pages 和 Cloudflare Pages。两者使用相同的 `scripts/build-site.mjs`，Cloudflare 的线上文件必须与该次已校验产物一致才算发布成功。
 
 Cloudflare 项目地址：[iyf-5l7.pages.dev](https://iyf-5l7.pages.dev/)。
 
@@ -48,7 +48,10 @@ Cloudflare 项目地址：[iyf-5l7.pages.dev](https://iyf-5l7.pages.dev/)。
 | 构建命令 | `node --test && node scripts/build-site.mjs` |
 | 输出目录 | `site` |
 | Node.js | `22` |
+| 自动 Git 构建 | 关闭，由 Actions 部署钩子触发 |
 
-Cloudflare 的 Git 集成监听 `main` 的全部路径，代码和数据提交均可触发构建。不要排除 `data/shows.json`，以免定时抓取后网站数据停留在旧版。GitHub Pages 保留现有工作流作为备用发布产物。
+Cloudflare 保留 Git 来源以从 `main` 构建，关闭自动生产与预览构建，避免与 Actions 重复发布。在 Pages 项目中创建指向 `main` 的部署钩子，将其完整 URL 保存为当前仓库的 Actions Secret `CLOUDFLARE_DEPLOY_HOOK`；当前项目已配置。钩子 URL 属于凭据，不应写进仓库或日志。
 
-HTML 和 JSON 使用重新验证缓存，CSS/JS URL 带内容摘要；Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages Git 集成文档](https://developers.cloudflare.com/pages/configuration/git-integration/)。
+Cloudflare 发布任务下载本次工作流的已校验产物，触发部署后最多等待 10 分钟，核对首页、CSS、JS、公开数据、robots 和真实 404 的内容摘要，以及缓存和安全响应头。触发失败或线上仍是旧文件时任务失败；GitHub Pages 独立发布，继续作为备用。代码提交、定时抓取和手动运行均经过这条链路，数据机器人提交不会再递归触发抓取。
+
+正式域名 `iyf.hackx64.eu.org` 的 CNAME 指向 `iyf-5l7.pages.dev`。HTML 和 JSON 使用重新验证缓存，CSS/JS URL 带内容摘要；Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages 部署钩子文档](https://developers.cloudflare.com/pages/configuration/deploy-hooks/)。
