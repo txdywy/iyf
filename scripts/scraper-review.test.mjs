@@ -40,7 +40,7 @@ function loadHelpers({
         enrichMissingYfspLinks, restorePreviousCategory, normalizeItem,
         applyLiveFields, mergePreviousShowState, sameShowIdentity, main,
         enrichDescriptions, enrichCoversFromTMDB, isReusableTMDBCoverCache,
-        discoverNewKDramas, assertOutputContinuity, normalizeOutputShow, SEED_KDRAMAS,
+        discoverNewKDramas, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
       };
     `;
@@ -580,6 +580,38 @@ test('a disproved series is removed before publication and cannot return after a
   assert.equal(JSON.parse(second.files.get(join(dataDir, 'image_cache.json'))).show.notFound, true);
   second.helpers.normalizeOutputShow(show);
   assert.equal(show.primaryUrl, show.yfspUrl);
+});
+
+test('disproved series posters without a fallback cannot survive normalization or a process restart', async () => {
+  for (const fallback of ['', 'https://static.yfsp.tv/fallback.jpg']) {
+    const cached = seasonCache({
+      tmdbId: 215072, tmdbSeriesId: 215072, matchedSeriesTitle: undefined,
+      url: 'https://image.tmdb.org/t/p/original/wrong-entity.jpg',
+      tmdbUrl: 'https://www.themoviedb.org/tv/215072/season/2',
+    });
+    const fetchImpl = async url => {
+      if (url.includes('/tv/215072?')) return response({ id: 215072, name: '完全无关剧', origin_country: ['KR'] });
+      if (url.includes('/search/tv?')) return response({ results: [] });
+      assert.fail(`an explicitly rejected entity cannot supply its poster: ${url}`);
+    };
+    const first = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl, initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) } });
+    const show = {
+      id: 'show', title: cached.title, year: 2026, mediaType: '电视剧', regional: '韩国', category: 'korean_drama',
+      coverImg: cached.url, coverSource: 'tmdb', ...(fallback ? { yfspCoverImg: fallback } : {}),
+      tmdbId: 215072, tmdbSeriesId: 215072, tmdbUrl: cached.tmdbUrl, yfspUrl: 'https://www.yfsp.tv/play/show',
+    };
+    await first.helpers.enrichCoversFromTMDB([show]);
+    first.helpers.normalizeOutputShow(show);
+    assert.equal(show.coverImg, fallback);
+    assert.notEqual(show.coverSource, 'tmdb');
+    assert.equal(show.primaryUrl, show.yfspUrl);
+    assert.equal(first.helpers.isRenderableShow(show), Boolean(fallback), 'a confirmed wrong poster must be replaced or withheld');
+    const second = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl, initialFiles: Object.fromEntries(first.files), date: '2026-09-30T17:00:00Z' });
+    await second.helpers.enrichCoversFromTMDB([show]);
+    second.helpers.normalizeOutputShow(show);
+    assert.equal(show.coverImg, fallback);
+    assert.equal(second.helpers.isRenderableShow(show), Boolean(fallback));
+  }
 });
 
 test('a verified replacement series supersedes explicitly disproved historical links', async () => {

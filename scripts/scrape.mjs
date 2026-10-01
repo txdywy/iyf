@@ -3361,8 +3361,17 @@ function isTMDBResultRegionCompatible(show, result) {
   return !expectedCountry || !countries.length || countries.includes(expectedCountry);
 }
 
-function clearRejectedTMDBSeriesReferences(show, seriesId) {
+function clearRejectedTMDBSeriesReferences(show, seriesId, cacheEntry) {
   const rejectedSeason = Number(show.tmdbSeriesId) === seriesId || extractTMDBSeriesId(show.tmdbUrl) === seriesId;
+  const rejectedCachedCover = [cacheEntry?.tmdbId, cacheEntry?.tmdbSeriesId, extractTMDBSeriesId(cacheEntry?.tmdbUrl)]
+    .some(value => Number(value) === seriesId) &&
+    normalizeTMDBOriginalUrl(show.coverImg) === normalizeTMDBOriginalUrl(cacheEntry?.url);
+  if (normalizeTMDBOriginalUrl(show.coverImg) &&
+      (rejectedSeason || Number(show.tmdbId) === seriesId || rejectedCachedCover)) {
+    // 已证伪实体的海报不能因没有备用图而继续发布；临时请求失败不会走此清理路径。
+    show.coverImg = safeOutputUrl(show.yfspCoverImg);
+    delete show.coverSource;
+  }
   for (const field of ['tmdbUrl', 'primaryUrl', 'url', 'descriptionTmdbSeasonUrl']) {
     if (extractTMDBSeriesId(show[field]) !== seriesId) continue;
     delete show[field];
@@ -3388,7 +3397,7 @@ async function resolveTMDBSeasonSeries(show, cacheEntry) {
   const title = names.find(name => matchesTMDBSeriesTitle(show, name));
   if (!title || !isTMDBResultRegionCompatible(show, data)) {
     // 仅实体响应明确证伪身份时清理；超时、5xx 和格式错误保留既有可靠引用。
-    clearRejectedTMDBSeriesReferences(show, id);
+    clearRejectedTMDBSeriesReferences(show, id, cacheEntry);
     return { rejectedId: id };
   }
   return { id, title: stripSeasonSuffix(title) };
