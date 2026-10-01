@@ -995,12 +995,13 @@
   function safeExternalUrl(value, allowedHosts = null) {
     const url = String(value || '').trim();
     // 拒绝协议注入、属性逃逸、控制字符和含凭据 URL。
-    if (!url || /["'<>\u0000-\u001F\u007F]/u.test(url)) return '';
+    if (!url || /["<>\u0000-\u001F\u007F]/u.test(url)) return '';
     try {
       const parsed = new URL(url);
       if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname || parsed.username || parsed.password) return '';
       if (allowedHosts && !allowedHosts.has(parsed.hostname.toLowerCase())) return '';
-      return parsed.href;
+      // 单引号是合法 URL 路径字符；规范编码后再由渲染层转义属性。
+      return parsed.href.replace(/'/g, '%27');
     } catch {
       return '';
     }
@@ -1178,12 +1179,14 @@
         const showMap = new Map();
         const dates = buildScheduleDateKeys(Date.now());
         let successfulDays = 0;
+        let currentDaySucceeded = false;
         const fetchSchedule = async d => {
           const response = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`, { signal: controller.signal });
           if (!response.ok) throw new Error(`TVmaze HTTP ${response.status}`);
           const data = await response.json();
           if (!Array.isArray(data)) throw new Error('TVmaze returned invalid data');
           successfulDays++;
+          if (d === dates[0]) currentDaySucceeded = true;
           return { date: d, data };
         };
         const addSchedule = ({ date, data }) => {
@@ -1210,7 +1213,8 @@
           }));
           batch.filter(Boolean).forEach(addSchedule);
         }
-        if (!successfulDays) throw new Error('TVmaze schedule unavailable');
+        // 今天未知且历史没有节目时，保留失败状态或旧缓存，不能当成已确认的空档。
+        if (!successfulDays || (!currentDaySucceeded && !showMap.size)) throw new Error('TVmaze schedule unavailable');
         shows = sortTVmazeShows([...showMap.values()]);
         if (!isActiveTabRequest('tvmaze', requestVersion, controller) || controller.signal.aborted) return;
         _tvmazeCache = shows;

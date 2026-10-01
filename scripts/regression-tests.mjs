@@ -619,8 +619,15 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(safeExternalUrl(' https://example.com/path '), 'https://example.com/path', 'safe URL helper should trim valid web URLs');
   assert.equal(safeExternalUrl('javascript:alert(1)'), '', 'safe URL helper should reject javascript URLs');
   assert.equal(safeExternalUrl('https://evil.com/"onload=alert(1)'), '', 'safe URL helper should reject URLs containing quotes');
-  assert.equal(safeExternalUrl("https://evil.com/'onload=alert(1)"), '', 'safe URL helper should reject URLs containing single quotes');
+  assert.equal(safeExternalUrl("https://example.com/demo's"), 'https://example.com/demo%27s', 'valid apostrophes in URL paths should be encoded');
   assert.equal(safeExternalUrl('https://evil.com/<script>'), '', 'safe URL helper should reject URLs containing angle brackets');
+  for (const control of ['\u0000', '\u0009', '\u000A', '\u000D', '\u001F', '\u007F']) {
+    assert.equal(safeExternalUrl('https://example.com/demo' + control + 's'), '', 'URL control characters must still be rejected');
+  }
+  assert.equal(safeExternalUrl('https://user:password@example.com/path'), '', 'URLs containing credentials must still be rejected');
+  assert.equal(safeExternalUrl('https://evil.com/path', new Set(['www.tvmaze.com'])), '', 'remote source host guards must still reject unrelated hosts');
+  assert.equal(safeExternalUrl('https://www.tvmaze.com.evil.com/path', new Set(['www.tvmaze.com'])), '', 'remote host guards must reject hostname suffix tricks');
+  assert.equal(safeExternalUrl("https://www.tvmaze.com/shows/demo's", new Set(['www.tvmaze.com'])), 'https://www.tvmaze.com/shows/demo%27s', 'allowed remote hosts should retain valid quoted paths');
 
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
   assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');
@@ -670,6 +677,45 @@ for (const tab of ['korean', 'tvmaze']) {
     ['今年综艺'],
     'new variety tab should not mix classic shows into current-year results'
   );
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document });
+  helpers.setAllData({
+    lastUpdated: '2026-08-29T00:00:00Z',
+    koreanDramas: [{
+      id: 'apostrophe-path',
+      title: "Editor's 韩剧",
+      mediaType: '电视剧',
+      year: 2026,
+      coverImg: "https://image.tmdb.org/t/p/original/demo's.jpg",
+      primaryUrl: "https://www.yfsp.tv/play/demo's",
+      primaryUrlSource: 'yfsp',
+      yfspUrl: "https://www.yfsp.tv/play/demo's",
+    }],
+    chineseVariety: [],
+  });
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /src="https:\/\/image\.tmdb\.org\/t\/p\/original\/demo%27s\.jpg"/, 'valid quoted poster paths must render an image');
+  assert.match(elements.showGrid.innerHTML, /w185\/demo%27s\.jpg 185w/, 'responsive poster candidates must preserve the encoded quoted path');
+  assert.match(elements.showGrid.innerHTML, /href="https:\/\/www\.yfsp\.tv\/play\/demo%27s"/, 'valid quoted primary paths must remain actionable');
+  assert.match(elements.showGrid.innerHTML, /观看 \/ 详情/);
+  assert.match(elements.showGrid.innerHTML, /Editor&#39;s 韩剧/, 'the real card must keep HTML text escaped');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /class="placeholder"/);
+
+  for (const url of [
+    'https://example.com/" onerror="alert(1)',
+    'https://example.com/<script>alert(1)</script>',
+    'javascript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    'ftp://example.com/poster.jpg',
+    'https://user:password@example.com/path',
+    'https://example.com/demo\u0000s',
+  ]) {
+    const card = helpers.renderCard({ title: '不安全来源', coverImg: url, primaryUrl: url, yfspUrl: url }, 0);
+    assert.doesNotMatch(card, /<img |<a /, 'unsafe source URLs must not become poster or action attributes');
+  }
 }
 
 {
@@ -828,16 +874,80 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.deepEqual(plain(sorted.map(show => show.name)), ['今日早', '今日晚', '昨日'], 'TVmaze cards should follow air date and airtime rather than rating alone');
 }
 
+for (const hasStaleCache of [false, true]) {
+  const { document, elements } = createAppDocument();
+  const cachedAt = Date.parse('2026-08-20T00:00:00Z');
+  const calls = [];
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl: fixedInstant('2026-08-29T16:00:00Z'),
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    fetchImpl: async url => {
+      const date = new URL(url).searchParams.get('date');
+      calls.push(date);
+      return { ok: date !== '2026-08-30', status: date === '2026-08-30' ? 503 : 200, json: async () => [] };
+    },
+  });
+  if (hasStaleCache) {
+    helpers.setTVmazeCache([{
+      id: 3, name: '仍可阅读的旧时间表', status: 'Running', airDate: '2026-08-20',
+      latestEpisode: { season: 1, number: 4, airtime: '20:00' },
+    }], cachedAt);
+  }
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, 7, 'a failed current day should still try recent history');
+  if (hasStaleCache) {
+    assert.match(elements.showGrid.innerHTML, /仍可阅读的旧时间表/, 'empty history must not erase the last useful schedule when today failed');
+    assert.match(elements.updateInfo.textContent, /缓存可能已过期/, 'the preserved schedule must remain marked as stale');
+    assert.ok(elements.updateInfo.textContent.endsWith(new Date(cachedAt).toLocaleDateString('zh-CN')), 'failed empty refreshes must preserve the old cache timestamp');
+    assert.notEqual(elements.empty.style.display, 'block');
+    await helpers.switchTab('tvmaze');
+    assert.match(elements.showGrid.innerHTML, /仍可阅读的旧时间表/, 'subsequent failures must retain the same useful cache');
+  } else {
+    assert.match(elements.emptyMessage.textContent, /TVmaze 数据加载失败/, 'failed today plus empty history must remain an error without a cache');
+    assert.equal(elements.emptyAction.hidden, false, 'an unknown current schedule must offer retry');
+    assert.equal(typeof elements.emptyAction.onclick, 'function');
+    assert.match(elements.updateInfo.textContent, /加载失败/);
+    await elements.emptyAction.onclick();
+  }
+  assert.equal(calls.length, 14, 'failed empty refreshes must not create or refresh the fifteen-minute cache');
+}
+
 {
   const { document, elements } = createAppDocument();
   const calls = [];
+  const now = Date.parse('2026-08-29T16:00:00Z');
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl: fixedInstant('2026-08-29T16:00:00Z'),
+    fetchImpl: async url => {
+      calls.push(new URL(url).searchParams.get('date'));
+      return { ok: true, json: async () => [] };
+    },
+  });
+  helpers.setTVmazeCache([{ id: 4, name: '已过期的节目', status: 'Running' }], now - 24 * 60 * 60 * 1000);
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls[0], '2026-08-30');
+  assert.equal(helpers.getCurrentShows().length, 0, 'a confirmed empty day may replace the old schedule');
+  assert.match(elements.emptyMessage.textContent, /今日暂无韩国电视剧播出/, 'a successful empty day must keep the normal empty state');
+  assert.equal(elements.emptyAction.hidden, true);
+  assert.equal(elements.updateInfo.textContent, 'TVmaze 韩剧时间表: ' + new Date(now).toLocaleDateString('zh-CN'));
+  const firstRequestCount = calls.length;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, firstRequestCount, 'confirmed empty schedules should still use the normal cache TTL');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const calls = [];
+  const now = Date.parse('2026-08-29T16:00:00Z');
   const helpers = loadAppHelpers({
     documentImpl: document,
     dateImpl: fixedInstant('2026-08-29T16:00:00Z'),
     fetchImpl: async url => {
       const date = new URL(url).searchParams.get('date');
       calls.push(date);
-      if (date === '2026-08-30') throw new Error('today unavailable');
+      if (date === '2026-08-30') return { ok: false, status: 503 };
       return {
         ok: true,
         json: async () => date === '2026-08-29'
@@ -850,11 +960,18 @@ for (const tab of ['korean', 'tvmaze']) {
     },
   });
   helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
+  helpers.setTVmazeCache([{ id: 3, name: '应该替换的旧节目', status: 'Running' }], now - 24 * 60 * 60 * 1000);
   await helpers.switchTab('tvmaze');
   assert.equal(calls[0], '2026-08-30', 'TVmaze should request the Korea-local current date first');
   assert.match(elements.showGrid.innerHTML, /回退剧/, 'a failed current-day request should fall back to recent successful days');
   assert.doesNotMatch(elements.showGrid.innerHTML, /Ask Us Anything/, 'TVmaze Korean drama schedule should exclude reality and variety programmes');
   assert.match(elements.showGrid.innerHTML, /8月29日/, 'TVmaze cards should show the actual schedule date');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /应该替换的旧节目/, 'real historical results should replace the stale fallback');
+  assert.equal(elements.updateInfo.textContent, 'TVmaze 韩剧时间表: ' + new Date(now).toLocaleDateString('zh-CN'));
+  const firstRequestCount = calls.length;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, firstRequestCount, 'successful history fallback should remain cacheable');
+  assert.match(elements.showGrid.innerHTML, /回退剧/);
 }
 
 {
@@ -1017,15 +1134,16 @@ for (const tab of ['korean', 'tvmaze']) {
   const partial = helpers.normalizeItem({ mediaKey: 'partial', title: '种子更新', mediaType: '综艺', regional: '大陆' });
   const partialApplied = helpers.applyLiveFields({
     title: '种子更新', year: 2026, score: 7, playCount: 100,
-    actor: '新演员', contentType: '搞笑', description: '新版种子描述足够长，应优先于上一版。', regional: '大陆', lang: '国语',
+    actor: '新演员', contentType: '搞笑', description: '种子简介足够长，但是缺少本轮来源。', regional: '大陆', lang: '国语',
   }, partial);
   assert.equal(partialApplied.score, 7, 'a missing live score must preserve the curated seed score');
   assert.equal(partialApplied.playCount, 100, 'a missing live play count must preserve the curated seed count');
   const partialWithPrevious = helpers.mergePreviousShowState(partialApplied, {
-    ...partialApplied, actor: '旧演员', description: '上一版描述很长但已经过期。',
+    ...partialApplied, actor: '旧演员', description: '上一版由真实来源确认的节目简介。', descriptionSource: 'yfsp',
   });
   assert.equal(partialWithPrevious.actor, '新演员', 'curated seed text should win over stale previous text');
-  assert.equal(partialWithPrevious.description, '新版种子描述足够长，应优先于上一版。');
+  assert.equal(partialWithPrevious.description, '上一版由真实来源确认的节目简介。', 'an unobserved seed description must not replace a previously verified source description');
+  assert.equal(partialWithPrevious.descriptionSource, 'yfsp');
 
   const numericFallback = helpers.normalizeItem({
     mediaKey: 'numeric-fallback', title: '数值回退', mediaType: '综艺', playCount: 'bad', hot: 12345,
@@ -1693,10 +1811,15 @@ for (const tab of ['korean', 'tvmaze']) {
 }
 
 {
+  const requests = [];
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
       const textUrl = String(url);
+      requests.push(textUrl);
+      if (textUrl.includes('/tv/220074?language=zh-CN')) {
+        return mockResponse({ json: { id: 220074, name: '财阀X刑警', origin_country: ['KR'] } });
+      }
       if (textUrl.includes('/tv/220074/season/2?language=zh-CN')) {
         return mockResponse({ json: {
           id: 401234, name: '第 2 季', season_number: 2,
@@ -1711,6 +1834,7 @@ for (const tab of ['korean', 'tvmaze']) {
     title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国',
     tmdbUrl: 'https://www.themoviedb.org/tv/220074',
   });
+  assert.equal(requests[0], 'https://api.themoviedb.org/3/tv/220074?language=zh-CN', 'a published link must prove its series identity before providing a season poster');
   assert.equal(found.url, 'https://image.tmdb.org/t/p/original/flex-x-cop-season-2.jpg', 'known TMDB series IDs should resolve the exact season poster');
   assert.equal(found.tmdbUrl, 'https://www.themoviedb.org/tv/220074/season/2', 'season matches should link to the TMDB season page');
   assert.equal(found.tmdbId, 220074, 'season matches should retain the parent TMDB series ID');
@@ -1760,6 +1884,7 @@ for (const tab of ['korean', 'tvmaze']) {
   const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
   assert.equal(savedCache.flex?.version, 16, 'season lookup should write the current cache version');
   assert.equal(savedCache.flex?.tmdbSeasonNumber, 2, 'season lookup should make the season identity durable in cache');
+  assert.equal(savedCache.flex?.matchedSeriesTitle, '财阀X刑警', 'reusable season caches must retain the title observed from the matched TMDB entity');
   assert.equal(helpers.isReusableTMDBCoverCache(savedCache.flex, show), true, 'a season cache must be reusable only after both numeric and URL season validation pass');
 }
 

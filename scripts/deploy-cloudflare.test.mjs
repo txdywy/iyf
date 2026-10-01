@@ -8,6 +8,8 @@ import { deployCloudflare } from './deploy-cloudflare.mjs';
 
 const HOOK_URL = 'https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/unit-test-secret-token';
 const PAGES_ORIGIN = 'https://iyf-5l7.pages.dev';
+const CANONICAL_ORIGIN = 'https://iyf.hackx64.eu.org';
+const VERIFIED_ORIGINS = [PAGES_ORIGIN, CANONICAL_ORIGIN];
 const LAST_UPDATED = '2026-09-30T03:46:36.204Z';
 const digest = body => createHash('sha256').update(body).digest('hex').slice(0, 12);
 
@@ -55,12 +57,13 @@ function createHarness(t, {
       assert.equal(address, HOOK_URL);
       return triggerReply();
     }
-    assert.equal(url.origin, PAGES_ORIGIN);
+    assert.ok(VERIFIED_ORIGINS.includes(url.origin));
     assert.equal(options.cache, 'no-store');
     const file = routes.get(url.pathname + url.search);
     assert.ok(file, `unexpected deployment verification URL: ${address}`);
-    if (file === 'index.html') poll++;
+    if (file === 'index.html' && url.origin === PAGES_ORIGIN) poll++;
     const response = {
+      origin: url.origin,
       file,
       poll,
       body: files.get(file),
@@ -95,9 +98,9 @@ function createHarness(t, {
 
 test('Cloudflare deployment verifies every artifact file with versioned asset URLs', async t => {
   const h = createHarness(t);
-  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, origin: PAGES_ORIGIN });
+  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, origin: PAGES_ORIGIN, verifiedOrigins: VERIFIED_ORIGINS });
   assert.equal(h.calls[0].options.method, 'POST');
-  assert.deepEqual(h.calls.slice(1).map(call => call.address).sort(), [...h.routes.keys()].map(path => `${PAGES_ORIGIN}${path}`).sort());
+  assert.deepEqual(h.calls.slice(1).map(call => call.address).sort(), VERIFIED_ORIGINS.flatMap(origin => [...h.routes.keys()].map(path => `${origin}${path}`)).sort());
   assert.deepEqual(h.waits, []);
   assert.match(h.logs.at(-1), /production matches the validated artifact/);
 });
@@ -158,9 +161,9 @@ test('Cloudflare deployment waits until data and both assets match in the same p
         || (poll === 2 && file === 'css/style.css')) return { body: `${body}\n旧版本` };
     },
   });
-  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, origin: PAGES_ORIGIN });
+  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, origin: PAGES_ORIGIN, verifiedOrigins: VERIFIED_ORIGINS });
   assert.equal(h.calls.filter(call => call.options.method === 'POST').length, 1);
-  assert.equal(h.calls.length, 1 + 4 * 6);
+  assert.equal(h.calls.length, 1 + 4 * 12);
   assert.deepEqual(h.waits, [10, 10, 10]);
 });
 
@@ -224,7 +227,37 @@ test('Cloudflare deployment times out with stale files and bounds the final poll
   const h = createHarness(t, { publicReply: ({ file }) => file === 'data/shows.json' ? { body: '{}' } : {} });
   await assert.rejects(h.run(), /did not match.*deployment timeout/);
   assert.deepEqual(h.waits, [10, 10, 5]);
-  assert.equal(h.calls.length, 1 + 3 * 6);
+  assert.equal(h.calls.length, 1 + 3 * 12);
   assert.ok(h.logs.every(message => !message.includes('production matches')));
   assert.ok(h.logs.every(message => !message.includes(HOOK_URL)));
+});
+
+test('Cloudflare deployment cannot succeed while only the Pages domain is healthy', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ origin }) => origin === CANONICAL_ORIGIN ? { status: 503, body: 'Domain unavailable' } : {},
+  });
+  await assert.rejects(h.run(), /deployment timeout.*iyf\.hackx64\.eu\.org/);
+  assert.deepEqual(h.waits, [10, 10, 5]);
+});
+
+test('Cloudflare deployment waits for fresh data and security headers on the custom domain', async t => {
+  const h = createHarness(t, {
+    timeoutMs: 100,
+    publicReply: ({ origin, file, poll, body, headers }) => {
+      if (origin !== CANONICAL_ORIGIN) return {};
+      if (poll === 0 && file === 'data/shows.json') return { body: `${body}\n旧版本` };
+      if (poll === 1 && file === 'index.html') return { headers: { ...headers, 'x-frame-options': 'SAMEORIGIN' } };
+      return {};
+    },
+  });
+  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, origin: PAGES_ORIGIN, verifiedOrigins: VERIFIED_ORIGINS });
+  assert.deepEqual(h.waits, [10, 10]);
+});
+
+test('Cloudflare deployment rejects a custom-domain TLS or network failure', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ origin }) => origin === CANONICAL_ORIGIN ? { error: new Error('TLS verification failed') } : {},
+  });
+  await assert.rejects(h.run(), /deployment timeout/);
+  assert.ok(!h.logs.some(message => message.includes('production matches')));
 });

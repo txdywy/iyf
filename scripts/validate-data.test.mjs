@@ -1,12 +1,17 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
+const optionalTextFields = [
+  'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
+  'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
+  'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
+];
 
 function showFixture(id) {
   return {
@@ -41,7 +46,9 @@ function runValidation(data) {
     mkdirSync(fixtureData);
     const validator = join(fixtureScripts, 'validate-data.mjs');
     copyFileSync(join(scriptsDir, 'validate-data.mjs'), validator);
-    writeFileSync(join(fixtureData, 'shows.json'), typeof data === 'string' ? data : JSON.stringify(data));
+    const showsPath = join(fixtureData, 'shows.json');
+    const source = typeof data === 'string' ? data : JSON.stringify(data);
+    writeFileSync(showsPath, source);
     for (const file of ['image_cache.json', 'discovery.json']) {
       writeFileSync(join(fixtureData, file), '{}');
     }
@@ -51,6 +58,7 @@ function runValidation(data) {
       timeout: 10000,
     });
     assert.ifError(result.error);
+    assert.equal(readFileSync(showsPath, 'utf8'), source, 'validation must leave the source snapshot unchanged');
     return result;
   } finally {
     rmSync(fixtureRoot, { recursive: true, force: true });
@@ -122,3 +130,100 @@ for (const field of ['score', 'playCount', 'recommendScore', 'year']) {
     assert.ok(result.stderr.includes(`chineseVariety[0].${field}: must be finite`), result.stderr);
   });
 }
+
+test('validator accepts absent, empty, and null optional text with string title aliases', () => {
+  const data = dataFixture({ chineseVariety: 3 });
+  for (const field of optionalTextFields) {
+    data.chineseVariety[0][field] = null;
+    data.chineseVariety[1][field] = '';
+  }
+  data.chineseVariety[0].titleAliases = null;
+  data.chineseVariety[1].titleAliases = [];
+  data.chineseVariety[2].titleAliases = ['另一个名字', 'A show\'s alias', ''];
+  data.generatedAt = null;
+  data.sourceStatus = '';
+  const result = runValidation(data);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('validator rejects non-string public render fields without trying to coerce hostile objects', () => {
+  for (const value of [{ toString: 'broken' }, ['text'], 42, true]) {
+    const data = dataFixture();
+    for (const field of optionalTextFields) data.chineseVariety[0][field] = value;
+    data.generatedAt = value;
+    data.sourceStatus = value;
+    const result = runValidation(data);
+    assert.equal(result.status, 1, result.stdout);
+    for (const field of optionalTextFields) {
+      assert.ok(result.stderr.includes(`chineseVariety[0].${field}: must be a string or null`), result.stderr);
+    }
+    for (const field of ['generatedAt', 'sourceStatus']) {
+      assert.ok(result.stderr.includes(`data/shows.json.${field}: must be a string or null`), result.stderr);
+    }
+    assert.doesNotMatch(result.stderr, /TypeError/);
+  }
+});
+
+test('validator rejects structured timestamps and titles with a validation error', () => {
+  const data = dataFixture();
+  data.lastUpdated = { toString: 'broken' };
+  data.chineseVariety[0].title = { toString: 'broken' };
+  const result = runValidation(data);
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /invalid lastUpdated/);
+  assert.match(result.stderr, /invalid title/);
+  assert.doesNotMatch(result.stderr, /TypeError/);
+});
+
+test('validator requires titleAliases to be an array containing only strings', () => {
+  for (const value of ['alias', {}, [null], [42], [{ toString: 'broken' }]]) {
+    const data = dataFixture();
+    data.chineseVariety[0].titleAliases = value;
+    const result = runValidation(data);
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /titleAliases: must be an array of strings or null/);
+  }
+});
+
+test('validator rejects original URL controls and attribute characters before URL normalization', () => {
+  for (const character of ['\n', '\r', '\t', '\u0000', '\u001F', '\u007F', '"', '<', '>']) {
+    const data = dataFixture();
+    data.koreanDramas[0].coverImg = `https://image.tmdb.org/t/p/original/post${character}er.jpg`;
+    data.chineseVariety[0].primaryUrl = `https://www.yfsp.tv/play/de${character}mo`;
+    const result = runValidation(data);
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /koreanDramas\[0\]\.coverImg: unsafe URL/);
+    assert.match(result.stderr, /chineseVariety\[0\]\.primaryUrl: unsafe URL/);
+  }
+});
+
+test('validator accepts trimmed URLs, legal apostrophes, and percent-encoded path characters', () => {
+  const data = dataFixture();
+  data.koreanDramas[0].title = '校验节目第2季';
+  data.koreanDramas[0].coverImg = " \nhttps://image.tmdb.org/t/p/original/poster's.jpg\t ";
+  data.koreanDramas[0].tmdbUrl = ' \nhttps://www.themoviedb.org/tv/123/season/2\t ';
+  data.chineseVariety[0].primaryUrl = " \thttps://www.yfsp.tv/play/demo's\r\n ";
+  data.chineseVariety[0].wikipediaUrl = "https://en.wikipedia.org/wiki/Queen's_Gambit";
+  data.chineseVariety[0].doubanUrl = 'https://movie.douban.com/subject/demo%22%3C%3E';
+  data.chineseVariety[0].imdbUrl = null;
+  data.chineseVariety[0].yfspUrl = '';
+  const result = runValidation(data);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('validator rejects structured URL values and blank required cover/link fields', () => {
+  for (const value of [{ toString: 'broken' }, ['https://www.yfsp.tv/play/demo'], false, 0]) {
+    const data = dataFixture();
+    data.chineseVariety[0].primaryUrl = value;
+    const result = runValidation(data);
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /primaryUrl: must be a string or null/);
+    assert.doesNotMatch(result.stderr, /TypeError/);
+  }
+  const data = dataFixture();
+  data.chineseVariety[0].coverImg = ' \t ';
+  data.chineseVariety[0].primaryUrl = null;
+  const result = runValidation(data);
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /missing renderable cover\/link/);
+});
