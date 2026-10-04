@@ -375,6 +375,173 @@ for (const changed of [false, true]) {
   else assert.equal(elements.showGrid.innerHTML, before, 'an unchanged snapshot should preserve the rendered cards');
 }
 
+for (const succeeds of [true, false]) {
+  const { document, elements } = createAppDocument();
+  let finishFetch;
+  let applySearch;
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    fetchImpl: () => new Promise(resolve => { finishFetch = resolve; }),
+    setTimeoutImpl: (callback, delay) => {
+      if (delay === 300) applySearch = callback;
+      return 0;
+    },
+    clearTimeoutImpl() {},
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+  });
+  const pending = helpers.init();
+  const assertLoading = () => {
+    assert.match(elements.showGrid.innerHTML, /skeleton-card/, 'filters must preserve the first-load skeleton until the data settles');
+    assert.equal(elements.showGrid.getAttribute('aria-busy'), 'true');
+    assert.equal(elements.loading.style.display, 'block');
+    assert.notEqual(elements.empty.style.display, 'block', 'pending data must not be announced as an empty result');
+  };
+  assertLoading();
+  for (const [control, value] of [['filterStatus', 'ongoing'], ['filterScore', '8'], ['sortBy', 'score']]) {
+    elements[control].value = value;
+    elements[control].dispatch('change');
+    assertLoading();
+  }
+  elements.searchInput.value = '加载';
+  elements.searchInput.dispatch('input');
+  applySearch();
+  assertLoading();
+  elements.resetFilters.dispatch('click');
+  assertLoading();
+  elements.filterStatus.value = 'ongoing';
+  elements.filterStatus.dispatch('change');
+  finishFetch({ ok: succeeds, json: async () => ({
+    lastUpdated: '2026-10-03',
+    koreanDramas: [
+      { id: 'running', title: '加载完成的连载剧', isSerial: true },
+      { id: 'complete', title: '加载完成的完结剧', isComplete: true },
+    ],
+    chineseVariety: [],
+  }) });
+  await pending;
+  assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false');
+  assert.equal(elements.loading.style.display, 'none');
+  if (succeeds) {
+    assert.match(elements.showGrid.innerHTML, /加载完成的连载剧/, 'settled data must apply the filters chosen during loading');
+    assert.doesNotMatch(elements.showGrid.innerHTML, /加载完成的完结剧/);
+  } else {
+    assert.match(elements.emptyMessage.textContent, /推荐数据加载失败/);
+    assert.equal(elements.emptyAction.hidden, false, 'a failed first load must replace the skeleton with its recovery action');
+  }
+}
+
+{
+  const { document, elements } = createAppDocument();
+  let finishFetch;
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    fetchImpl: () => new Promise(resolve => { finishFetch = resolve; }),
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+  });
+  const pending = helpers.init();
+  helpers.setTVmazeCache([{ id: 1, name: '独立加载的时间表', status: 'Running', rating: { average: 9 } }]);
+  await helpers.switchTab('tvmaze');
+  elements.filterScore.value = '8';
+  elements.filterScore.dispatch('change');
+  assert.match(elements.showGrid.innerHTML, /独立加载的时间表/, 'pending recommendation data must not block independent TVmaze filters');
+  assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false');
+  finishFetch({ ok: true, json: async () => ({ lastUpdated: '2026-10-03', koreanDramas: [], chineseVariety: [] }) });
+  await pending;
+  assert.match(elements.showGrid.innerHTML, /独立加载的时间表/, 'settled recommendation data must not overwrite the active schedule');
+}
+
+for (const resultIsToday of [true, false]) {
+  const { document, elements } = createAppDocument();
+  const dateImpl = fixedInstant('2026-10-03T01:00:00Z');
+  let now = dateImpl.now();
+  dateImpl.now = () => now;
+  let expireRequest;
+  let recovered = false;
+  const calls = [];
+  const row = (id, name) => ({ show: { id, name, type: 'Scripted', status: 'Running' }, season: 1, number: 4, airtime: '22:00' });
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl,
+    setTimeoutImpl: (callback, delay) => {
+      if (delay === 12000) expireRequest = callback;
+      return 0;
+    },
+    clearTimeoutImpl() {},
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    fetchImpl: async (url, { signal }) => {
+      const date = new URL(url).searchParams.get('date');
+      calls.push(date);
+      if (recovered) return { ok: true, json: async () => Array.from({ length: 5 }, (_, i) => row(i + 10, `重新加载成功${i}`)) };
+      if (date === '2026-10-03') return { ok: true, json: async () => resultIsToday ? [row(1, '已收到的当天节目')] : [] };
+      if (!resultIsToday && date === '2026-10-02') return { ok: true, json: async () => [row(2, '已收到的历史节目')] };
+      return abortedFetch(signal);
+    },
+  });
+  if (!resultIsToday) helpers.setTVmazeCache([{ id: 3, name: '过期旧时间表', status: 'Running' }], now - 24 * 60 * 60 * 1000);
+  const pending = helpers.switchTab('tvmaze');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 3, 'the timeout should occur while the first history batch is pending');
+  expireRequest();
+  await pending;
+  assert.equal(helpers.getCurrentShows().length, 1, 'a history timeout must preserve the already fetched schedule');
+  assert.match(elements.showGrid.innerHTML, resultIsToday ? /已收到的当天节目/ : /已收到的历史节目/, 'a completed history request must survive a timed-out sibling');
+  assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false');
+  assert.notEqual(elements.empty.style.display, 'block');
+  assert.match(elements.updateInfo.textContent, /部分日期加载超时/, 'partial schedules should disclose the incomplete refresh');
+  const requestCount = calls.length;
+  now += 30000;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, requestCount, 'partial schedules should remain briefly available from cache');
+  assert.match(elements.updateInfo.textContent, /部分日期加载超时/, 'cache reuse must retain the partial-result notice');
+  now += 31000;
+  recovered = true;
+  await helpers.switchTab('tvmaze');
+  assert.ok(calls.length > requestCount, 'partial schedules should retry after a minute instead of waiting for the normal fifteen-minute cache');
+  assert.match(elements.showGrid.innerHTML, /重新加载成功/);
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期加载超时/);
+  const recoveredRequestCount = calls.length;
+  now += 2 * 60000;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, recoveredRequestCount, 'a complete refresh should restore the normal cache lifetime');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  let finishHistory;
+  let recovered = false;
+  let calls = 0;
+  const row = (id, name) => ({ show: { id, name, type: 'Scripted', status: 'Running' } });
+  const helpers = loadAppHelpers({
+    documentImpl: document,
+    dateImpl: fixedInstant('2026-10-03T01:00:00Z'),
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    fetchImpl: async (url, { signal }) => {
+      calls++;
+      const date = new URL(url).searchParams.get('date');
+      if (recovered) return { ok: true, json: async () => Array.from({ length: 5 }, (_, i) => row(i + 10, `新时间表${i}`)) };
+      if (date === '2026-10-03') return { ok: true, json: async () => [row(1, '已取消的当天结果')] };
+      if (date === '2026-10-02') return new Promise(resolve => { finishHistory = resolve; });
+      return abortedFetch(signal);
+    },
+  });
+  helpers.setAllData({ lastUpdated: '2026-10-03', koreanDramas: [{ title: '本地列表' }], chineseVariety: [] });
+  const cancelled = helpers.switchTab('tvmaze');
+  await new Promise(resolve => setImmediate(resolve));
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /本地列表/);
+  recovered = true;
+  await helpers.switchTab('tvmaze');
+  finishHistory({ ok: true, json: async () => [row(2, '已取消的历史结果')] });
+  await cancelled;
+  assert.match(elements.showGrid.innerHTML, /新时间表/);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /已取消的/);
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期加载超时/, 'cancelled requests must not mark a newer complete cache as partial');
+  const requestCount = calls;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls, requestCount);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /已取消的/, 'cancelled partial results must never replace the newer cache');
+}
+
 for (const tab of ['korean', 'tvmaze']) {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => { throw new Error('offline'); } });
@@ -530,7 +697,7 @@ for (const tab of ['korean', 'tvmaze']) {
 {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'test' },
-    fetchImpl: aiFetchWithContent('{"results":[{"id":"low","ok":true,"s":39,"r":"不够推荐"},{"id":"threshold","ok":true,"s":40,"r":"达到门槛"}]}'),
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"low","ok":true,"recommendationScore100":39,"recommendationLevel":"weak","r":"不够推荐"},{"id":"threshold","ok":true,"recommendationScore100":40,"recommendationLevel":"moderate","r":"达到门槛"}]}'),
   });
   const accepted = await helpers.aiEvaluateDiscovery([{ id: 'low', title: '低分' }, { id: 'threshold', title: '门槛' }]);
   assert.deepEqual(plain(accepted.map(s => s.id)), ['threshold'], 'AI discovery must enforce the score threshold even if ok is true');
@@ -542,7 +709,7 @@ for (const tab of ['korean', 'tvmaze']) {
     env: { OPENROUTER_API_KEY: 'test' },
     fetchImpl: async (_url, options) => {
       scoredPrompt = JSON.parse(options.body).messages[1].content;
-      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"ai-desc","s":9,"r":"资料有限"}]}' } }] } });
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"ai-desc","recommendationScore100":9,"recommendationLevel":"weak","r":"资料有限"}]}' } }] } });
     },
   });
   await helpers.aiScoreShows([{ id: 'ai-desc', title: '生成文案', descriptionSource: 'ai', description: '模型虚构剧情' }]);
@@ -1425,7 +1592,7 @@ for (const hasStaleCache of [false, true]) {
       openRouterCounter.count++;
       requestUrl = url;
       requestBody = JSON.parse(options.body);
-      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"drama-1","s":88,"r":"合适"}]}' } }] } });
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"drama-1","recommendationScore100":88,"recommendationLevel":"strong","r":"合适"}]}' } }] } });
     },
   });
   const show = { id: 'drama-1', title: '浪漫律师', year: 2026, score: 8, playCount: 10000 };
@@ -1440,12 +1607,59 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(requestBody.response_format?.json_schema?.strict, true);
   assert.deepEqual(requestBody.response_format?.json_schema?.schema?.properties?.results?.items?.properties?.id?.enum, ['drama-1'], 'the schema must constrain output IDs to the current batch');
   assert.equal(requestBody.provider?.require_parameters, true, 'the router should only select providers that support requested parameters');
+  const input = JSON.parse(requestBody.messages[1].content.split('\n').slice(1).join('\n'))[0];
+  assert.equal(input.sourceRating10, 8, 'the input rating must explicitly declare its ten-point scale');
+  assert.equal(input.score, undefined, 'an ambiguous source score field must not encourage copying it as a recommendation');
+  const fields = requestBody.response_format.json_schema.schema.properties.results.items;
+  assert.ok(fields.required.includes('recommendationScore100'));
+  assert.ok(fields.required.includes('recommendationLevel'));
+}
+
+{
+  const invalidRows = [
+    { id: 'unit-check', s: 9.7, r: '高度推荐' },
+    { id: 'unit-check', recommendationScore100: 9.7, recommendationLevel: 'strong', r: '高度推荐' },
+    { id: 'unit-check', recommendationScore100: 95, recommendationLevel: 'weak', r: '弱匹配' },
+    { id: 'unit-check', recommendationScore100: 50, r: '未声明推荐档位' },
+  ];
+  for (const row of invalidRows) {
+    const { helpers } = loadScrapeHelpers({
+      env: { OPENROUTER_API_KEY: 'or-test-key' },
+      fetchImpl: aiFetchWithContent(JSON.stringify({ results: [row] })),
+    });
+    const show = { id: row.id, title: '评分单位测试', score: 9.7, year: 2026 };
+    assert.equal((await helpers.aiScoreShows([show])).size, 0, 'ambiguous or contradictory recommendation units must fall back to rule scoring');
+    const discovery = loadScrapeHelpers({
+      env: { OPENROUTER_API_KEY: 'or-test-key' },
+      fetchImpl: aiFetchWithContent(JSON.stringify({ results: [{ ...row, ok: true }] })),
+    }).helpers;
+    assert.equal((await discovery.aiEvaluateDiscovery([show])).length, 0, 'discovery must enforce the same recommendation-unit contract');
+  }
+}
+
+{
+  let requestBody;
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      requestBody = JSON.parse(options.body);
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[]}' } }] } });
+    },
+  });
+  await helpers.aiScoreShows([{ id: 'unrated', title: '暂无来源评分', score: 0 }]);
+  const input = JSON.parse(requestBody.messages[1].content.split('\n').slice(1).join('\n'))[0];
+  assert.equal(input.sourceRating10, null, 'an unrated show must not be described to the model as a zero-quality show');
+  const previous = { id: 'old-scale', title: '旧单位缓存', year: 2026, aiScore: 9.7, aiScoreVersion: 3, aiScoredAt: new Date().toISOString() };
+  previous.aiScoreInputHash = helpers.aiScoreInputHash(previous);
+  requestBody = null;
+  await helpers.aiScoreShows([previous]);
+  assert.ok(requestBody, 'the previous ambiguous scoring contract must be invalidated regardless of matching input');
 }
 
 {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: async () => mockResponse({ json: { choices: [{ message: { content: '[{"id":"legacy-ai","s":8.3,"r":"旧量纲"}]' } }] } }),
+    fetchImpl: async () => mockResponse({ json: { choices: [{ message: { content: '[{"id":"legacy-ai","recommendationScore100":8.3,"recommendationLevel":"weak","r":"明确弱匹配"}]' } }] } }),
   });
   const scores = await helpers.aiScoreShows([{ id: 'legacy-ai', title: '旧量纲测试', year: 2026 }]);
   assert.equal(scores.get('legacy-ai')?.score, 8.3, 'the 0-100 response contract must preserve valid low scores');
@@ -1460,7 +1674,7 @@ for (const hasStaleCache of [false, true]) {
       const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
       batchSizes.push(ids.length);
       return mockResponse({ json: { choices: [{ message: { content: JSON.stringify({
-        results: ids.map(id => ({ id, s: 70, r: '批次结果' })),
+        results: ids.map(id => ({ id, recommendationScore100: 70, recommendationLevel: 'strong', r: '批次结果' })),
       }) } }] } });
     },
   });
@@ -1482,7 +1696,7 @@ for (const hasStaleCache of [false, true]) {
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: async (_url, options) => {
       messages = JSON.parse(options.body).messages;
-      return mockResponse({ json: { choices: [{ message: { content: '[{"id":"variety-1","s":82,"r":"轻松下饭"}]' } }] } });
+      return mockResponse({ json: { choices: [{ message: { content: '[{"id":"variety-1","recommendationScore100":82,"recommendationLevel":"strong","r":"轻松下饭"}]' } }] } });
     },
   });
   const show = { id: 'variety-1', title: '旅行喜剧', category: 'variety', mediaType: '综艺', year: 2026, score: 8, playCount: 10000 };
@@ -1502,7 +1716,7 @@ for (const hasStaleCache of [false, true]) {
   const prettyCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: aiFetchWithContent('评分结果:\n```json\n[\n  {"id":"pretty-1","s":77,"r":"格式化 JSON"}\n]\n```', prettyCounter),
+    fetchImpl: aiFetchWithContent('评分结果:\n```json\n[\n  {"id":"pretty-1","recommendationScore100":77,"recommendationLevel":"strong","r":"格式化 JSON"}\n]\n```', prettyCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'pretty-1', title: '格式化测试', year: 2026, score: 8, playCount: 10000 }]);
   assert.equal(scores.get('pretty-1')?.score, 77, 'AI parsing should accept prose-wrapped pretty-printed JSON arrays');
@@ -1512,7 +1726,7 @@ for (const hasStaleCache of [false, true]) {
   const objectCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: aiFetchWithContent('{"results":[{"id":"object-1","s":66,"r":"对象包装"}]}', objectCounter),
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"object-1","recommendationScore100":66,"recommendationLevel":"moderate","r":"对象包装"}]}', objectCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'object-1', title: '对象包装测试', year: 2026, score: 8, playCount: 10000 }]);
   assert.equal(scores.get('object-1')?.score, 66, 'AI parsing should extract arrays from valid JSON object wrappers');
@@ -1536,7 +1750,7 @@ for (const hasStaleCache of [false, true]) {
   const providerCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: aiFetchWithContent('[{"id":"changed","s":55,"r":"输入已变化"}]', providerCounter),
+    fetchImpl: aiFetchWithContent('[{"id":"changed","recommendationScore100":55,"recommendationLevel":"moderate","r":"输入已变化"}]', providerCounter),
   });
   const changed = {
     id: 'changed', title: '缓存输入变化', year: 2026, score: 8, playCount: 10000,
@@ -1566,7 +1780,7 @@ for (const hasStaleCache of [false, true]) {
     env: { OPENROUTER_API_KEY: 'or-test-key', OPENROUTER_MODEL: 'vendor/custom:free' },
     fetchImpl: async (_url, options) => {
       requestedModel = JSON.parse(options.body).model;
-      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"override","s":0,"r":"明确低分"}]}' } }] } });
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"override","recommendationScore100":0,"recommendationLevel":"weak","r":"明确低分"}]}' } }] } });
     },
   });
   const scores = await helpers.aiScoreShows([{ id: 'override', title: '模型覆盖测试', year: 2026 }]);
@@ -1578,7 +1792,7 @@ for (const hasStaleCache of [false, true]) {
   const invalidCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
-    fetchImpl: aiFetchWithContent('{"results":[{"id":"wrong-batch-id","s":99,"r":"不应接受"},{"id":"expected-id","s":"99","r":"类型错误"}]}', invalidCounter),
+    fetchImpl: aiFetchWithContent('{"results":[{"id":"wrong-batch-id","recommendationScore100":99,"recommendationLevel":"strong","r":"不应接受"},{"id":"expected-id","recommendationScore100":"99","recommendationLevel":"strong","r":"类型错误"}]}', invalidCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'expected-id', title: '批次边界测试', year: 2026 }]);
   assert.equal(invalidCounter.count, 1);
@@ -1591,7 +1805,7 @@ for (const hasStaleCache of [false, true]) {
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: async (_url, options) => {
       schemaName = JSON.parse(options.body).response_format?.json_schema?.name;
-      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"disc-1","ok":false,"s":12,"r":"内容风险"}]}' } }] } });
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"disc-1","ok":false,"recommendationScore100":12,"recommendationLevel":"weak","r":"内容风险"}]}' } }] } });
     },
   });
   const discovered = [{ id: 'disc-1', title: '新发现', year: 2026, mediaType: '电视剧', regional: '韩国', score: 8, playCount: 10000 }];

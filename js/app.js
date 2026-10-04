@@ -22,6 +22,7 @@
     mdl: 'korean',
   });
   const REMOTE_CACHE_TTL_MS = 15 * 60 * 1000;
+  const REMOTE_PARTIAL_CACHE_TTL_MS = 60 * 1000;
   const REMOTE_REQUEST_TIMEOUT_MS = 12000;
   const DAY_MS = 24 * 60 * 60 * 1000;
   const DATA_STALE_AFTER_MS = 36 * 60 * 60 * 1000;
@@ -491,8 +492,9 @@
       updateResetVisibility();
       return;
     }
-    if (_dataLoadFailed && !allData && !REMOTE_TAB_LABELS[activeTabName]) {
-      showDataLoadError();
+    // 首次推荐数据未到达时，筛选只记录选择，保留骨架或失败状态。
+    if (!allData && !REMOTE_TAB_LABELS[activeTabName]) {
+      if (_dataLoadFailed) showDataLoadError();
       updateResetVisibility();
       return;
     }
@@ -1115,6 +1117,7 @@
   // ── 外部数据源: TVmaze 韩剧时间表 ─────────────────────────
   let _tvmazeCache = null;
   let _tvmazeCachedAt = 0;
+  let _tvmazeCachePartial = false;
 
   function getScheduleDateKey(timestamp = Date.now()) {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -1174,7 +1177,8 @@
 
     try {
       let shows = _tvmazeCache;
-      if (!shows || Date.now() - _tvmazeCachedAt >= REMOTE_CACHE_TTL_MS) {
+      const cacheTTL = _tvmazeCachePartial ? REMOTE_PARTIAL_CACHE_TTL_MS : REMOTE_CACHE_TTL_MS;
+      if (!shows || Date.now() - _tvmazeCachedAt >= cacheTTL) {
         // 以韩国本地日期为准；今天失败时继续回溯，避免单日故障让整个时间表变空。
         const showMap = new Map();
         const dates = buildScheduleDateKeys(Date.now());
@@ -1202,27 +1206,29 @@
         } catch (error) {
           if (error?.name === 'AbortError') throw error;
         }
-        for (let start = 1; start < dates.length && showMap.size < 5; start += 2) {
-          const batch = await Promise.all(dates.slice(start, start + 2).map(async d => {
-            try {
-              return await fetchSchedule(d);
-            } catch (error) {
-              if (error?.name === 'AbortError') throw error;
-              return null;
-            }
-          }));
-          batch.filter(Boolean).forEach(addSchedule);
+        for (let start = 1; start < dates.length && showMap.size < 5 && !controller.signal.aborted; start += 2) {
+          const batch = await Promise.allSettled(dates.slice(start, start + 2).map(fetchSchedule));
+          batch.filter(result => result.status === 'fulfilled').forEach(result => addSchedule(result.value));
+          const aborted = batch.find(result => result.status === 'rejected' && result.reason?.name === 'AbortError');
+          if (aborted) {
+            // 补齐超时仍保留已收到的节目，包括同批中较早完成的历史请求。
+            if (!showMap.size) throw aborted.reason;
+            break;
+          }
         }
         // 今天未知且历史没有节目时，保留失败状态或旧缓存，不能当成已确认的空档。
         if (!successfulDays || (!currentDaySucceeded && !showMap.size)) throw new Error('TVmaze schedule unavailable');
         shows = sortTVmazeShows([...showMap.values()]);
-        if (!isActiveTabRequest('tvmaze', requestVersion, controller) || controller.signal.aborted) return;
+        // 超时可保留部分结果；切换标签取消的请求仍不能回写页面或共享缓存。
+        if (!isActiveTabRequest('tvmaze', requestVersion, controller)) return;
         _tvmazeCache = shows;
         _tvmazeCachedAt = Date.now();
+        _tvmazeCachePartial = controller.signal.aborted;
       }
 
       if (!completeRemoteTab('tvmaze', requestVersion, controller, shows)) return;
-      updateSourceInfo('TVmaze 韩剧时间表', new Date(_tvmazeCachedAt).toISOString());
+      const sourceLabel = _tvmazeCachePartial ? 'TVmaze 韩剧时间表（部分日期加载超时，稍后重试）' : 'TVmaze 韩剧时间表';
+      updateSourceInfo(sourceLabel, new Date(_tvmazeCachedAt).toISOString());
 
       if (!shows.length) {
         setEmptyState('📡 今日暂无韩国电视剧播出');

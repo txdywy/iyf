@@ -30,7 +30,7 @@ node scripts/scrape.mjs
 node scripts/scrape.mjs --recalculate-existing
 ```
 
-`TMDB_TOKEN` 用于高清封面，`OPENROUTER_API_KEY` 用于可选 AI 评分；可用 `OPENROUTER_MODEL` 指定模型。缺少可选密钥时保留规则推荐与已有缓存。AI 生成文案仅用于展示，不参与规则评分或节目收录判断。
+`TMDB_TOKEN` 用于高清封面，`OPENROUTER_API_KEY` 用于可选 AI 评分；可用 `OPENROUTER_MODEL` 指定模型。缺少可选密钥时保留规则推荐与有效缓存。AI 输入明确标记十分制来源评分，未评分为 `null`；输出使用百分制推荐分，并校验分数与推荐档位一致。旧版量纲不明确的缓存会失效，真实低分不会被自动放大。AI 生成文案仅补充缺失文案，保留可靠的短简介，不参与规则评分或节目收录判断。
 
 ## 发布
 

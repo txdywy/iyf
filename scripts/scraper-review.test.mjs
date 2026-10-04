@@ -38,9 +38,10 @@ function loadHelpers({
         aiEnhanceDescriptions, findLiveTitleMatch, scoreYfspCandidate,
         searchYfspTitle, verifyYfspUrl, searchDoubanSubject, searchTMDBImage,
         enrichMissingYfspLinks, restorePreviousCategory, normalizeItem,
-        applyLiveFields, mergePreviousShowState, sameShowIdentity, main,
+        applyLiveFields, mergePreviousShowState, sameShowIdentity, main, loadPreviousShows, recalculateExistingData,
         enrichDescriptions, enrichCoversFromTMDB, isReusableTMDBCoverCache,
-        discoverNewKDramas, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
+        discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
+        aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
       };
     `;
@@ -93,6 +94,47 @@ test('unsafe AI copy is rejected without deleting a previously accepted show', a
   const accepted = new Map(shows.map(show => [show.id, show]));
   assert.equal(helpers.removeHardExcludedKDrama(accepted), 0);
   assert.equal(accepted.size, 2);
+});
+
+test('short source descriptions retain scoring facts while AI fills only missing or generated copy', async () => {
+  const requestedIds = [];
+  const { helpers } = loadHelpers({
+    env: { OPENROUTER_API_KEY: 'test-token' },
+    fetchImpl: async (_url, options) => {
+      const request = JSON.parse(options.body);
+      const ids = request.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      requestedIds.push(...ids);
+      return response({ choices: [{ message: { content: JSON.stringify({ results: ids.map(id => ({
+        id, d: '喜欢轻松节奏的观众可以关注这部节目，更多可靠资料待后续来源补充。',
+      })) }) } }] });
+    },
+  });
+  const sourced = ['yfsp', 'tmdb', 'wikipedia', 'douban', 'seed', undefined].map((descriptionSource, index) => ({
+    id: `sourced-${index}`, title: '普通韩剧', year: 2026, score: 8, contentType: '剧情',
+    description: '律师职场喜剧', ...(descriptionSource ? { descriptionSource } : {}),
+  }));
+  for (const show of sourced) {
+    show.aiScore = 80;
+    show.aiScoreVersion = helpers.AI_SCORE_CACHE_VERSION;
+    show.aiScoredAt = '2026-09-30T04:00:00Z';
+    show.aiScoreInputHash = helpers.aiScoreInputHash(show);
+  }
+  const before = sourced.map(show => ({
+    descriptionSource: show.descriptionSource, ruleScore: helpers.scoreKDrama({ ...show }), hash: helpers.aiScoreInputHash(show),
+  }));
+  const missing = { id: 'missing', title: '缺少简介', description: '' };
+  const generated = { id: 'generated', title: '已有文案', description: '资料待补充', descriptionSource: 'ai' };
+  assert.equal(await helpers.aiEnhanceDescriptions([...sourced, missing, generated]), 2);
+  assert.deepEqual(requestedIds, ['missing', 'generated']);
+  for (const [index, show] of sourced.entries()) {
+    assert.equal(show.description, '律师职场喜剧');
+    assert.equal(show.descriptionSource, before[index].descriptionSource);
+    assert.equal(helpers.scoreKDrama({ ...show }), before[index].ruleScore);
+    assert.equal(helpers.aiScoreInputHash(show), before[index].hash);
+    assert.equal(helpers.isFreshAIScore(show), true);
+  }
+  assert.equal(missing.descriptionSource, 'ai');
+  assert.equal(generated.descriptionSource, 'ai');
 });
 
 test('YFSP live matching rejects a higher scoring different season and retains aliases', () => {
@@ -276,6 +318,30 @@ test('a complete all-503 run preserves published source descriptions and dynamic
   assert.ok(checked >= 20, 'the full pipeline fixture must exercise many real sourced descriptions');
 });
 
+test('known legacy seed metadata is repaired before snapshot merging and recommendation scoring', async () => {
+  const old = {
+    id: 'seed_kd_2025_07', seedId: 'seed_kd_2025_07', title: '善意的竞争', year: 2025,
+    mediaType: '电视剧', regional: '韩国', category: 'korean_drama',
+    contentType: '剧情·喜剧·职场', description: '来源确认的精英学校悬疑故事。', descriptionSource: 'tmdb',
+    score: 8.4, playCount: 1971145, totalEpisodes: 16, currentEpisode: 16,
+    isComplete: true, isSerial: false, scrapedAt: '',
+    coverImg: 'https://image.tmdb.org/t/p/original/verified.jpg',
+    tmdbUrl: 'https://www.themoviedb.org/tv/259288', primaryUrl: 'https://www.themoviedb.org/tv/259288',
+  };
+  const snapshot = { lastUpdated: '2026-09-30T04:00:00Z', stats: {}, koreanDramas: [old], chineseVariety: [], otherDramas: [] };
+  const { helpers, files } = loadHelpers({ initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(snapshot) } });
+  const previous = helpers.loadPreviousShows().koreanDramas[0];
+  const seed = helpers.SEED_KDRAMAS.find(show => show.id === old.seedId);
+  const merged = helpers.mergePreviousShowState(helpers.applyLiveFields({ ...seed, seedId: seed.id }, null), previous);
+  assert.equal(merged.contentType, seed.contentType, 'the known bad historical genre must not override its correction');
+  for (const field of ['score', 'playCount', 'description', 'descriptionSource']) assert.equal(merged[field], old[field]);
+  assert.ok(helpers.scoreKDrama(merged) < helpers.scoreKDrama({ ...merged, contentType: old.contentType }));
+  await helpers.recalculateExistingData();
+  const recalculated = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(recalculated.koreanDramas[0].contentType, seed.contentType);
+  assert.equal(recalculated.lastUpdated, snapshot.lastUpdated);
+});
+
 test('valid completed YFSP pages renew continuity while invalid and unknown pages do not', async () => {
   const shows = ['valid', 'invalid', 'unknown'].map(id => ({
     ...previouslySeenShow(), id, title: `完结节目 ${id}`, isComplete: true, isSerial: false,
@@ -443,6 +509,44 @@ test('same-day discoveries accumulate by identity and survive later empty or fai
   await helpers.discoverNewKDramas(new Map(), known);
   assert.deepEqual(readDay().shows.map(show => show.title), ['新韩剧第2季', '新韩剧第3季']);
   assert.equal(readDay().totalFound, 2);
+});
+
+test('KDrama discovery preserves existing aliases and deduplicates candidates by media identity', async () => {
+  const existing = {
+    id: 'same-live-id', title: '菜鸟炊事兵', year: 2026, mediaType: '电视剧', seedId: 'seed_kd_2026_15',
+    description: '先前可靠来源的军营成长剧情简介。', descriptionSource: 'tmdb',
+    coverImg: 'https://image.tmdb.org/t/p/original/reliable.jpg', firstSeenAt: '2026-01-01T00:00:00Z',
+  };
+  const known = new Map([[existing.id, existing]]);
+  const raw = { title: '菜鸟伙房兵', regional: '韩国', atypeName: '电视剧', postTime: '2026-05-11', score: 8.9, hot: 50000, contxt: existing.id };
+  const newSeason = { ...raw, title: '菜鸟炊事兵第2季', contxt: 'new-season' };
+  const { helpers, files } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+    raw, { ...raw, contxt: 'same-alias-other-id' }, newSeason, { ...newSeason, title: '菜鸟炊事兵第二季' },
+  ] }] } }) });
+  const live = new Map([['live-alias', { ...existing, id: 'live-alias', title: raw.title, score: 8.9, regional: '韩国' }]]);
+  const discovered = await helpers.discoverNewKDramas(live, known);
+  for (const show of discovered) known.set(show.id, show);
+  assert.equal(known.get(existing.id), existing, 'search discovery must not replace the already merged object');
+  assert.deepEqual(Array.from(discovered, show => show.id), ['new-season']);
+  assert.equal(JSON.parse(files.get(join(dataDir, 'discovery.json')))['2026-09-30'].totalFound, 1);
+});
+
+test('variety discovery cannot overwrite a current-year seed with the same media premiere year', async () => {
+  const existing = {
+    id: 'hello-live-id', title: '你好星期六', year: 2026, mediaType: '综艺', seedId: 'seed_var_2026_07',
+    description: '上轮可靠来源节目简介。', descriptionSource: 'tmdb', isSerial: true,
+  };
+  const known = new Map([[existing.id, existing]]);
+  const raw = { title: existing.title, regional: '大陆', atypeName: '综艺', postTime: '2022-01-01', lastName: '更新到20261003', score: 8, hot: 200000, contxt: existing.id };
+  const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+    raw, { ...raw, title: '新综艺第2季', postTime: '2026-08-01', contxt: 'new-season' },
+    { ...raw, title: '新综艺第二季', postTime: '2026-08-01', contxt: 'new-season' },
+  ] }] } }) });
+  const discovered = await helpers.discoverNewVariety(new Map(), known);
+  for (const show of discovered) known.set(show.id, show);
+  assert.equal(known.get(existing.id), existing);
+  assert.equal(known.get(existing.id).year, 2026);
+  assert.deepEqual(Array.from(discovered, show => show.id), ['new-season']);
 });
 
 test('other-drama pagination reorder is allowed while count and identity loss remain guarded', () => {
@@ -637,6 +741,84 @@ test('a verified replacement series supersedes explicitly disproved historical l
   assert.equal(JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show.matchedSeriesTitle, '财阀X刑警');
 });
 
+test('disproved TMDB entities lose associated external links and sourced facts before publication', async () => {
+  for (const descriptionSource of ['tmdb', 'wikipedia', 'douban']) {
+    const cached = seasonCache({
+      version: 15, tmdbId: 215072, tmdbSeriesId: 215072, matchedSeriesTitle: undefined,
+      tmdbUrl: 'https://www.themoviedb.org/tv/215072/season/2',
+      doubanUrl: 'https://movie.douban.com/subject/999999/', imdbUrl: 'https://www.imdb.com/title/tt999999/',
+      wikipediaUrl: 'https://zh.wikipedia.org/wiki/Wrong_series', wikidataId: 'Q999999',
+    });
+    const show = {
+      ...cached, id: 'show', category: 'korean_drama', regional: '韩国', coverImg: cached.url,
+      yfspCoverImg: 'https://static.yfsp.tv/correct.jpg', yfspUrl: 'https://www.yfsp.tv/play/correct',
+      primaryUrl: cached.doubanUrl, url: cached.doubanUrl, primaryUrlSource: 'douban',
+      description: '无关剧的爱情、温馨、治愈、喜剧剧情。', descriptionSource,
+    };
+    const fetchImpl = async url => {
+      if (url.includes('/tv/215072?')) return response({ id: 215072, name: '完全不同的剧', origin_country: ['KR'] });
+      if (url.includes('/search/tv?')) return response({ results: [] });
+      assert.fail(`a rejected entity must not supply other metadata: ${url}`);
+    };
+    const first = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) }, fetchImpl });
+    await first.helpers.enrichCoversFromTMDB([show]);
+    await first.helpers.enrichDescriptions([show]);
+    first.helpers.normalizeOutputShow(show);
+    for (const field of ['tmdbId', 'tmdbUrl', 'doubanUrl', 'imdbUrl', 'wikipediaUrl', 'wikidataId']) {
+      assert.ok(!show[field], `${descriptionSource}: discard ${field} tied to the rejected cache entity`);
+    }
+    assert.equal(show.description, '');
+    assert.equal(show.descriptionSource, undefined);
+    assert.equal(show.primaryUrl, show.yfspUrl);
+    assert.equal(first.helpers.scoreKDrama({ ...show }), first.helpers.scoreKDrama({ ...show, description: '' }));
+    const second = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, initialFiles: Object.fromEntries(first.files), fetchImpl, date: '2026-09-30T17:00:00Z' });
+    await second.helpers.enrichCoversFromTMDB([show]);
+    await second.helpers.enrichDescriptions([show]);
+    second.helpers.normalizeOutputShow(show);
+    assert.equal(show.primaryUrl, show.yfspUrl);
+    assert.equal(show.description, '');
+  }
+});
+
+test('rejecting a TMDB entity preserves independent source facts and Douban verification', async () => {
+  for (const replacement of [false, true]) {
+    for (const descriptionSource of ['yfsp', 'douban', 'wikipedia']) {
+      const cached = seasonCache({
+        version: 15, tmdbId: 215072, tmdbSeriesId: 215072, matchedSeriesTitle: undefined,
+        tmdbUrl: 'https://www.themoviedb.org/tv/215072/season/2',
+        doubanUrl: 'https://movie.douban.com/subject/999999/', wikipediaUrl: 'https://zh.wikipedia.org/wiki/Wrong_series',
+      });
+      const show = {
+        ...cached, id: 'show', category: 'korean_drama', regional: '韩国', coverImg: cached.url,
+        yfspCoverImg: 'https://static.yfsp.tv/correct.jpg', yfspUrl: 'https://www.yfsp.tv/play/correct',
+        doubanUrl: 'https://movie.douban.com/subject/123456/', doubanId: '123456', doubanMatchedTitle: cached.title,
+        wikipediaUrl: 'https://zh.wikipedia.org/wiki/Correct_series',
+        description: '来自独立来源的职场喜剧简介。', descriptionSource,
+      };
+      // enrichDoubanLinks also records an independently searched subject on an existing TMDB cache.
+      if (descriptionSource === 'douban') Object.assign(cached, { doubanUrl: show.doubanUrl, doubanId: show.doubanId, doubanMatchedTitle: show.doubanMatchedTitle });
+      const { helpers } = loadHelpers({
+        env: { TMDB_TOKEN: 'test-token' }, initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) },
+        fetchImpl: async url => {
+          if (url.includes('/tv/215072?')) return response({ id: 215072, name: '完全不同的剧', origin_country: ['KR'] });
+          if (url.includes('/search/tv?')) return response({ results: replacement ? [{ id: 220074, name: '财阀X刑警', origin_country: ['KR'], poster_path: '/series.jpg' }] : [] });
+          if (url.includes('/tv/220074/season/2?')) return response({ id: 401234, season_number: 2, name: '第2季', air_date: '2026-08-01', poster_path: '/correct.jpg' });
+          if (url.includes('/tv/220074/external_ids')) return response({});
+          assert.fail(`unexpected URL: ${url}`);
+        },
+      });
+      await helpers.enrichCoversFromTMDB([show]);
+      helpers.normalizeOutputShow(show);
+      assert.equal(show.description, '来自独立来源的职场喜剧简介。');
+      assert.equal(show.descriptionSource, descriptionSource);
+      assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/123456/');
+      assert.equal(show.doubanMatchedTitle, cached.title);
+      assert.equal(show.wikipediaUrl, 'https://zh.wikipedia.org/wiki/Correct_series');
+      assert.equal(show.yfspUrl, 'https://www.yfsp.tv/play/correct');
+    }
+  }
+});
+
 test('transient series failures preserve historical links, IDs, cover and description evidence', async () => {
   const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async () => response(null, { status: 503 }) });
   const seasonUrl = 'https://www.themoviedb.org/tv/220074/season/2';
@@ -645,9 +827,11 @@ test('transient series failures preserve historical links, IDs, cover and descri
     tmdbId: 220074, tmdbSeriesId: 220074, tmdbSeasonNumber: 2, tmdbUrl: seasonUrl, primaryUrl: seasonUrl,
     coverImg: 'https://image.tmdb.org/t/p/original/reliable.jpg', description: '已有本季可靠简介', descriptionSource: 'tmdb',
     descriptionTmdbSeasonUrl: seasonUrl,
+    doubanUrl: 'https://movie.douban.com/subject/123456/', imdbUrl: 'https://www.imdb.com/title/tt123456/',
+    wikipediaUrl: 'https://zh.wikipedia.org/wiki/Correct_series', wikidataId: 'Q123456',
   };
   const snapshot = { ...show };
-  assert.equal((await helpers.searchTMDBImage(show)).lookupState, 'unknown');
+  assert.equal((await helpers.searchTMDBImage(show, { cacheEntry: { ...show, source: 'tmdb', version: 15 } })).lookupState, 'unknown');
   for (const field of Object.keys(snapshot)) assert.equal(show[field], snapshot[field], `preserve ${field} during a temporary outage`);
   helpers.normalizeOutputShow(show);
   assert.equal(show.primaryUrl, seasonUrl);
