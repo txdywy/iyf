@@ -14,7 +14,7 @@ const read = path => readFileSync(path, 'utf8');
 // 保留真实构建脚本和资产，仅刷新隔离副本的快照时间，避免陈旧数据挡住抓取前的测试。
 function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, 'data/shows.json')))) {
   for (const path of [
-    'scripts/build-site.mjs', 'scripts/build-site-index.mjs', 'scripts/build-public-data.mjs', 'scripts/validate-data.mjs',
+    'scripts/build-site.mjs', 'scripts/build-site-index.mjs', 'scripts/build-public-data.mjs', 'scripts/build-output-path.mjs', 'scripts/validate-data.mjs',
     'index.html', 'css/style.css', 'js/app.js', '404.html', '_headers', 'robots.txt',
   ]) {
     const target = join(directory, path);
@@ -27,6 +27,67 @@ function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, '
     writeFileSync(join(directory, 'data', file), '{}');
   }
   return directory;
+}
+
+for (const [script, sourceFile] of [
+  ['build-public-data.mjs', 'data/shows.json'],
+  ['build-site-index.mjs', 'index.html'],
+]) {
+  const generate = (sourceRoot, args) => spawnSync(process.execPath, [join(sourceRoot, 'scripts', script), ...args], {
+    cwd: sourceRoot, encoding: 'utf8', timeout: 15000,
+  });
+
+  test(`${script} rejects source outputs and malformed arguments before changing inputs`, t => {
+    const temporary = mkdtempSync(join(tmpdir(), 'iyf-generator-source-'));
+    t.after(() => rmSync(temporary, { recursive: true, force: true }));
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    const original = read(join(sourceRoot, sourceFile));
+    writeFileSync(join(sourceRoot, '.env.local'), 'TEST_CONFIGURATION=keep\n');
+    for (const args of [
+      ['--output', sourceFile], ['--output', 'js/app.js'], ['--output', '.'], ['--output', '.env.local'],
+      ['--output'], ['--unknown', join(temporary, 'output')], ['--output', join(temporary, 'output'), 'extra'],
+    ]) {
+      const result = generate(sourceRoot, args);
+      assert.ifError(result.error);
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, /Build output must not overwrite|Usage:/);
+      assert.equal(read(join(sourceRoot, sourceFile)), original, 'rejected generation must preserve the input byte for byte');
+      assert.equal(read(join(sourceRoot, '.env.local')), 'TEST_CONFIGURATION=keep\n');
+    }
+    assert.equal(existsSync(join(sourceRoot, 'site')), false);
+    for (const output of [join(sourceRoot, 'site', 'output'), join(temporary, 'output')]) {
+      const result = generate(sourceRoot, ['--output', output]);
+      assert.equal(result.status, 0, result.stderr);
+      assert.ok(read(output).length);
+      assert.equal(read(join(sourceRoot, sourceFile)), original);
+    }
+  });
+
+  test(`${script} rejects symbolic and hard-linked outputs and source parent aliases`, t => {
+    const temporary = mkdtempSync(join(tmpdir(), 'iyf-generator-alias-'));
+    t.after(() => rmSync(temporary, { recursive: true, force: true }));
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    const originalPath = join(sourceRoot, sourceFile);
+    const original = read(originalPath);
+    const symbolic = join(temporary, 'symbolic');
+    const hard = join(temporary, 'hard');
+    const sourceAlias = join(temporary, 'data-alias');
+    const envPath = join(sourceRoot, '.env.local');
+    const envAlias = join(temporary, 'env-alias');
+    writeFileSync(envPath, 'TEST_CONFIGURATION=keep\n');
+    linkSync(envPath, envAlias);
+    symlinkSync(originalPath, symbolic);
+    linkSync(originalPath, hard);
+    symlinkSync(join(sourceRoot, 'data'), sourceAlias);
+    for (const output of [symbolic, hard, envAlias, join(sourceAlias, 'generated.json')]) {
+      const result = generate(sourceRoot, ['--output', output]);
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, /Build output must not overwrite|symbolic link|hard-linked/);
+      assert.equal(read(originalPath), original);
+      assert.equal(read(envPath), 'TEST_CONFIGURATION=keep\n');
+    }
+    assert.equal(existsSync(join(sourceRoot, 'data', 'generated.json')), false);
+  });
 }
 
 test('the real deployment build is repeatable and publishes only validated public files', () => {

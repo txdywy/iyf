@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveBuildOutput } from './build-output-path.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outputFlag = process.argv.indexOf('--output');
-const outputPath = resolve(outputFlag >= 0 && process.argv[outputFlag + 1]
-  ? process.argv[outputFlag + 1]
-  : join(root, 'site', 'data', 'shows.json'));
+const outputPath = resolveBuildOutput(root, process.argv.slice(2), 'site/data/shows.json', 'build-public-data.mjs');
 
 const source = JSON.parse(readFileSync(join(root, 'data', 'shows.json'), 'utf8'));
 const PUBLIC_SHOW_FIELDS = [

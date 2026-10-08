@@ -38,6 +38,7 @@ jobs:
           node --check scripts/scrape.mjs
           node --check scripts/regression-tests.mjs
           node --check scripts/build-public-data.mjs
+          node --check scripts/build-output-path.mjs
           node --check scripts/build-site-index.mjs
           node --check scripts/build-site.mjs
           node --check scripts/deploy-cloudflare.mjs

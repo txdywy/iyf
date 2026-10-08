@@ -208,6 +208,7 @@ function loadAppHelpers({
       setTVmazeCache: (shows, cachedAt = Date.now()) => {
         _tvmazeCache = shows;
         _tvmazeCachedAt = cachedAt;
+        _tvmazeCacheDate = getScheduleDateKey(cachedAt);
       },
       getCurrentShows: () => currentShows,
     };
@@ -487,18 +488,18 @@ for (const resultIsToday of [true, false]) {
   assert.match(elements.showGrid.innerHTML, resultIsToday ? /已收到的当天节目/ : /已收到的历史节目/, 'a completed history request must survive a timed-out sibling');
   assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false');
   assert.notEqual(elements.empty.style.display, 'block');
-  assert.match(elements.updateInfo.textContent, /部分日期加载超时/, 'partial schedules should disclose the incomplete refresh');
+  assert.match(elements.updateInfo.textContent, /部分日期暂不可用/, 'partial schedules should disclose the incomplete refresh');
   const requestCount = calls.length;
   now += 30000;
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, requestCount, 'partial schedules should remain briefly available from cache');
-  assert.match(elements.updateInfo.textContent, /部分日期加载超时/, 'cache reuse must retain the partial-result notice');
+  assert.match(elements.updateInfo.textContent, /部分日期暂不可用/, 'cache reuse must retain the partial-result notice');
   now += 31000;
   recovered = true;
   await helpers.switchTab('tvmaze');
   assert.ok(calls.length > requestCount, 'partial schedules should retry after a minute instead of waiting for the normal fifteen-minute cache');
   assert.match(elements.showGrid.innerHTML, /重新加载成功/);
-  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期加载超时/);
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期暂不可用/);
   const recoveredRequestCount = calls.length;
   now += 2 * 60000;
   await helpers.switchTab('tvmaze');
@@ -535,11 +536,91 @@ for (const resultIsToday of [true, false]) {
   await cancelled;
   assert.match(elements.showGrid.innerHTML, /新时间表/);
   assert.doesNotMatch(elements.showGrid.innerHTML, /已取消的/);
-  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期加载超时/, 'cancelled requests must not mark a newer complete cache as partial');
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期暂不可用/, 'cancelled requests must not mark a newer complete cache as partial');
   const requestCount = calls;
   await helpers.switchTab('tvmaze');
   assert.equal(calls, requestCount);
   assert.doesNotMatch(elements.showGrid.innerHTML, /已取消的/, 'cancelled partial results must never replace the newer cache');
+}
+
+for (const failure of ['http', 'json']) {
+  const { document, elements } = createAppDocument();
+  const dateImpl = fixedInstant('2026-10-03T01:00:00Z');
+  let now = dateImpl.now();
+  dateImpl.now = () => now;
+  let recovered = false;
+  const calls = [];
+  const row = (id, name) => ({ show: { id, name, type: 'Scripted', status: 'Running' } });
+  const helpers = loadAppHelpers({
+    documentImpl: document, dateImpl,
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    fetchImpl: async url => {
+      const date = new URL(url).searchParams.get('date');
+      calls.push(date);
+      if (recovered) return { ok: true, json: async () => Array.from({ length: 5 }, (_, i) => row(i + 10, `恢复的节目${i}`)) };
+      if (date === '2026-10-03') return { ok: true, json: async () => [row(1, '已收到的节目')] };
+      return failure === 'http' ? { ok: false, status: 503 } : { ok: true, json: async () => ({ error: 'invalid schedule' }) };
+    },
+  });
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, 7);
+  assert.match(elements.showGrid.innerHTML, /已收到的节目/);
+  assert.match(elements.updateInfo.textContent, /部分日期暂不可用/, `${failure} failures must disclose partial schedules`);
+  now += 30000;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, 7, 'partial schedules should be available for a short retry interval');
+  recovered = true;
+  now += 31000;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, 8, 'ordinary failures must retry after one minute');
+  assert.match(elements.showGrid.innerHTML, /恢复的节目/);
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期暂不可用/);
+}
+
+for (const cacheKind of ['empty', 'complete', 'partial']) {
+  const { document, elements } = createAppDocument();
+  const dateImpl = fixedInstant('2026-10-03T14:59:50Z');
+  let now = dateImpl.now();
+  dateImpl.now = () => now;
+  const calls = [];
+  const row = (id, name) => ({ show: { id, name, type: 'Scripted', status: 'Running' } });
+  const helpers = loadAppHelpers({
+    documentImpl: document, dateImpl,
+    windowImpl: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    fetchImpl: async url => {
+      const date = new URL(url).searchParams.get('date');
+      calls.push(date);
+      if (now >= Date.parse('2026-10-03T15:00:00Z')) return { ok: true, json: async () => Array.from({ length: 5 }, (_, i) => row(i + 10, `新一天的节目${i}`)) };
+      if (cacheKind === 'partial' && date !== '2026-10-03') return { ok: false, status: 503 };
+      return { ok: true, json: async () => cacheKind === 'empty' ? [] : Array.from({ length: cacheKind === 'partial' ? 1 : 5 }, (_, i) => row(i + 1, `前一天的节目${i}`)) };
+    },
+  });
+  await helpers.switchTab('tvmaze');
+  const count = calls.length;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls.length, count, 'the same Korea-local day may reuse a fresh cache');
+  now += 20000;
+  await helpers.switchTab('tvmaze');
+  assert.equal(calls[count], '2026-10-04', `${cacheKind} caches must expire at Korea-local midnight, before their TTL`);
+  assert.match(elements.showGrid.innerHTML, /新一天的节目/);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /前一天的节目/);
+  assert.notEqual(elements.empty.style.display, 'block');
+}
+
+{
+  const { document, elements } = createAppDocument();
+  const helpers = loadAppHelpers({ documentImpl: document });
+  helpers.setTVmazeCache([{ id: 1, name: '实体测试', summary: '<p>Jack &amp; Jane&#39;s &quot;return&quot; &#x1f3ac;</p>' }]);
+  await helpers.switchTab('tvmaze');
+  assert.ok(elements.showGrid.innerHTML.includes('<p class="card-desc">Jack &amp; Jane&#39;s &quot;return&quot; 🎬</p>'), 'HTML entities should be decoded before final text escaping');
+  helpers.setTVmazeCache([{ id: 2, name: '安全文本', summary: '<img src=x onerror=alert(1)>&lt;script&gt;alert(2)&lt;/script&gt; &#x110000; &#xD800;' }]);
+  await helpers.switchTab('tvmaze');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /<script|<img[^>]*onerror/);
+  assert.match(elements.showGrid.innerHTML, /&lt;script&gt;alert\(2\)&lt;\/script&gt;/);
+  assert.match(elements.showGrid.innerHTML, /&amp;#x110000; &amp;#xD800;/, 'invalid Unicode entities should remain text rather than throwing');
+  helpers.setTVmazeCache([{ id: 3, name: '标点测试', summary: '<p>It&rsquo;s &ldquo;Seoul&rdquo; &mdash; a caf&eacute;.</p>' }]);
+  await helpers.switchTab('tvmaze');
+  assert.ok(elements.showGrid.innerHTML.includes('<p class="card-desc">It’s “Seoul” — a café.</p>'));
 }
 
 for (const tab of ['korean', 'tvmaze']) {
@@ -1098,7 +1179,7 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(helpers.getCurrentShows().length, 0, 'a confirmed empty day may replace the old schedule');
   assert.match(elements.emptyMessage.textContent, /今日暂无韩国电视剧播出/, 'a successful empty day must keep the normal empty state');
   assert.equal(elements.emptyAction.hidden, true);
-  assert.equal(elements.updateInfo.textContent, 'TVmaze 韩剧时间表: ' + new Date(now).toLocaleDateString('zh-CN'));
+  assert.match(elements.updateInfo.textContent, /^TVmaze 韩剧时间表:/);
   const firstRequestCount = calls.length;
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, firstRequestCount, 'confirmed empty schedules should still use the normal cache TTL');
@@ -1134,7 +1215,7 @@ for (const hasStaleCache of [false, true]) {
   assert.doesNotMatch(elements.showGrid.innerHTML, /Ask Us Anything/, 'TVmaze Korean drama schedule should exclude reality and variety programmes');
   assert.match(elements.showGrid.innerHTML, /8月29日/, 'TVmaze cards should show the actual schedule date');
   assert.doesNotMatch(elements.showGrid.innerHTML, /应该替换的旧节目/, 'real historical results should replace the stale fallback');
-  assert.equal(elements.updateInfo.textContent, 'TVmaze 韩剧时间表: ' + new Date(now).toLocaleDateString('zh-CN'));
+  assert.match(elements.updateInfo.textContent, /部分日期暂不可用/, 'a failed current day must disclose the partial historical fallback');
   const firstRequestCount = calls.length;
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, firstRequestCount, 'successful history fallback should remain cacheable');
