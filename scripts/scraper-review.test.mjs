@@ -39,7 +39,7 @@ function loadHelpers({
         searchYfspTitle, verifyYfspUrl, searchDoubanSubject, searchTMDBImage,
         enrichMissingYfspLinks, restorePreviousCategory, normalizeItem,
         applyLiveFields, mergePreviousShowState, sameShowIdentity, main, loadPreviousShows, recalculateExistingData,
-        enrichDescriptions, enrichCoversFromTMDB, isReusableTMDBCoverCache,
+        enrichDescriptions, enrichCoversFromTMDB, enrichDoubanLinks, isReusableTMDBCoverCache, SEED_VARIETY,
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
@@ -57,6 +57,105 @@ function response(json, { status = 200, html = '' } = {}) {
     body: { cancel: async () => {} },
   };
 }
+
+for (const explicit of [false, true]) {
+  test(`partial other-drama homepage observations ${explicit ? 'apply explicit zeroes and status' : 'preserve missing source fields'}`, async () => {
+    const old = {
+      id: 'other-partial', title: '部分响应测试剧', mediaType: '电视剧', category: 'other_drama', regional: '大陆',
+      year: 2026, score: 6.5, playCount: 2062086, actor: '来源演员', publishTime: '2026-08-01',
+      description: '上一轮真实来源确认的节目简介，需要在来源暂时未返回该字段时保留。', descriptionSource: 'yfsp',
+      updateStatus: '23集全', currentEpisode: 23, totalEpisodes: 23, isComplete: true, isSerial: false,
+      coverImg: 'https://image.tmdb.org/t/p/original/other-poster.jpg', coverSource: 'tmdb',
+      yfspCoverImg: 'https://static.yfsp.tv/other-poster.jpg', yfspUrl: 'https://www.yfsp.tv/play/other-partial',
+      primaryUrl: 'https://www.yfsp.tv/play/other-partial', primaryUrlSource: 'yfsp', scrapedAt: '2026-10-03T00:00:00Z',
+    };
+    const previous = { lastUpdated: '2026-10-03T00:00:00Z', stats: { totalScraped: 30 }, koreanDramas: [], chineseVariety: [], otherDramas: [old] };
+    const initialFiles = {
+      [join(dataDir, 'shows.json')]: JSON.stringify(previous),
+      [join(dataDir, 'image_cache.json')]: '{}', [join(dataDir, 'discovery.json')]: '{}',
+    };
+    let pages = 0;
+    const { helpers, files } = loadHelpers({
+      initialFiles, date: new Date(Date.parse(previous.lastUpdated) + 60000).toISOString(),
+      env: { TMDB_TOKEN: 'test-token' },
+      fetchImpl: async url => {
+        if (url.includes('api.yfsp.tv/api/list/index') && ++pages === 1) return response({ data: { list: [{ name: '电视剧', list: [{
+          mediaKey: old.id, title: old.title, mediaType: old.mediaType, regional: old.regional, coverImgUrl: old.yfspCoverImg,
+          ...(explicit ? { score: 0, playCount: 0, isSerial: true, updateStatus: '更新到02' } : {}),
+        }] }] } });
+        return response(null, { status: 503 });
+      },
+    });
+    await helpers.main();
+    const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+    const current = published.otherDramas.find(show => show.id === old.id);
+    assert.equal(published.sourceStatus, 'degraded');
+    assert.equal(published.lastUpdated, previous.lastUpdated);
+    for (const field of ['description', 'descriptionSource', 'actor', 'publishTime', 'year', 'totalEpisodes']) assert.equal(current[field], old[field], field);
+    if (explicit) {
+      assert.equal(current.score, 0);
+      assert.equal(current.playCount, 0);
+      assert.equal(current.isComplete, false);
+      assert.equal(current.isSerial, true);
+      assert.equal(current.currentEpisode, 2);
+      assert.equal(current.updateStatus, '更新到02');
+    } else {
+      for (const field of ['score', 'playCount', 'updateStatus', 'currentEpisode', 'isComplete', 'isSerial']) assert.equal(current[field], old[field], field);
+    }
+  });
+}
+
+test('variety seeds and title-based snapshot identity cannot combine different regions', () => {
+  const { helpers } = loadHelpers();
+  const seed = helpers.SEED_VARIETY.find(show => show.title === '密室大逃脱');
+  assert.equal(seed.regional, '大陆');
+  const foreign = { id: 'foreign', title: seed.title, year: seed.year, mediaType: '综艺', regional: '韩国', score: 10, actor: '其他地区演员' };
+  assert.equal(helpers.findLiveTitleMatch(seed, new Map([[foreign.id, foreign]]), '综艺', show => ['大陆', '韩国'].includes(show.regional)), null);
+  assert.equal(helpers.sameShowIdentity({ ...seed, mediaType: '综艺' }, foreign), false);
+  const local = { ...foreign, id: 'local', regional: '大陆', score: 5, actor: '本地演员' };
+  const found = helpers.findLiveTitleMatch(seed, new Map([[foreign.id, foreign], [local.id, local]]), '综艺', show => ['大陆', '韩国'].includes(show.regional));
+  assert.equal(found.id, local.id);
+  assert.equal(helpers.applyLiveFields(seed, found).actor, local.actor);
+});
+
+for (const withAI of [false, true]) {
+  test(`offline recalculation excludes blacklisted variety before ${withAI ? 'fresh AI blending' : 'publication'}`, async () => {
+    const show = {
+      id: 'excluded', title: '乘风', year: 2026, category: 'variety', mediaType: '综艺', regional: '大陆',
+      coverImg: 'https://image.tmdb.org/t/p/original/source.jpg', primaryUrl: 'https://www.yfsp.tv/play/excluded', score: 8, playCount: 100,
+    };
+    const safe = { ...show, id: 'safe', title: '普通搞笑综艺', primaryUrl: 'https://www.yfsp.tv/play/safe' };
+    const { helpers, files } = loadHelpers();
+    if (withAI) {
+      show.aiScore = 100;
+      show.aiScoreVersion = helpers.AI_SCORE_CACHE_VERSION;
+      show.aiScoredAt = '2026-09-30T04:00:00Z';
+      show.aiScoreInputHash = helpers.aiScoreInputHash(show);
+      assert.equal(helpers.isFreshAIScore(show), true);
+    }
+    files.set(join(dataDir, 'shows.json'), JSON.stringify({ lastUpdated: '2026-09-30T04:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [show, safe], otherDramas: [] }));
+    await helpers.recalculateExistingData();
+    const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+    assert.deepEqual(published.chineseVariety.map(entry => entry.id), ['safe']);
+    assert.equal(published.stats.chineseVariety, 1);
+    assert.ok(published.chineseVariety[0].recommendScore >= 0);
+  });
+}
+
+test('a series without a poster can still provide the matching season poster', async () => {
+  const requests = [];
+  const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    requests.push(url);
+    if (url.includes('/search/tv?')) return response({ results: [{ id: 220074, name: '财阀X刑警', first_air_date: '2024-01-26', origin_country: ['KR'], poster_path: null }] });
+    if (url.includes('/tv/220074/season/2?')) return response({ id: 401234, name: '第2季', season_number: 2, air_date: '2026-08-01', poster_path: '/season-only.jpg' });
+    if (url.includes('/tv/220074/external_ids')) return response({});
+    assert.fail(`unexpected URL: ${url}`);
+  } });
+  const found = await helpers.searchTMDBImage({ title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国' });
+  assert.equal(found.url, 'https://image.tmdb.org/t/p/original/season-only.jpg');
+  assert.equal(found.tmdbUrl, 'https://www.themoviedb.org/tv/220074/season/2');
+  assert.ok(requests.some(url => url.includes('/season/2?')));
+});
 
 test('generated descriptions cannot alter rule scores or source content eligibility', () => {
   const { helpers } = loadHelpers();
@@ -374,6 +473,97 @@ function seasonCache(overrides = {}) {
     ...overrides,
   };
 }
+
+for (const verified of [false, true]) {
+  test(`TMDB series metadata ${verified ? 'preserves an independently verified season subject' : 'cannot certify a season Douban subject'}`, async () => {
+    const requests = [];
+    const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/tv/220074?')) return response({ id: 220074, name: '财阀X刑警', origin_country: ['KR'] });
+      if (url.includes('/tv/220074/season/2?')) return response({ id: 401234, season_number: 2, name: '第2季', air_date: '2026-08-01', poster_path: '/correct.jpg' });
+      if (url.includes('/tv/220074/external_ids')) return response({ wikidata_id: 'Q123456' });
+      if (url.includes('Special:EntityData/Q123456.json')) return response({ entities: { Q123456: { claims: { P4529: [{ mainsnak: { datavalue: { value: '999999' } } }] } } } });
+      if (url.includes('movie.douban.com/j/subject_suggest')) return response([{ id: '222222', title: '财阀X刑警', sub_title: '财阀X刑警第2季', year: '2026' }]);
+      assert.fail(`unexpected URL: ${url}`);
+    } });
+    const show = {
+      id: 'show', title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国', tmdbSeriesId: 220074,
+      coverImg: 'https://static.yfsp.tv/source.jpg',
+      ...(verified ? { doubanUrl: 'https://movie.douban.com/subject/123456/', doubanId: '123456', doubanMatchedTitle: '财阀X刑警第2季' } : {}),
+    };
+    await helpers.enrichCoversFromTMDB([show]);
+    assert.equal(show.doubanUrl, verified ? 'https://movie.douban.com/subject/123456/' : '');
+    await helpers.enrichDoubanLinks([show]);
+    assert.equal(show.doubanUrl, `https://movie.douban.com/subject/${verified ? '123456' : '222222'}/`);
+    assert.equal(show.doubanMatchedTitle, show.title, 'season evidence in a subtitle must survive lookup and caching');
+    const saved = JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show;
+    for (const field of ['doubanUrl', 'doubanId', 'doubanMatchedTitle']) assert.equal(saved[field], show[field], field);
+    const count = requests.length;
+    await helpers.enrichCoversFromTMDB([show]);
+    assert.equal(requests.length, count, 'verified subject evidence should survive the next reusable-cache pass');
+    assert.equal(show.doubanMatchedTitle, show.title);
+  });
+}
+
+test('reusable TMDB season caches cannot overwrite independent subject evidence', async () => {
+  const cached = seasonCache({ doubanUrl: 'https://movie.douban.com/subject/999999/' });
+  const { helpers, files } = loadHelpers({ initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) } });
+  const show = {
+    id: 'show', title: cached.title, year: 2026, mediaType: '电视剧', regional: '韩国', coverImg: cached.url,
+    doubanUrl: 'https://movie.douban.com/subject/123456/', doubanId: '123456', doubanMatchedTitle: cached.title,
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/123456/');
+  assert.equal(show.doubanId, '123456');
+  assert.equal(show.doubanMatchedTitle, show.title);
+  const saved = JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show;
+  assert.equal(saved.doubanUrl, show.doubanUrl);
+  assert.equal(saved.doubanId, show.doubanId);
+});
+
+test('season caches clear mismatched subject IDs and retain consistent cached verification', async () => {
+  for (const consistent of [false, true]) {
+    const cached = seasonCache({ doubanUrl: 'https://movie.douban.com/subject/123456/', doubanId: consistent ? '123456' : '999999', doubanMatchedTitle: '财阀X刑警第2季' });
+    const { helpers, files } = loadHelpers({ initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) } });
+    const show = { id: 'show', title: cached.title, year: 2026, mediaType: '电视剧', regional: '韩国', coverImg: cached.url };
+    await helpers.enrichCoversFromTMDB([show]);
+    const saved = JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show;
+    if (consistent) {
+      assert.equal(show.doubanUrl, cached.doubanUrl);
+      assert.equal(show.doubanId, cached.doubanId);
+      assert.equal(show.doubanMatchedTitle, cached.doubanMatchedTitle);
+    } else {
+      for (const entry of [show, saved]) {
+        assert.equal(entry.doubanUrl, '');
+        assert.equal(Object.hasOwn(entry, 'doubanId'), false);
+        assert.equal(Object.hasOwn(entry, 'doubanMatchedTitle'), false);
+      }
+    }
+  }
+});
+
+test('Douban season evidence from an English subtitle survives the next TMDB cache pass', async () => {
+  const cached = seasonCache({ title: '酒鬼都市女人们第1季', matchedTitle: '酒鬼都市女人们第1季', matchedSeriesTitle: '酒鬼都市女人们', year: 2021, tmdbSeasonNumber: 1, tmdbUrl: 'https://www.themoviedb.org/tv/220074/season/1' });
+  let requests = 0;
+  const { helpers, files } = loadHelpers({
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) },
+    fetchImpl: async url => {
+      requests++;
+      assert.ok(url.includes('movie.douban.com/j/subject_suggest'));
+      return response([{ id: '34849938', title: '酒鬼都市女人们', sub_title: 'Work Later Drink Now Season 1', year: '2021' }]);
+    },
+  });
+  const show = { id: 'show', title: cached.title, year: 2021, mediaType: '电视剧', regional: '韩国', coverImg: cached.url };
+  await helpers.enrichDoubanLinks([show]);
+  assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/34849938/');
+  assert.equal(show.doubanMatchedTitle, '酒鬼都市女人们');
+  assert.equal(show.doubanMatchedSeasonNumber, 1);
+  const count = requests;
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(requests, count);
+  assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/34849938/');
+  assert.equal(JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show.doubanMatchedSeasonNumber, 1);
+});
 
 test('season descriptions use the confirmed season endpoint and never a series Wikipedia fallback', async () => {
   for (const returnedSeason of [2, 1, null]) {

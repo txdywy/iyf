@@ -1118,6 +1118,7 @@
   let _tvmazeCache = null;
   let _tvmazeCachedAt = 0;
   let _tvmazeCachePartial = false;
+  let _tvmazeCacheDate = '';
 
   function getScheduleDateKey(timestamp = Date.now()) {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -1177,14 +1178,18 @@
 
     try {
       let shows = _tvmazeCache;
+      const requestTime = Date.now();
+      const scheduleDate = getScheduleDateKey(requestTime);
       const cacheTTL = _tvmazeCachePartial ? REMOTE_PARTIAL_CACHE_TTL_MS : REMOTE_CACHE_TTL_MS;
-      if (!shows || Date.now() - _tvmazeCachedAt >= cacheTTL) {
+      if (!shows || _tvmazeCacheDate !== scheduleDate || requestTime - _tvmazeCachedAt >= cacheTTL) {
         // 以韩国本地日期为准；今天失败时继续回溯，避免单日故障让整个时间表变空。
         const showMap = new Map();
-        const dates = buildScheduleDateKeys(Date.now());
+        const dates = buildScheduleDateKeys(requestTime);
+        let requestedDays = 0;
         let successfulDays = 0;
         let currentDaySucceeded = false;
         const fetchSchedule = async d => {
+          requestedDays++;
           const response = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`, { signal: controller.signal });
           if (!response.ok) throw new Error(`TVmaze HTTP ${response.status}`);
           const data = await response.json();
@@ -1223,11 +1228,12 @@
         if (!isActiveTabRequest('tvmaze', requestVersion, controller)) return;
         _tvmazeCache = shows;
         _tvmazeCachedAt = Date.now();
-        _tvmazeCachePartial = controller.signal.aborted;
+        _tvmazeCacheDate = scheduleDate;
+        _tvmazeCachePartial = controller.signal.aborted || successfulDays < requestedDays;
       }
 
       if (!completeRemoteTab('tvmaze', requestVersion, controller, shows)) return;
-      const sourceLabel = _tvmazeCachePartial ? 'TVmaze 韩剧时间表（部分日期加载超时，稍后重试）' : 'TVmaze 韩剧时间表';
+      const sourceLabel = _tvmazeCachePartial ? 'TVmaze 韩剧时间表（部分日期暂不可用，稍后重试）' : 'TVmaze 韩剧时间表';
       updateSourceInfo(sourceLabel, new Date(_tvmazeCachedAt).toISOString());
 
       if (!shows.length) {
@@ -1256,7 +1262,7 @@
     const rating = toFiniteNumber(show.rating?.average, NaN);
     const img = safeExternalUrl(show.image?.medium || show.image?.original || '', REMOTE_LINK_HOSTS.tvmazeImage);
     const showUrl = safeExternalUrl(show.url, REMOTE_LINK_HOSTS.tvmaze);
-    const summary = toText(show.summary).replace(/<[^>]+>/g, '').slice(0, 120);
+    const summary = decodeSummaryText(show.summary).slice(0, 120);
     const complete = isShowComplete(show);
     const statusText = complete ? '已完结' : show.status === 'Running' ? '连载中' : '待定/筹备';
     const posterContent = img
@@ -1289,6 +1295,26 @@
           </div>
         </div>
       </article>`;
+  }
+
+  function decodeSummaryText(value) {
+    const entities = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', mdash: '—', ndash: '–', hellip: '…', eacute: 'é' };
+    // 先去标签、再解码实体，最后由卡片按文本上下文转义；编码的标签始终只是文字。
+    let decoder;
+    return toText(value).replace(/<[^>]+>/g, '').replace(/&([a-z][a-z\d]+|#\d+|#x[\da-f]+);/giu, (entity, name) => {
+      if (name[0] !== '#') {
+        if (Object.hasOwn(entities, name)) return entities[name];
+        // 仅解析单个实体 token，输入不含标签，不会创建脚本、图片或请求。
+        decoder ||= document.createElement('textarea');
+        decoder.innerHTML = entity;
+        return decoder.value || entity;
+      }
+      const hexadecimal = name[1].toLowerCase() === 'x';
+      const code = parseInt(name.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+      return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff)
+        ? String.fromCodePoint(code)
+        : entity;
+    });
   }
 
 })();

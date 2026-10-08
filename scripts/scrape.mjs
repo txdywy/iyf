@@ -616,6 +616,7 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
   const candidates = [...liveShows.values()].filter(s =>
     s.mediaType === mediaType &&
     (!regionMatcher || regionMatcher(s)) &&
+    (!seed.regional || !s.regional || seed.regional === s.regional) &&
     titleMatches(seed.title, s.title) &&
     haveCompatibleTitleSeasons(seed.title, s.title) &&
     isYearCompatible(seed, s)
@@ -698,7 +699,7 @@ function loadPreviousShows() {
 const PREVIOUS_STABLE_FIELDS = [
   'coverImg', 'coverSource', 'tmdbCoverPending', 'yfspCoverImg', 'primaryUrl', 'primaryUrlSource', 'url',
   'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'wikidataId',
-  'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'doubanId', 'doubanMatchedTitle', 'linkMatchedTitle',
+  'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'doubanId', 'doubanMatchedTitle', 'doubanMatchedSeasonNumber', 'linkMatchedTitle',
   'description', 'descriptionSource', 'descriptionTmdbSeasonUrl', 'titleAliases',
   'yfspLookupState', 'yfspLookupCheckedAt', 'yfspLookupUrl', 'yfspRefreshCheckedAt',
 ];
@@ -707,6 +708,7 @@ function sameShowIdentity(a, b) {
   if (!a?.title || !b?.title) return false;
   if (a.id && b.id && a.id === b.id) return true;
   if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
+  if (a.regional && b.regional && a.regional !== b.regional) return false;
   if (!titleMatches(a.title, b.title)) return false;
 
   // normalizeTitle 会去掉季号,但续保时不能把不同季合并成一张卡。
@@ -1205,11 +1207,12 @@ async function recalculateExistingData() {
       reconcileShowStatus(show);
       if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
+      if (show.recommendScore < 0) return null;
       if (isFreshAIScore(show, now)) applyAIRecommendationAdjustment(show);
       else clearStaleAIScore(show);
       return show;
     })
-    .filter(show => scoreFn !== scoreKDrama || isEligibleKDrama(show))
+    .filter(show => show && (scoreFn !== scoreKDrama || isEligibleKDrama(show)))
     .sort((a, b) => b.recommendScore - a.recommendScore);
 
   data.koreanDramas = recalculate(data.koreanDramas || [], scoreKDrama);
@@ -1967,10 +1970,12 @@ async function main() {
   const otherDramas = [];
   for (const s of liveShows.values()) {
     if (s.mediaType === '电视剧' && s.regional !== '韩国' && !['恐怖'].includes(s.contentType)) {
-      s.recommendScore = 0;
-      s.category = 'other_drama';
-      attachLinkFields(s, s.yfspUrl || s.url);
-      otherDramas.push(s);
+      const previous = prevShows.otherDramas.find(candidate => sameShowIdentity(candidate, s));
+      const show = reconcileShowStatus(mergePreviousShowState(s, previous));
+      show.recommendScore = 0;
+      show.category = 'other_drama';
+      attachLinkFields(show, show.yfspUrl || show.url);
+      otherDramas.push(show);
     }
   }
   if (!sourceHealthy) {
@@ -2620,7 +2625,9 @@ async function searchDoubanSubject(show) {
         const match = {
           doubanUrl: `${DOUBAN_MOVIE_BASE}/${item.id}/`,
           doubanId: item.id,
-          doubanTitle: item.title || '',
+          // 季身份可能只出现在副标题中，保留实际验证过的名称供缓存复用。
+          doubanTitle: names.find(name => seasonKey(show.title) && seasonKey(name) === seasonKey(show.title) && titleMatches(show.title, name)) || item.title || '',
+          doubanMatchedSeasonNumber: names.map(seasonNumberFromTitle).find(Boolean) || 0,
           doubanYear: item.year || '',
         };
         const itemYear = parseInt(item.year || '', 10);
@@ -2670,10 +2677,12 @@ async function enrichDoubanLinks(shows) {
       show.doubanUrl = found.doubanUrl;
       show.doubanId = found.doubanId;
       show.doubanMatchedTitle = found.doubanTitle;
+      show.doubanMatchedSeasonNumber = found.doubanMatchedSeasonNumber;
       if (cache[show.id] && typeof cache[show.id] === 'object') {
         cache[show.id].doubanUrl = found.doubanUrl;
         cache[show.id].doubanId = found.doubanId;
         cache[show.id].doubanMatchedTitle = found.doubanTitle;
+        cache[show.id].doubanMatchedSeasonNumber = found.doubanMatchedSeasonNumber;
       }
       matched++;
       console.log(`    ✓ ${show.title} → ${found.doubanTitle}`);
@@ -3151,6 +3160,32 @@ function isReusableTMDBCoverCache(cached, show) {
     isTMDBOriginalImageUrl(cached.url);
 }
 
+function resolveDoubanMetadata(show, ...sources) {
+  for (const entry of [show, ...sources]) {
+    if (!entry?.doubanUrl || !entry.doubanMatchedTitle) continue;
+    const url = safeOutputUrl(entry.doubanUrl);
+    const subjectId = url.match(/^https:\/\/movie\.douban\.com\/subject\/(\d+)\/?(?:[?#]|$)/u)?.[1];
+    const expectedSeason = seasonKey(show.title);
+    const matchedSeasonNumber = seasonNumberFromTitle(entry.doubanMatchedTitle) || Number(entry.doubanMatchedSeasonNumber) || 0;
+    if (subjectId && subjectId === safeText(entry.doubanId, 100) &&
+        titleMatches(show.title, entry.doubanMatchedTitle) &&
+        haveCompatibleTitleSeasons(show.title, entry.doubanMatchedTitle) &&
+        (!expectedSeason || matchedSeasonNumber === seasonNumberFromTitle(show.title))) {
+      return { doubanUrl: url, doubanId: entry.doubanId, doubanMatchedTitle: entry.doubanMatchedTitle, doubanMatchedSeasonNumber: matchedSeasonNumber };
+    }
+  }
+  // 系列 Wikidata 的豆瓣 ID 不证明某一季；旧季缓存也必须具备独立的条目证据。
+  return { doubanUrl: seasonKey(show.title) ? '' : sources.map(entry => safeOutputUrl(entry?.doubanUrl)).find(Boolean) || '' };
+}
+
+function applyDoubanMetadata(show, metadata) {
+  show.doubanUrl = metadata.doubanUrl;
+  for (const field of ['doubanId', 'doubanMatchedTitle', 'doubanMatchedSeasonNumber']) {
+    if (Object.hasOwn(metadata, field)) show[field] = metadata[field];
+    else delete show[field];
+  }
+}
+
 function findReusableTMDBCache(cache, show) {
   const directCandidates = [
     cache?.[show.id],
@@ -3427,6 +3462,7 @@ function clearRejectedTMDBSeriesReferences(show, seriesId, cacheEntry) {
   if (rejectedExternalFields.has('doubanUrl')) {
     delete show.doubanId;
     delete show.doubanMatchedTitle;
+    delete show.doubanMatchedSeasonNumber;
   }
   if (rejectedTMDBDescription || rejectedExternalFields.has(`${show.descriptionSource}Url`)) {
     const fallback = show._seasonDescriptionFallback;
@@ -3567,6 +3603,7 @@ async function lookupTMDBSeasonById(show, seriesId, matchedSeriesTitle) {
     url: `${TMDB_IMG_BASE}${posterPath}`,
     tmdbUrl: `${TMDB_WEB_BASE}/tv/${seriesId}/season/${seasonNumber}`,
     ...external,
+    doubanUrl: '',
     matchedTitle: `${stripSeasonSuffix(matchedSeriesTitle)}${matchedSeasonTitle}`,
     matchedSeriesTitle: stripSeasonSuffix(matchedSeriesTitle),
     tmdbId: Number(seriesId),
@@ -3672,7 +3709,8 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
         // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
         for (const r of (data.results || [])) {
           if (rejectedSeasonIds.has(Number(r.id))) continue;
-          if (!r.poster_path) continue;
+          // 季海报可能存在而系列海报为空，先解析匹配的 season 再判断封面。
+          if (!expectedSeasonNumber && !r.poster_path) continue;
           if (!isTMDBResultRegionCompatible(show, r)) continue;
           const names = [r.title, r.original_title, r.name, r.original_name].filter(Boolean);
           const expected = [...titleCandidates(show.title), enTitle, query].filter(Boolean);
@@ -3745,7 +3783,9 @@ async function enrichCoversFromTMDB(shows) {
       show.coverImg = cached.url;
       show.coverSource = 'tmdb';
       show.tmdbUrl = cached.tmdbUrl || show.tmdbUrl || '';
-      show.doubanUrl = cached.doubanUrl || show.doubanUrl || '';
+      const douban = resolveDoubanMetadata(show, cached, show);
+      applyDoubanMetadata(show, douban);
+      applyDoubanMetadata(cached, douban);
       show.wikipediaUrl = cached.wikipediaUrl || show.wikipediaUrl || '';
       show.imdbUrl = cached.imdbUrl || show.imdbUrl || '';
       show.wikidataId = cached.wikidataId || show.wikidataId || '';
@@ -3794,6 +3834,7 @@ async function enrichCoversFromTMDB(shows) {
   });
 
   if (toFetch.length === 0) {
+    saveImageCache(cache);
     console.log('  所有节目已有 TMDB 封面缓存');
     return;
   }
@@ -3810,7 +3851,7 @@ async function enrichCoversFromTMDB(shows) {
       const showMatchesEntity = show.tmdbId && show.tmdbId === img.tmdbId;
       // 明确证伪后仍留下的独立来源不能因新实体缺少 external_ids 再被清空。
       const canRetainShowMetadata = showMatchesEntity || img.replacedRejectedSeries;
-      const doubanUrl = img.doubanUrl || (cacheMatchesEntity ? previousMetadata.doubanUrl : '') || (canRetainShowMetadata ? show.doubanUrl : '') || '';
+      const douban = resolveDoubanMetadata(show, img, cacheMatchesEntity ? previousMetadata : null, canRetainShowMetadata ? show : null);
       const wikipediaUrl = img.wikipediaUrl || (cacheMatchesEntity ? previousMetadata.wikipediaUrl : '') || (canRetainShowMetadata ? show.wikipediaUrl : '') || '';
       const imdbUrl = img.imdbUrl || (cacheMatchesEntity ? previousMetadata.imdbUrl : '') || (canRetainShowMetadata ? show.imdbUrl : '') || '';
       const wikidataId = img.wikidataId || (cacheMatchesEntity ? previousMetadata.wikidataId : '') || (canRetainShowMetadata ? show.wikidataId : '') || '';
@@ -3829,7 +3870,7 @@ async function enrichCoversFromTMDB(shows) {
         ...(img.tmdbSeriesId ? { tmdbSeriesId: img.tmdbSeriesId } : {}),
         ...(img.tmdbSeasonId ? { tmdbSeasonId: img.tmdbSeasonId } : {}),
         ...(img.tmdbSeasonNumber ? { tmdbSeasonNumber: img.tmdbSeasonNumber } : {}),
-        doubanUrl,
+        ...douban,
         wikipediaUrl,
         imdbUrl,
         wikidataId,
@@ -3841,7 +3882,7 @@ async function enrichCoversFromTMDB(shows) {
       if (img.tmdbId) show.tmdbId = img.tmdbId;
       if (img.tmdbSeriesId) show.tmdbSeriesId = img.tmdbSeriesId;
       if (img.tmdbSeasonNumber) show.tmdbSeasonNumber = img.tmdbSeasonNumber;
-      show.doubanUrl = doubanUrl;
+      applyDoubanMetadata(show, douban);
       show.wikipediaUrl = wikipediaUrl;
       show.imdbUrl = imdbUrl;
       show.wikidataId = wikidataId;

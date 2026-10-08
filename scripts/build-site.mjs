@@ -2,44 +2,13 @@
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveBuildOutput } from './build-output-path.mjs';
 
 const root = realpathSync(join(dirname(fileURLToPath(import.meta.url)), '..'));
-const args = process.argv.slice(2);
-if (args.length && (args.length !== 2 || args[0] !== '--output' || !args[1])) {
-  throw new Error('Usage: node scripts/build-site.mjs [--output directory]');
-}
-const output = resolve(args[1] || join(root, 'site'));
-function resolveExistingAncestor(path) {
-  let ancestor = path;
-  while (!existsSync(ancestor)) ancestor = dirname(ancestor);
-  return resolve(realpathSync(ancestor), relative(ancestor, path));
-}
-
-const protectedDirectories = new Set(['.git', '.github', '.agents', '.codex', 'data', 'scripts', 'css', 'js']);
-// 输出尚不存在时，也要解析其父目录的别名；/tmp 等系统别名可正常使用。
-for (const path of [output, resolveExistingAncestor(output)]) {
-  const toRoot = relative(path, root);
-  const fromRoot = relative(root, path).split(sep)[0];
-  if ((!toRoot.startsWith(`..${sep}`) && toRoot !== '..') || protectedDirectories.has(fromRoot)) {
-    throw new Error('Build output must not overwrite the repository or its source directories');
-  }
-}
-
-function pathIdentity(path) {
-  const { dev, ino } = statSync(path);
-  return `${dev}:${ino}`;
-}
-// macOS 的 realpath 可能保留别名大小写，源码目录也要按实际 inode 识别。
-const protectedIdentities = new Set([...protectedDirectories].map(directory => join(root, directory)).filter(existsSync).map(pathIdentity));
-for (let ancestor = output; ; ancestor = dirname(ancestor)) {
-  if (existsSync(ancestor) && protectedIdentities.has(pathIdentity(ancestor))) {
-    throw new Error('Build output must not overwrite the repository or its source directories');
-  }
-  if (dirname(ancestor) === ancestor) break;
-}
+const output = resolveBuildOutput(root, process.argv.slice(2), 'site', 'build-site.mjs');
 
 const files = new Set(['index.html', '404.html', '_headers', 'robots.txt', 'css/style.css', 'js/app.js', 'data/shows.json']);
 const directories = new Set(['css', 'js', 'data']);

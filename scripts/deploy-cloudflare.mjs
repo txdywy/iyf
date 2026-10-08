@@ -45,7 +45,9 @@ export async function deployCloudflare({
   while (now() < deadline) {
     const matches = await Promise.all(productionOrigins.flatMap(origin => expected.map(async item => {
       try {
-        const response = await fetchImpl(`${origin}${item.path}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
+        const remaining = deadline - now();
+        if (remaining <= 0) return false;
+        const response = await fetchImpl(`${origin}${item.path}`, { signal: AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining))), cache: 'no-store' });
         if (response.status !== item.status || hash(await response.text()) !== item.digest) return false;
         if (item.file === 'index.html') {
           if (response.headers.get('x-content-type-options') !== 'nosniff'
@@ -57,6 +59,7 @@ export async function deployCloudflare({
         return true;
       } catch { return false; }
     })));
+    if (now() >= deadline) break;
     if (matches.every(Boolean)) {
       log(`Cloudflare production matches the validated artifact (lastUpdated: ${lastUpdated}).`);
       return { lastUpdated, files: expected.length, origin: pagesOrigin, verifiedOrigins: [...productionOrigins] };

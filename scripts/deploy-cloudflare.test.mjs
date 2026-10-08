@@ -232,6 +232,33 @@ test('Cloudflare deployment times out with stale files and bounds the final poll
   assert.ok(h.logs.every(message => !message.includes(HOOK_URL)));
 });
 
+test('Cloudflare deployment cannot report success after matching requests exceed the polling deadline', async t => {
+  const h = createHarness(t);
+  let elapsed = 0;
+  const result = h.run({
+    timeoutMs: 10,
+    now: () => elapsed,
+    fetchImpl: async (address, options) => {
+      if (options.method === 'POST') return new Response('{"success":true}');
+      const url = new URL(address);
+      const file = h.routes.get(url.pathname + url.search);
+      const response = new Response(h.files.get(file), {
+        status: file === '404.html' ? 404 : 200,
+        headers: {
+          'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY',
+          'content-security-policy': "frame-ancestors 'none'", 'cache-control': 'no-cache',
+        },
+      });
+      const read = response.text.bind(response);
+      response.text = async () => { elapsed = 100; return read(); };
+      return response;
+    },
+  });
+  await assert.rejects(result, /deployment timeout/);
+  assert.ok(h.logs.every(message => !message.includes('production matches')));
+  assert.deepEqual(h.waits, []);
+});
+
 test('Cloudflare deployment cannot succeed while only the Pages domain is healthy', async t => {
   const h = createHarness(t, {
     publicReply: ({ origin }) => origin === CANONICAL_ORIGIN ? { status: 503, body: 'Domain unavailable' } : {},
