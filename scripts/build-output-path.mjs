@@ -22,9 +22,13 @@ export function resolveBuildOutput(root, args, defaultPath, command) {
   if (args.length && (args.length !== 2 || args[0] !== '--output' || !args[1])) {
     throw new Error(`Usage: node scripts/${command} [--output path]`);
   }
+  return assertBuildOutputPath(root, resolve(args[1] || join(root, defaultPath)));
+}
+
+export function assertBuildOutputPath(root, output) {
   root = realpathSync(root);
   const protectedEntries = new Set([...PROTECTED_ENTRIES, ...readdirSync(root).filter(entry => entry.startsWith('.env.'))]);
-  const output = resolve(args[1] || join(root, defaultPath));
+  output = resolve(output);
   // 父目录的符号链接和系统别名也参与保护，未创建的输出不能绕过来源路径检查。
   for (const path of [output, resolveExistingAncestor(output)]) {
     const toRoot = relative(path, root);

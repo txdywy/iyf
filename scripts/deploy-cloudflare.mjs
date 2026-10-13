@@ -35,16 +35,23 @@ export async function deployCloudflare({
   now = Date.now, timeoutMs = 600_000, pollIntervalMs = 10_000, log = console.log,
 } = {}) {
   const hook = validateHook(hookUrl);
-  const read = file => readFileSync(resolve(outputRoot, file), 'utf8');
-  const index = read('index.html');
-  const assetUrls = new Map([...index.matchAll(/(?:href|src)="((css\/style\.css|js\/app\.js)\?v=[a-f0-9]+)"/g)].map(m => [m[2], `/${m[1]}`]));
+  const read = file => readFileSync(resolve(outputRoot, file));
+  const index = read('index.html').toString('utf8');
+  const assetUrls = new Map([...index.matchAll(/(?:href|src)="((css\/style|js\/app)\.([a-f0-9]{12})\.(css|js))"/g)]
+    .map(m => [`${m[2]}.${m[4]}`, `/${m[1]}`]));
   if (assetUrls.size !== 2) throw new Error('Validated artifact is missing versioned CSS/JS URLs');
+  for (const [file, path] of assetUrls) {
+    if (!['css/style.css', 'js/app.js'].includes(file) ||
+      !path.includes(`.${hash(read(path.slice(1))).slice(0, 12)}.`)) {
+      throw new Error('Validated artifact asset filename does not match its contents');
+    }
+  }
   const expected = ['index.html', 'css/style.css', 'js/app.js', 'data/shows.json', 'robots.txt', '404.html'].map(file => ({
-    file, digest: hash(read(file)),
+    file, digest: hash(read(assetUrls.get(file)?.slice(1) || file)),
     path: file === 'index.html' ? '/' : file === '404.html' ? '/__deployment_404_check__' : assetUrls.get(file) || `/${file}`,
     status: file === '404.html' ? 404 : 200,
   }));
-  const lastUpdated = JSON.parse(read('data/shows.json')).lastUpdated;
+  const lastUpdated = JSON.parse(read('data/shows.json').toString('utf8')).lastUpdated;
   let trigger;
   try { trigger = await fetchImpl(hook, { method: 'POST', signal: AbortSignal.timeout(25_000) }); }
   catch { throw new Error('Cloudflare deployment trigger could not be reached'); }
@@ -57,7 +64,8 @@ export async function deployCloudflare({
   let lastFailures = ['verification deadline expired before a complete polling round'];
   let previousFailureSummary = '';
   while (now() < deadline) {
-    const checks = await Promise.all(productionOrigins.flatMap(origin => expected.map(async item => {
+    const readyOrigins = new Set();
+    const check = async (origin, item) => {
       const label = `${origin} ${item.file}`;
       let signal;
       try {
@@ -66,8 +74,9 @@ export async function deployCloudflare({
         signal = AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining)));
         const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store' });
         if (response.status !== item.status) return `${label}: HTTP ${response.status} (expected ${item.status})`;
-        const digest = hash(await response.text());
+        const digest = hash(Buffer.from(await response.arrayBuffer()));
         if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
+        if (item.file === 'index.html') readyOrigins.add(origin);
         const failedHeaders = [];
         if (item.file === 'index.html') {
           if (response.headers.get('x-content-type-options') !== 'nosniff') failedHeaders.push('x-content-type-options');
@@ -78,7 +87,14 @@ export async function deployCloudflare({
           && !response.headers.get('cache-control')?.includes('no-cache')) failedHeaders.push('cache-control');
         return failedHeaders.length ? `${label}: missing or invalid headers (${failedHeaders.join(', ')})` : null;
       } catch (error) { return `${label}: ${requestFailure(error, signal)}`; }
-    })));
+    };
+    // 先确认两个域名的首页都已切到本次版本，避免在旧部署上提前请求未来的资源地址。
+    const homepage = expected.find(item => item.file === 'index.html');
+    const homeChecks = await Promise.all(productionOrigins.map(origin => check(origin, homepage)));
+    const checks = readyOrigins.size !== productionOrigins.length ? homeChecks : [
+      ...homeChecks,
+      ...await Promise.all(productionOrigins.flatMap(origin => expected.filter(item => item !== homepage).map(item => check(origin, item)))),
+    ];
     lastFailures = checks.filter(Boolean);
     if (now() >= deadline) {
       if (!lastFailures.length) lastFailures = ['matching files arrived after the verification deadline'];

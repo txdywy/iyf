@@ -28,11 +28,11 @@ function createHarness(t, {
     ['robots.txt', 'User-agent: *\nAllow: /\nDisallow: /data/\n'],
     ['404.html', '<!doctype html><title>页面未找到</title><a href="/">返回首页</a>\n'],
   ]);
-  const cssPath = `/css/style.css?v=${digest(files.get('css/style.css'))}`;
-  const jsPath = `/js/app.js?v=${digest(files.get('js/app.js'))}`;
+  const cssPath = `/css/style.${digest(files.get('css/style.css'))}.css`;
+  const jsPath = `/js/app.${digest(files.get('js/app.js'))}.js`;
   files.set('index.html', `<!doctype html><link href="${cssPath.slice(1)}" rel="stylesheet"><script src="${jsPath.slice(1)}"></script>\n`);
   for (const [file, body] of files) {
-    const path = join(outputRoot, file);
+    const path = join(outputRoot, file === 'css/style.css' ? cssPath.slice(1) : file === 'js/app.js' ? jsPath.slice(1) : file);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, body);
   }
@@ -152,6 +152,32 @@ test('Cloudflare deployment refuses an artifact with unversioned assets before t
   assert.equal(h.calls.length, 0);
 });
 
+test('Cloudflare deployment rejects query-only versions and filename/content mismatches before triggering', async t => {
+  const h = createHarness(t);
+  const cssPath = [...h.routes.keys()].find(path => path.startsWith('/css/'));
+  writeFileSync(join(h.outputRoot, cssPath.slice(1)), 'unexpected asset bytes');
+  await assert.rejects(h.run(), /asset filename does not match its contents/);
+  writeFileSync(join(h.outputRoot, 'index.html'), '<link href="css/style.css?v=123456789abc"><script src="js/app.js?v=123456789abc"></script>');
+  await assert.rejects(h.run(), /missing versioned CSS\/JS URLs/);
+  assert.equal(h.calls.length, 0);
+});
+
+test('Cloudflare deployment never requests future assets while either homepage still serves the old build', async t => {
+  let prematureAssetRequest = false;
+  const h = createHarness(t, {
+    timeoutMs: 100,
+    publicReply: ({ origin, file, poll, body }) => {
+      if (file === 'index.html' && origin === CANONICAL_ORIGIN && poll < 2) return { body: `${body}\nold build` };
+      if (['css/style.css', 'js/app.js'].includes(file) && poll < 2) prematureAssetRequest = true;
+      if (prematureAssetRequest && ['css/style.css', 'js/app.js'].includes(file)) return { body: 'poisoned edge cache' };
+    },
+  });
+  assert.equal((await h.run()).files, 6);
+  assert.equal(prematureAssetRequest, false);
+  assert.deepEqual(h.waits, [10, 10]);
+  assert.equal(h.calls.length, 1 + 2 * 2 + 12);
+});
+
 test('Cloudflare deployment waits until data and both assets match in the same poll', async t => {
   const h = createHarness(t, {
     timeoutMs: 100,
@@ -249,8 +275,8 @@ test('Cloudflare deployment cannot report success after matching requests exceed
           'content-security-policy': "frame-ancestors 'none'", 'cache-control': 'no-cache',
         },
       });
-      const read = response.text.bind(response);
-      response.text = async () => { elapsed = 100; return read(); };
+      const read = response.arrayBuffer.bind(response);
+      response.arrayBuffer = async () => { elapsed = 100; return read(); };
       return response;
     },
   });
@@ -358,4 +384,13 @@ test('Cloudflare deployment distinguishes request timeouts without leaking their
   });
   await assert.rejects(h.run(), /css\/style\.css: request timed out/);
   assert.ok(!h.logs.some(message => message.includes(HOOK_URL)));
+});
+
+test('Cloudflare deployment compares exact bytes even when text decoding would hide a BOM', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ file, body }) => file === 'css/style.css'
+      ? { body: Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(body)]) } : {},
+  });
+  await assert.rejects(h.run(), /css\/style\.css: content hash mismatch/);
+  assert.ok(!h.logs.some(message => message.includes('production matches')));
 });

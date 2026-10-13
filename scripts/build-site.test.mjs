@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const build = (output, sourceRoot = root) => spawnSync(process.execPath, [join(sourceRoot, 'scripts/build-site.mjs'), '--output', output], { cwd: sourceRoot, encoding: 'utf8', timeout: 15000 });
 const read = path => readFileSync(path, 'utf8');
+const assetPath = (sourceRoot, path) => path.replace(/\.(css|js)$/u, `.${createHash('sha256').update(readFileSync(join(sourceRoot, path))).digest('hex').slice(0, 12)}.$1`);
 
 // 保留真实构建脚本和资产，仅刷新隔离副本的快照时间，避免陈旧数据挡住抓取前的测试。
 function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, 'data/shows.json')))) {
@@ -102,14 +103,16 @@ test('the real deployment build is repeatable and publishes only validated publi
     }
     const paths = readdirSync(output, { recursive: true, withFileTypes: true })
       .filter(entry => entry.isFile()).map(entry => join(entry.parentPath, entry.name).slice(output.length + 1)).sort();
-    assert.deepEqual(paths, ['404.html', '_headers', 'css/style.css', 'data/shows.json', 'index.html', 'js/app.js', 'robots.txt']);
+    assert.deepEqual(paths, ['404.html', '_headers', assetPath(sourceRoot, 'css/style.css'), 'data/shows.json', 'index.html', assetPath(sourceRoot, 'js/app.js'), 'robots.txt']);
     for (const [path, attribute] of [['css/style.css', 'href'], ['js/app.js', 'src']]) {
-      const source = readFileSync(join(root, path));
-      assert.deepEqual(readFileSync(join(output, path)), source);
-      const hash = createHash('sha256').update(source).digest('hex').slice(0, 12);
-      assert.ok(read(join(output, 'index.html')).includes(`${attribute}="${path}?v=${hash}"`));
-      if (attribute === 'href') assert.ok(read(join(output, '404.html')).includes(`href="/${path}?v=${hash}"`));
+      const source = readFileSync(join(sourceRoot, path));
+      const versionedPath = assetPath(sourceRoot, path);
+      assert.deepEqual(readFileSync(join(output, versionedPath)), source);
+      assert.ok(read(join(output, 'index.html')).includes(`${attribute}="${versionedPath}"`));
+      if (attribute === 'href') assert.ok(read(join(output, '404.html')).includes(`href="/${versionedPath}"`));
+      assert.equal(existsSync(join(output, path)), false, 'unversioned assets must not be published');
     }
+    assert.doesNotMatch(read(join(output, 'index.html')) + read(join(output, '404.html')), /\?v=/u);
     const source = JSON.parse(read(join(sourceRoot, 'data/shows.json')));
     const published = JSON.parse(read(join(output, 'data/shows.json')));
     assert.equal(published.lastUpdated, source.lastUpdated);
@@ -120,6 +123,83 @@ test('the real deployment build is repeatable and publishes only validated publi
     assert.match(read(join(output, '404.html')), /href="\/">返回推荐首页/);
   } finally {
     rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('rebuilding replaces only obsolete owned assets and migrates legacy stable asset paths', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-asset-cleanup-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'));
+  const output = join(temporary, 'site');
+  assert.equal(build(output, sourceRoot).status, 0);
+  const oldAssets = ['css/style.css', 'js/app.js'].map(path => assetPath(sourceRoot, path));
+  for (const path of ['css/style.css', 'js/app.js']) {
+    writeFileSync(join(output, path), 'legacy output');
+    writeFileSync(join(sourceRoot, path), `${read(join(sourceRoot, path))}\n/* changed asset */\n`);
+  }
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = build(output, sourceRoot);
+    assert.equal(result.status, 0, result.stderr);
+    const paths = readdirSync(output, { recursive: true, withFileTypes: true }).filter(entry => entry.isFile());
+    assert.equal(paths.length, 7);
+    for (const oldPath of oldAssets) assert.equal(existsSync(join(output, oldPath)), false);
+    for (const path of ['css/style.css', 'js/app.js']) {
+      const current = assetPath(sourceRoot, path);
+      assert.equal(existsSync(join(output, path)), false);
+      assert.deepEqual(readFileSync(join(output, current)), readFileSync(join(sourceRoot, path)));
+      assert.ok(read(join(output, 'index.html')).includes(current));
+    }
+    assert.ok(read(join(output, '404.html')).includes(`href="/${assetPath(sourceRoot, 'css/style.css')}"`));
+  }
+});
+
+test('standalone index generation uses the same hashed asset filenames as the full build', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-index-assets-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'));
+  const output = join(temporary, 'index.html');
+  const result = spawnSync(process.execPath, [join(sourceRoot, 'scripts/build-site-index.mjs'), '--output', output], { cwd: sourceRoot, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  for (const path of ['css/style.css', 'js/app.js']) assert.ok(read(output).includes(assetPath(sourceRoot, path)));
+  assert.doesNotMatch(read(output), /\?v=/u);
+});
+
+for (const path of ['css/style.deadbeefcafe.css', 'js/app.deadbeefcafe.js', 'css/style.css', 'js/app.js']) {
+  for (const kind of ['symbolic', 'hard']) {
+    test(`obsolete ${kind}-linked asset ${path} is rejected before any cleanup or build write`, t => {
+      const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-old-linked-'));
+      t.after(() => rmSync(temporary, { recursive: true, force: true }));
+      const sourceRoot = createBuildFixture(join(temporary, 'source'));
+      const output = join(temporary, 'site');
+      const target = join(output, path);
+      const originalPath = join(sourceRoot, 'data/shows.json');
+      const original = read(originalPath);
+      mkdirSync(dirname(target), { recursive: true });
+      if (kind === 'symbolic') symlinkSync(originalPath, target);
+      else linkSync(originalPath, target);
+      const result = build(output, sourceRoot);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /symbolic link|hard-linked|Unexpected file/u);
+      assert.equal(read(originalPath), original);
+      assert.equal(read(target), original, 'rejection must preserve the linked output entry');
+      assert.equal(existsSync(join(output, 'index.html')), false);
+    });
+  }
+}
+
+test('asset cleanup never permits unknown files with similar versioned names', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-unknown-asset-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'));
+  for (const path of ['css/style.deadbeefcafe.css.map', 'css/private.deadbeefcafe.css', 'js/app.invalid.js']) {
+    const output = join(temporary, path.replaceAll('/', '-'));
+    mkdirSync(dirname(join(output, path)), { recursive: true });
+    writeFileSync(join(output, path), 'do not publish or delete');
+    const result = build(output, sourceRoot);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Unexpected file in deployment output/u);
+    assert.equal(read(join(output, path)), 'do not publish or delete');
+    assert.equal(existsSync(join(output, 'index.html')), false);
   }
 });
 
