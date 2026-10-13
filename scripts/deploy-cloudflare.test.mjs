@@ -288,3 +288,74 @@ test('Cloudflare deployment rejects a custom-domain TLS or network failure', asy
   await assert.rejects(h.run(), /deployment timeout/);
   assert.ok(!h.logs.some(message => message.includes('production matches')));
 });
+
+test('Cloudflare deployment identifies stale file hashes without repeating unchanged diagnostics', async t => {
+  const h = createHarness(t, { publicReply: ({ file }) => file === 'data/shows.json' ? { body: '{}' } : {} });
+  await assert.rejects(h.run(), error => {
+    for (const origin of VERIFIED_ORIGINS) assert.ok(error.message.includes(`${origin} data/shows.json: content hash mismatch`));
+    assert.ok(error.message.includes(`expected ${digest(h.files.get('data/shows.json'))}`));
+    assert.ok(error.message.includes(`received ${digest('{}')}`));
+    return true;
+  });
+  assert.equal(h.logs.filter(message => message.startsWith('Cloudflare verification pending:')).length, 1);
+  assert.deepEqual(h.waits, [10, 10, 5]);
+});
+
+test('Cloudflare deployment reports HTTP statuses and all failed header names without exposing response contents', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ origin, file, headers }) => {
+      if (origin !== CANONICAL_ORIGIN) return {};
+      if (file === 'robots.txt') return { status: 503, body: HOOK_URL };
+      if (file !== 'index.html') return {};
+      return { headers: Object.fromEntries(Object.keys(headers).map(name => [name, HOOK_URL])) };
+    },
+  });
+  await assert.rejects(h.run(), error => {
+    assert.ok(error.message.includes(`${CANONICAL_ORIGIN} robots.txt: HTTP 503 (expected 200)`));
+    for (const name of ['x-content-type-options', 'x-frame-options', 'content-security-policy', 'cache-control']) {
+      assert.ok(error.message.includes(name), error.message);
+    }
+    assert.ok(!error.message.includes(HOOK_URL));
+    return true;
+  });
+  assert.ok(!h.logs.some(message => message.includes(HOOK_URL)));
+});
+
+test('Cloudflare deployment records changed failures and includes only the latest differences at timeout', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ file, poll }) => file === 'data/shows.json'
+      ? poll === 0 ? { body: '{}' } : { status: 503 } : {},
+  });
+  await assert.rejects(h.run(), error => {
+    assert.match(error.message, /data\/shows\.json: HTTP 503 \(expected 200\)/);
+    assert.doesNotMatch(error.message, /content hash mismatch/);
+    return true;
+  });
+  assert.equal(h.logs.filter(message => message.startsWith('Cloudflare verification pending:')).length, 2);
+});
+
+test('Cloudflare network diagnostics redact raw errors and include only known transport codes', async t => {
+  for (const code of ['ENOTFOUND', HOOK_URL]) {
+    const cause = Object.assign(new Error(`sensitive cause ${HOOK_URL}`), { code });
+    const error = new Error(`sensitive request ${HOOK_URL}`, { cause });
+    const h = createHarness(t, {
+      publicReply: ({ origin, file }) => origin === CANONICAL_ORIGIN && file === 'js/app.js' ? { error } : {},
+    });
+    await assert.rejects(h.run(), rejection => {
+      assert.ok(rejection.message.includes(`${CANONICAL_ORIGIN} js/app.js: request failed`));
+      assert.equal(rejection.message.includes('(ENOTFOUND)'), code === 'ENOTFOUND');
+      assert.equal(rejection.cause, undefined);
+      assert.doesNotMatch(`${rejection.message}\n${h.logs.join('\n')}`, /sensitive|unit-test-secret-token|deploy_hooks/);
+      return true;
+    });
+  }
+});
+
+test('Cloudflare deployment distinguishes request timeouts without leaking their error messages', async t => {
+  const error = Object.assign(new Error(HOOK_URL), { name: 'TimeoutError' });
+  const h = createHarness(t, {
+    publicReply: ({ file }) => file === 'css/style.css' ? { error } : {},
+  });
+  await assert.rejects(h.run(), /css\/style\.css: request timed out/);
+  assert.ok(!h.logs.some(message => message.includes(HOOK_URL)));
+});

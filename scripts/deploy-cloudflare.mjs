@@ -6,6 +6,18 @@ import { fileURLToPath } from 'node:url';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const pagesOrigin = 'https://iyf-5l7.pages.dev';
 const productionOrigins = [pagesOrigin, 'https://iyf.hackx64.eu.org'];
+const TRANSPORT_ERROR_CODES = new Set([
+  'ENOTFOUND', 'EAI_AGAIN', 'ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH',
+  'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_HEADERS_TIMEOUT', 'UND_ERR_BODY_TIMEOUT',
+  'CERT_HAS_EXPIRED', 'ERR_TLS_CERT_ALTNAME_INVALID', 'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+  'DEPTH_ZERO_SELF_SIGNED_CERT', 'SELF_SIGNED_CERT_IN_CHAIN', 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+]);
+
+function requestFailure(error, signal) {
+  if (signal?.aborted || error?.name === 'TimeoutError' || error?.name === 'AbortError') return 'request timed out';
+  const code = error?.cause?.code ?? error?.code;
+  return `request failed${TRANSPORT_ERROR_CODES.has(code) ? ` (${code})` : ''}`;
+}
 
 function validateHook(value) {
   let url;
@@ -42,31 +54,49 @@ export async function deployCloudflare({
   log('Cloudflare build requested; waiting for the published files to match the validated artifact.');
 
   const deadline = now() + timeoutMs;
+  let lastFailures = ['verification deadline expired before a complete polling round'];
+  let previousFailureSummary = '';
   while (now() < deadline) {
-    const matches = await Promise.all(productionOrigins.flatMap(origin => expected.map(async item => {
+    const checks = await Promise.all(productionOrigins.flatMap(origin => expected.map(async item => {
+      const label = `${origin} ${item.file}`;
+      let signal;
       try {
         const remaining = deadline - now();
-        if (remaining <= 0) return false;
-        const response = await fetchImpl(`${origin}${item.path}`, { signal: AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining))), cache: 'no-store' });
-        if (response.status !== item.status || hash(await response.text()) !== item.digest) return false;
+        if (remaining <= 0) return `${label}: verification deadline expired`;
+        signal = AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining)));
+        const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store' });
+        if (response.status !== item.status) return `${label}: HTTP ${response.status} (expected ${item.status})`;
+        const digest = hash(await response.text());
+        if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
+        const failedHeaders = [];
         if (item.file === 'index.html') {
-          if (response.headers.get('x-content-type-options') !== 'nosniff'
-            || response.headers.get('x-frame-options') !== 'DENY'
-            || !response.headers.get('content-security-policy')?.includes("frame-ancestors 'none'")) return false;
+          if (response.headers.get('x-content-type-options') !== 'nosniff') failedHeaders.push('x-content-type-options');
+          if (response.headers.get('x-frame-options') !== 'DENY') failedHeaders.push('x-frame-options');
+          if (!response.headers.get('content-security-policy')?.includes("frame-ancestors 'none'")) failedHeaders.push('content-security-policy');
         }
         if (['index.html', 'data/shows.json'].includes(item.file)
-          && !response.headers.get('cache-control')?.includes('no-cache')) return false;
-        return true;
-      } catch { return false; }
+          && !response.headers.get('cache-control')?.includes('no-cache')) failedHeaders.push('cache-control');
+        return failedHeaders.length ? `${label}: missing or invalid headers (${failedHeaders.join(', ')})` : null;
+      } catch (error) { return `${label}: ${requestFailure(error, signal)}`; }
     })));
-    if (now() >= deadline) break;
-    if (matches.every(Boolean)) {
+    lastFailures = checks.filter(Boolean);
+    if (now() >= deadline) {
+      if (!lastFailures.length) lastFailures = ['matching files arrived after the verification deadline'];
+      break;
+    }
+    if (!lastFailures.length) {
       log(`Cloudflare production matches the validated artifact (lastUpdated: ${lastUpdated}).`);
       return { lastUpdated, files: expected.length, origin: pagesOrigin, verifiedOrigins: [...productionOrigins] };
     }
+    // 仅记录受控状态、摘要和头名称；正文、头值与原始异常可能包含凭据。
+    const summary = lastFailures.join('; ');
+    if (summary !== previousFailureSummary) {
+      log(`Cloudflare verification pending: ${summary}`);
+      previousFailureSummary = summary;
+    }
     await delay(Math.min(pollIntervalMs, Math.max(0, deadline - now())));
   }
-  throw new Error(`Cloudflare production did not match the validated artifact before the deployment timeout (${productionOrigins.join(', ')})`);
+  throw new Error(`Cloudflare production did not match the validated artifact before the deployment timeout (${productionOrigins.join(', ')}). Last verification differences: ${lastFailures.join('; ')}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

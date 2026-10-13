@@ -38,6 +38,8 @@
   const TVMAZE_TIME_ZONE = 'Asia/Seoul';
   let allData = null;
   let _dataLoadFailed = false;
+  let _dataLoadNotice = '';
+  let _dataRequestVersion = 0;
   let currentShows = [];
   let activeTabName = 'korean';
   const _tabSortPreferences = new Map();
@@ -73,25 +75,30 @@
   }
 
   async function loadData() {
+    const requestVersion = ++_dataRequestVersion;
     const cached = readCachedData();
     const renderedFromCache = Boolean(cached);
+    _dataLoadFailed = false;
+    _dataLoadNotice = cached ? ' · 正在后台更新' : '';
 
     if (cached) {
       allData = cached.data;
       updateYearTabLabels();
       if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
-      if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 正在后台更新');
+      if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
     } else if (!REMOTE_TAB_LABELS[activeTabName]) {
-      renderSkeletons();
+      showDataLoading();
     }
 
     try {
       // 保持稳定 URL，让浏览器用 ETag/Last-Modified 做条件请求。
       const data = await fetchJSONWithTimeout(DATA_URL, { cache: 'no-cache' }, DATA_REQUEST_TIMEOUT_MS);
+      if (requestVersion !== _dataRequestVersion) return;
       if (!isShowDataset(data)) throw new Error('Invalid show data');
       const unchanged = allData && JSON.stringify(data) === JSON.stringify(allData);
       allData = data;
       _dataLoadFailed = false;
+      _dataLoadNotice = '';
       saveDataCache(data);
       updateYearTabLabels();
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
@@ -106,8 +113,10 @@
         switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
       }
     } catch (e) {
+      if (requestVersion !== _dataRequestVersion) return;
       if (renderedFromCache) {
-        if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo(' · 网络更新失败，展示本地缓存');
+        _dataLoadNotice = ' · 网络更新失败，展示本地缓存';
+        if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
         return;
       }
       _dataLoadFailed = true;
@@ -124,10 +133,19 @@
       grid.setAttribute('aria-busy', 'false');
     }
     updateLoadMore(0, 0);
-    setEmptyState('😢 推荐数据加载失败，请检查网络后刷新。', '刷新页面', () => location.reload());
+    setEmptyState('😢 推荐数据加载失败，请检查网络后重试。', '重试', loadData);
     updateStats([]);
     const info = document.getElementById('updateInfo');
     if (info) info.textContent = '推荐数据加载失败，请重试';
+  }
+
+  function showDataLoading() {
+    clearEmptyState();
+    renderSkeletons();
+    const info = document.getElementById('updateInfo');
+    const summary = document.getElementById('resultSummary');
+    if (info) info.textContent = '正在加载推荐数据…';
+    if (summary) summary.textContent = '正在加载推荐数据…';
   }
 
   function renderLoadedData({ animate = true } = {}) {
@@ -197,7 +215,7 @@
     if (loading) loading.style.display = 'block';
   }
 
-  function updateInfo(notice = '') {
+  function updateInfo(notice = _dataLoadNotice) {
     if (!allData) return;
     const el = document.getElementById('updateInfo');
     if (!el) return;
@@ -216,10 +234,15 @@
     const timestamp = new Date(value || 0).getTime();
     if (!Number.isFinite(timestamp)) return { label: '', stale: false };
     const age = now - timestamp;
-    if (age < DAY_MS) return { label: age < 60 * 60 * 1000 ? '刚刚更新' : '今天更新', stale: false };
-    const days = Math.floor(age / DAY_MS);
+    if (age < 60 * 60 * 1000) return { label: '刚刚更新', stale: false };
+    // “今天/昨天”按客户端日历计算，不能把跨午夜的昨晚更新当成今天。
+    const updatedDate = new Date(timestamp);
+    const currentDate = new Date(now);
+    const calendarTime = date => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const calendarDays = Math.round((calendarTime(currentDate) - calendarTime(updatedDate)) / DAY_MS);
+    const elapsedDays = Math.max(1, Math.floor(age / DAY_MS));
     return {
-      label: days === 1 ? '昨天更新' : `约${days}天前更新`,
+      label: calendarDays <= 0 ? '今天更新' : calendarDays === 1 ? '昨天更新' : `约${elapsedDays}天前更新`,
       stale: age >= DATA_STALE_AFTER_MS,
     };
   }
@@ -360,7 +383,7 @@
       resetStats();
       clearEmptyState();
       if (_dataLoadFailed) showDataLoadError();
-      else renderSkeletons();
+      else showDataLoading();
       return;
     }
     if (REMOTE_TAB_LABELS[tab]) {
@@ -433,7 +456,7 @@
   function bindLoadMore() {
     const sentinel = document.getElementById('loadMore');
     if (!sentinel) return;
-    document.getElementById('loadMoreButton')?.addEventListener('click', loadMoreShows);
+    document.getElementById('loadMoreButton')?.addEventListener('click', () => loadMoreShows({ focusNew: true }));
 
     if (typeof window === 'undefined') return;
     const loadMoreOptions = { rootMargin: AUTO_LOAD_ROOT_MARGIN, threshold: 0.01 };
@@ -459,13 +482,23 @@
     checkPosition();
   }
 
-  function loadMoreShows() {
+  function loadMoreShows({ focusNew = false } = {}) {
     if (_isLoadingMore || _visibleShowCount >= _filteredShows.length) return false;
     _isLoadingMore = true;
     try {
+      const firstNewIndex = _visibleShowCount;
       _visibleShowCount = Math.min(_visibleShowCount + RENDER_BATCH_SIZE, _filteredShows.length);
       renderVisibleShows();
       updateResultSummary(_filteredShows.length, _visibleShowCount);
+      if (focusNew) {
+        // 新卡片插在按钮之前；手动加载后移入首个新结果，最后一批隐藏按钮也不会丢失焦点。
+        const card = document.getElementById('showGrid')?.children?.[firstNewIndex];
+        if (card) {
+          card.tabIndex = -1;
+          card.focus({ preventScroll: true });
+          card.scrollIntoView?.({ block: 'nearest' });
+        }
+      }
       return true;
     } finally {
       _isLoadingMore = false;
@@ -923,6 +956,7 @@
   }
 
   function toFiniteNumber(value, fallback = 0) {
+    if (typeof value !== 'number' && typeof value !== 'string') return fallback;
     const number = Number(value);
     return Number.isFinite(number) ? number : fallback;
   }
@@ -990,12 +1024,11 @@
   // 而本文件所有输出都插入到双引号属性内(src/href/alt),故需显式转义引号。
   const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
+    return toText(str).replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
   }
 
   function safeExternalUrl(value, allowedHosts = null) {
-    const url = String(value || '').trim();
+    const url = typeof value === 'string' ? value.trim() : '';
     // 拒绝协议注入、属性逃逸、控制字符和含凭据 URL。
     if (!url || /["<>\u0000-\u001F\u007F]/u.test(url)) return '';
     try {
@@ -1167,6 +1200,22 @@
       .some(genre => toText(genre).trim().toLowerCase() === 'drama');
   }
 
+  function isTVmazeScheduleEntry(entry) {
+    const isRecord = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+    const isOptionalText = value => value == null || typeof value === 'string';
+    const show = entry?.show;
+    if (!isRecord(entry) || !isRecord(show) || !Number.isSafeInteger(show.id) || show.id <= 0 ||
+      typeof show.name !== 'string' || !show.name.trim() || /[\uD800-\uDFFF]/u.test(show.name)) return false;
+    if (![show.type, show.status, show.url, show.summary, entry.airtime].every(isOptionalText)) return false;
+    if (show.genres != null && (!Array.isArray(show.genres) || show.genres.some(genre => typeof genre !== 'string'))) return false;
+    if (show.rating != null && (!isRecord(show.rating) ||
+      (show.rating.average != null && !Number.isFinite(show.rating.average)))) return false;
+    for (const [metadata, fields] of [[show.network, ['name']], [show.image, ['medium', 'original']]]) {
+      if (metadata != null && (!isRecord(metadata) || fields.some(field => !isOptionalText(metadata[field])))) return false;
+    }
+    return [entry.season, entry.number].every(value => value == null || (Number.isSafeInteger(value) && value >= 0));
+  }
+
   function formatScheduleDate(value) {
     const match = toText(value).match(/^\d{4}-(\d{2})-(\d{2})$/u);
     return match ? `${Number(match[1])}月${Number(match[2])}日` : '';
@@ -1188,21 +1237,32 @@
         let requestedDays = 0;
         let successfulDays = 0;
         let currentDaySucceeded = false;
+        let hasInvalidEntries = false;
         const fetchSchedule = async d => {
           requestedDays++;
           const response = await fetch(`https://api.tvmaze.com/schedule?country=KR&date=${d}`, { signal: controller.signal });
           if (!response.ok) throw new Error(`TVmaze HTTP ${response.status}`);
           const data = await response.json();
           if (!Array.isArray(data)) throw new Error('TVmaze returned invalid data');
+          // 按行隔离错型数据；一条坏记录不能拖垮同日已确认的正常节目或写入共享缓存。
+          const validEntries = data.filter(isTVmazeScheduleEntry);
+          const dayComplete = validEntries.length === data.length;
+          if (!dayComplete) hasInvalidEntries = true;
           successfulDays++;
-          if (d === dates[0]) currentDaySucceeded = true;
-          return { date: d, data };
+          if (d === dates[0] && dayComplete) currentDaySucceeded = true;
+          return { date: d, data: validEntries };
         };
         const addSchedule = ({ date, data }) => {
           for (const entry of data) {
             const show = entry?.show;
             if (!show?.id || !isTVmazeDrama(show) || showMap.has(show.id)) continue;
-            showMap.set(show.id, { ...show, latestEpisode: entry, airDate: date });
+            // 仅保留经过类型检查且页面会使用的来源字段，避免额外字段参与通用筛选和排序。
+            const { id, name, type, status, genres, rating, network, image, url, summary } = show;
+            showMap.set(show.id, {
+              id, name, type, status, genres, rating, network, image, url, summary,
+              latestEpisode: { season: entry.season, number: entry.number, airtime: entry.airtime },
+              airDate: date,
+            });
           }
         };
 
@@ -1229,7 +1289,7 @@
         _tvmazeCache = shows;
         _tvmazeCachedAt = Date.now();
         _tvmazeCacheDate = scheduleDate;
-        _tvmazeCachePartial = controller.signal.aborted || successfulDays < requestedDays;
+        _tvmazeCachePartial = controller.signal.aborted || successfulDays < requestedDays || hasInvalidEntries;
       }
 
       if (!completeRemoteTab('tvmaze', requestVersion, controller, shows)) return;
