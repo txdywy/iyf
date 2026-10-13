@@ -1,0 +1,403 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+import vm from 'node:vm';
+
+const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+
+function createApp(fetchImpl = async () => { throw new Error('unexpected fetch'); }, cachedData = null, cacheTimestamp = Date.now()) {
+  const elements = new Map();
+  const document = { activeElement: null };
+  function element(id = '', value = '') {
+    const attributes = new Map();
+    const classes = new Set();
+    const listeners = new Map();
+    let html = '';
+    const node = {
+      id, value, textContent: '0', style: {}, hidden: false, children: [], dataset: {}, tabIndex: -1,
+      classList: {
+        add(name) { classes.add(name); },
+        remove(name) { classes.delete(name); },
+        toggle(name, force = !classes.has(name)) {
+          if (force) classes.add(name);
+          else classes.delete(name);
+          return force;
+        },
+      },
+      setAttribute(name, value) { attributes.set(name, String(value)); },
+      getAttribute(name) { return attributes.get(name); },
+      addEventListener(name, callback) { listeners.set(name, callback); },
+      dispatch(name, event = {}) { return listeners.get(name)?.(event); },
+      focus() { document.activeElement = node; },
+      scrollIntoView() { node.scrolled = true; },
+      getBoundingClientRect: () => ({ top: 10000 }),
+      insertAdjacentHTML(position, value) {
+        assert.equal(position, 'beforeend');
+        html += value;
+        node.children.push(...cards(value));
+      },
+    };
+    const cards = value => Array.from(value.matchAll(/<article\b[\s\S]*?<\/article>/gu), () => element());
+    Object.defineProperty(node, 'innerHTML', {
+      get: () => html,
+      set(value) { html = value; node.children = cards(value); },
+    });
+    return node;
+  }
+  for (const id of [
+    'showGrid', 'loading', 'empty', 'emptyMessage', 'emptyAction', 'loadMore', 'loadMoreButton',
+    'loadMoreStatus', 'resetFilters', 'resultSummary', 'statTotal', 'statOngoing', 'statComplete',
+    'statHighScore', 'updateInfo', 'yearTabLabel', 'varietyYearTabLabel',
+  ]) elements.set(id, element(id));
+  for (const [id, value] of [['filterStatus', 'all'], ['filterScore', '0'], ['sortBy', 'recommend'], ['searchInput', '']]) {
+    elements.set(id, element(id, value));
+  }
+  const tabs = ['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'tvmaze'].map(name => {
+    const node = element(`tab-${name}`);
+    node.dataset.tab = name;
+    return node;
+  });
+  Object.assign(document, {
+    getElementById: id => elements.get(id) || tabs.find(tab => tab.id === id) || null,
+    querySelectorAll: selector => selector === '.tab' ? tabs : [],
+    addEventListener() {},
+    createElement: () => element(),
+  });
+  const location = { href: 'https://example.test/#korean', search: '', hash: '#korean' };
+  let savedData = cachedData;
+  let savedAt = cacheTimestamp;
+  const context = vm.createContext({
+    console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
+    setTimeout, clearTimeout, setInterval, clearInterval,
+    window: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    history: { replaceState(state, unused, path) {
+      const url = new URL(path, location.href);
+      Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
+    } },
+    localStorage: {
+      getItem: () => savedData ? JSON.stringify({ version: 3, cachedAt: savedAt, data: savedData }) : null,
+      setItem(key, value) { ({ data: savedData, cachedAt: savedAt } = JSON.parse(value)); },
+    },
+  });
+  vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
+    globalThis.helpers = {
+      loadData, switchTab, bindLoadMore, loadMoreShows, getDataFreshness,
+      toFiniteNumber, safeExternalUrl, escapeHtml,
+      setAllData: value => { allData = value; },
+      setTVmazeCache: shows => {
+        _tvmazeCache = shows; _tvmazeCachedAt = Date.now(); _tvmazeCacheDate = getScheduleDateKey();
+      },
+    };
+  })();`), context, { timeout: 1000 });
+  return { helpers: context.helpers, elements: Object.fromEntries(elements), document };
+}
+
+function snapshot(count = 1) {
+  return {
+    lastUpdated: new Date().toISOString(),
+    koreanDramas: Array.from({ length: count }, (_, index) => ({ id: `show-${index}`, title: `剧目${index}` })),
+    chineseVariety: [{ id: 'variety', title: '综艺' }],
+  };
+}
+
+test('cached-data loading and failure notices survive tab switches without replacing the schedule', async () => {
+  let rejectRequest;
+  const { helpers, elements } = createApp(() => new Promise((resolve, reject) => { rejectRequest = reject; }), snapshot());
+  const pending = helpers.loadData();
+  helpers.switchTab('variety', { animate: false });
+  assert.match(elements.updateInfo.textContent, /正在后台更新/u);
+  helpers.setTVmazeCache([{ id: 1, name: '独立时间表' }]);
+  await helpers.switchTab('tvmaze');
+  const sourceInfo = elements.updateInfo.textContent;
+  rejectRequest(new Error('offline'));
+  await pending;
+  assert.equal(elements.updateInfo.textContent, sourceInfo);
+  assert.match(elements.showGrid.innerHTML, /独立时间表/u);
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.updateInfo.textContent, /网络更新失败，展示本地缓存/u);
+  helpers.switchTab('variety', { animate: false });
+  assert.match(elements.updateInfo.textContent, /网络更新失败，展示本地缓存/u);
+});
+
+test('a successful refresh clears the cached-data notice and a superseded failure cannot restore it', async () => {
+  const requests = [];
+  const { helpers, elements } = createApp(() => new Promise((resolve, reject) => requests.push({ resolve, reject })), snapshot());
+  const oldRequest = helpers.loadData();
+  const currentRequest = helpers.loadData();
+  requests[1].resolve({ ok: true, json: async () => snapshot() });
+  await currentRequest;
+  assert.doesNotMatch(elements.updateInfo.textContent, /正在后台更新|网络更新失败/u);
+  requests[0].reject(new Error('older request failed'));
+  await oldRequest;
+  assert.doesNotMatch(elements.updateInfo.textContent, /正在后台更新|网络更新失败/u);
+  helpers.switchTab('variety', { animate: false });
+  assert.doesNotMatch(elements.updateInfo.textContent, /正在后台更新|网络更新失败/u);
+});
+
+test('a superseded success cannot replace the newer recommendation snapshot', async () => {
+  const requests = [];
+  const { helpers, elements } = createApp(() => new Promise(resolve => requests.push(resolve)), snapshot());
+  const oldRequest = helpers.loadData();
+  const currentRequest = helpers.loadData();
+  const current = snapshot();
+  current.koreanDramas[0].title = '最新请求的推荐';
+  requests[1]({ ok: true, json: async () => current });
+  await currentRequest;
+  const old = snapshot();
+  old.koreanDramas[0].title = '已过期旧请求的推荐';
+  requests[0]({ ok: true, json: async () => old });
+  await oldRequest;
+  assert.match(elements.showGrid.innerHTML, /最新请求的推荐/u);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /已过期旧请求/u);
+});
+
+for (const failure of ['json-syntax', 'dataset-shape']) {
+  test(`${failure} failures retain readable cache and keep the failure notice on other tabs`, async () => {
+    const { helpers, elements } = createApp(async () => ({
+      ok: true,
+      json: async () => {
+        if (failure === 'json-syntax') throw new SyntaxError('invalid JSON');
+        return { error: 'unavailable' };
+      },
+    }), snapshot());
+    await helpers.loadData();
+    assert.match(elements.showGrid.innerHTML, /剧目0/u);
+    assert.match(elements.updateInfo.textContent, /网络更新失败，展示本地缓存/u);
+    helpers.switchTab('variety', { animate: false });
+    assert.match(elements.showGrid.innerHTML, /综艺/u);
+    assert.match(elements.updateInfo.textContent, /网络更新失败，展示本地缓存/u);
+    assert.notEqual(elements.empty.style.display, 'block');
+  });
+}
+
+test('an expired cache cannot hide the initial-load failure or its recovery action', async () => {
+  const { helpers, elements } = createApp(async () => { throw new Error('offline'); }, snapshot(), Date.now() - 15 * 24 * 60 * 60 * 1000);
+  await helpers.loadData();
+  helpers.switchTab('variety', { animate: false });
+  assert.equal(elements.showGrid.innerHTML, '');
+  assert.match(elements.emptyMessage.textContent, /推荐数据加载失败/u);
+  assert.equal(elements.emptyAction.hidden, false);
+  assert.equal(typeof elements.emptyAction.onclick, 'function');
+  assert.doesNotMatch(elements.updateInfo.textContent, /展示本地缓存/u);
+});
+
+for (const outcome of ['success', 'failure']) {
+  test(`retrying the initial load clears the old error while changing tabs (${outcome})`, async () => {
+    let attempt = 0;
+    let settle;
+    const { helpers, elements } = createApp(() => {
+      if (++attempt === 1) return Promise.reject(new Error('first load failed'));
+      return new Promise((resolve, reject) => { settle = outcome === 'success' ? resolve : reject; });
+    });
+    await helpers.loadData();
+    assert.match(elements.emptyMessage.textContent, /加载失败/u);
+    assert.equal(elements.emptyAction.textContent, '重试');
+    elements.filterStatus.value = 'ongoing';
+    const pending = elements.emptyAction.onclick();
+    const assertLoading = () => {
+      assert.match(elements.showGrid.innerHTML, /skeleton-card/u);
+      assert.equal(elements.showGrid.getAttribute('aria-busy'), 'true');
+      assert.notEqual(elements.empty.style.display, 'block');
+      assert.equal(elements.emptyAction.hidden, true);
+      assert.match(elements.updateInfo.textContent, /正在加载推荐数据/u);
+      assert.match(elements.resultSummary.textContent, /正在加载推荐数据/u);
+    };
+    assertLoading();
+    helpers.switchTab('variety', { animate: false });
+    assertLoading();
+    const refreshed = snapshot();
+    refreshed.chineseVariety[0] = { id: 'retried', title: '重试成功的连载综艺', isSerial: true };
+    if (outcome === 'success') settle({ ok: true, json: async () => refreshed });
+    else settle(new Error('retry failed'));
+    await pending;
+    assert.equal(elements.showGrid.getAttribute('aria-busy'), 'false');
+    assert.equal(elements.filterStatus.value, 'ongoing');
+    if (outcome === 'success') {
+      assert.match(elements.showGrid.innerHTML, /重试成功的连载综艺/u);
+      assert.notEqual(elements.empty.style.display, 'block');
+      assert.doesNotMatch(elements.updateInfo.textContent, /加载失败|正在加载/u);
+    } else {
+      assert.match(elements.emptyMessage.textContent, /加载失败/u);
+      assert.equal(elements.emptyAction.hidden, false);
+      assert.equal(typeof elements.emptyAction.onclick, 'function');
+    }
+  });
+}
+
+test('an initial-load retry can fail without replacing the schedule opened while it is pending', async () => {
+  let attempt = 0;
+  let rejectRetry;
+  const { helpers, elements } = createApp(() => {
+    if (++attempt === 1) return Promise.reject(new Error('offline'));
+    return new Promise((resolve, reject) => { rejectRetry = reject; });
+  });
+  await helpers.loadData();
+  const pending = elements.emptyAction.onclick();
+  helpers.setTVmazeCache([{ id: 1, name: '重试期间打开的时间表' }]);
+  await helpers.switchTab('tvmaze');
+  const sourceInfo = elements.updateInfo.textContent;
+  rejectRetry(new Error('still offline'));
+  await pending;
+  assert.equal(elements.updateInfo.textContent, sourceInfo);
+  assert.match(elements.showGrid.innerHTML, /重试期间打开的时间表/u);
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.emptyMessage.textContent, /推荐数据加载失败/u);
+  assert.equal(elements.emptyAction.hidden, false);
+});
+
+test('a successful background refresh preserves the active schedule and clears the notice before returning', async () => {
+  let resolveRequest;
+  const { helpers, elements } = createApp(() => new Promise(resolve => { resolveRequest = resolve; }), snapshot());
+  const pending = helpers.loadData();
+  helpers.setTVmazeCache([{ id: 1, name: '仍在阅读的时间表' }]);
+  await helpers.switchTab('tvmaze');
+  const sourceInfo = elements.updateInfo.textContent;
+  const updated = snapshot();
+  updated.koreanDramas[0].title = '后台更新的新推荐';
+  resolveRequest({ ok: true, json: async () => updated });
+  await pending;
+  assert.equal(elements.updateInfo.textContent, sourceInfo);
+  assert.match(elements.showGrid.innerHTML, /仍在阅读的时间表/u);
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /后台更新的新推荐/u);
+  assert.doesNotMatch(elements.updateInfo.textContent, /正在后台更新|网络更新失败/u);
+});
+
+test('freshness labels use the local calendar day across midnight', () => {
+  const { helpers } = createApp();
+  const now = new Date(2026, 9, 13, 0, 10).getTime();
+  assert.equal(helpers.getDataFreshness(new Date(2026, 9, 12, 20).toISOString(), now).label, '昨天更新');
+  assert.equal(helpers.getDataFreshness(new Date(2026, 9, 11, 23, 50).toISOString(), now).label, '约1天前更新');
+  assert.equal(helpers.getDataFreshness(new Date(2026, 9, 12, 23, 50).toISOString(), now).label, '刚刚更新');
+});
+
+for (const count of [30, 60]) {
+  test(`manual loading keeps keyboard navigation on the first newly added card (${count} results)`, () => {
+    const { helpers, elements, document } = createApp();
+    helpers.setAllData(snapshot(count));
+    helpers.switchTab('korean', { animate: false });
+    helpers.bindLoadMore();
+    elements.loadMoreButton.focus();
+    elements.loadMoreButton.dispatch('click');
+    assert.equal(document.activeElement, elements.showGrid.children[24]);
+    assert.equal(document.activeElement.tabIndex, -1, 'programmatic focus must not add another regular tab stop');
+    assert.ok(document.activeElement.scrolled, 'the focused result should be brought into view');
+    assert.equal(elements.loadMore.hidden, count <= 48);
+  });
+}
+
+test('automatic loading preserves the existing keyboard focus', () => {
+  const { helpers, elements, document } = createApp();
+  helpers.setAllData(snapshot(60));
+  helpers.switchTab('korean', { animate: false });
+  const focused = elements.showGrid.children[2];
+  focused.focus();
+  helpers.loadMoreShows();
+  assert.equal(document.activeElement, focused);
+  assert.equal(elements.showGrid.children.length, 48);
+});
+
+const malformedTVmazeFields = {
+  rating: row => { row.show.rating.average = { toString: 'broken' }; },
+  url: row => { row.show.url = { toString: 'broken' }; },
+  name: row => { row.show.name = { toString: 'broken' }; },
+  network: row => { row.show.network.name = { toString: 'broken' }; },
+  genres: row => { row.show.genres = [{ toString: 'broken' }]; },
+  image: row => { row.show.image.medium = { toString: 'broken' }; },
+  summary: row => { row.show.summary = { toString: 'broken' }; },
+  airtime: row => { row.airtime = { toString: 'broken' }; },
+  id: row => { row.show.id = { toString: 'broken' }; },
+  season: row => { row.season = { toString: 'broken' }; },
+  episodeNumber: row => { row.number = { toString: 'broken' }; },
+  unicodeName: row => { row.show.name = 'broken\ud800'; },
+};
+
+function tvmazeRow(id, name) {
+  return {
+    season: 1, number: 2, airtime: '21:00',
+    show: {
+      id, name, type: 'Scripted', status: 'Running', genres: ['Drama'],
+      rating: { average: 8 }, network: { name: 'KBS' },
+      image: { medium: 'https://static.tvmaze.com/poster.jpg' },
+      url: `https://www.tvmaze.com/shows/${id}/example`, summary: '<p>正常简介</p>',
+    },
+  };
+}
+
+for (const [field, damage] of Object.entries(malformedTVmazeFields)) {
+  test(`a malformed TVmaze ${field} row cannot erase valid programmes or poison the cache`, async () => {
+    const valid = tvmazeRow(1, '正常电视剧🎬');
+    const malformed = tvmazeRow(2, '应隔离的坏行');
+    damage(malformed);
+    const nullable = {
+      season: null, number: null, airtime: null,
+      show: { id: 3, name: '允许空值的电视剧', type: 'Scripted', status: null, genres: null, rating: null, network: null, image: null, url: null, summary: null },
+    };
+    let calls = 0;
+    const { helpers, elements } = createApp(async () => ({
+      ok: true, json: async () => ++calls === 1 ? JSON.parse(JSON.stringify([valid, malformed, nullable])) : [],
+    }));
+    await helpers.switchTab('tvmaze');
+    assert.match(elements.showGrid.innerHTML, /正常电视剧🎬/u);
+    assert.match(elements.showGrid.innerHTML, /允许空值的电视剧/u);
+    assert.doesNotMatch(elements.showGrid.innerHTML, /应隔离的坏行|broken/u);
+    assert.equal(elements.showGrid.children.length, 2);
+    assert.match(elements.updateInfo.textContent, /部分日期暂不可用/u);
+    assert.notEqual(elements.empty.style.display, 'block');
+    const firstCalls = calls;
+    await helpers.switchTab('tvmaze');
+    assert.equal(calls, firstCalls, 'the briefly cached safe subset should remain readable');
+    assert.equal(elements.showGrid.children.length, 2);
+  });
+}
+
+test('a malformed current-day schedule without valid programmes remains unknown and retryable', async () => {
+  let calls = 0;
+  const { helpers, elements } = createApp(async () => ({
+    ok: true, json: async () => ++calls % 7 === 1 ? [{ show: { id: 1, name: { toString: 'broken' }, type: 'Scripted' } }] : [],
+  }));
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.emptyMessage.textContent, /TVmaze 数据加载失败/u);
+  assert.equal(elements.emptyAction.hidden, false);
+  await elements.emptyAction.onclick();
+  assert.equal(calls, 14, 'unusable rows must not create a confirmed empty-day cache');
+  assert.match(elements.emptyMessage.textContent, /TVmaze 数据加载失败/u);
+});
+
+test('nullable TVmaze metadata fields remain renderable without invented ratings or episode numbers', async () => {
+  const row = tvmazeRow(1, '元数据空值节目');
+  Object.assign(row, { season: null, number: null, airtime: null });
+  Object.assign(row.show, { rating: { average: null }, network: { name: null }, image: { medium: null, original: null }, url: null, summary: null });
+  let calls = 0;
+  const { helpers, elements } = createApp(async () => ({ ok: true, json: async () => ++calls === 1 ? [row] : [] }));
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.showGrid.innerHTML, /元数据空值节目/u);
+  assert.match(elements.showGrid.innerHTML, /特别篇/u);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /schedule-rating|Enull|Eundefined/u);
+  assert.doesNotMatch(elements.updateInfo.textContent, /部分日期暂不可用/u);
+});
+
+test('unknown remote fields cannot enter recommendation filters or statistics', async () => {
+  const row = tvmazeRow(1, '正常节目');
+  Object.assign(row.show, { score: { toString: 'broken' }, recommendScore: { toString: 'broken' }, titleAliases: [{ toString: 'broken' }] });
+  let calls = 0;
+  const { helpers, elements } = createApp(async () => ({ ok: true, json: async () => ++calls === 1 ? [row] : [] }));
+  elements.filterScore.value = '8';
+  elements.searchInput.value = '正常';
+  await helpers.switchTab('tvmaze');
+  assert.match(elements.showGrid.innerHTML, /正常节目/u);
+  assert.equal(elements.statHighScore.textContent, 1);
+  assert.notEqual(elements.empty.style.display, 'block');
+});
+
+test('scalar helpers reject structured JSON values without invoking coercion methods', () => {
+  const { helpers } = createApp();
+  for (const value of [{ toString: 'broken' }, [], { valueOf: 'broken', toString: 'broken' }]) {
+    assert.ok(Number.isNaN(helpers.toFiniteNumber(value, NaN)));
+    assert.equal(helpers.safeExternalUrl(value), '');
+    assert.equal(helpers.escapeHtml(value), '');
+  }
+  assert.equal(helpers.toFiniteNumber('8.5'), 8.5);
+  assert.equal(helpers.safeExternalUrl(' https://www.tvmaze.com/shows/1/normal '), 'https://www.tvmaze.com/shows/1/normal');
+  assert.equal(helpers.escapeHtml('<正常>'), '&lt;正常&gt;');
+});

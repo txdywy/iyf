@@ -122,7 +122,9 @@ function extractShows(raw) {
     if (!['电视剧', '综艺', '电影'].includes(sec.name)) continue;
     const items = Array.isArray(sec.list) ? sec.list : [];
     for (const it of items) {
-      if (it && typeof it === 'object' && !Array.isArray(it)) out.push(normalizeItem(it));
+      if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+      try { out.push(normalizeItem(it)); }
+      catch { console.warn('  [WARN] skipped malformed homepage row'); }
     }
   }
   return out;
@@ -134,6 +136,7 @@ function safeText(value, maxLength = 2000) {
 }
 
 function safeNumber(value, fallback = 0) {
+  if (typeof value !== 'number' && typeof value !== 'string') return fallback;
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 }
@@ -858,11 +861,14 @@ function scoreYfspCandidate(show, result) {
 async function searchYfspTitle(show, { deadline = Infinity } = {}) {
   let hadError = false;
   let completedQueries = 0;
+  const requestDeadline = Math.min(deadline, _optionalEnrichmentDeadline || Infinity);
   for (const query of titleCandidates(show.title)) {
-    if (Date.now() >= deadline) return { lookupState: 'unknown' };
+    const remaining = requestDeadline - Date.now();
+    if (remaining <= 0) return { lookupState: 'unknown' };
     const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
     try {
-      const data = await fetchJSON(url);
+      const data = await fetchWithTimeout(url, { timeout: Math.min(15000, remaining) });
+      if (Date.now() >= requestDeadline) return { lookupState: 'unknown' };
       const rawResults = data?.data?.info?.[0]?.result;
       if (!Array.isArray(rawResults)) throw new Error('YFSP search returned invalid data');
       const results = rawResults.filter(r => r && typeof r === 'object');
@@ -898,7 +904,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
       hadError = true;
       console.warn(`  [WARN] yfsp search failed for "${query}": ${e.message}`);
     }
-    await sleep(YFSP_SEARCH_DELAY);
+    await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, requestDeadline - Date.now())));
   }
   return { lookupState: !hadError && completedQueries > 0 ? 'not_found' : 'unknown' };
 }
@@ -926,7 +932,7 @@ function applyYfspSearchFields(show, found) {
 
 const YFSP_VERIFY_STATUS = Object.freeze({ VALID: 'valid', INVALID: 'invalid', UNKNOWN: 'unknown' });
 
-async function verifyYfspUrl(show, url) {
+async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
   if (!url) return YFSP_VERIFY_STATUS.INVALID;
   let parsedUrl;
   try {
@@ -938,14 +944,21 @@ async function verifyYfspUrl(show, url) {
     return YFSP_VERIFY_STATUS.INVALID;
   }
 
+  const requestDeadline = Math.min(deadline, _optionalEnrichmentDeadline || Infinity);
+  const remaining = requestDeadline - Date.now();
+  if (remaining <= 0) return YFSP_VERIFY_STATUS.UNKNOWN;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), getOptionalEnrichmentTimeout(12000));
+  const timeout = setTimeout(() => controller.abort(), Math.min(12000, remaining));
   try {
     const response = await fetch(parsedUrl.href, {
       headers: HEADERS,
       signal: controller.signal,
       redirect: 'error',
     });
+    if (Date.now() >= requestDeadline) {
+      await response.body?.cancel?.().catch(() => {});
+      return YFSP_VERIFY_STATUS.UNKNOWN;
+    }
     if ([404, 410].includes(response.status)) {
       await response.body?.cancel?.().catch(() => {});
       return YFSP_VERIFY_STATUS.INVALID;
@@ -955,6 +968,7 @@ async function verifyYfspUrl(show, url) {
       return YFSP_VERIFY_STATUS.UNKNOWN;
     }
     const html = await response.text();
+    if (Date.now() >= requestDeadline) return YFSP_VERIFY_STATUS.UNKNOWN;
     const title = html.match(/<meta\s+(?:name|property)=["'](?:title|og:title)["']\s+content=["']([^"']+)/i)?.[1]
       || html.match(/<title>([^<]+)/i)?.[1]
       || '';
@@ -2009,13 +2023,15 @@ async function main() {
   // 先加载上次的 AI 评分并注入到 show 对象(让缓存过滤器识别,避免重复调用 API)
   // 同时加载 firstSeenAt 用于新内容标记(30天有效期)
   const prevFirstSeenMap = new Map();
-  const prevTitleFirstSeenMap = new Map();
+  const prevFirstSeenShows = [];
+  const firstSeenNow = Date.now();
   const prevMap = new Map();
   for (const s of [...prevShows.koreanDramas, ...prevShows.chineseVariety, ...prevShows.otherDramas]) {
     if (s.aiScore != null && s.aiScoredAt) prevMap.set(s.id, s);
-    if (s.firstSeenAt) {
+    const firstSeenAt = Date.parse(s.firstSeenAt || '');
+    if (typeof s.firstSeenAt === 'string' && Number.isFinite(firstSeenAt) && firstSeenAt <= firstSeenNow) {
       prevFirstSeenMap.set(s.id, s.firstSeenAt);
-      prevTitleFirstSeenMap.set(normalizeTitle(s.title), s.firstSeenAt);
+      prevFirstSeenShows.push(s);
     }
   }
   // ── 6. 同步种子缓存 → 直播 ID (种子匹配直播节目后 ID 变了,缓存条目还在旧 ID 下) ──
@@ -2139,9 +2155,10 @@ async function main() {
       continue;
     }
     const prevId = prevFirstSeenMap.get(show.id);
-    const prevTitle = prevTitleFirstSeenMap.get(normalizeTitle(show.title));
-    show.firstSeenAt = prevId || prevTitle || new Date().toISOString();
-    show.isNew = (nowMs - new Date(show.firstSeenAt).getTime()) < ONE_MONTH_MS;
+    const prevIdentity = prevFirstSeenShows.find(previous => sameShowIdentity(show, previous));
+    show.firstSeenAt = prevId || prevIdentity?.firstSeenAt || new Date(nowMs).toISOString();
+    const age = nowMs - Date.parse(show.firstSeenAt);
+    show.isNew = age >= 0 && age < ONE_MONTH_MS;
   }
 
   // ── 9. 输出 ──
@@ -2514,7 +2531,7 @@ async function enrichMissingYfspLinks(shows) {
     const stageDeadline = Math.min(globalDeadline, Date.now() + YFSP_STAGE_BUDGET_MS);
     await mapPool(existing, YFSP_LOOKUP_CONCURRENCY, async show => {
       if (Date.now() >= stageDeadline) return;
-      const status = await verifyYfspUrl(show, show.yfspUrl);
+      const status = await verifyYfspUrl(show, show.yfspUrl, { deadline: stageDeadline });
       markYfspLookup(show, status, show.yfspUrl);
       verifiedThisRun.add(show.id);
       if (status === YFSP_VERIFY_STATUS.INVALID) {
@@ -2569,7 +2586,7 @@ async function enrichMissingYfspLinks(shows) {
     const found = await searchYfspTitle(show, { deadline: stageDeadline });
     if (Date.now() >= stageDeadline) return;
     const verified = found?.url
-      ? await verifyYfspUrl(show, found.url)
+      ? await verifyYfspUrl(show, found.url, { deadline: stageDeadline })
       : found?.lookupState || 'unknown';
     markYfspLookup(show, verified, found?.url || '');
     if (verified === YFSP_VERIFY_STATUS.VALID) {
@@ -2618,21 +2635,26 @@ async function searchDoubanSubject(show) {
       let compatible = null;
       let fallback = null;
       for (const item of results.slice(0, 8)) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+        const subjectId = safeText(item.id, 100);
+        if (!/^[1-9]\d*$/u.test(subjectId) ||
+          (item.year != null && typeof item.year !== 'string' && typeof item.year !== 'number')) continue;
+        const subjectYear = safeText(item.year, 100);
         const names = [item.title, item.sub_title].filter(Boolean);
         if (!names.some(name => titleMatches(show.title, name))) continue;
         // 主标题/英文副标题中的明确季号都要兼容，未知年份的 fallback 也不能绕过。
         if (!names.every(name => haveCompatibleTitleSeasons(show.title, name))) continue;
         const match = {
-          doubanUrl: `${DOUBAN_MOVIE_BASE}/${item.id}/`,
-          doubanId: item.id,
+          doubanUrl: `${DOUBAN_MOVIE_BASE}/${subjectId}/`,
+          doubanId: subjectId,
           // 季身份可能只出现在副标题中，保留实际验证过的名称供缓存复用。
           doubanTitle: names.find(name => seasonKey(show.title) && seasonKey(name) === seasonKey(show.title) && titleMatches(show.title, name)) || item.title || '',
           doubanMatchedSeasonNumber: names.map(seasonNumberFromTitle).find(Boolean) || 0,
-          doubanYear: item.year || '',
+          doubanYear: subjectYear,
         };
-        const itemYear = parseInt(item.year || '', 10);
+        const itemYear = parseInt(subjectYear, 10);
         if (show.year && itemYear === show.year && isDoubanSeasonCompatible(show, match)) exact ||= match;
-        else if (isDoubanYearCompatible(show, item.year) && isDoubanSeasonCompatible(show, match)) compatible ||= match;
+        else if (isDoubanYearCompatible(show, subjectYear) && isDoubanSeasonCompatible(show, match)) compatible ||= match;
         else if (isDoubanFallbackAllowed(show, match)) fallback ||= match;
       }
       if (exact) return exact;
@@ -2981,10 +3003,11 @@ async function discoverNewVariety(liveShows, varietyMap) {
       for (const r of results) {
         if (r.atypeName !== '综艺') continue;
         if (!['大陆', '韩国', '台湾', '香港'].includes(r.regional)) continue;
-        if (VarietyExclude.some(kw => (r.title || '').includes(kw))) continue;
-        const cleanTitle = cleanShowTitle(r.title || '');
+        const title = safeText(r.title, 200);
+        if (!title || VarietyExclude.some(kw => title.includes(kw))) continue;
+        const cleanTitle = cleanShowTitle(title);
         const yr = boundedYear(extractYear(r.postTime || ''));
-        const norm = discoveryIdentityKey(r.title || '', yr);
+        const norm = discoveryIdentityKey(title, yr);
         const contentKey = safeText(r.contxt, 200);
         const candidate = {
           id: contentKey || stableDiscoveredId('disc_var', cleanTitle, yr),
@@ -3708,6 +3731,12 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
         if (!Array.isArray(data.results)) throw new Error('TMDB search returned invalid data');
         // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
         for (const r of (data.results || [])) {
+          if (!r || typeof r !== 'object' || Array.isArray(r) ||
+            !Number.isSafeInteger(r.id) || r.id <= 0 ||
+            (r.poster_path != null && typeof r.poster_path !== 'string')) {
+            hadTransientError = true;
+            continue;
+          }
           if (rejectedSeasonIds.has(Number(r.id))) continue;
           // 季海报可能存在而系列海报为空，先解析匹配的 season 再判断封面。
           if (!expectedSeasonNumber && !r.poster_path) continue;

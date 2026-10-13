@@ -406,6 +406,11 @@ a:visited { color: #8e86d1; }
   box-shadow: 0 0 0 2px rgba(162,155,254,0.18), var(--shadow);
 }
 
+.show-card:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 3px;
+}
+
 .card-poster {
   position: relative;
   width: 100%;

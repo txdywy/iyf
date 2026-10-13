@@ -2446,13 +2446,13 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'old', title: '同名剧', year: '2016' },
-        { id: 'new', title: '同名剧', year: '2026' },
+        { id: '123450', title: '同名剧', year: '2016' },
+        { id: '123451', title: '同名剧', year: '2026' },
       ],
     }),
   });
   const found = await helpers.searchDoubanSubject({ title: '同名剧', year: 2026, mediaType: '电视剧' });
-  assert.equal(found?.doubanId, 'new', 'Douban search should prefer year-compatible title matches');
+  assert.equal(found?.doubanId, '123451', 'Douban search should prefer year-compatible title matches');
 }
 
 {
@@ -2460,13 +2460,13 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'near', title: '同名季播', year: '2025' },
-        { id: 'exact', title: '同名季播', year: '2026' },
+        { id: '123452', title: '同名季播', year: '2025' },
+        { id: '123453', title: '同名季播', year: '2026' },
       ],
     }),
   });
   const found = await helpers.searchDoubanSubject({ title: '同名季播', year: 2026, mediaType: '电视剧' });
-  assert.equal(found?.doubanId, 'exact', 'Douban search should prefer exact-year matches over nearby-year matches');
+  assert.equal(found?.doubanId, '123453', 'Douban search should prefer exact-year matches over nearby-year matches');
 }
 
 {
@@ -2474,12 +2474,12 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'long-running-variety', title: '你好星期六', year: '2022' },
+        { id: '123454', title: '你好星期六', year: '2022' },
       ],
     }),
   });
   const found = await helpers.searchDoubanSubject({ title: '你好星期六', year: 2026, mediaType: '综艺' });
-  assert.equal(found?.doubanId, 'long-running-variety', 'Douban search should allow exact-title fallback for long-running variety subjects');
+  assert.equal(found?.doubanId, '123454', 'Douban search should allow exact-title fallback for long-running variety subjects');
 }
 
 {
@@ -2487,13 +2487,13 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'old-season', title: '你好星期六第3季', year: '2022' },
-        { id: 'long-running-variety', title: '你好星期六', year: '2022' },
+        { id: '123455', title: '你好星期六第3季', year: '2022' },
+        { id: '123454', title: '你好星期六', year: '2022' },
       ],
     }),
   });
   const found = await helpers.searchDoubanSubject({ title: '你好星期六', year: 2026, mediaType: '综艺' });
-  assert.equal(found?.doubanId, 'long-running-variety', 'Douban fallback should skip incompatible season candidates and keep searching for a valid long-running variety subject');
+  assert.equal(found?.doubanId, '123454', 'Douban fallback should skip incompatible season candidates and keep searching for a valid long-running variety subject');
 }
 
 {
@@ -2501,7 +2501,7 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'base-variety', title: '无限超越班', year: '2022' },
+        { id: '123456', title: '无限超越班', year: '2022' },
       ],
     }),
   });
@@ -2514,7 +2514,7 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: async () => ({
       ok: true,
       json: async () => [
-        { id: 'previous-season', title: '无限超越班第3季', year: '2025' },
+        { id: '123457', title: '无限超越班第3季', year: '2025' },
       ],
     }),
   });

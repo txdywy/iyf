@@ -12,6 +12,8 @@ const dataDir = '/tmp/iyf-scraper-review/data';
 function loadHelpers({
   env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); },
   date = '2026-09-30T04:00:00Z', initialFiles = {},
+  setTimeoutImpl = (fn, delay) => { if (delay <= 1000) fn(); return 0; },
+  clearTimeoutImpl = () => {},
 } = {}) {
   let now = Date.parse(date);
   const files = new Map(Object.entries(initialFiles));
@@ -23,7 +25,7 @@ function loadHelpers({
   const context = {
     console: { log() {}, warn() {}, error() {} },
     process: { env }, fetch: fetchImpl, URL, AbortController, Date: FixedDate, Buffer,
-    setTimeout(fn, delay) { if (delay <= 1000) fn(); return 0; }, clearTimeout() {},
+    setTimeout: setTimeoutImpl, clearTimeout: clearTimeoutImpl,
     existsSync: path => files.has(path), readFileSync: path => files.get(path),
     writeFileSync: (path, value) => { files.set(path, value); writes.push(path); },
     renameSync: (from, to) => { files.set(to, files.get(from)); files.delete(from); },
@@ -56,6 +58,185 @@ function response(json, { status = 200, html = '' } = {}) {
     json: async () => json, text: async () => html,
     body: { cancel: async () => {} },
   };
+}
+
+test('first-seen dates follow show identity and expire after their own first observation', async () => {
+  const observedAt = '2026-10-13T04:00:00.000Z';
+  const oldFirstSeen = '2026-08-01T04:00:00.000Z';
+  const changedIdFirstSeen = '2026-10-01T04:00:00.000Z';
+  const previousShow = (id, title, extra = {}) => ({
+    id, title, mediaType: '电视剧', category: 'korean_drama', regional: '韩国', year: 2026,
+    score: 8, playCount: 100000, coverImg: 'https://image.tmdb.org/t/p/original/identity.jpg',
+    primaryUrl: `https://www.yfsp.tv/play/${id}`, yfspUrl: `https://www.yfsp.tv/play/${id}`,
+    firstSeenAt: oldFirstSeen, scrapedAt: '2026-10-12T04:00:00.000Z', ...extra,
+  });
+  const previous = {
+    lastUpdated: '2026-10-12T04:00:00.000Z', stats: { totalScraped: 30 },
+    koreanDramas: [
+      previousShow('old-remake', '跨年翻拍测试剧', { year: 2023 }),
+      previousShow('same-id', '旧名称测试剧'),
+      previousShow('old-id', '换源身份测试剧', { firstSeenAt: changedIdFirstSeen }),
+      previousShow('invalid-date', '无效日期测试剧', { firstSeenAt: 'invalid-date' }),
+      previousShow('future-date', '未来日期测试剧', { firstSeenAt: '2027-01-01T00:00:00.000Z' }),
+    ],
+    chineseVariety: [previousShow('old-variety', '同名类型测试剧', { mediaType: '综艺', category: 'variety' })],
+    otherDramas: [previousShow('old-region', '同名地区测试剧', { regional: '大陆', category: 'other_drama' })],
+  };
+  const current = [
+    ['new-region', '同名地区测试剧'], ['new-type', '同名类型测试剧'], ['new-remake', '跨年翻拍测试剧'],
+    ['same-id', '新名称测试剧'], ['new-id', '换源身份测试剧！'],
+    ['invalid-date', '无效日期测试剧'], ['future-date', '未来日期测试剧'],
+  ].map(([mediaKey, title]) => ({
+    mediaKey, title, mediaType: '电视剧', regional: '韩国', publishTime: '2026-10-12T00:00:00Z',
+    score: 8, playCount: 100000, coverImgUrl: 'https://static.yfsp.tv/identity.jpg',
+  }));
+  let homepageCalls = 0;
+  const { helpers, files, setNow } = loadHelpers({
+    date: observedAt,
+    initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (url.includes('api.yfsp.tv/api/list/index') && ++homepageCalls === 1) {
+        return response({ data: { list: [{ name: '电视剧', list: current }] } });
+      }
+      return response(null, { status: 503 });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  const byId = new Map(published.koreanDramas.map(show => [show.id, show]));
+  for (const id of ['new-region', 'new-type', 'new-remake', 'invalid-date', 'future-date']) {
+    assert.equal(byId.get(id)?.firstSeenAt, observedAt, id);
+    assert.equal(byId.get(id)?.isNew, true, id);
+  }
+  assert.equal(byId.get('same-id')?.firstSeenAt, oldFirstSeen);
+  assert.equal(byId.get('same-id')?.isNew, false);
+  assert.equal(byId.get('new-id')?.firstSeenAt, changedIdFirstSeen);
+  assert.equal(byId.get('new-id')?.isNew, true);
+
+  setNow('2026-11-13T04:00:00.000Z');
+  await helpers.main();
+  const later = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  for (const id of ['invalid-date', 'future-date']) {
+    const show = later.koreanDramas.find(show => show.id === id);
+    assert.equal(show?.firstSeenAt, observedAt, id);
+    assert.equal(show?.isNew, false, `${id}: a repaired timestamp must expire normally`);
+  }
+});
+
+test('malformed discovery and metadata rows cannot hide later valid results', async () => {
+  const variety = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+    { title: {}, atypeName: '综艺', regional: '大陆' },
+    { title: '容错旅行测试综艺', atypeName: '综艺', regional: '大陆', postTime: '2026-08-01', score: 8, hot: 100000, contxt: 'valid-variety' },
+  ] }] } }) });
+  const discovered = await variety.helpers.discoverNewVariety(new Map(), new Map());
+  assert.deepEqual(Array.from(discovered, show => show.id), ['valid-variety']);
+
+  const douban = loadHelpers({ fetchImpl: async () => response([null,
+    { id: '123450', title: '容错元数据测试剧', year: { toString: 'invalid' } },
+    { id: { toString: 'invalid' }, title: '容错元数据测试剧', year: '2026' },
+    { id: '123456', title: '容错元数据测试剧', year: '2026' },
+  ]) });
+  assert.equal((await douban.helpers.searchDoubanSubject({ title: '容错元数据测试剧', year: 2026, mediaType: '电视剧' }))?.doubanId, '123456');
+
+  const tmdb = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    if (url.includes('/search/tv?')) return response({ results: [null,
+      { id: { toString: 'invalid' }, name: '容错元数据测试剧', poster_path: '/bad.jpg' },
+      { id: 123455, name: '容错元数据测试剧', poster_path: { toString: 'invalid' } },
+      { id: 123456, name: '容错元数据测试剧', first_air_date: '2026-08-01', origin_country: ['KR'], poster_path: '/valid.jpg' },
+    ] });
+    if (url.includes('/tv/123456/external_ids')) return response({});
+    assert.fail(`unexpected URL: ${url}`);
+  } });
+  assert.equal((await tmdb.helpers.searchTMDBImage({ title: '容错元数据测试剧', year: 2026, mediaType: '电视剧', regional: '韩国' }))?.tmdbId, 123456);
+
+  const malformedOnly = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async () => response({ results: [null, { id: { toString: 'invalid' } }] }) });
+  assert.equal((await malformedOnly.helpers.searchTMDBImage({ title: '错误响应测试剧', year: 2026, mediaType: '电视剧' })).lookupState, 'unknown', 'invalid rows cannot establish a negative cache entry');
+});
+
+test('malformed numeric homepage fields cannot abort publication or replace previous source facts', async () => {
+  const previous = {
+    lastUpdated: '2026-10-12T04:00:00.000Z', stats: { totalScraped: 30 }, chineseVariety: [], otherDramas: [],
+    koreanDramas: [{
+      id: 'malformed-score', title: '坏分值测试韩剧', mediaType: '电视剧', category: 'korean_drama', regional: '韩国',
+      year: 2026, score: 8.5, playCount: 200000, scrapedAt: '2026-10-12T04:00:00.000Z',
+      coverImg: 'https://image.tmdb.org/t/p/original/numeric.jpg', primaryUrl: 'https://www.yfsp.tv/play/malformed-score',
+    }],
+  };
+  const item = (mediaKey, title, extra) => ({
+    mediaKey, title, mediaType: '电视剧', regional: '韩国', publishTime: '2026-10-12',
+    score: 8, playCount: 100000, type: 4, coverImgUrl: 'https://static.yfsp.tv/numeric.jpg', ...extra,
+  });
+  const current = [
+    item('bad\ud800', '无效编码标识测试韩剧', {}),
+    item('malformed-score', '坏分值测试韩剧', { score: { toString: 'invalid' }, playCount: {} }),
+    item('malformed-type', '坏类型测试韩剧', { type: { toString: 'invalid' } }),
+    item('array-score', '数组分值测试韩剧', { score: [9], type: true }),
+    item('valid-numbers', '正常数值测试韩剧', { score: '8.2', playCount: '120000', type: '4' }),
+  ];
+  let pages = 0;
+  const { helpers, files } = loadHelpers({
+    date: '2026-10-13T04:00:00.000Z', initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (url.includes('api.yfsp.tv/api/list/index') && ++pages === 1) {
+        return response({ data: { list: [{ name: '电视剧', list: current }] } });
+      }
+      return response(null, { status: 503 });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  const byId = new Map(published.koreanDramas.map(show => [show.id, show]));
+  assert.equal(byId.has('bad\ud800'), false, 'a malformed encoded identifier must be isolated to its row');
+  assert.equal(byId.get('malformed-score')?.score, 8.5, 'invalid numbers are missing observations, not explicit zeroes');
+  assert.equal(byId.get('malformed-score')?.playCount, 200000);
+  assert.equal(byId.get('malformed-type')?.type, 0);
+  assert.equal(byId.get('array-score')?.score, 0);
+  assert.equal(byId.get('array-score')?.type, 0);
+  assert.equal(byId.get('valid-numbers')?.score, 8.2, 'later valid rows and numeric strings remain usable');
+  assert.equal(byId.get('valid-numbers')?.playCount, 120000);
+  assert.equal(byId.get('valid-numbers')?.type, 4);
+});
+
+for (const operation of ['search', 'verify']) {
+  for (const boundary of ['global', 'stage']) {
+  test(`YFSP ${operation} ${boundary} deadlines constrain requests and discard late successful results`, async () => {
+    const start = Date.parse('2026-09-30T04:00:00Z');
+    const timers = [];
+    let signal;
+    const { helpers, setNow } = loadHelpers({
+      setTimeoutImpl(fn, delay) { const timer = { fn, delay }; timers.push(timer); if (delay === 150 || delay === 0) fn(); return timer; },
+      fetchImpl: async (_url, options) => {
+        signal = options.signal;
+        return new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error('budget exhausted')), { once: true }));
+      },
+    });
+    const globalDeadline = start + (boundary === 'global' ? 50 : 500);
+    const stageDeadline = start + (boundary === 'stage' ? 50 : 500);
+    helpers.setEnrichmentDeadline(globalDeadline);
+    const show = { title: '预算测试节目', mediaType: '电视剧', regional: '韩国', year: 2026 };
+    const pending = operation === 'search'
+      ? helpers.searchYfspTitle(show, { deadline: stageDeadline })
+      : helpers.verifyYfspUrl(show, 'https://www.yfsp.tv/play/budget', { deadline: stageDeadline });
+    assert.ok(signal, 'the test must observe the active request');
+    const requestTimeout = timers[0].delay;
+    setNow(new Date(start + 50).toISOString());
+    timers[0].fn();
+    const result = await pending;
+    assert.equal(requestTimeout, 50, `the request timeout must fit the remaining ${boundary} budget`);
+    assert.equal(operation === 'search' ? result.lookupState : result, 'unknown');
+
+    let late;
+    late = loadHelpers({ fetchImpl: async () => {
+      late.setNow(new Date(start + 51).toISOString());
+      return response({ data: { info: [{ result: [{ title: show.title, atypeName: '电视剧', regional: '韩国', contxt: 'late' }] }] } }, { html: `<title>${show.title}-免费在线观看</title>` });
+    } });
+    late.helpers.setEnrichmentDeadline(globalDeadline);
+    const afterDeadline = operation === 'search'
+      ? await late.helpers.searchYfspTitle(show, { deadline: stageDeadline })
+      : await late.helpers.verifyYfspUrl(show, 'https://www.yfsp.tv/play/budget', { deadline: stageDeadline });
+    assert.equal(operation === 'search' ? afterDeadline.lookupState : afterDeadline, 'unknown', 'late success cannot renew source continuity');
+  });
+  }
 }
 
 for (const explicit of [false, true]) {
@@ -268,22 +449,22 @@ test('YFSP page verification rejects a different explicit season', async () => {
 
 test('Douban Korean drama matching excludes another season despite a nearby year', async () => {
   const { helpers } = loadHelpers({ fetchImpl: async () => response([
-    { id: 'wrong', title: '酒鬼都市女人们第1季', year: '2021' },
-    { id: 'same', title: '酒鬼都市女人们第二季', year: '2022' },
+    { id: '123455', title: '酒鬼都市女人们第1季', year: '2021' },
+    { id: '123456', title: '酒鬼都市女人们第二季', year: '2022' },
   ]) });
   const found = await helpers.searchDoubanSubject({ title: '酒鬼都市女人们第2季', year: 2022, mediaType: '电视剧' });
-  assert.equal(found?.doubanId, 'same');
+  assert.equal(found?.doubanId, '123456');
   const unknownYear = await helpers.searchDoubanSubject({ title: '酒鬼都市女人们第2季', year: 0, mediaType: '电视剧' });
-  assert.equal(unknownYear?.doubanId, 'same', 'unknown-year fallback must enforce the same season boundary');
+  assert.equal(unknownYear?.doubanId, '123456', 'unknown-year fallback must enforce the same season boundary');
 });
 
 test('Douban season identity also checks an explicit English subtitle', async () => {
   const { helpers } = loadHelpers({ fetchImpl: async () => response([
-    { id: 'wrong', title: '杀人者的购物中心', sub_title: 'A Shop for Killers Season 1', year: '2024' },
-    { id: 'same', title: '杀人者的购物中心2', sub_title: 'A Shop for Killers Season 2', year: '2026' },
+    { id: '123455', title: '杀人者的购物中心', sub_title: 'A Shop for Killers Season 1', year: '2024' },
+    { id: '123456', title: '杀人者的购物中心2', sub_title: 'A Shop for Killers Season 2', year: '2026' },
   ]) });
   const found = await helpers.searchDoubanSubject({ title: '杀人者的购物中心2', year: 0, mediaType: '电视剧' });
-  assert.equal(found?.doubanId, 'same');
+  assert.equal(found?.doubanId, '123456');
 });
 
 test('TMDB can still find a base series and resolve the requested season', async () => {
