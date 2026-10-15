@@ -46,8 +46,15 @@ export async function deployCloudflare({
       throw new Error('Validated artifact asset filename does not match its contents');
     }
   }
-  const expected = ['index.html', 'css/style.css', 'js/app.js', 'data/shows.json', 'robots.txt', '404.html'].map(file => ({
-    file, digest: hash(read(assetUrls.get(file)?.slice(1) || file)),
+  const expected = [
+    ['index.html', ['text/html']],
+    ['css/style.css', ['text/css']],
+    ['js/app.js', ['text/javascript', 'application/javascript']],
+    ['data/shows.json', ['application/json']],
+    ['robots.txt', ['text/plain']],
+    ['404.html', ['text/html']],
+  ].map(([file, contentTypes]) => ({
+    file, contentTypes, digest: hash(read(assetUrls.get(file)?.slice(1) || file)),
     path: file === 'index.html' ? '/' : file === '404.html' ? '/__deployment_404_check__' : assetUrls.get(file) || `/${file}`,
     status: file === '404.html' ? 404 : 200,
   }));
@@ -78,6 +85,8 @@ export async function deployCloudflare({
         if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
         if (item.file === 'index.html') readyOrigins.add(origin);
         const failedHeaders = [];
+        const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+        if (!item.contentTypes.includes(contentType)) failedHeaders.push('content-type');
         if (item.file === 'index.html') {
           if (response.headers.get('x-content-type-options') !== 'nosniff') failedHeaders.push('x-content-type-options');
           if (response.headers.get('x-frame-options') !== 'DENY') failedHeaders.push('x-frame-options');

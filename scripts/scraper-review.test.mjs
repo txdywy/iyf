@@ -153,6 +153,161 @@ test('malformed discovery and metadata rows cannot hide later valid results', as
   assert.equal((await malformedOnly.helpers.searchTMDBImage({ title: '错误响应测试剧', year: 2026, mediaType: '电视剧' })).lookupState, 'unknown', 'invalid rows cannot establish a negative cache entry');
 });
 
+test('YFSP search skips incomplete and malformed matching rows before ranking usable pages', async () => {
+  const show = { title: '搜索坏行测试剧', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const candidate = { title: show.title, atypeName: show.mediaType, regional: show.regional, postTime: '2026-08-01' };
+  for (const badKey of [undefined, {}, 'bad\ud800']) {
+    const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+      { ...candidate, hot: 9000000, contxt: badKey },
+      { ...candidate, hot: 100000, contxt: 'valid-search-row' },
+    ] }] } }) });
+    const found = await helpers.searchYfspTitle(show);
+    assert.equal(found.url, 'https://www.yfsp.tv/play/valid-search-row', `invalid content key: ${typeof badKey}`);
+  }
+});
+
+test('malformed-only YFSP responses remain retryable while a real empty search is negative-cached', async () => {
+  const show = { id: 'bad-search', title: '搜索错误响应测试剧', year: 2026, mediaType: '电视剧', regional: '韩国', isComplete: true };
+  let malformed = true;
+  let searches = 0;
+  const { helpers, setNow } = loadHelpers({ fetchImpl: async () => {
+    searches++;
+    return response({ data: { info: [{ result: malformed ? [null, { title: {}, contxt: 'bad-title' }] : [] }] } });
+  } });
+  await helpers.enrichMissingYfspLinks([show]);
+  assert.equal(show.yfspLookupState, 'unknown', 'invalid rows cannot prove that the show does not exist');
+  malformed = false;
+  setNow('2026-10-01T04:00:00Z');
+  await helpers.enrichMissingYfspLinks([show]);
+  assert.equal(searches, 2, 'a recovered response must be retried after the shorter unknown TTL');
+  assert.equal(show.yfspLookupState, 'not_found', 'a valid empty result still establishes a negative lookup');
+});
+
+test('Unicode text limits preserve complete characters and malformed titles cannot abort YFSP searches', async () => {
+  const queries = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    queries.push(new URL(url).searchParams.get('tags'));
+    return response({ data: { info: [{ result: [] }] } });
+  } });
+  const show = helpers.normalizeItem({
+    mediaKey: 'unicode-title', title: `${'剧'.repeat(199)}🎬`, mediaType: '电视剧', regional: '韩国',
+    description: `${'介'.repeat(1999)}🎬`,
+  });
+  assert.equal(show.title.isWellFormed(), true, 'a 200-unit title limit cannot leave half an emoji');
+  assert.equal(show.description.isWellFormed(), true, 'synopsis truncation must also preserve complete characters');
+  await helpers.searchYfspTitle(show);
+  await helpers.searchYfspTitle({ ...show, title: '坏编码\ud800标题' });
+  assert.equal(queries.length, 2);
+  assert.ok(queries.every(query => query.isWellFormed()), 'free text must be repaired before it reaches URI encoding');
+});
+
+for (const kind of ['korean', 'variety']) {
+  test(`a malformed ${kind} discovery identifier cannot hide later valid rows`, async () => {
+    const korean = kind === 'korean';
+    const candidate = {
+      atypeName: korean ? '电视剧' : '综艺', regional: korean ? '韩国' : '大陆',
+      postTime: '2026-08-01', score: 8, hot: 100000,
+    };
+    const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+      { ...candidate, title: `损坏编码${kind}`, contxt: 'bad\ud800' },
+      { ...candidate, title: `正常节目${kind}`, contxt: `valid-${kind}` },
+    ] }] } }) });
+    const discovered = korean
+      ? await helpers.discoverNewKDramas(new Map(), new Map())
+      : await helpers.discoverNewVariety(new Map(), new Map());
+    assert.deepEqual(Array.from(discovered, show => show.id), [`valid-${kind}`]);
+  });
+}
+
+for (const withAI of [false, true]) {
+  test(`sourced hard exclusions survive longer TMDB descriptions ${withAI ? 'before AI discovery' : 'without AI'}`, async () => {
+    const item = {
+      mediaKey: 'sourced-risk', title: '来源风险测试剧', mediaType: '电视剧', regional: '韩国',
+      publishTime: '2026-09-01', contentType: '悬疑', description: '血腥丧尸题材。',
+      score: 8, playCount: 100000, coverImgUrl: 'https://static.yfsp.tv/risk.jpg',
+    };
+    const cached = {
+      title: item.title, year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+      url: 'https://image.tmdb.org/t/p/original/risk.jpg', matchedTitle: item.title,
+      tmdbId: 123456, tmdbUrl: 'https://www.themoviedb.org/tv/123456',
+    };
+    let pages = 0;
+    const discoveryIds = [];
+    const { helpers, files } = loadHelpers({
+      env: { TMDB_TOKEN: 'test-token', ...(withAI ? { OPENROUTER_API_KEY: 'test-token' } : {}) },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [item.mediaKey]: cached }) },
+      fetchImpl: async (url, options) => {
+        if (url.includes('api.yfsp.tv/api/list/index') && ++pages === 1) return response({ data: { list: [{ name: '电视剧', list: [item] }] } });
+        if (url.includes('/tv/123456?language=')) return response({ overview: '一群昔日的好友在城市相遇，开始寻找失散已久的同伴。他们齐心协力破解难题，在冒险中重建信任，也经历了许多意想不到的转折。' });
+        if (url.includes('/play/sourced-risk')) return response({}, { html: `<title>${item.title}-免费在线观看</title>` });
+        if (url.includes('openrouter.ai')) {
+          const request = JSON.parse(options.body);
+          const schema = request.response_format.json_schema;
+          const ids = schema.schema.properties.results.items.properties.id.enum;
+          if (schema.name === 'iyf_discovery') discoveryIds.push(...ids);
+          return response({ choices: [{ message: { content: JSON.stringify({ results: ids.map(id => ({
+            id, ok: true, recommendationScore100: 80, recommendationLevel: 'strong', r: '适合', d: '更多资料待补充。',
+          })) }) } }] });
+        }
+        return response(null, { status: 503 });
+      },
+    });
+    await helpers.main();
+    const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+    assert.equal(published.koreanDramas.some(show => show.id === item.mediaKey), false, 'metadata prose cannot erase a sourced exclusion');
+    assert.equal(discoveryIds.includes(item.mediaKey), false, 'a hard source rejection must not be delegated to AI');
+  });
+}
+
+test('description upgrades retain sourced exclusion evidence without treating AI copy as facts', async () => {
+  const sourceDescription = '血腥丧尸题材。';
+  const sourceOverview = '几位好友踏上寻找旧日同伴的旅途，在城市间往返并解决许多难题，逐渐重建信任和友谊。';
+  const wikiOverview = sourceOverview.repeat(3);
+  const cached = id => ({
+    title: `简介升级测试${id}`, year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+    url: `https://image.tmdb.org/t/p/original/${id}.jpg`, matchedTitle: `简介升级测试${id}`,
+    tmdbId: id, tmdbUrl: `https://www.themoviedb.org/tv/${id}`,
+  });
+  const { helpers } = loadHelpers({
+    env: { TMDB_TOKEN: 'test-token' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({
+      yfsp: cached(123451), tmdb: cached(123452), ai: cached(123453),
+    }) },
+    fetchImpl: async url => url.includes('wikipedia.org')
+      ? response({ extract: wikiOverview })
+      : response({ overview: url.includes('/123452?') ? sourceDescription : sourceOverview }),
+  });
+  const shows = ['yfsp', 'tmdb', 'ai'].map((descriptionSource, index) => ({
+    id: descriptionSource, title: `简介升级测试${123451 + index}`, year: 2026, mediaType: '电视剧', regional: '韩国',
+    description: descriptionSource === 'tmdb' ? '' : sourceDescription, descriptionSource,
+    ...(descriptionSource === 'tmdb' ? { wikipediaUrl: 'https://zh.wikipedia.org/wiki/简介升级' } : {}),
+  }));
+  await helpers.enrichDescriptions(shows);
+  assert.equal(shows[0].description, sourceOverview, 'a longer sourced synopsis may still improve display copy');
+  assert.equal(shows[1].description, wikiOverview, 'Wikipedia may still replace a shorter TMDB synopsis');
+  assert.equal(helpers.isEligibleKDrama(shows[0]), false, 'the original YFSP exclusion remains authoritative');
+  assert.equal(helpers.isEligibleKDrama(shows[1]), false, 'a newly fetched TMDB exclusion survives the later Wikipedia upgrade');
+  assert.equal(helpers.isEligibleKDrama(shows[2]), true, 'discarded AI copy must not create source exclusion evidence');
+  assert.equal(JSON.stringify(shows).includes('_sourcedHardExclusion'), false, 'derived review evidence stays out of published records');
+});
+
+test('retiring an unverified series synopsis does not preserve its content as season evidence', async () => {
+  for (const overview of ['第二季讲述伙伴重逢后的轻松日常。', '']) {
+    const { helpers } = loadHelpers({
+      env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: seasonCache() }) },
+      fetchImpl: async () => response({ season_number: 2, overview }),
+    });
+    const show = {
+      id: 'show', title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧', regional: '韩国',
+      description: '错误系列的血腥丧尸简介。', descriptionSource: 'tmdb',
+    };
+    await helpers.enrichDescriptions([show]);
+    assert.equal(show.description, overview);
+    assert.equal(helpers.isEligibleKDrama(show), true, 'retired text did not prove facts about the requested season');
+  }
+});
+
 test('malformed numeric homepage fields cannot abort publication or replace previous source facts', async () => {
   const previous = {
     lastUpdated: '2026-10-12T04:00:00.000Z', stats: { totalScraped: 30 }, chineseVariety: [], otherDramas: [],

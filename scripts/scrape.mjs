@@ -132,7 +132,18 @@ function extractShows(raw) {
 
 function safeText(value, maxLength = 2000) {
   if (typeof value !== 'string' && typeof value !== 'number') return '';
-  return String(value).replace(/[\u0000-\u001F\u007F]/gu, ' ').trim().slice(0, maxLength);
+  const text = String(value).toWellFormed().replace(/[\u0000-\u001F\u007F]/gu, ' ').trim();
+  const clipped = text.slice(0, maxLength);
+  // UTF-16 limits must not split a supplementary character into an invalid URI.
+  return /[\uD800-\uDBFF]$/u.test(clipped) ? clipped.slice(0, -1) : clipped;
+}
+
+function safeSourceIdentifier(value, maxLength = 200) {
+  if (typeof value !== 'string' && typeof value !== 'number') return '';
+  const identifier = String(value);
+  // Repairing or truncating an identifier would silently change its identity.
+  if (!identifier.isWellFormed() || identifier.length > maxLength) throw new Error('invalid source identifier');
+  return safeText(identifier, maxLength);
 }
 
 function safeNumber(value, fallback = 0) {
@@ -171,8 +182,8 @@ function normalizeItem(it) {
   const statusShowsOngoing = isOngoingStatus(updateStatus);
   const statusIsAuthoritative = ui.isComplete || statusShowsOngoing;
   const hasExplicitSerial = typeof it.isSerial === 'boolean';
-  const mediaKey = safeText(it.mediaKey, 200);
-  const episodeKey = safeText(it.episodeKey, 200);
+  const mediaKey = safeSourceIdentifier(it.mediaKey);
+  const episodeKey = safeSourceIdentifier(it.episodeKey);
   const url = mediaKey ? `https://www.yfsp.tv/play/${encodeURIComponent(mediaKey)}` : '';
   const rawTitle = safeText(it.title, 200);
   const title = it.mediaType === '综艺' ? cleanShowTitle(rawTitle) : rawTitle;
@@ -471,6 +482,7 @@ for (const [canonical, aliases] of Object.entries(TITLE_ALIAS_MAP)) {
 }
 
 function titleCandidates(title = '') {
+  title = safeText(title, 200);
   const group = TITLE_ALIAS_GROUPS.get(normalizeTitle(title));
   return [...new Set([title, ...(group || TITLE_ALIAS_MAP[title] || [])])].filter(Boolean);
 }
@@ -865,23 +877,38 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
   for (const query of titleCandidates(show.title)) {
     const remaining = requestDeadline - Date.now();
     if (remaining <= 0) return { lookupState: 'unknown' };
-    const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
     try {
+      const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
       const data = await fetchWithTimeout(url, { timeout: Math.min(15000, remaining) });
       if (Date.now() >= requestDeadline) return { lookupState: 'unknown' };
       const rawResults = data?.data?.info?.[0]?.result;
       if (!Array.isArray(rawResults)) throw new Error('YFSP search returned invalid data');
-      const results = rawResults.filter(r => r && typeof r === 'object');
       completedQueries++;
-      const match = results
-        .map(r => ({ result: r, score: scoreYfspCandidate(show, r) }))
-        .filter(x => x.score >= 0)
-        .sort((a, b) => b.score - a.score)[0]?.result;
-      const contentKey = safeText(match?.contxt, 200);
-      if (contentKey) {
+      const candidates = [];
+      for (const result of rawResults) {
+        try {
+          if (!result || typeof result !== 'object' || Array.isArray(result) || !safeText(result.title, 200)) {
+            hadError = true;
+            continue;
+          }
+          const contentKey = safeSourceIdentifier(result.contxt);
+          if (!contentKey) {
+            hadError = true;
+            continue;
+          }
+          const candidateUrl = `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}`;
+          const score = scoreYfspCandidate(show, result);
+          if (score >= 0) candidates.push({ result, score, url: candidateUrl });
+        } catch {
+          hadError = true;
+        }
+      }
+      const best = candidates.sort((a, b) => b.score - a.score)[0];
+      if (best) {
+        const match = best.result;
         const found = {
           title: safeText(match.title, 200) || show.title,
-          url: `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}`,
+          url: best.url,
           coverImg: safeText(match.imgPath, 1000),
           actor: safeText(match.starring, 500),
           regional: safeText(match.regional, 40),
@@ -1020,8 +1047,15 @@ function sourceDescriptionForScoring(show, maxLength = 2000) {
 }
 
 function hasHardKDramaExclusion(show) {
+  if (show?._sourcedHardExclusion === true) return true;
   const text = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''} ${sourceDescriptionForScoring(show)}`.toLowerCase();
   return KDramaHardExclude.some(keyword => text.includes(keyword));
+}
+
+function rememberSourcedHardExclusion(show) {
+  if (hasHardKDramaExclusion(show)) {
+    Object.defineProperty(show, '_sourcedHardExclusion', { value: true, configurable: true });
+  }
 }
 
 function isEligibleKDrama(show) {
@@ -2767,6 +2801,9 @@ async function enrichDescriptions(shows) {
       if (target.seasonNumber && Number(data?.season_number) !== target.seasonNumber) return;
       const overview = safeText(data?.overview, 2000);
       if (overview && (target.seasonNumber || overview.length > (show.description || '').length)) {
+        // Display copy may improve without erasing reliable content evidence.
+        // An unverified legacy series synopsis is being retired, not validated.
+        if (!needsSeasonDescriptionMigration(show, target)) rememberSourcedHardExclusion(show);
         show.description = overview;
         show.descriptionSource = 'tmdb';
         if (target.seasonNumber) show.descriptionTmdbSeasonUrl = target.tmdbUrl;
@@ -2806,6 +2843,7 @@ async function enrichDescriptions(shows) {
         if (resp.ok) {
           const data = await resp.json();
           if (data.extract && data.extract.length > (show.description || '').length) {
+            rememberSourcedHardExclusion(show);
             show.description = safeText(data.extract, 2000);
             show.descriptionSource = 'wikipedia';
             enriched++;
@@ -2872,7 +2910,9 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
         if (r.regional !== '韩国' || r.atypeName !== '电视剧') continue;
         const yr = boundedYear(extractYear(r.postTime || ''));
         const norm = discoveryIdentityKey(r.title || '', yr);
-        const contentKey = safeText(r.contxt, 200);
+        let contentKey;
+        try { contentKey = safeSourceIdentifier(r.contxt); }
+        catch { console.warn('  [WARN] skipped malformed drama discovery identifier'); continue; }
         const candidate = {
           id: contentKey || stableDiscoveredId('disc_kd', r.title, yr),
           title: safeText(r.title, 200), year: yr, mediaType: '电视剧',
@@ -3008,7 +3048,9 @@ async function discoverNewVariety(liveShows, varietyMap) {
         const cleanTitle = cleanShowTitle(title);
         const yr = boundedYear(extractYear(r.postTime || ''));
         const norm = discoveryIdentityKey(title, yr);
-        const contentKey = safeText(r.contxt, 200);
+        let contentKey;
+        try { contentKey = safeSourceIdentifier(r.contxt); }
+        catch { console.warn('  [WARN] skipped malformed variety discovery identifier'); continue; }
         const candidate = {
           id: contentKey || stableDiscoveredId('disc_var', cleanTitle, yr),
           title: cleanTitle, year: yr, mediaType: '综艺',
