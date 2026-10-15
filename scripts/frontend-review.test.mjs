@@ -8,6 +8,11 @@ const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
 function createApp(fetchImpl = async () => { throw new Error('unexpected fetch'); }, cachedData = null, cacheTimestamp = Date.now()) {
   const elements = new Map();
   const document = { activeElement: null };
+  const view = {
+    scrollY: 0, innerHeight: 600,
+    addEventListener() {}, matchMedia: () => ({ matches: true }),
+    scrollBy(x, y) { this.scrollY += y; },
+  };
   function element(id = '', value = '') {
     const attributes = new Map();
     const classes = new Set();
@@ -30,6 +35,9 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       dispatch(name, event = {}) { return listeners.get(name)?.(event); },
       focus() { document.activeElement = node; },
       scrollIntoView() { node.scrolled = true; },
+      contains(target) { return node === target || node.children.some(child => child.contains(target)); },
+      querySelectorAll(selector) { return selector === 'a[href]' ? node.children.filter(child => child.tagName === 'A') : []; },
+      querySelector(selector) { return node.querySelectorAll(selector)[0] || null; },
       getBoundingClientRect: () => ({ top: 10000 }),
       insertAdjacentHTML(position, value) {
         assert.equal(position, 'beforeend');
@@ -37,17 +45,35 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
         node.children.push(...cards(value));
       },
     };
-    const cards = value => Array.from(value.matchAll(/<article\b[\s\S]*?<\/article>/gu), () => element());
+    const cards = value => Array.from(value.matchAll(/<article\b[\s\S]*?<\/article>/gu), ([markup]) => {
+      const card = element();
+      card.children = Array.from(markup.matchAll(/<a\b[^>]*href="([^"]+)"/gu), ([, href]) => {
+        const link = element();
+        link.tagName = 'A';
+        link.setAttribute('href', href.replace(/&amp;/gu, '&'));
+        return link;
+      });
+      card.getBoundingClientRect = () => {
+        const top = 700 + node.children.indexOf(card) * 100 - view.scrollY;
+        return { top, bottom: top + 100 };
+      };
+      return card;
+    });
     Object.defineProperty(node, 'innerHTML', {
       get: () => html,
-      set(value) { html = value; node.children = cards(value); },
+      set(value) {
+        if (node.contains(document.activeElement)) document.activeElement = document.body;
+        html = value;
+        node.children = cards(value);
+      },
     });
     return node;
   }
+  document.body = element('body');
   for (const id of [
     'showGrid', 'loading', 'empty', 'emptyMessage', 'emptyAction', 'loadMore', 'loadMoreButton',
     'loadMoreStatus', 'resetFilters', 'resultSummary', 'statTotal', 'statOngoing', 'statComplete',
-    'statHighScore', 'updateInfo', 'yearTabLabel', 'varietyYearTabLabel',
+    'statHighScore', 'updateInfo', 'yearTabLabel', 'varietyYearTabLabel', 'mainContent',
   ]) elements.set(id, element(id));
   for (const [id, value] of [['filterStatus', 'all'], ['filterScore', '0'], ['sortBy', 'recommend'], ['searchInput', '']]) {
     elements.set(id, element(id, value));
@@ -69,7 +95,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   const context = vm.createContext({
     console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
     setTimeout, clearTimeout, setInterval, clearInterval,
-    window: { addEventListener() {}, matchMedia: () => ({ matches: true }) },
+    window: view,
     history: { replaceState(state, unused, path) {
       const url = new URL(path, location.href);
       Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
@@ -89,7 +115,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       },
     };
   })();`), context, { timeout: 1000 });
-  return { helpers: context.helpers, elements: Object.fromEntries(elements), document };
+  return { helpers: context.helpers, elements: Object.fromEntries(elements), document, view };
 }
 
 function snapshot(count = 1) {
@@ -261,6 +287,105 @@ test('a successful background refresh preserves the active schedule and clears t
   helpers.switchTab('korean', { animate: false });
   assert.match(elements.showGrid.innerHTML, /后台更新的新推荐/u);
   assert.doesNotMatch(elements.updateInfo.textContent, /正在后台更新|网络更新失败/u);
+});
+
+for (const focusCard of [true, false]) {
+  test(`a changed background refresh keeps the reading anchor when a programme moves beyond the rendered batch (card focus: ${focusCard})`, async () => {
+    const cached = snapshot(60);
+    for (const show of cached.koreanDramas) show.primaryUrl = `https://www.themoviedb.org/tv/${show.id}`;
+    let resolveRequest;
+    const { helpers, elements, document, view } = createApp(() => new Promise(resolve => { resolveRequest = resolve; }), cached);
+    const pending = helpers.loadData();
+    view.scrollY = 1700;
+    const oldCard = elements.showGrid.children[10];
+    const oldLink = oldCard.querySelector('a[href]');
+    if (focusCard) oldLink.focus();
+    else elements.searchInput.focus();
+    const anchorTop = oldCard.getBoundingClientRect().top;
+    const updated = structuredClone(cached);
+    updated.koreanDramas = [...updated.koreanDramas.slice(40), ...updated.koreanDramas.slice(0, 40)];
+    resolveRequest({ ok: true, json: async () => updated });
+    await pending;
+    const movedCard = elements.showGrid.children[30];
+    assert.equal(movedCard.getBoundingClientRect().top, anchorTop, 'the same programme should remain at its previous viewport offset');
+    assert.equal(document.activeElement, focusCard ? movedCard.querySelector('a[href]') : elements.searchInput);
+    assert.equal(elements.showGrid.contains(oldLink), false, 'the assertion must exercise replacement rather than an unchanged cache');
+    assert.equal(elements.showGrid.children.length, 31, 'a retained programme beyond the old batch must be made visible');
+    assert.match(elements.resultSummary.textContent, /31 \/ 60/u);
+    assert.equal(elements.loadMore.hidden, false);
+  });
+}
+
+for (const change of ['link-replaced', 'programme-removed', 'all-results-removed']) {
+  test(`background refresh uses a reachable focus fallback when ${change}`, async () => {
+    const cached = snapshot(20);
+    for (const show of cached.koreanDramas) show.primaryUrl = `https://www.themoviedb.org/tv/${show.id}`;
+    let resolveRequest;
+    const { helpers, elements, document, view } = createApp(() => new Promise(resolve => { resolveRequest = resolve; }), cached);
+    const pending = helpers.loadData();
+    view.scrollY = 1700;
+    elements.showGrid.children[10].querySelector('a[href]').focus();
+    const updated = structuredClone(cached);
+    if (change === 'link-replaced') updated.koreanDramas[10].primaryUrl = 'https://www.themoviedb.org/tv/replacement';
+    else if (change === 'programme-removed') updated.koreanDramas.splice(10, 1);
+    else updated.koreanDramas = [];
+    resolveRequest({ ok: true, json: async () => updated });
+    await pending;
+    const target = change === 'all-results-removed' ? elements.mainContent : elements.showGrid.children[10];
+    assert.equal(document.activeElement, target);
+    assert.equal(target.tabIndex, -1);
+    if (change !== 'all-results-removed') assert.equal(target.getBoundingClientRect().top, 0);
+    else assert.match(elements.resultSummary.textContent, /没有符合/u);
+  });
+}
+
+test('a visible focused programme stays in view when its neighbours reorder differently', async () => {
+  const cached = snapshot(60);
+  for (const show of cached.koreanDramas) show.primaryUrl = `https://www.themoviedb.org/tv/${show.id}`;
+  let resolveRequest;
+  const { helpers, elements, document, view } = createApp(() => new Promise(resolve => { resolveRequest = resolve; }), cached);
+  const pending = helpers.loadData();
+  view.scrollY = 1700;
+  const oldCard = elements.showGrid.children[12];
+  oldCard.querySelector('a[href]').focus();
+  const previousTop = oldCard.getBoundingClientRect().top;
+  const updated = structuredClone(cached);
+  const [moved] = updated.koreanDramas.splice(12, 1);
+  updated.koreanDramas.splice(50, 0, moved);
+  resolveRequest({ ok: true, json: async () => updated });
+  await pending;
+  const movedCard = elements.showGrid.children[50];
+  assert.equal(document.activeElement, movedCard.querySelector('a[href]'));
+  assert.equal(movedCard.getBoundingClientRect().top, previousTop);
+  assert.match(elements.resultSummary.textContent, /51 \/ 60/u);
+});
+
+for (const remaining of [5, 0]) {
+  test(`background refresh keeps a reachable focus target when the focused load-more button disappears (${remaining} results)`, async () => {
+    const cached = snapshot(60);
+    let resolveRequest;
+    const { helpers, elements, document } = createApp(() => new Promise(resolve => { resolveRequest = resolve; }), cached);
+    const pending = helpers.loadData();
+    elements.loadMoreButton.focus();
+    const updated = structuredClone(cached);
+    updated.koreanDramas.length = remaining;
+    resolveRequest({ ok: true, json: async () => updated });
+    await pending;
+    assert.equal(elements.loadMore.hidden, true);
+    const target = remaining ? elements.showGrid.children[remaining - 1] : elements.mainContent;
+    assert.equal(document.activeElement, target);
+    assert.equal(target.tabIndex, -1);
+  });
+}
+
+test('an explicit tab change leaves keyboard focus on the chosen tab', () => {
+  const { helpers, document } = createApp();
+  helpers.setAllData(snapshot(20));
+  helpers.switchTab('korean', { animate: false });
+  const nextTab = document.getElementById('tab-variety');
+  nextTab.focus();
+  helpers.switchTab('variety', { animate: false });
+  assert.equal(document.activeElement, nextTab);
 });
 
 test('freshness labels use the local calendar day across midnight', () => {

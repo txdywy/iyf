@@ -12,6 +12,14 @@ const CANONICAL_ORIGIN = 'https://iyf.hackx64.eu.org';
 const VERIFIED_ORIGINS = [PAGES_ORIGIN, CANONICAL_ORIGIN];
 const LAST_UPDATED = '2026-09-30T03:46:36.204Z';
 const digest = body => createHash('sha256').update(body).digest('hex').slice(0, 12);
+const CONTENT_TYPES = {
+  'index.html': 'text/html',
+  'css/style.css': 'text/css',
+  'js/app.js': 'application/javascript',
+  'data/shows.json': 'application/json',
+  'robots.txt': 'text/plain',
+  '404.html': 'text/html',
+};
 
 function createHarness(t, {
   publicReply,
@@ -69,6 +77,7 @@ function createHarness(t, {
       body: files.get(file),
       status: file === '404.html' ? 404 : 200,
       headers: {
+        'content-type': CONTENT_TYPES[file],
         'x-content-type-options': 'nosniff',
         'x-frame-options': 'DENY',
         'content-security-policy': "default-src 'self'; frame-ancestors 'none'",
@@ -77,7 +86,7 @@ function createHarness(t, {
     };
     const override = publicReply?.(response) || {};
     if (override.error) throw override.error;
-    return new Response(override.body ?? response.body, {
+    return new Response(Buffer.from(override.body ?? response.body), {
       status: override.status ?? response.status,
       headers: override.headers ?? response.headers,
     });
@@ -103,6 +112,66 @@ test('Cloudflare deployment verifies every artifact file with versioned asset UR
   assert.deepEqual(h.calls.slice(1).map(call => call.address).sort(), VERIFIED_ORIGINS.flatMap(origin => [...h.routes.keys()].map(path => `${origin}${path}`)).sort());
   assert.deepEqual(h.waits, []);
   assert.match(h.logs.at(-1), /production matches the validated artifact/);
+});
+
+test('Cloudflare deployment rejects CSS served with the wrong MIME type despite matching bytes', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ file, headers }) => file === 'css/style.css'
+      ? { headers: { ...headers, 'content-type': 'text/plain' } } : {},
+  });
+  await assert.rejects(h.run(), /css\/style\.css: missing or invalid headers \(content-type\)/);
+  assert.ok(!h.logs.some(message => message.includes('production matches')));
+});
+
+for (const target of Object.keys(CONTENT_TYPES)) {
+  for (const contentType of [undefined, 'application/octet-stream']) {
+    test(`Cloudflare deployment rejects ${contentType === undefined ? 'missing' : 'incorrect'} MIME type for ${target}`, async t => {
+      const h = createHarness(t, {
+        publicReply: ({ file, headers }) => {
+          if (file !== target) return {};
+          if (contentType === undefined) delete headers['content-type'];
+          else headers['content-type'] = contentType;
+          return { headers };
+        },
+      });
+      await assert.rejects(h.run(), error => {
+        assert.match(error.message, /did not match.*deployment timeout/);
+        for (const origin of VERIFIED_ORIGINS) {
+          assert.ok(error.message.includes(`${origin} ${target}: missing or invalid headers (content-type)`), error.message);
+        }
+        return true;
+      });
+      assert.ok(!h.logs.some(message => message.includes('production matches')));
+    });
+  }
+}
+
+for (const javascriptType of ['text/javascript', 'application/javascript']) {
+  test(`Cloudflare deployment accepts ${javascriptType}, MIME case variations, and charset parameters`, async t => {
+    const h = createHarness(t, {
+      publicReply: ({ file, headers }) => {
+        const contentType = file === 'js/app.js' ? javascriptType : headers['content-type'];
+        return { headers: { ...headers, 'content-type': `${contentType.toUpperCase()} ; charset=UTF-8` } };
+      },
+    });
+    assert.equal((await h.run()).files, 6);
+    assert.deepEqual(h.waits, []);
+  });
+}
+
+test('Cloudflare MIME diagnostics never disclose sensitive Content-Type values', async t => {
+  for (const target of Object.keys(CONTENT_TYPES)) {
+    const h = createHarness(t, {
+      publicReply: ({ origin, file, headers }) => origin === CANONICAL_ORIGIN && file === target
+        ? { headers: { ...headers, 'content-type': HOOK_URL } } : {},
+    });
+    await assert.rejects(h.run(), error => {
+      assert.ok(error.message.includes(`${CANONICAL_ORIGIN} ${target}: missing or invalid headers (content-type)`));
+      assert.doesNotMatch(`${error.message}\n${h.logs.join('\n')}`, /unit-test-secret-token|deploy_hooks/);
+      return true;
+    });
+    assert.ok(!h.logs.some(message => message.includes('production matches')));
+  }
 });
 
 test('Cloudflare deployment rejects invalid hook addresses before sending requests', async t => {
@@ -271,6 +340,7 @@ test('Cloudflare deployment cannot report success after matching requests exceed
       const response = new Response(h.files.get(file), {
         status: file === '404.html' ? 404 : 200,
         headers: {
+          'content-type': CONTENT_TYPES[file],
           'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY',
           'content-security-policy': "frame-ancestors 'none'", 'cache-control': 'no-cache',
         },
@@ -338,7 +408,7 @@ test('Cloudflare deployment reports HTTP statuses and all failed header names wi
   });
   await assert.rejects(h.run(), error => {
     assert.ok(error.message.includes(`${CANONICAL_ORIGIN} robots.txt: HTTP 503 (expected 200)`));
-    for (const name of ['x-content-type-options', 'x-frame-options', 'content-security-policy', 'cache-control']) {
+    for (const name of ['content-type', 'x-content-type-options', 'x-frame-options', 'content-security-policy', 'cache-control']) {
       assert.ok(error.message.includes(name), error.message);
     }
     assert.ok(!error.message.includes(HOOK_URL));

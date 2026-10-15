@@ -107,7 +107,9 @@
       if (renderedFromCache) {
         // 后台更新不抢走用户已经切换到的标签或筛选状态。
         if (!REMOTE_TAB_LABELS[activeTabName]) {
+          const readingState = captureReadingState();
           switchTab(activeTabName, { syncUrl: false, animate: false, preserveVisibleCount: true, scrollToTab: false });
+          restoreReadingState(readingState);
         }
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
         switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
@@ -153,6 +155,59 @@
     restoreFilterControls(urlState);
     if (urlState.sort) _tabSortPreferences.set(urlState.tab, urlState.sort);
     switchTab(urlState.tab, { syncUrl: false, animate, rememberSort: false });
+  }
+
+  function captureReadingState() {
+    const cards = [...(document.getElementById('showGrid')?.children || [])];
+    const focused = document.activeElement;
+    const focusedIndex = cards.findIndex(card => card === focused || card.contains?.(focused));
+    const viewportTop = document.querySelector?.('.tabs')?.getBoundingClientRect?.().bottom || 0;
+    const isVisible = card => {
+      const rect = card.getBoundingClientRect?.();
+      return rect && rect.bottom > viewportTop && rect.top < window.innerHeight;
+    };
+    const anchorIndex = focusedIndex >= 0 && isVisible(cards[focusedIndex])
+      ? focusedIndex : cards.findIndex(isVisible);
+    return {
+      focusedIndex,
+      focusedId: _filteredShows[focusedIndex]?.id,
+      focusedHref: focused?.getAttribute?.('href') || '',
+      loadMoreFocused: focused === document.getElementById('loadMoreButton'),
+      anchorIndex,
+      anchorId: _filteredShows[anchorIndex]?.id,
+      anchorTop: cards[anchorIndex]?.getBoundingClientRect?.().top,
+    };
+  }
+
+  function restoreReadingState(state) {
+    const findIndex = (id, previousIndex) => {
+      if (previousIndex < 0 || !_filteredShows.length) return -1;
+      const index = _filteredShows.findIndex(show => show.id === id);
+      return index >= 0 ? index : Math.min(previousIndex, _filteredShows.length - 1);
+    };
+    const focusedIndex = findIndex(state.focusedId, state.focusedIndex);
+    const anchorIndex = findIndex(state.anchorId, state.anchorIndex);
+    const neededCount = Math.max(focusedIndex, anchorIndex) + 1;
+    if (neededCount > _visibleShowCount) {
+      _visibleShowCount = neededCount;
+      renderVisibleShows();
+      updateResultSummary(_filteredShows.length, _visibleShowCount);
+    }
+    const cards = document.getElementById('showGrid')?.children || [];
+    if (state.focusedIndex >= 0 || (state.loadMoreFocused && document.getElementById('loadMore')?.hidden)) {
+      const card = cards[state.focusedIndex >= 0 ? focusedIndex : cards.length - 1];
+      const link = card && [...card.querySelectorAll('a[href]')]
+        .find(element => state.focusedHref && element.getAttribute('href') === state.focusedHref);
+      const target = link || card || document.getElementById('mainContent');
+      if (target) {
+        if (!link) target.tabIndex = -1;
+        target.focus({ preventScroll: true });
+      }
+    }
+    const anchorTop = cards[anchorIndex]?.getBoundingClientRect?.().top;
+    if (Number.isFinite(anchorTop) && Number.isFinite(state.anchorTop)) {
+      window.scrollBy?.(0, anchorTop - state.anchorTop);
+    }
   }
 
   function readCachedData() {
