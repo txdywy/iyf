@@ -17,7 +17,7 @@ const PUBLIC_SHOW_FIELDS = [
   'updateStatus', 'totalEpisodes', 'currentEpisode', 'isComplete', 'isSerial',
   'isClassic', 'isAutoDiscovered', 'isNew', 'primaryUrl', 'primaryUrlSource',
   'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl',
-  'coverSource', 'tmdbCoverPending',
+  'tmdbCoverPending',
 ];
 
 function projectShow(show) {

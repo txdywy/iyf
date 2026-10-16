@@ -18,6 +18,8 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     const classes = new Set();
     const listeners = new Map();
     let html = '';
+    let hidden = false;
+    let display = '';
     const node = {
       id, value, textContent: '0', style: {}, hidden: false, children: [], dataset: {}, tabIndex: -1,
       classList: {
@@ -32,7 +34,10 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       setAttribute(name, value) { attributes.set(name, String(value)); },
       getAttribute(name) { return attributes.get(name); },
       addEventListener(name, callback) { listeners.set(name, callback); },
-      dispatch(name, event = {}) { return listeners.get(name)?.(event); },
+      dispatch(name, event = {}) {
+        const result = listeners.get(name)?.(event);
+        return name === 'click' && typeof node.onclick === 'function' ? node.onclick(event) : result;
+      },
       focus() { document.activeElement = node; },
       scrollIntoView() { node.scrolled = true; },
       contains(target) { return node === target || node.children.some(child => child.contains(target)); },
@@ -45,6 +50,23 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
         node.children.push(...cards(value));
       },
     };
+    const blurHiddenDescendant = () => {
+      if (node.contains(document.activeElement)) document.activeElement = document.body;
+    };
+    Object.defineProperty(node, 'hidden', {
+      get: () => hidden,
+      set(value) {
+        hidden = Boolean(value);
+        if (hidden) blurHiddenDescendant();
+      },
+    });
+    Object.defineProperty(node.style, 'display', {
+      get: () => display,
+      set(value) {
+        display = value;
+        if (display === 'none') blurHiddenDescendant();
+      },
+    });
     const cards = value => Array.from(value.matchAll(/<article\b[\s\S]*?<\/article>/gu), ([markup]) => {
       const card = element();
       card.children = Array.from(markup.matchAll(/<a\b[^>]*href="([^"]+)"/gu), ([, href]) => {
@@ -78,6 +100,8 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   for (const [id, value] of [['filterStatus', 'all'], ['filterScore', '0'], ['sortBy', 'recommend'], ['searchInput', '']]) {
     elements.set(id, element(id, value));
   }
+  elements.get('empty').children = [elements.get('emptyMessage'), elements.get('emptyAction')];
+  elements.get('loadMore').children = [elements.get('loadMoreStatus'), elements.get('loadMoreButton')];
   const tabs = ['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'tvmaze'].map(name => {
     const node = element(`tab-${name}`);
     node.dataset.tab = name;
@@ -107,7 +131,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   });
   vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
     globalThis.helpers = {
-      loadData, switchTab, bindLoadMore, loadMoreShows, getDataFreshness,
+      loadData, switchTab, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml,
       setAllData: value => { allData = value; },
       setTVmazeCache: shows => {
@@ -124,6 +148,196 @@ function snapshot(count = 1) {
     koreanDramas: Array.from({ length: count }, (_, index) => ({ id: `show-${index}`, title: `剧目${index}` })),
     chineseVariety: [{ id: 'variety', title: '综艺' }],
   };
+}
+
+function scrollableTabGeometry({ document, view }) {
+  const tabs = document.querySelectorAll('.tab');
+  let scrollLeft = 0;
+  const container = { getBoundingClientRect: () => ({ left: 10, right: 330 }) };
+  Object.defineProperty(container, 'scrollLeft', {
+    get: () => scrollLeft,
+    set(value) { scrollLeft = Math.max(0, Math.min(604, value)); },
+  });
+  view.getComputedStyle = () => ({ paddingLeft: '20px', paddingRight: '44px' });
+  tabs.forEach((tab, index) => {
+    tab.parentElement = container;
+    tab.getBoundingClientRect = () => {
+      const left = 30 + index * 110 - scrollLeft;
+      return { left, right: left + (index === tabs.length - 1 ? 200 : 96) };
+    };
+    tab.scrollIntoView = () => { view.scrollY -= 429.5; };
+    tab.focus = options => {
+      document.activeElement = tab;
+      if (!options?.preventScroll) view.scrollY -= 100;
+    };
+  });
+  return { tabs, container, visibleLeft: 30, visibleRight: 286 };
+}
+
+test('repeated activation of the focused sticky tab preserves the page reading position', () => {
+  const app = createApp();
+  const { helpers, elements, document, view } = app;
+  const { tabs } = scrollableTabGeometry(app);
+  const data = snapshot(30);
+  data.chineseVariety = data.koreanDramas.map(show => ({ ...show, id: `variety-${show.id}` }));
+  helpers.setAllData(data);
+  helpers.switchTab('variety', { animate: false, scrollToTab: false });
+  helpers.bindTabs();
+  tabs[3].focus({ preventScroll: true });
+  view.scrollY = 3182;
+  tabs[3].dispatch('click');
+  tabs[3].dispatch('click');
+  assert.equal(document.activeElement, tabs[3]);
+  assert.equal(elements.showGrid.children.length, 24);
+  assert.equal(view.scrollY, 3182, 'activating a sticky tab must not scroll the root document');
+});
+
+test('activating an already visible tab leaves horizontal and vertical scroll unchanged', () => {
+  const app = createApp();
+  const { helpers, view } = app;
+  const { tabs, container } = scrollableTabGeometry(app);
+  helpers.setAllData(snapshot());
+  helpers.bindTabs();
+  tabs[1].focus({ preventScroll: true });
+  view.scrollY = 2200;
+  tabs[1].dispatch('click');
+  assert.equal(container.scrollLeft, 0);
+  assert.equal(view.scrollY, 2200);
+});
+
+test('tab keyboard navigation reveals both overflow edges without moving the page', () => {
+  const app = createApp();
+  const { helpers, document, view } = app;
+  const { tabs, container, visibleLeft, visibleRight } = scrollableTabGeometry(app);
+  helpers.setAllData(snapshot());
+  helpers.setTVmazeCache([{ id: 1, name: '已缓存的时间表' }]);
+  helpers.bindTabs();
+  tabs[0].focus({ preventScroll: true });
+  view.scrollY = 2400;
+  for (const [key, expectedIndex] of [['End', 6], ['Home', 0], ['ArrowLeft', 6], ['ArrowRight', 0]]) {
+    let prevented = false;
+    document.activeElement.dispatch('keydown', { key, preventDefault() { prevented = true; } });
+    assert.ok(prevented);
+    assert.equal(document.activeElement, tabs[expectedIndex]);
+    assert.equal(tabs[expectedIndex].getAttribute('aria-selected'), 'true');
+    const bounds = tabs[expectedIndex].getBoundingClientRect();
+    assert.ok(bounds.left >= visibleLeft && bounds.right <= visibleRight, `${key} must reveal the whole focused tab inside the padded viewport`);
+    assert.equal(view.scrollY, 2400, `${key} must preserve the root scroll position`);
+    assert.equal(container.scrollLeft, expectedIndex === 0 ? 0 : 604);
+  }
+});
+
+test('content navigation tracks the measured sticky tab height through ResizeObserver', () => {
+  const { helpers, document, view } = createApp();
+  let tabHeight = 69.2;
+  const tabs = { getBoundingClientRect: () => ({ height: tabHeight }) };
+  const rootProperties = new Map();
+  let onResize;
+  let observedElement;
+  document.querySelector = selector => selector === '.tabs' ? tabs : null;
+  document.documentElement = { style: { setProperty: (name, value) => rootProperties.set(name, value) } };
+  view.ResizeObserver = class {
+    constructor(callback) { onResize = callback; }
+    observe(element) { observedElement = element; }
+  };
+  helpers.bindContentNavigation();
+  assert.equal(rootProperties.get('--tabs-scroll-offset'), '70px');
+  assert.equal(observedElement, tabs);
+  tabHeight = 91.4;
+  onResize([]);
+  assert.equal(rootProperties.get('--tabs-scroll-offset'), '92px', 'resizing or wrapping tabs must update the scroll clearance');
+});
+
+test('content navigation updates sticky tab clearance on window resize without ResizeObserver', () => {
+  const { helpers, document, view } = createApp();
+  let tabHeight = 65.1;
+  const tabs = { getBoundingClientRect: () => ({ height: tabHeight }) };
+  const rootProperties = new Map();
+  const listeners = new Map();
+  document.querySelector = selector => selector === '.tabs' ? tabs : null;
+  document.documentElement = { style: { setProperty: (name, value) => rootProperties.set(name, value) } };
+  view.addEventListener = (name, callback) => listeners.set(name, callback);
+  helpers.bindContentNavigation();
+  assert.equal(rootProperties.get('--tabs-scroll-offset'), '66px');
+  tabHeight = 100.9;
+  listeners.get('resize')();
+  assert.equal(rootProperties.get('--tabs-scroll-offset'), '101px');
+});
+
+test('clearing filters keeps keyboard focus in the search input after the reset button disappears', () => {
+  const { helpers, elements, document, view } = createApp();
+  helpers.setAllData(snapshot(30));
+  helpers.bindFilters();
+  helpers.switchTab('korean', { animate: false });
+  elements.filterScore.value = '8';
+  elements.filterScore.dispatch('change');
+  assert.equal(elements.resetFilters.hidden, false);
+  elements.resetFilters.focus();
+  view.scrollY = 350;
+  elements.resetFilters.dispatch('click');
+  assert.equal(elements.filterScore.value, '0');
+  assert.equal(elements.resetFilters.hidden, true);
+  assert.equal(elements.showGrid.children.length, 24);
+  assert.equal(document.activeElement, elements.searchInput);
+  assert.equal(view.scrollY, 350, 'clearing filters should not jump away from the controls');
+});
+
+test('retrying recommendations moves focus from the disappearing retry button into the main content', async () => {
+  let attempt = 0;
+  let resolveRetry;
+  const { helpers, elements, document, view } = createApp(() => {
+    if (++attempt === 1) return Promise.reject(new Error('offline'));
+    return new Promise(resolve => { resolveRetry = resolve; });
+  });
+  await helpers.loadData();
+  elements.emptyAction.focus();
+  view.scrollY = 450;
+  const pending = elements.emptyAction.dispatch('click');
+  const pendingFocus = document.activeElement;
+  const pendingDisplay = elements.empty.style.display;
+  const pendingBusy = elements.showGrid.getAttribute('aria-busy');
+  resolveRetry({ ok: true, json: async () => snapshot() });
+  await pending;
+  assert.equal(pendingDisplay, 'none');
+  assert.equal(pendingBusy, 'true');
+  assert.equal(pendingFocus, elements.mainContent);
+  assert.equal(document.activeElement, elements.mainContent);
+  assert.equal(view.scrollY, 450, 'retrying should preserve the current reading position');
+});
+
+for (const source of ['recommendations', 'schedule']) {
+  for (const focusRetry of [false, true]) {
+    if (source === 'recommendations' && focusRetry) continue;
+    test(`retrying ${source} ${focusRetry ? 'retains reachable keyboard focus' : 'preserves focus in another control'}`, async () => {
+      let retrying = false;
+      let resolveRetry;
+      const { helpers, elements, document } = createApp(() => {
+        if (!retrying) return Promise.reject(new Error('offline'));
+        return new Promise(resolve => { resolveRetry = resolve; });
+      });
+      if (source === 'schedule') await helpers.switchTab('tvmaze');
+      else await helpers.loadData();
+      assert.equal(elements.emptyAction.hidden, false);
+      retrying = true;
+      const expectedFocus = focusRetry ? elements.mainContent : elements.searchInput;
+      (focusRetry ? elements.emptyAction : elements.searchInput).focus();
+      const pending = elements.emptyAction.dispatch('click');
+      const pendingFocus = document.activeElement;
+      const retryHidden = elements.emptyAction.hidden;
+      resolveRetry({
+        ok: true,
+        json: async () => source === 'schedule'
+          ? Array.from({ length: 5 }, (_, index) => tvmazeRow(index + 1, `恢复的时间表${index}`))
+          : snapshot(),
+      });
+      await pending;
+      assert.equal(retryHidden, true);
+      assert.equal(pendingFocus, expectedFocus);
+      assert.equal(document.activeElement, expectedFocus);
+      assert.notEqual(elements.empty.style.display, 'block');
+      assert.match(elements.showGrid.innerHTML, source === 'schedule' ? /恢复的时间表/u : /剧目0/u);
+    });
+  }
 }
 
 test('cached-data loading and failure notices survive tab switches without replacing the schedule', async () => {
@@ -421,6 +635,44 @@ test('automatic loading preserves the existing keyboard focus', () => {
   assert.equal(document.activeElement, focused);
   assert.equal(elements.showGrid.children.length, 48);
 });
+
+test('the final observer-triggered batch keeps a focused pagination button reachable through the first new result', () => {
+  const { helpers, elements, document, view } = createApp();
+  let onIntersection;
+  view.IntersectionObserver = class {
+    constructor(callback) { onIntersection = callback; }
+    observe() {}
+  };
+  helpers.setAllData(snapshot(30));
+  helpers.switchTab('korean', { animate: false });
+  helpers.bindLoadMore();
+  elements.loadMoreButton.focus();
+  onIntersection([{ isIntersecting: true }]);
+  assert.equal(elements.showGrid.children.length, 30);
+  assert.equal(elements.loadMore.hidden, true);
+  assert.equal(document.activeElement, elements.showGrid.children[24]);
+  assert.equal(document.activeElement.tabIndex, -1);
+  assert.ok(document.activeElement.scrolled);
+});
+
+for (const [count, focusedElement] of [[60, 'loadMoreButton'], [30, 'searchInput']]) {
+  test(`observer loading preserves ${focusedElement} focus with ${count} results`, () => {
+    const { helpers, elements, document, view } = createApp();
+    let onIntersection;
+    view.IntersectionObserver = class {
+      constructor(callback) { onIntersection = callback; }
+      observe() {}
+    };
+    helpers.setAllData(snapshot(count));
+    helpers.switchTab('korean', { animate: false });
+    helpers.bindLoadMore();
+    elements[focusedElement].focus();
+    onIntersection([{ isIntersecting: true }]);
+    assert.equal(elements.showGrid.children.length, Math.min(count, 48));
+    assert.equal(elements.loadMore.hidden, count <= 48);
+    assert.equal(document.activeElement, elements[focusedElement]);
+  });
+}
 
 const malformedTVmazeFields = {
   rating: row => { row.show.rating.average = { toString: 'broken' }; },

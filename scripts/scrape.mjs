@@ -76,9 +76,8 @@ function hasOptionalEnrichmentBudget() {
   return !_optionalEnrichmentDeadline || Date.now() < _optionalEnrichmentDeadline;
 }
 
-function getOptionalEnrichmentTimeout(defaultTimeout) {
-  if (!_optionalEnrichmentDeadline) return defaultTimeout;
-  const remaining = _optionalEnrichmentDeadline - Date.now();
+function getOptionalEnrichmentTimeout(defaultTimeout, deadline = Infinity) {
+  const remaining = Math.min(_optionalEnrichmentDeadline || Infinity, deadline) - Date.now();
   if (remaining <= 0) throw new Error('optional enrichment budget exhausted');
   return Math.min(defaultTimeout, remaining);
 }
@@ -450,6 +449,10 @@ function discoveryIdentityKey(title = '', year = 0) {
   return `${normalizeTitle(title)}|${seasonKey(title)}|${year || titleYear || ''}`;
 }
 
+function discoveryRecordIdentityKey(show) {
+  return `${show.mediaType || '电视剧'}|${show.regional || '韩国'}|${discoveryIdentityKey(show.title, show.year)}`;
+}
+
 const TITLE_ALIAS_MAP = {
   '最后一排的男孩': ['Notes from the Last Row'],
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
@@ -511,6 +514,11 @@ function editDistance(a, b) {
 }
 
 function titleMatches(a, b) {
+  const aSeason = seasonKey(a);
+  const bSeason = seasonKey(b);
+  if (aSeason && bSeason) {
+    return aSeason === bSeason && titleMatches(stripSeasonSuffix(a), stripSeasonSuffix(b));
+  }
   if (normalizedTitleMatches(a, b)) return true;
   return titleCandidates(a).some(ta => titleCandidates(b).some(tb => normalizedTitleMatches(ta, tb)));
 }
@@ -2038,13 +2046,18 @@ async function main() {
   restorePreviousRecommendations(kdramaMap, varietyMap, prevShows);
 
   // ── 5. 新韩剧监控扫描 (发现并自动收录高质量新剧) ──
-  const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap);
+  // 本轮首页已先进入推荐 Map；监控必须以历史/种子身份判断“首次出现”。
+  const knownKdramasBeforeRun = new Map([...kdramaMap].filter(([, show]) =>
+    show.seedId || prevShows.koreanDramas.some(previous => sameShowIdentity(show, previous))));
+  const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap, knownKdramasBeforeRun);
   for (const s of discoveredShows) {
     kdramaMap.set(s.id, s);
   }
 
   // ── 5.2. 新综艺监控扫描 (发现并自动收录轻松搞笑综艺) ──
-  const discoveredVariety = await discoverNewVariety(liveShows, varietyMap);
+  const knownVarietyBeforeRun = new Map([...varietyMap].filter(([, show]) =>
+    show.seedId || prevShows.chineseVariety.some(previous => sameShowIdentity(show, previous))));
+  const discoveredVariety = await discoverNewVariety(liveShows, varietyMap, knownVarietyBeforeRun);
   for (const s of discoveredVariety) {
     varietyMap.set(s.id, s);
   }
@@ -2350,7 +2363,7 @@ function stripSeasonSuffix(title = '') {
   const text = safeText(title, 300).trim();
   if (!seasonKey(text)) return text;
   return text
-    .replace(/\s*(?:第[一二三四五六七八九十\d]+\s*季|(?:Season|S)\s*\d{1,2})\s*$/iu, '')
+    .replace(/\s*(?:第\s*[一二三四五六七八九十\d]+\s*季|(?:Season|S)\s*\d{1,2})\s*$/iu, '')
     .replace(/([\p{Script=Han}）)\]】》])\s*[1-9]\d?\s*$/u, '$1')
     .trim();
 }
@@ -2359,7 +2372,7 @@ function shouldDedupByExternal(a, b) {
   if (!a?.title || !b?.title) return false;
   const aSeason = seasonKey(a.title);
   const bSeason = seasonKey(b.title);
-  if (aSeason || bSeason) return !!aSeason && aSeason === bSeason && titleMatches(a.title, b.title);
+  if (aSeason || bSeason) return !!aSeason && aSeason === bSeason && sameShowIdentity(a, b);
   return true;
 }
 
@@ -2780,7 +2793,7 @@ async function enrichDescriptions(shows) {
     const target = descriptionTarget(s);
     if (hasSeasonDescriptionEvidence(s, target)) return false;
     if (needsSeasonDescriptionMigration(s, target)) return true;
-    if (s.description && s.description.length > 80) return false;
+    if (s.descriptionSource !== 'ai' && s.description && s.description.length > 80) return false;
     return target;
   });
 
@@ -2799,8 +2812,8 @@ async function enrichDescriptions(shows) {
     try {
       const data = await fetchTMDBJSON(`${target.path}?language=zh-CN`);
       if (target.seasonNumber && Number(data?.season_number) !== target.seasonNumber) return;
-      const overview = safeText(data?.overview, 2000);
-      if (overview && (target.seasonNumber || overview.length > (show.description || '').length)) {
+      const overview = typeof data?.overview === 'string' ? safeText(data.overview, 2000) : '';
+      if (overview && (show.descriptionSource === 'ai' || target.seasonNumber || overview.length > (show.description || '').length)) {
         // Display copy may improve without erasing reliable content evidence.
         // An unverified legacy series synopsis is being retired, not validated.
         if (!needsSeasonDescriptionMigration(show, target)) rememberSourcedHardExclusion(show);
@@ -2825,7 +2838,7 @@ async function enrichDescriptions(shows) {
 
   // 补充 Wikipedia 描述 (优先中文,其次英文)
   // 系列 Wikipedia 条目不能证明某一季的剧情；缺少对应季简介时保留已有文案。
-  const wikiTargets = shows.filter(s => !seasonNumberFromTitle(s.title) && s.wikipediaUrl && (!s.description || s.description.length < 80));
+  const wikiTargets = shows.filter(s => !seasonNumberFromTitle(s.title) && s.wikipediaUrl && (s.descriptionSource === 'ai' || !s.description || s.description.length < 80));
   for (const show of wikiTargets) {
     if (!hasOptionalEnrichmentBudget()) break;
     try {
@@ -2842,12 +2855,13 @@ async function enrichDescriptions(shows) {
         });
         if (resp.ok) {
           const data = await resp.json();
-          if (data.extract && data.extract.length > (show.description || '').length) {
+          const extract = typeof data?.extract === 'string' ? safeText(data.extract, 2000) : '';
+          if (extract && (show.descriptionSource === 'ai' || extract.length > (show.description || '').length)) {
             rememberSourcedHardExclusion(show);
-            show.description = safeText(data.extract, 2000);
+            show.description = extract;
             show.descriptionSource = 'wikipedia';
             enriched++;
-            console.log(`    ✓ ${show.title} (Wikipedia ${data.extract.length}字)`);
+            console.log(`    ✓ ${show.title} (Wikipedia ${extract.length}字)`);
           }
         } else {
           await resp.body?.cancel?.().catch(() => {});
@@ -2885,7 +2899,39 @@ function hasKnownDiscoveryIdentity(candidate, ...collections) {
     [...collection.values()].some(existing => sameShowIdentity(existing, candidate)));
 }
 
-async function discoverNewKDramas(liveShows, kdramaMap) {
+function recordDiscoveryHistory(discovered) {
+  const today = new Date().toISOString().split('T')[0];
+  let history = {};
+  if (existsSync(DISCOVERY_FILE)) {
+    try { history = JSON.parse(readFileSync(DISCOVERY_FILE, 'utf-8')); } catch {}
+  }
+  // 旧日志只记录韩剧；补全身份维度后与综艺共享同日累计，不能互相覆盖。
+  const dailyShows = new Map();
+  for (const show of Array.isArray(history[today]?.shows) ? history[today].shows : []) {
+    if (!show?.title) continue;
+    dailyShows.set(discoveryRecordIdentityKey(show), show);
+  }
+  for (const show of discovered) {
+    const key = discoveryRecordIdentityKey(show);
+    dailyShows.set(key, {
+      ...dailyShows.get(key),
+      title: show.title, score: show.score, playCount: show.playCount,
+      year: show.year, actor: show.actor, source: show.source,
+      updateStatus: show.updateStatus, contentType: show.contentType,
+      mediaType: show.mediaType, regional: show.regional,
+    });
+  }
+  history[today] = {
+    timestamp: new Date().toISOString(),
+    totalFound: dailyShows.size,
+    shows: [...dailyShows.values()],
+  };
+  const keys = Object.keys(history).sort();
+  while (keys.length > 60) delete history[keys.shift()];
+  writeFileSyncAtomic(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+}
+
+async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaMap) {
   console.log('\n  ── 新韩剧监控扫描 ──');
   const discovered = new Map();
 
@@ -2893,7 +2939,7 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
   for (const s of liveShows.values()) {
     if (s.regional === '韩国' && s.mediaType === '电视剧') {
       const norm = discoveryIdentityKey(s.title, s.year);
-      if (s.title && s.score > 0 && !hasKnownDiscoveryIdentity(s, kdramaMap, discovered)) {
+      if (s.title && !hasKnownDiscoveryIdentity(s, knownBeforeRun, discovered)) {
         discovered.set(norm, { ...s, source: 'api_index' });
       }
     }
@@ -2946,34 +2992,8 @@ async function discoverNewKDramas(liveShows, kdramaMap) {
 
   const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
 
-  // 3. 持久化发现记录到 discovery.json
-  const today = new Date().toISOString().split('T')[0];
-  let history = {};
-  if (existsSync(DISCOVERY_FILE)) {
-    try { history = JSON.parse(readFileSync(DISCOVERY_FILE, 'utf-8')); } catch {}
-  }
-  const dailyShows = new Map();
-  for (const show of Array.isArray(history[today]?.shows) ? history[today].shows : []) {
-    if (!show?.title) continue;
-    dailyShows.set(discoveryIdentityKey(show.title, show.year), show);
-  }
-  for (const s of sorted) {
-    const key = discoveryIdentityKey(s.title, s.year);
-    dailyShows.set(key, {
-      ...dailyShows.get(key),
-      title: s.title, score: s.score, playCount: s.playCount,
-      year: s.year, actor: s.actor, source: s.source,
-      updateStatus: s.updateStatus, contentType: s.contentType,
-    });
-  }
-  history[today] = {
-    timestamp: new Date().toISOString(),
-    totalFound: dailyShows.size,
-    shows: [...dailyShows.values()],
-  };
-  const keys = Object.keys(history).sort();
-  while (keys.length > 60) delete history[keys.shift()];
-  writeFileSyncAtomic(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+  // 3. 记录首次观察，最终内容门禁/AI 拒绝不抹掉真实发现。
+  recordDiscoveryHistory(sorted);
 
   // 4. 先按来源数据门槛收录候选；完成剧情富化后再交给 AI 筛选。
   const aiFiltered = sorted;
@@ -3017,17 +3037,17 @@ const VARIETY_DISCOVERY_MIN_PLAYS = 30000;
 const VARIETY_DISCOVERY_CURRENT_MIN_SCORE = 3.0;
 const VARIETY_DISCOVERY_CURRENT_MIN_PLAYS = 5000;
 
-async function discoverNewVariety(liveShows, varietyMap) {
+async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = varietyMap) {
   console.log('\n  ── 新综艺监控扫描 ──');
   const discovered = new Map();
 
   // 1. 扫描 API 已抓取的数据中未收录的大陆/韩国综艺
   for (const s of liveShows.values()) {
     if (s.mediaType === '综艺' && ['大陆', '韩国', '台湾', '香港'].includes(s.regional)) {
-      const norm = discoveryIdentityKey(s.title, s.year);
+      const norm = discoveryRecordIdentityKey(s);
       // 排除黑名单
       if (VarietyExclude.some(kw => s.title.includes(kw))) continue;
-      if (s.title && !hasKnownDiscoveryIdentity(s, varietyMap, discovered)) {
+      if (s.title && !hasKnownDiscoveryIdentity(s, knownBeforeRun, discovered)) {
         discovered.set(norm, { ...s, source: 'api_index' });
       }
     }
@@ -3047,13 +3067,13 @@ async function discoverNewVariety(liveShows, varietyMap) {
         if (!title || VarietyExclude.some(kw => title.includes(kw))) continue;
         const cleanTitle = cleanShowTitle(title);
         const yr = boundedYear(extractYear(r.postTime || ''));
-        const norm = discoveryIdentityKey(title, yr);
+        const norm = discoveryRecordIdentityKey({ title: cleanTitle, year: yr, mediaType: '综艺', regional: r.regional });
         let contentKey;
         try { contentKey = safeSourceIdentifier(r.contxt); }
         catch { console.warn('  [WARN] skipped malformed variety discovery identifier'); continue; }
         const candidate = {
           id: contentKey || stableDiscoveredId('disc_var', cleanTitle, yr),
-          title: cleanTitle, year: yr, mediaType: '综艺',
+          title: cleanTitle, year: yr, mediaType: '综艺', regional: r.regional,
         };
         if (candidate.title && !hasKnownDiscoveryIdentity(candidate, varietyMap, discovered)) {
           const sc = isNumericScalar(r.score) ? boundedScore(r.score) : 0;
@@ -3085,6 +3105,7 @@ async function discoverNewVariety(liveShows, varietyMap) {
   }
 
   const sorted = [...discovered.values()].sort((a, b) => b.playCount - a.playCount);
+  recordDiscoveryHistory(sorted);
 
   // 3. 筛选满足质量门槛的综艺,自动收录
   const promoted = [];
@@ -3135,6 +3156,10 @@ const IMAGE_CACHE_FILE = join(DATA_DIR, 'image_cache.json');
 const COVER_CACHE_VERSION = 16;
 // 与图片格式版本分离：旧版把 429/5xx 误记为 notFound，必须主动失效。
 const TMDB_NEGATIVE_CACHE_VERSION = 2;
+const EXTERNAL_METADATA_TTL_MS = Object.freeze({ unknown: 18 * 60 * 60 * 1000, complete: 30 * DAY_MS });
+const EXTERNAL_METADATA_QUOTA = 6;
+const EXTERNAL_METADATA_CONCURRENCY = 3;
+const EXTERNAL_METADATA_BUDGET_MS = 40 * 1000;
 
 // 单进程顺序管线内复用解析结果,避免每个富化阶段重复解析 ~100KB JSON。
 // 写入时同步更新内存副本,保证后续阶段读到最新数据。
@@ -3399,10 +3424,10 @@ const TITLE_EN_MAP = {
   '妻子的浪漫旅行': '妻子的浪漫旅行',
 };
 
-async function fetchTMDBJSON(path) {
+async function fetchTMDBJSON(path, { deadline = Infinity } = {}) {
   if (!TMDB_TOKEN) return null;
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000));
+  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000, deadline));
   try {
     const resp = await fetch(`https://api.themoviedb.org/3/${path}`, {
       headers: {
@@ -3411,37 +3436,62 @@ async function fetchTMDBJSON(path) {
       },
       signal: ctrl.signal,
     });
+    if (Date.now() >= deadline || !hasOptionalEnrichmentBudget()) {
+      await resp.body?.cancel?.().catch(() => {});
+      throw new Error('optional enrichment budget exhausted');
+    }
     if (!resp.ok) {
       await resp.body?.cancel?.().catch(() => {});
       if (resp.status === 404) return null;
       throw new Error(`TMDB HTTP ${resp.status}`);
     }
-    return await resp.json();
+    const data = await resp.json();
+    getOptionalEnrichmentTimeout(12000, deadline);
+    return data;
   } finally { clearTimeout(t); }
 }
 
-async function fetchWikidataLinks(wikidataId) {
-  if (!wikidataId) return {};
+async function fetchWikidataLinks(wikidataId, { deadline = Infinity } = {}) {
+  if (!wikidataId) return { lookupState: 'complete' };
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000));
+  const t = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(12000, deadline));
   try {
     const resp = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${wikidataId}.json`, {
       headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
       signal: ctrl.signal,
     });
-    if (!resp.ok) return {};
+    if (!resp.ok) {
+      await resp.body?.cancel?.().catch(() => {});
+      return { lookupState: 'unknown' };
+    }
     const entity = (await resp.json())?.entities?.[wikidataId];
+    getOptionalEnrichmentTimeout(12000, deadline);
+    if (!entity || typeof entity !== 'object' || Array.isArray(entity) || (entity.id && entity.id !== wikidataId)) {
+      throw new Error('Wikidata returned invalid data');
+    }
+    if ((entity.sitelinks != null && (typeof entity.sitelinks !== 'object' || Array.isArray(entity.sitelinks))) ||
+        (entity.claims != null && (typeof entity.claims !== 'object' || Array.isArray(entity.claims))) ||
+        [entity.claims?.P4529, entity.claims?.P345].some(value => value != null && !Array.isArray(value))) {
+      throw new Error('Wikidata returned invalid metadata');
+    }
     const sitelinks = entity?.sitelinks || {};
     const doubanId = entity?.claims?.P4529?.[0]?.mainsnak?.datavalue?.value;
     const imdbId = entity?.claims?.P345?.[0]?.mainsnak?.datavalue?.value;
+    const wikipediaUrl = sitelinks.zhwiki?.url || sitelinks.enwiki?.url || sitelinks.kowiki?.url || '';
+    if ((doubanId != null && !/^[1-9]\d*$/u.test(safeText(doubanId, 100))) ||
+        (imdbId != null && (typeof imdbId !== 'string' || !/^tt\d+$/u.test(imdbId))) ||
+        (wikipediaUrl && (typeof wikipediaUrl !== 'string' || !safeOutputUrl(wikipediaUrl)))) {
+      throw new Error('Wikidata returned invalid links');
+    }
     return {
+      lookupState: 'complete',
       doubanUrl: doubanId ? `${DOUBAN_MOVIE_BASE}/${doubanId}/` : '',
-      wikipediaUrl: sitelinks.zhwiki?.url || sitelinks.enwiki?.url || sitelinks.kowiki?.url || '',
+      wikipediaUrl,
       imdbUrl: imdbId ? `https://www.imdb.com/title/${imdbId}/` : '',
     };
   } catch (e) {
     console.warn(`  [WARN] Wikidata lookup failed for "${wikidataId}": ${e.message}`);
-    return {};
+    return { lookupState: 'unknown' };
   } finally { clearTimeout(t); }
 }
 
@@ -3573,18 +3623,28 @@ async function resolveTMDBSeasonSeries(show, cacheEntry) {
   return { id, title: stripSeasonSuffix(title) };
 }
 
-async function fetchTMDBExternalMetadata(mediaKind, tmdbId, showTitle) {
-  const external = await fetchTMDBJSON(`${mediaKind}/${tmdbId}/external_ids`).catch(error => {
-    console.warn(`  [WARN] TMDB external IDs failed for "${showTitle}": ${error.message}`);
-    return null;
-  });
-  const wikidata = await fetchWikidataLinks(external?.wikidata_id);
-  return {
-    doubanUrl: wikidata.doubanUrl || '',
-    wikipediaUrl: wikidata.wikipediaUrl || '',
-    imdbUrl: external?.imdb_id ? `https://www.imdb.com/title/${external.imdb_id}/` : wikidata.imdbUrl || '',
-    wikidataId: external?.wikidata_id || '',
-  };
+async function fetchTMDBExternalMetadata(mediaKind, tmdbId, showTitle, { deadline = Infinity } = {}) {
+  const result = { externalMetadataState: 'unknown' };
+  try {
+    const external = await fetchTMDBJSON(`${mediaKind}/${tmdbId}/external_ids`, { deadline });
+    if (!external || typeof external !== 'object' || Array.isArray(external) ||
+        (external.id != null && external.id !== tmdbId) ||
+        (external.imdb_id != null && (typeof external.imdb_id !== 'string' || (external.imdb_id && !/^tt\d+$/u.test(external.imdb_id)))) ||
+        (external.wikidata_id != null && (typeof external.wikidata_id !== 'string' || (external.wikidata_id && !/^Q[1-9]\d*$/u.test(external.wikidata_id))))) {
+      throw new Error('TMDB external IDs returned invalid data');
+    }
+    if (external?.imdb_id) result.imdbUrl = `https://www.imdb.com/title/${external.imdb_id}/`;
+    if (external?.wikidata_id) result.wikidataId = external.wikidata_id;
+    const wikidata = await fetchWikidataLinks(external?.wikidata_id, { deadline });
+    result.doubanUrl = wikidata.doubanUrl || '';
+    result.wikipediaUrl = wikidata.wikipediaUrl || '';
+    result.imdbUrl ||= wikidata.imdbUrl || '';
+    result.externalMetadataState = wikidata.lookupState;
+  } catch (error) {
+    console.warn(`  [WARN] TMDB external metadata failed for "${showTitle}": ${error.message}`);
+  }
+  result.externalMetadataCheckedAt = new Date().toISOString();
+  return result;
 }
 
 function simplifyTitleForSearch(title = '') {
@@ -3835,6 +3895,52 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
   return { lookupState: hadTransientError ? 'unknown' : 'not_found' };
 }
 
+async function refreshCachedExternalMetadata(shows, cache) {
+  if (!hasOptionalEnrichmentBudget()) return;
+  const now = Date.now();
+  const groups = new Map();
+  for (const show of shows) {
+    const cached = findReusableTMDBCache(cache, show);
+    if (!cached || !Number.isSafeInteger(cached.tmdbId) || cached.tmdbId <= 0) continue;
+    // 旧缓存按上次抓取时间渐进迁移；没有可靠时间的条目先进入短暂退避。
+    let state = Object.hasOwn(EXTERNAL_METADATA_TTL_MS, cached.externalMetadataState) ? cached.externalMetadataState : 'unknown';
+    let checkedAt = comparableTimestamp(cached.externalMetadataCheckedAt || cached.cachedAt);
+    if (!checkedAt || checkedAt > now) {
+      checkedAt = now;
+      state = 'unknown';
+    }
+    cached.externalMetadataState = state;
+    cached.externalMetadataCheckedAt = new Date(checkedAt).toISOString();
+    if (now - checkedAt < EXTERNAL_METADATA_TTL_MS[state]) continue;
+    const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
+    const key = `${mediaKind}/${cached.tmdbId}`;
+    if (!groups.has(key)) groups.set(key, { key, mediaKind, tmdbId: cached.tmdbId, checkedAt, entries: [] });
+    const group = groups.get(key);
+    group.checkedAt = Math.min(group.checkedAt, checkedAt);
+    group.entries.push({ show, cached });
+  }
+  const targets = [...groups.values()].sort((a, b) => a.checkedAt - b.checkedAt || a.key.localeCompare(b.key)).slice(0, EXTERNAL_METADATA_QUOTA);
+  const deadline = Math.min(now + EXTERNAL_METADATA_BUDGET_MS, _optionalEnrichmentDeadline || Infinity);
+  await mapPool(targets, EXTERNAL_METADATA_CONCURRENCY, async group => {
+    if (Date.now() >= deadline) return;
+    const metadata = await fetchTMDBExternalMetadata(group.mediaKind, group.tmdbId, group.entries[0].show.title, { deadline });
+    for (const { show, cached } of group.entries) {
+      // 只填补缺失字段；独立的季条目验证证据优先于系列 Wikidata。
+      const douban = resolveDoubanMetadata(show, show, cached, metadata);
+      applyDoubanMetadata(show, douban);
+      applyDoubanMetadata(cached, douban);
+      for (const field of ['wikipediaUrl', 'imdbUrl']) {
+        show[field] = safeOutputUrl(show[field]) || safeOutputUrl(cached[field]) || safeOutputUrl(metadata[field]);
+        cached[field] = show[field];
+      }
+      show.wikidataId = show.wikidataId || cached.wikidataId || metadata.wikidataId || '';
+      cached.wikidataId = show.wikidataId;
+      cached.externalMetadataState = metadata.externalMetadataState;
+      cached.externalMetadataCheckedAt = metadata.externalMetadataCheckedAt;
+    }
+  });
+}
+
 async function enrichCoversFromTMDB(shows) {
   const cache = loadImageCache();
   let fetched = 0;
@@ -3880,6 +3986,8 @@ async function enrichCoversFromTMDB(shows) {
     saveImageCache(cache);
     return;
   }
+
+  await refreshCachedExternalMetadata(shows, cache);
 
   // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。
   //    yfsp 的 .gif 动图封面视为低质量，强制重新搜索。
@@ -3945,6 +4053,8 @@ async function enrichCoversFromTMDB(shows) {
         wikipediaUrl,
         imdbUrl,
         wikidataId,
+        externalMetadataState: img.externalMetadataState,
+        externalMetadataCheckedAt: img.externalMetadataCheckedAt,
         cachedAt: new Date().toISOString(),
       };
       show.coverImg = img.url;

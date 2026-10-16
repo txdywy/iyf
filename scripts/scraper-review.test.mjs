@@ -45,6 +45,7 @@ function loadHelpers({
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
+        titleMatches, dedupByTitle, findReusableTMDBCache,
       };
     `;
   vm.createContext(context);
@@ -810,6 +811,199 @@ function seasonCache(overrides = {}) {
   };
 }
 
+test('real same-season title spellings retain one identity and reusable cache without merging other identities', () => {
+  const data = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
+  const cache = JSON.parse(readFileSync(join(root, 'data/image_cache.json'), 'utf8'));
+  const original = data.chineseVariety.find(show => show.title === '只要有空第5季');
+  assert.ok(original, 'exercise the currently published show');
+  const variant = { ...original, id: 'changed-source-id', title: '只要有空5' };
+  const { helpers } = loadHelpers();
+  assert.equal(helpers.sameShowIdentity(original, variant), true);
+  assert.equal(helpers.sameShowIdentity(original, { ...variant, title: '只要有空第 5 季' }), true);
+  assert.equal(helpers.dedupByTitle([original, variant]).length, 1);
+  assert.ok(helpers.findReusableTMDBCache(cache, variant), 'same verified season cache survives title spelling and source ID changes');
+  for (const extra of [{ title: '只要有空6' }, { regional: '大陆' }, { mediaType: '电视剧' }, { year: original.year - 2 }]) {
+    const different = { ...variant, ...extra };
+    assert.equal(helpers.sameShowIdentity(original, different), false, JSON.stringify(extra));
+    assert.equal(helpers.dedupByTitle([original, different]).length, 2, `external dedup must preserve ${JSON.stringify(extra)}`);
+  }
+  assert.equal(helpers.titleMatches('酒鬼都市男女第1季', '酒鬼都市女人们1'), true, 'season normalization retains explicit base-title aliases');
+});
+
+for (const source of ['tmdb', 'wikipedia']) {
+  test(`long AI copy can be replaced by ${source} source facts without retaining AI exclusions`, async () => {
+    const overview = '几位好友在旅途中共同成长，逐渐找到生活的方向。';
+    const cached = { title: '长AI文案测试剧', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+      url: 'https://image.tmdb.org/t/p/original/copy.jpg', matchedTitle: '长AI文案测试剧', tmdbId: 123456,
+      tmdbUrl: 'https://www.themoviedb.org/tv/123456' };
+    const show = { id: 'copy', title: cached.title, year: 2026, mediaType: '电视剧',
+      description: '这是一段带有血腥丧尸等错误内容的旧生成文案。'.repeat(5), descriptionSource: 'ai',
+      ...(source === 'wikipedia' ? { wikipediaUrl: 'https://zh.wikipedia.org/wiki/长AI文案测试剧' } : {}) };
+    const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ copy: cached }) },
+      fetchImpl: async url => url.includes('wikipedia.org') ? response({ extract: overview }) : response({ id: 123456, overview: source === 'tmdb' ? overview : '' }),
+    });
+    assert.ok(show.description.length > 80);
+    await helpers.enrichDescriptions([show]);
+    assert.equal(show.description, overview);
+    assert.equal(show.descriptionSource, source);
+    assert.equal(helpers.isEligibleKDrama(show), true, 'old generated risk words are never sourced exclusion evidence');
+
+    const oldCopy = '已有较长的AI展示文案，可靠来源资料尚待后续补充。'.repeat(5);
+    const malformed = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ copy: cached }) },
+      fetchImpl: async () => response({ id: 123456, overview: {}, extract: {} }),
+    });
+    const retained = { ...show, description: oldCopy, descriptionSource: 'ai' };
+    await malformed.helpers.enrichDescriptions([retained]);
+    assert.equal(retained.description, oldCopy, 'malformed source prose cannot erase existing display copy');
+    assert.equal(retained.descriptionSource, 'ai');
+  });
+}
+
+function externalMetadataCache(id, extra = {}) {
+  return { title: `外链恢复节目${id}`, year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+    url: `https://image.tmdb.org/t/p/original/${id}.jpg`, matchedTitle: `外链恢复节目${id}`, tmdbId: id,
+    tmdbUrl: `https://www.themoviedb.org/tv/${id}`, cachedAt: '2026-08-01T00:00:00Z', ...extra };
+}
+
+test('external metadata recovers after a transient failure across processes while keeping the positive cover', async () => {
+  const show = { id: 'metadata', title: '外链恢复测试剧', year: 2026, mediaType: '电视剧', regional: '韩国', coverImg: 'https://static.yfsp.tv/metadata.jpg' };
+  const first = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    if (url.includes('/search/tv?')) return response({ results: [{ id: 123456, name: show.title, first_air_date: '2026-01-01', origin_country: ['KR'], poster_path: '/metadata.jpg' }] });
+    return response(null, { status: 503 });
+  } });
+  await first.helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(first.files.get(join(dataDir, 'image_cache.json'))).metadata;
+  assert.equal(cached.externalMetadataState, 'unknown');
+  assert.equal(cached.url, show.coverImg);
+  let calls = 0;
+  const recovered = loadHelpers({ date: '2026-10-01T04:00:00Z', env: { TMDB_TOKEN: 'test-token' },
+    initialFiles: Object.fromEntries(first.files), fetchImpl: async url => {
+      calls++;
+      assert.ok(url.includes('/tv/123456/external_ids'));
+      return response({ imdb_id: 'tt123456', wikidata_id: null });
+    } });
+  await recovered.helpers.enrichCoversFromTMDB([show]);
+  assert.equal(calls, 1);
+  assert.equal(show.imdbUrl, 'https://www.imdb.com/title/tt123456/');
+  assert.equal(show.coverImg, cached.url);
+  assert.equal(JSON.parse(recovered.files.get(join(dataDir, 'image_cache.json'))).metadata.externalMetadataState, 'complete');
+});
+
+test('reliably empty external metadata is cached and temporary or malformed responses stay retryable', async () => {
+  for (const outcome of ['empty', '503', '404', 'null', 'wrong-type', 'wikidata-503', 'wikidata-wrong-type']) {
+    const cached = externalMetadataCache(123456);
+    let requests = 0;
+    const { helpers, files, setNow } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached }) },
+      fetchImpl: async url => {
+        requests++;
+        if (outcome === '503' || outcome === '404') return response(null, { status: Number(outcome) });
+        if (url.includes('wikidata.org')) return outcome === 'wikidata-wrong-type'
+          ? response({ entities: { Q123456: { claims: { P4529: {} } } } }) : response(null, { status: 503 });
+        return response(outcome === 'null' ? null : outcome === 'wrong-type' ? { imdb_id: {} } : outcome.startsWith('wikidata-') ? { wikidata_id: 'Q123456' } : {});
+      },
+    });
+    const show = { id: 'show', title: cached.title, year: 2026, mediaType: '电视剧' };
+    await helpers.enrichCoversFromTMDB([show]);
+    const saved = () => JSON.parse(files.get(join(dataDir, 'image_cache.json'))).show;
+    assert.equal(saved().externalMetadataState, outcome === 'empty' ? 'complete' : 'unknown', outcome);
+    const afterFirst = requests;
+    setNow('2026-09-30T16:00:00Z');
+    await helpers.enrichCoversFromTMDB([show]);
+    assert.equal(requests, afterFirst, `${outcome}: every 12-hour run must not repeat the same lookup`);
+    setNow(outcome === 'empty' ? '2026-10-31T04:00:00Z' : '2026-10-01T04:00:00Z');
+    await helpers.enrichCoversFromTMDB([show]);
+    assert.ok(requests > afterFirst, `${outcome}: expired results eventually retry`);
+  }
+});
+
+test('legacy external metadata refreshes gradually and fairly with entity deduplication and bounded concurrency', async () => {
+  const cache = Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`show-${i}`, externalMetadataCache(123450 + i)]));
+  cache.alias = { ...cache['show-0'] };
+  const shows = Object.entries(cache).map(([id, entry]) => ({ id, title: entry.title, year: entry.year, mediaType: entry.mediaType }));
+  let active = 0;
+  let peak = 0;
+  const requested = [];
+  const { helpers, setNow } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify(cache) }, fetchImpl: async url => {
+      requested.push(url);
+      peak = Math.max(peak, ++active);
+      await Promise.resolve();
+      active--;
+      return response({});
+    },
+  });
+  await helpers.enrichCoversFromTMDB(shows);
+  assert.equal(requested.length, 6, 'old caches are migrated through a fixed per-run quota');
+  assert.equal(new Set(requested).size, 6, 'aliases of one mediaKind+tmdbId use a single request');
+  assert.ok(peak <= 3);
+  setNow('2026-09-30T16:00:00Z');
+  await helpers.enrichCoversFromTMDB(shows);
+  assert.equal(requested.length, 10, 'unchecked entities get their turn before fresh metadata repeats');
+  assert.equal(new Set(requested).size, 10);
+});
+
+test('external metadata recovery respects the global budget and preserves independent season subjects', async () => {
+  const cached = seasonCache({ cachedAt: '2026-08-01T00:00:00Z' });
+  const show = { id: 'show', title: cached.title, year: cached.year, mediaType: cached.mediaType,
+    doubanUrl: 'https://movie.douban.com/subject/222222/', doubanId: '222222', doubanMatchedTitle: cached.title,
+    wikipediaUrl: 'https://zh.wikipedia.org/wiki/独立来源' };
+  const requests = [];
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ show: cached, rejected: { ...cached, version: 14 } }) },
+    fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/external_ids')) return response({ wikidata_id: 'Q123456' });
+      return response({ entities: { Q123456: { claims: { P4529: [{ mainsnak: { datavalue: { value: '999999' } } }] } } } });
+    },
+  });
+  helpers.setEnrichmentDeadline(Date.parse('2026-09-30T04:00:00Z'));
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(requests.length, 0);
+  helpers.setEnrichmentDeadline(0);
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(requests.length, 2);
+  assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/222222/');
+  assert.equal(show.wikipediaUrl, new URL('https://zh.wikipedia.org/wiki/独立来源').href);
+  assert.equal(JSON.parse(files.get(join(dataDir, 'image_cache.json'))).rejected.version, 14, 'metadata recovery cannot recertify rejected cover identities');
+});
+
+test('external metadata deduplicates by media kind and enforces stage and remaining global deadlines', async () => {
+  for (const scope of ['stage', 'global']) {
+    const cache = {
+      tv: externalMetadataCache(123456),
+      movie: externalMetadataCache(123456, { mediaType: '电影', tmdbUrl: 'https://www.themoviedb.org/movie/123456' }),
+    };
+    const shows = Object.entries(cache).map(([id, entry]) => ({ id, title: entry.title, year: entry.year, mediaType: entry.mediaType }));
+    const requested = [];
+    const delays = [];
+    let advance;
+    const { helpers, setNow, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify(cache) },
+      setTimeoutImpl: (_fn, delay) => { delays.push(delay); return 0; },
+      fetchImpl: async url => {
+        requested.push(url);
+        await Promise.resolve();
+        advance();
+        return response({ imdb_id: 'tt123456' });
+      },
+    });
+    advance = () => setNow(scope === 'stage' ? '2026-09-30T04:00:41Z' : '2026-09-30T04:00:01Z');
+    if (scope === 'global') helpers.setEnrichmentDeadline(Date.parse('2026-09-30T04:00:00.500Z'));
+    await helpers.enrichCoversFromTMDB(shows);
+    assert.equal(requested.length, 2, 'TV and movie IDs are independent entities');
+    assert.ok(requested.some(url => url.includes('/tv/123456/')));
+    assert.ok(requested.some(url => url.includes('/movie/123456/')));
+    assert.ok(delays.every(delay => delay <= (scope === 'global' ? 500 : 12000)));
+    for (const entry of Object.values(JSON.parse(files.get(join(dataDir, 'image_cache.json'))))) {
+      assert.equal(entry.externalMetadataState, 'unknown', 'late results cannot establish complete metadata');
+      assert.equal(entry.imdbUrl || '', '');
+    }
+  }
+});
+
 for (const verified of [false, true]) {
   test(`TMDB series metadata ${verified ? 'preserves an independently verified season subject' : 'cannot certify a season Douban subject'}`, async () => {
     const requests = [];
@@ -892,7 +1086,7 @@ test('Douban season evidence from an English subtitle survives the next TMDB cac
   const show = { id: 'show', title: cached.title, year: 2021, mediaType: '电视剧', regional: '韩国', coverImg: cached.url };
   await helpers.enrichDoubanLinks([show]);
   assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/34849938/');
-  assert.equal(show.doubanMatchedTitle, '酒鬼都市女人们');
+  assert.equal(show.doubanMatchedTitle, 'Work Later Drink Now Season 1');
   assert.equal(show.doubanMatchedSeasonNumber, 1);
   const count = requests;
   await helpers.enrichCoversFromTMDB([show]);
@@ -1035,6 +1229,97 @@ test('same-day discoveries accumulate by identity and survive later empty or fai
   await helpers.discoverNewKDramas(new Map(), known);
   assert.deepEqual(readDay().shows.map(show => show.title), ['新韩剧第2季', '新韩剧第3季']);
   assert.equal(readDay().totalFound, 2);
+});
+
+test('homepage discoveries persist by category, retain rejected observations, and accumulate within a day', async () => {
+  const previousShow = (id, title, mediaType, regional) => ({
+    id, title, mediaType, regional, year: 2026, score: 8, playCount: 100000,
+    category: mediaType === '综艺' ? 'variety' : 'korean_drama',
+    scrapedAt: '2026-09-29T04:00:00Z', firstSeenAt: '2026-09-01T04:00:00Z',
+    coverImg: 'https://static.yfsp.tv/discovery.jpg', yfspUrl: `https://www.yfsp.tv/play/${id}`,
+  });
+  const knownDrama = previousShow('known-drama', '既有发现测试剧', '电视剧', '韩国');
+  const knownVariety = previousShow('known-variety', '既有发现测试综艺', '综艺', '大陆');
+  const previous = { lastUpdated: '2026-09-29T04:00:00Z', stats: { totalScraped: 30 }, koreanDramas: [knownDrama], chineseVariety: [knownVariety], otherDramas: [] };
+  const item = (mediaKey, title, mediaType = '电视剧', extra = {}) => ({
+    mediaKey, title, mediaType, regional: mediaType === '综艺' ? '大陆' : '韩国',
+    score: 8, playCount: 100000, publishTime: '2026-09-01',
+    coverImgUrl: 'https://static.yfsp.tv/discovery.jpg', ...extra,
+  });
+  let current = [
+    item(knownDrama.id, knownDrama.title), item(knownVariety.id, knownVariety.title, '综艺'),
+    item('new-drama', '跨分类首次发现'), item('new-variety', '跨分类首次发现', '综艺'),
+    item('unrated-drama', '未评分首次发现剧', '电视剧', { score: 0 }),
+    item('rule-rejected', '规则拒绝首次发现剧', '电视剧', { description: '血腥丧尸题材。' }),
+  ];
+  const { helpers, files } = loadHelpers({
+    initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (url.includes('api.yfsp.tv/api/list/index')) return response({ data: { list: [{ name: '电视剧', list: current }] } });
+      return response(null, { status: 503 });
+    },
+  });
+  const today = () => JSON.parse(files.get(join(dataDir, 'discovery.json')))['2026-09-30'];
+  await helpers.main();
+  assert.equal(today().totalFound, 4, 'both homepage categories and rejected observations must be monitored');
+  assert.deepEqual(today().shows.filter(show => show.title === '跨分类首次发现').map(show => show.mediaType).sort(), ['电视剧', '综艺']);
+  assert.equal(today().shows.some(show => show.title.startsWith('既有')), false);
+  assert.equal(today().shows.every(show => show.source === 'api_index'), true);
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(published.koreanDramas.some(show => show.id === 'rule-rejected'), false);
+  assert.equal(published.koreanDramas.some(show => show.id === 'unrated-drama'), true);
+
+  current = [...current, item('later-drama', '同日稍后首次发现剧')];
+  await helpers.main();
+  assert.equal(today().totalFound, 5, 'later runs append discoveries without losing earlier observations');
+  await helpers.main();
+  assert.equal(today().totalFound, 5, 'repeated observations must not inflate the daily count');
+});
+
+test('a homepage candidate rejected by AI remains in discovery monitoring', async () => {
+  const item = {
+    mediaKey: 'ai-rejected-homepage', title: '智能拒绝首次发现剧', mediaType: '电视剧', regional: '韩国',
+    publishTime: '2026-09-01', score: 8, playCount: 100000, coverImgUrl: 'https://static.yfsp.tv/discovery.jpg',
+  };
+  const { helpers, files } = loadHelpers({
+    env: { OPENROUTER_API_KEY: 'test-token' },
+    fetchImpl: async (url, options) => {
+      if (url.includes('api.yfsp.tv/api/list/index')) return response({ data: { list: [{ name: '电视剧', list: [item] }] } });
+      if (url.includes('openrouter.ai')) {
+        const schema = JSON.parse(options.body).response_format.json_schema;
+        const ids = schema.schema.properties.results.items.properties.id.enum;
+        return response({ choices: [{ message: { content: JSON.stringify({ results: ids.map(id => ({
+          id, ok: id !== item.mediaKey, recommendationScore100: 80, recommendationLevel: 'strong', r: '筛选结果', d: '资料待补充。',
+        })) }) } }] });
+      }
+      return response(null, { status: 503 });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(published.koreanDramas.some(show => show.id === item.mediaKey), false);
+  const discovered = JSON.parse(files.get(join(dataDir, 'discovery.json')))['2026-09-30'];
+  assert.equal(discovered.shows.some(show => show.title === item.title), true, 'discovery means first observation, independently of recommendation acceptance');
+});
+
+test('shared discovery monitoring preserves legacy drama entries and distinct source regions', async () => {
+  const legacy = { title: '跨地区发现测试', year: 2026, score: 7, source: 'search' };
+  const oldDay = { timestamp: '2026-09-29T04:00:00Z', totalFound: 1, shows: [{ title: '旧日发现记录', year: 2026 }] };
+  const { helpers, files } = loadHelpers({
+    initialFiles: { [join(dataDir, 'discovery.json')]: JSON.stringify({
+      '2026-09-29': oldDay,
+      '2026-09-30': { timestamp: '2026-09-30T00:00:00Z', totalFound: 1, shows: [legacy] },
+    }) },
+    fetchImpl: async () => response({ data: { info: [{ result: ['大陆', '韩国'].map((regional, index) => ({
+      title: legacy.title, atypeName: '综艺', regional, postTime: '2026-08-01', score: 8, hot: 100000, contxt: `regional-${index}`,
+    })) }] } }),
+  });
+  const candidates = await helpers.discoverNewVariety(new Map(), new Map());
+  assert.equal(candidates.length, 2, 'same-title variety shows from different regions retain separate identities');
+  const history = JSON.parse(files.get(join(dataDir, 'discovery.json')));
+  assert.equal(history['2026-09-30'].totalFound, 3, 'legacy Korean drama and both regional varieties remain separate');
+  assert.deepEqual(history['2026-09-30'].shows.find(show => !show.mediaType), legacy);
+  assert.deepEqual(history['2026-09-29'], oldDay);
 });
 
 test('KDrama discovery preserves existing aliases and deduplicates candidates by media identity', async () => {
