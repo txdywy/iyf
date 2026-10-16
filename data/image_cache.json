@@ -14,7 +14,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%84%9B%E6%83%85%E6%80%8E%E9%BA%BC%E7%BF%BB%E8%AD%AF%EF%BC%9F",
     "imdbUrl": "https://www.imdb.com/title/tt30293074/",
     "wikidataId": "Q125121395",
-    "cachedAt": "2026-08-23T16:33:58.219Z"
+    "cachedAt": "2026-08-23T16:33:58.219Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.469Z"
   },
   "seed_kd_2026_02": {
     "title": "21世纪大君夫人",
@@ -31,7 +33,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/21%E4%B8%96%E7%B4%80%E5%A4%A7%E5%90%9B%E5%A4%AB%E4%BA%BA",
     "imdbUrl": "https://www.imdb.com/title/tt39333617/",
     "wikidataId": "Q131386568",
-    "cachedAt": "2026-08-23T16:33:58.236Z"
+    "cachedAt": "2026-08-23T16:33:58.236Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.448Z"
   },
   "seed_kd_2026_03": {
     "title": "订阅男友",
@@ -48,7 +52,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%A8%82%E9%96%B1%E7%94%B7%E5%8F%8B",
     "imdbUrl": "https://www.imdb.com/title/tt35848827/",
     "wikidataId": "Q132561179",
-    "cachedAt": "2026-08-23T16:33:58.253Z"
+    "cachedAt": "2026-08-23T16:33:58.253Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.555Z"
   },
   "seed_kd_2026_06": {
     "title": "努力克服自卑的我们",
@@ -65,7 +71,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%8A%AA%E5%8A%9B%E5%85%8B%E6%9C%8D%E8%87%AA%E5%8D%91%E7%9A%84%E6%88%91%E5%80%91",
     "imdbUrl": "https://www.imdb.com/title/tt36732944/",
     "wikidataId": "Q137843064",
-    "cachedAt": "2026-08-23T16:33:58.387Z"
+    "cachedAt": "2026-08-23T16:33:58.387Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.573Z"
   },
   "seed_kd_2026_07": {
     "title": "死亡之花",
@@ -82,7 +90,9 @@
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Bloody_Flower",
     "imdbUrl": "https://www.imdb.com/title/tt39306333/",
     "wikidataId": "Q137700437",
-    "cachedAt": "2026-08-23T16:33:58.477Z"
+    "cachedAt": "2026-08-23T16:33:58.477Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.580Z"
   },
   "seed_kd_2026_08": {
     "title": "春日狂热",
@@ -99,7 +109,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%A5%E6%97%A5%E7%8B%82%E7%86%B1",
     "imdbUrl": "https://www.imdb.com/title/tt39137681/",
     "wikidataId": "Q136527446",
-    "cachedAt": "2026-08-23T16:33:58.931Z"
+    "cachedAt": "2026-08-23T16:33:58.931Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:58.931Z"
   },
   "seed_kd_2026_09": {
     "title": "给你宇宙",
@@ -116,7 +128,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B5%A6%E4%BD%A0%E5%AE%87%E5%AE%99_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt39453765/",
     "wikidataId": "Q137668853",
-    "cachedAt": "2026-08-23T16:33:58.653Z"
+    "cachedAt": "2026-08-23T16:33:58.653Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:58.653Z"
   },
   "seed_kd_2026_10": {
     "title": "权欲之巅",
@@ -133,7 +147,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AC%8A%E6%85%BE%E4%B9%8B%E5%B7%94_Climax",
     "imdbUrl": "https://www.imdb.com/title/tt39017753/",
     "wikidataId": "Q136945952",
-    "cachedAt": "2026-08-23T16:33:59.760Z"
+    "cachedAt": "2026-08-23T16:33:59.760Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.760Z"
   },
   "seed_kd_2026_11": {
     "title": "秒杀爱情",
@@ -150,7 +166,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%A7%92%E6%AE%BA%E6%84%9B%E6%83%85",
     "imdbUrl": "https://www.imdb.com/title/tt39387440/",
     "wikidataId": "Q137711304",
-    "cachedAt": "2026-08-23T16:33:59.111Z"
+    "cachedAt": "2026-08-23T16:33:59.111Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.111Z"
   },
   "seed_kd_2026_12": {
     "title": "赌金",
@@ -167,7 +185,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B3%AD%E9%87%91",
     "imdbUrl": "https://www.imdb.com/title/tt37253311/",
     "wikidataId": "Q134848097",
-    "cachedAt": "2026-08-23T16:33:59.269Z"
+    "cachedAt": "2026-08-23T16:33:59.269Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.269Z"
   },
   "seed_kd_2026_13": {
     "title": "魔女之吻",
@@ -184,7 +204,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%AD%94%E5%A5%B3%E4%B9%8B%E5%90%BB",
     "imdbUrl": "https://www.imdb.com/title/tt39303992/",
     "wikidataId": "Q137772351",
-    "cachedAt": "2026-08-23T16:33:59.428Z"
+    "cachedAt": "2026-08-23T16:33:59.428Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.428Z"
   },
   "seed_kd_2026_14": {
     "title": "今天开始是人类",
@@ -201,7 +223,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BB%8A%E5%A4%A9%E9%96%8B%E5%A7%8B%E6%98%AF%E4%BA%BA%E9%A1%9E",
     "imdbUrl": "https://www.imdb.com/title/tt33429144/",
     "wikidataId": "Q130241021",
-    "cachedAt": "2026-08-23T16:33:59.594Z"
+    "cachedAt": "2026-08-23T16:33:59.594Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.594Z"
   },
   "seed_kd_2025_01": {
     "title": "背着善宰跑",
@@ -218,7 +242,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%83%8C%E7%9D%80%E5%96%84%E5%AE%B0%E8%B7%91",
     "imdbUrl": "https://www.imdb.com/title/tt31324295/",
     "wikidataId": "Q121144610",
-    "cachedAt": "2026-08-23T16:34:00.241Z"
+    "cachedAt": "2026-08-23T16:34:00.241Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.241Z"
   },
   "seed_kd_2025_02": {
     "title": "妈妈朋友的儿子",
@@ -235,7 +261,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%AA%BD%E5%AA%BD%E6%9C%8B%E5%8F%8B%E7%9A%84%E5%85%92%E5%AD%90",
     "imdbUrl": "https://www.imdb.com/title/tt30446769/",
     "wikidataId": "Q124326709",
-    "cachedAt": "2026-08-23T16:34:00.308Z"
+    "cachedAt": "2026-08-23T16:34:00.308Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.308Z"
   },
   "seed_kd_2025_03": {
     "title": "凌晨两点的灰姑娘",
@@ -252,7 +280,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%87%8C%E6%99%A8%E4%B8%A4%E7%82%B9%E7%9A%84%E7%81%B0%E5%A7%91%E5%A8%98",
     "imdbUrl": "https://www.imdb.com/title/tt33051958/",
     "wikidataId": "Q127698375",
-    "cachedAt": "2026-08-23T16:34:00.708Z"
+    "cachedAt": "2026-08-23T16:34:00.708Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.708Z"
   },
   "seed_kd_2025_04": {
     "title": "问问星星吧",
@@ -269,7 +299,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%95%8F%E5%95%8F%E6%98%9F%E6%98%9F%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
-    "cachedAt": "2026-08-23T16:34:00.437Z"
+    "cachedAt": "2026-08-23T16:34:00.437Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.437Z"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -286,7 +318,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%88%91%E7%9A%84%E5%AE%8C%E7%BE%8E%E7%A7%98%E6%9B%B8",
     "imdbUrl": "https://www.imdb.com/title/tt34730468/",
     "wikidataId": "Q130211747",
-    "cachedAt": "2026-08-23T16:34:00.457Z"
+    "cachedAt": "2026-08-23T16:34:00.457Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.457Z"
   },
   "seed_kd_2025_06": {
     "title": "法官大人",
@@ -303,7 +337,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-08-23T16:34:01.449Z"
+    "cachedAt": "2026-08-23T16:34:01.449Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.449Z"
   },
   "seed_kd_2025_07": {
     "title": "善意的竞争",
@@ -320,7 +356,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%96%84%E6%84%8F%E7%9A%84%E7%AB%B6%E7%88%AD",
     "imdbUrl": "https://www.imdb.com/title/tt35683421/",
     "wikidataId": "Q127800838",
-    "cachedAt": "2026-08-23T16:34:00.625Z"
+    "cachedAt": "2026-08-23T16:34:00.625Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.625Z"
   },
   "seed_kd_2025_08": {
     "title": "那家伙是黑炎龙",
@@ -337,7 +375,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%82%A3%E5%82%A2%E4%BC%99%E6%98%AF%E9%BB%91%E7%82%8E%E9%BE%8D",
     "imdbUrl": "https://www.imdb.com/title/tt33320428/",
     "wikidataId": "Q127411915",
-    "cachedAt": "2026-08-23T16:34:00.682Z"
+    "cachedAt": "2026-08-23T16:34:00.682Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.682Z"
   },
   "seed_kd_2024_01": {
     "title": "泪之女王",
@@ -354,7 +394,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B7%9A%E4%B9%8B%E5%A5%B3%E7%8E%8B",
     "imdbUrl": "https://www.imdb.com/title/tt27668559/",
     "wikidataId": "Q116921048",
-    "cachedAt": "2026-08-23T16:34:00.788Z"
+    "cachedAt": "2026-08-23T16:34:00.788Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.788Z"
   },
   "seed_kd_2024_02": {
     "title": "照明商店",
@@ -371,7 +413,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%85%A7%E6%98%8E%E5%95%86%E5%BA%97_(%E7%94%B5%E8%A7%86%E5%89%A7)",
     "imdbUrl": "https://www.imdb.com/title/tt31014115/",
     "wikidataId": "Q124616105",
-    "cachedAt": "2026-08-23T16:34:00.843Z"
+    "cachedAt": "2026-08-23T16:34:00.843Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:00.843Z"
   },
   "seed_kd_2024_03": {
     "title": "低谷医生",
@@ -388,7 +432,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BD%8E%E8%B0%B7%E5%8C%BB%E7%94%9F",
     "imdbUrl": "https://www.imdb.com/title/tt27135274/",
     "wikidataId": "Q117219597",
-    "cachedAt": "2026-08-23T16:34:01.326Z"
+    "cachedAt": "2026-08-23T16:34:01.326Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.326Z"
   },
   "seed_kd_2024_04": {
     "title": "正年",
@@ -405,7 +451,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%B9%B4",
     "imdbUrl": "https://www.imdb.com/title/tt28197611/",
     "wikidataId": "Q124243610",
-    "cachedAt": "2026-08-23T16:34:01.464Z"
+    "cachedAt": "2026-08-23T16:34:01.464Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.464Z"
   },
   "seed_kd_2024_05": {
     "title": "贞淑的推销",
@@ -422,7 +470,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B4%9E%E6%B7%91%E7%9A%84%E6%8E%A8%E9%94%80",
     "imdbUrl": "https://www.imdb.com/title/tt33509073/",
     "wikidataId": "Q127690872",
-    "cachedAt": "2026-08-23T16:34:01.639Z"
+    "cachedAt": "2026-08-23T16:34:01.639Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.639Z"
   },
   "seed_kd_2024_06": {
     "title": "好或坏的东载",
@@ -439,7 +489,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%88%96%E5%A5%BD%E6%88%96%E5%A3%9E%E7%9A%84%E6%9D%B1%E8%BC%89",
     "imdbUrl": "https://www.imdb.com/title/tt29311315/",
     "wikidataId": "Q126100333",
-    "cachedAt": "2026-08-23T16:34:01.477Z"
+    "cachedAt": "2026-08-23T16:34:01.477Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.477Z"
   },
   "seed_kd_2023_02": {
     "title": "超异能族",
@@ -456,7 +508,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/Moving",
     "imdbUrl": "https://www.imdb.com/title/tt24640580/",
     "wikidataId": "Q109317559",
-    "cachedAt": "2026-08-23T16:34:01.611Z"
+    "cachedAt": "2026-08-23T16:34:01.611Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.611Z"
   },
   "seed_kd_2022_01": {
     "title": "黑暗荣耀",
@@ -473,7 +527,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%BB%91%E6%9A%97%E8%8D%A3%E8%80%80",
     "imdbUrl": "https://www.imdb.com/title/tt21344706/",
     "wikidataId": "Q113197148",
-    "cachedAt": "2026-08-23T16:34:01.646Z"
+    "cachedAt": "2026-08-23T16:34:01.646Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.646Z"
   },
   "seed_kd_2022_02": {
     "title": "财阀家的小儿子",
@@ -490,7 +546,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B2%A1%E9%96%A5%E5%AE%B6%E7%9A%84%E5%B0%8F%E5%85%92%E5%AD%90",
     "imdbUrl": "https://www.imdb.com/title/tt18352538/",
     "wikidataId": "Q110244733",
-    "cachedAt": "2026-08-23T16:34:01.831Z"
+    "cachedAt": "2026-08-23T16:34:01.831Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.831Z"
   },
   "seed_kd_2022_03": {
     "title": "王后伞下",
@@ -507,7 +565,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8E%8B%E5%90%8E%E5%82%98%E4%B8%8B",
     "imdbUrl": "https://www.imdb.com/title/tt22265394/",
     "wikidataId": "Q111986155",
-    "cachedAt": "2026-08-23T16:34:01.833Z"
+    "cachedAt": "2026-08-23T16:34:01.833Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.833Z"
   },
   "seed_kd_c01": {
     "title": "请回答1988",
@@ -524,7 +584,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%AB%8B%E5%9B%9E%E7%AD%941988",
     "imdbUrl": "https://www.imdb.com/title/tt5182866/",
     "wikidataId": "Q19657395",
-    "cachedAt": "2026-08-23T16:34:01.794Z"
+    "cachedAt": "2026-08-23T16:34:01.794Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.794Z"
   },
   "seed_kd_c02": {
     "title": "机智的医生生活",
@@ -544,7 +606,9 @@
     "cachedAt": "2026-08-23T16:34:01.967Z",
     "doubanId": "33464863",
     "doubanMatchedTitle": "机智医生生活",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:01.967Z"
   },
   "seed_kd_c03": {
     "title": "机智的监狱生活",
@@ -564,7 +628,9 @@
     "cachedAt": "2026-08-23T16:34:02.797Z",
     "doubanId": "27081753",
     "doubanMatchedTitle": "机智牢房生活",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.797Z"
   },
   "seed_kd_c04": {
     "title": "孤单又灿烂的神-鬼怪",
@@ -584,7 +650,9 @@
     "cachedAt": "2026-08-23T16:34:02.801Z",
     "doubanId": "26761935",
     "doubanMatchedTitle": "孤单又灿烂的神：鬼怪",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.801Z"
   },
   "seed_kd_c05": {
     "title": "大力女都奉顺",
@@ -604,7 +672,9 @@
     "cachedAt": "2026-08-23T16:34:02.151Z",
     "doubanId": "26815054",
     "doubanMatchedTitle": "大力女子都奉顺",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.151Z"
   },
   "seed_kd_c06": {
     "title": "举重妖精金福珠",
@@ -624,7 +694,9 @@
     "cachedAt": "2026-08-23T16:34:02.342Z",
     "doubanId": "26836808",
     "doubanMatchedTitle": "举重妖精金福珠",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.342Z"
   },
   "seed_kd_c07": {
     "title": "文森佐",
@@ -644,7 +716,9 @@
     "cachedAt": "2026-08-23T16:34:02.513Z",
     "doubanId": "35131278",
     "doubanMatchedTitle": "文森佐",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.513Z"
   },
   "seed_kd_c08": {
     "title": "未生",
@@ -664,7 +738,9 @@
     "cachedAt": "2026-08-23T16:34:02.674Z",
     "doubanId": "25870057",
     "doubanMatchedTitle": "未生",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.674Z"
   },
   "seed_kd_c09": {
     "title": "我的ID是江南美人",
@@ -681,7 +757,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%88%91%E7%9A%84ID%E6%98%AF%E6%B1%9F%E5%8D%97%E7%BE%8E%E4%BA%BA",
     "imdbUrl": "https://www.imdb.com/title/tt8585954/",
     "wikidataId": "Q55038915",
-    "cachedAt": "2026-08-23T16:34:02.843Z"
+    "cachedAt": "2026-08-23T16:34:02.843Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.843Z"
   },
   "seed_kd_c10": {
     "title": "金秘书为何那样",
@@ -701,7 +779,9 @@
     "cachedAt": "2026-08-23T16:34:02.972Z",
     "doubanId": "30181455",
     "doubanMatchedTitle": "金秘书为何那样",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.972Z"
   },
   "seed_kd_c11": {
     "title": "触及真心",
@@ -721,7 +801,9 @@
     "cachedAt": "2026-08-23T16:34:02.999Z",
     "doubanId": "30304086",
     "doubanMatchedTitle": "触及真心",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:02.999Z"
   },
   "seed_kd_c12": {
     "title": "社内相亲",
@@ -741,7 +823,9 @@
     "cachedAt": "2026-08-23T16:34:03.025Z",
     "doubanId": "35400242",
     "doubanMatchedTitle": "社内相亲",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.025Z"
   },
   "seed_kd_c13": {
     "title": "酒鬼都市男女",
@@ -758,7 +842,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%85%92%E9%AC%BC%E9%83%BD%E5%B8%82%E5%A5%B3%E4%BA%BA%E5%80%91",
     "imdbUrl": "https://www.imdb.com/title/tt15548198/",
     "wikidataId": "Q108541415",
-    "cachedAt": "2026-08-23T16:34:04.647Z"
+    "cachedAt": "2026-08-23T16:34:04.647Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:04.647Z"
   },
   "seed_kd_c14": {
     "title": "海岸村恰恰恰",
@@ -775,7 +861,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B5%B7%E5%B2%B8%E6%9D%91%E6%81%B0%E6%81%B0%E6%81%B0",
     "imdbUrl": "https://www.imdb.com/title/tt14518756/",
     "wikidataId": "Q106758556",
-    "cachedAt": "2026-08-23T16:34:03.147Z"
+    "cachedAt": "2026-08-23T16:34:03.147Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.147Z"
   },
   "seed_kd_c15": {
     "title": "非常律师禹英禑",
@@ -792,7 +880,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%9D%9E%E5%B8%B8%E5%BE%8B%E5%B8%AB%E7%A6%B9%E8%8B%B1%E7%A6%91",
     "imdbUrl": "https://www.imdb.com/title/tt20869502/",
     "wikidataId": "Q110118400",
-    "cachedAt": "2026-08-23T16:34:03.199Z"
+    "cachedAt": "2026-08-23T16:34:03.199Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.199Z"
   },
   "seed_kd_c16": {
     "title": "闪亮的西瓜",
@@ -809,7 +899,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%96%83%E4%BA%AE%E7%9A%84%E8%A5%BF%E7%93%9C",
     "imdbUrl": "https://www.imdb.com/title/tt27446493/",
     "wikidataId": "Q118869205",
-    "cachedAt": "2026-08-23T16:34:03.322Z"
+    "cachedAt": "2026-08-23T16:34:03.322Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.322Z"
   },
   "seed_kd_c17": {
     "title": "欢迎来到王之国",
@@ -826,7 +918,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AD%A1%E8%BF%8E%E4%BE%86%E5%88%B0%E7%8E%8B%E4%B9%8B%E5%9C%8B",
     "imdbUrl": "https://www.imdb.com/title/tt26693803/",
     "wikidataId": "Q114243955",
-    "cachedAt": "2026-08-23T16:34:03.364Z"
+    "cachedAt": "2026-08-23T16:34:03.364Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.364Z"
   },
   "seed_kd_c18": {
     "title": "死期将至",
@@ -843,7 +937,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%AD%BB%E6%9C%9F%E5%B0%87%E8%87%B3",
     "imdbUrl": "https://www.imdb.com/title/tt26225038/",
     "wikidataId": "Q121145295",
-    "cachedAt": "2026-08-23T16:34:03.472Z"
+    "cachedAt": "2026-08-23T16:34:03.472Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.472Z"
   },
   "seed_kd_s01": {
     "title": "信号",
@@ -860,7 +956,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/Signal_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt5332206/",
     "wikidataId": "Q19854621",
-    "cachedAt": "2026-08-23T16:34:03.509Z"
+    "cachedAt": "2026-08-23T16:34:03.509Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:03.509Z"
   },
   "seed_kd_s02": {
     "title": "秘密森林",
@@ -877,7 +975,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%A7%98%E5%AF%86%E6%A3%AE%E6%9E%97",
     "imdbUrl": "https://www.imdb.com/title/tt6461346/",
     "wikidataId": "Q28972794",
-    "cachedAt": "2026-08-23T16:34:04.883Z"
+    "cachedAt": "2026-08-23T16:34:04.883Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:04.883Z"
   },
   "seed_kd_s03": {
     "title": "奇怪的律师禹英禑",
@@ -1422,7 +1522,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.115Z"
+    "cachedAt": "2026-08-23T16:34:16.115Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:16.115Z"
   },
   "MdOQbEJXdMA": {
     "title": "五十公里桃花坞第6季",
@@ -1456,7 +1558,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.202Z"
+    "cachedAt": "2026-08-23T16:34:16.202Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:16.202Z"
   },
   "PIIuQT8AFB0": {
     "title": "大侦探第十一季",
@@ -1656,7 +1760,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
-    "cachedAt": "2026-08-23T16:34:06.041Z"
+    "cachedAt": "2026-08-23T16:34:06.041Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:06.041Z"
   },
   "seed_var_2026_02": {
     "title": "王牌对王牌",
@@ -1673,7 +1779,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8E%8B%E7%89%8C%E5%B0%8D%E7%8E%8B%E7%89%8C_(%E7%9C%9F%E4%BA%BA%E7%A7%80)",
     "imdbUrl": "https://www.imdb.com/title/tt6742518/",
     "wikidataId": "Q24836510",
-    "cachedAt": "2026-08-23T16:34:06.791Z"
+    "cachedAt": "2026-08-23T16:34:06.791Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:06.791Z"
   },
   "seed_var_2026_02b": {
     "title": "王牌对王牌第九季",
@@ -1705,7 +1813,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98",
     "imdbUrl": "https://www.imdb.com/title/tt7131118/",
     "wikidataId": "Q20645067",
-    "cachedAt": "2026-08-23T16:34:06.505Z"
+    "cachedAt": "2026-08-23T16:34:06.505Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:06.505Z"
   },
   "seed_var_2026_07": {
     "title": "你好星期六",
@@ -1722,7 +1832,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BD%A0%E5%A5%BD%EF%BC%8C%E6%98%9F%E6%9C%9F%E5%85%AD",
     "imdbUrl": "https://www.imdb.com/title/tt30985733/",
     "wikidataId": "Q116248040",
-    "cachedAt": "2026-08-23T16:34:06.981Z"
+    "cachedAt": "2026-08-23T16:34:06.981Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:06.981Z"
   },
   "seed_var_2026_17": {
     "title": "地球超新鲜",
@@ -1771,7 +1883,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%8E%E6%98%9F%E5%A4%A7%E5%81%B5%E6%8E%A2",
     "imdbUrl": "https://www.imdb.com/title/tt9332934/",
     "wikidataId": "Q24839121",
-    "cachedAt": "2026-08-23T16:34:13.190Z"
+    "cachedAt": "2026-08-23T16:34:13.190Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.190Z"
   },
   "seed_var_c04": {
     "title": "脱口秀大会",
@@ -1788,7 +1902,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:13.084Z"
+    "cachedAt": "2026-08-23T16:34:13.084Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.084Z"
   },
   "seed_var_c05": {
     "title": "欢乐喜剧人",
@@ -1805,7 +1921,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:13.201Z"
+    "cachedAt": "2026-08-23T16:34:13.201Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.201Z"
   },
   "seed_var_c06": {
     "title": "吐槽大会",
@@ -1822,7 +1940,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%90%90%E6%A7%BD%E5%A4%A7%E4%BC%9A",
     "imdbUrl": "https://www.imdb.com/title/tt11422588/",
     "wikidataId": "Q60150038",
-    "cachedAt": "2026-08-23T16:34:13.569Z"
+    "cachedAt": "2026-08-23T16:34:13.569Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.569Z"
   },
   "seed_var_c07": {
     "title": "奇葩说",
@@ -1839,7 +1959,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%87%E8%91%A9%E8%AF%B4",
     "imdbUrl": "https://www.imdb.com/title/tt4397792/",
     "wikidataId": "Q97357250",
-    "cachedAt": "2026-08-23T16:34:13.364Z"
+    "cachedAt": "2026-08-23T16:34:13.364Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.364Z"
   },
   "seed_var_c08": {
     "title": "快乐大本营",
@@ -1856,7 +1978,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%BF%AB%E4%B9%90%E5%A4%A7%E6%9C%AC%E8%90%A5",
     "imdbUrl": "https://www.imdb.com/title/tt5830218/",
     "wikidataId": "Q5652568",
-    "cachedAt": "2026-08-23T16:34:13.360Z"
+    "cachedAt": "2026-08-23T16:34:13.360Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:13.360Z"
   },
   "seed_var_c09": {
     "title": "一年一度喜剧大赛",
@@ -1873,7 +1997,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt23320840/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.016Z"
+    "cachedAt": "2026-08-23T16:34:14.016Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.016Z"
   },
   "iEv4v1zMWRN": {
     "title": "怎么办！脱口秀专场",
@@ -1890,7 +2016,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.244Z"
+    "cachedAt": "2026-08-23T16:34:14.244Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.244Z"
   },
   "vKaoujpjxB0": {
     "title": "综艺大热门",
@@ -1907,7 +2035,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B6%9C%E8%97%9D%E5%A4%A7%E7%86%B1%E9%96%80",
     "imdbUrl": "https://www.imdb.com/title/tt13174512/",
     "wikidataId": "Q15895086",
-    "cachedAt": "2026-08-23T16:34:15.441Z"
+    "cachedAt": "2026-08-23T16:34:15.441Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.441Z"
   },
   "isyLQyASOyy0": {
     "title": "喜剧总动员",
@@ -1924,7 +2054,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.161Z"
+    "cachedAt": "2026-08-23T16:34:14.161Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.161Z"
   },
   "Cj4bMbQNsF3": {
     "title": "跨界喜剧王",
@@ -1941,7 +2073,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.328Z"
+    "cachedAt": "2026-08-23T16:34:14.328Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.328Z"
   },
   "0gzV9zdAg5e": {
     "title": "脱口秀反跨年",
@@ -1958,7 +2092,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:20.088Z"
+    "cachedAt": "2026-08-23T16:34:20.088Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:20.088Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -1975,7 +2111,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:15.261Z"
+    "cachedAt": "2026-08-23T16:34:15.261Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.261Z"
   },
   "V58UNe249y7": {
     "title": "李栋旭想做脱口秀",
@@ -1992,7 +2130,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:17.715Z"
+    "cachedAt": "2026-08-23T16:34:17.715Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:17.715Z"
   },
   "G15iDgiJy3J": {
     "title": "百川综艺季",
@@ -2009,7 +2149,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.211Z"
+    "cachedAt": "2026-08-23T16:34:16.211Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:16.211Z"
   },
   "pWhVSfzEJbT": {
     "title": "主角",
@@ -3063,7 +3205,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:11.664Z"
+    "cachedAt": "2026-08-23T16:34:11.664Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:11.664Z"
   },
   "seed_var_2026_30": {
     "title": "天才厨人",
@@ -3080,7 +3224,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:11.761Z"
+    "cachedAt": "2026-08-23T16:34:11.761Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:11.761Z"
   },
   "seed_var_2026_33": {
     "title": "风华合伙人",
@@ -3097,7 +3243,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:12.284Z"
+    "cachedAt": "2026-08-23T16:34:12.284Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:12.284Z"
   },
   "seed_var_2026_34": {
     "title": "超燃青春的合唱",
@@ -3114,7 +3262,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:12.384Z"
+    "cachedAt": "2026-08-23T16:34:12.384Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:12.384Z"
   },
   "7UFbpHvJFM0": {
     "title": "春季露营",
@@ -3131,7 +3281,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:17.486Z"
+    "cachedAt": "2026-08-23T16:34:17.486Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:17.486Z"
   },
   "n9bKfrF0nqE": {
     "title": "一起露营吧",
@@ -3148,7 +3300,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.409Z"
+    "cachedAt": "2026-08-23T16:34:14.409Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.409Z"
   },
   "WWxULgJcilB": {
     "title": "机智的露营生活",
@@ -3165,7 +3319,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14252232/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.313Z"
+    "cachedAt": "2026-08-23T16:34:16.313Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:16.313Z"
   },
   "mLBFI69K9T2": {
     "title": "EXO的爬梯子世界旅行",
@@ -3182,7 +3338,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt28613356/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:17.597Z"
+    "cachedAt": "2026-08-23T16:34:17.597Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:17.597Z"
   },
   "zbSYqIao0pB": {
     "title": "露营俱乐部",
@@ -3199,7 +3357,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:15.175Z"
+    "cachedAt": "2026-08-23T16:34:15.175Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.175Z"
   },
   "9oo4bay48uO": {
     "title": "美食告白记",
@@ -3216,7 +3376,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:18.565Z"
+    "cachedAt": "2026-08-23T16:34:18.565Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:18.565Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -3233,7 +3395,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:18.998Z"
+    "cachedAt": "2026-08-23T16:34:18.998Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:18.998Z"
   },
   "muQ25XBxJZ6": {
     "title": "街头餐厅斗士",
@@ -3282,7 +3446,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:05.473Z"
+    "cachedAt": "2026-08-23T16:34:05.473Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:05.473Z"
   },
   "lcbjuPBEsZ1": {
     "title": "你在夏日之中",
@@ -3379,7 +3545,9 @@
     "cachedAt": "2026-08-23T16:34:15.154Z",
     "doubanId": "37561085",
     "doubanMatchedTitle": "说唱巅峰对决2026",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.154Z"
   },
   "cwX4qHtZmR8": {
     "title": "千香",
@@ -4569,7 +4737,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:16.426Z"
+    "cachedAt": "2026-08-23T16:34:16.426Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:16.426Z"
   },
   "gv4oVHx5oVC": {
     "title": "兰森峡谷第2季",
@@ -4929,7 +5099,9 @@
     "cachedAt": "2026-08-23T16:34:14.751Z",
     "doubanId": "38500062",
     "doubanMatchedTitle": "一路向海的少年",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:14.751Z"
   },
   "2APi9HEUIY6": {
     "title": "夜语记",
@@ -5000,7 +5172,9 @@
     "cachedAt": "2026-08-23T16:33:59.795Z",
     "doubanId": "37194459",
     "doubanMatchedTitle": "菜鸟炊事兵",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:33:59.795Z"
   },
   "sGZbnWpDs1B": {
     "title": "足球教练第4季",
@@ -5305,7 +5479,9 @@
     "cachedAt": "2026-08-23T16:34:15.087Z",
     "doubanId": "38595189",
     "doubanMatchedTitle": "伦敦合伙人",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.087Z"
   },
   "ibi0Ecsy8Q0": {
     "title": "姐姐快醒醒",
@@ -5325,7 +5501,9 @@
     "cachedAt": "2026-08-23T16:34:17.340Z",
     "doubanId": "38589272",
     "doubanMatchedTitle": "姐姐快醒醒",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:17.340Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -5342,7 +5520,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33242190/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:19.725Z"
+    "cachedAt": "2026-08-23T16:34:19.725Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:19.725Z"
   },
   "x93IvAFw7l8": {
     "title": "妻子的浪漫旅行",
@@ -5359,7 +5539,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt13685510/",
     "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:15.913Z"
+    "cachedAt": "2026-08-23T16:34:15.913Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.913Z"
   },
   "OKPtdhLPVB5": {
     "title": "大哥小助理",
@@ -5379,7 +5561,9 @@
     "cachedAt": "2026-08-23T16:34:15.355Z",
     "doubanId": "38603647",
     "doubanMatchedTitle": "大哥小助理",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:15.355Z"
   },
   "MF7xh9xdeI7": {
     "title": "加油！汪汪",
@@ -5399,7 +5583,9 @@
     "cachedAt": "2026-08-23T16:34:18.308Z",
     "doubanId": "38596403",
     "doubanMatchedTitle": "加油！汪汪",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:18.308Z"
   },
   "LLyctQ5kr1I": {
     "title": "等一下啦，春虎同学",
@@ -5474,7 +5660,9 @@
     "cachedAt": "2026-08-23T16:34:17.898Z",
     "doubanId": "38545558",
     "doubanMatchedTitle": "我剩下的恋爱",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:17.898Z"
   },
   "DE8OTEgWrH5": {
     "title": "西伦敦暗线",
@@ -5602,7 +5790,9 @@
     "cachedAt": "2026-08-23T16:34:05.292Z",
     "doubanId": "38188103",
     "doubanMatchedTitle": "不想睡的星期五",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-23T16:34:05.292Z"
   },
   "2J37ChGXyoD": {
     "title": "师兄太稳健",
@@ -5684,10 +5874,12 @@
     "tmdbId": 326991,
     "tmdbUrl": "https://www.themoviedb.org/tv/326991",
     "doubanUrl": "https://movie.douban.com/subject/38521318/",
-    "wikipediaUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%85%BE%E6%9C%9B%E7%9A%84%E9%99%B7%E9%98%B1",
     "imdbUrl": "https://www.imdb.com/title/tt44093541/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:33:58.052Z"
+    "wikidataId": "Q140423087",
+    "cachedAt": "2026-08-23T16:33:58.052Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:09.466Z"
   },
   "seed_kd_2026_05": {
     "title": "在你的灿烂季节",
@@ -5744,11 +5936,16 @@
     "tmdbSeriesId": 296217,
     "tmdbSeasonId": 531130,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37814254/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:33.469Z"
+    "cachedAt": "2026-10-01T14:32:33.469Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:33.469Z",
+    "doubanId": "37814254",
+    "doubanMatchedTitle": "一饭封神2",
+    "doubanMatchedSeasonNumber": 2
   },
   "mTmMCoTFAX1": {
     "title": "只要有空第5季",
@@ -5772,7 +5969,9 @@
     "cachedAt": "2026-10-01T14:32:37.938Z",
     "doubanId": "38556429",
     "doubanMatchedTitle": "只要有空 第五季",
-    "doubanMatchedSeasonNumber": 5
+    "doubanMatchedSeasonNumber": 5,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.938Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -5796,7 +5995,9 @@
     "cachedAt": "2026-10-01T14:32:36.061Z",
     "doubanId": "37815373",
     "doubanMatchedTitle": "地球超新鲜 第二季",
-    "doubanMatchedSeasonNumber": 2
+    "doubanMatchedSeasonNumber": 2,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:36.061Z"
   },
   "CzWgzZtvLUt": {
     "title": "你为什么要爬山？",
@@ -5806,7 +6007,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:33.564Z"
+    "cachedAt": "2026-10-16T10:58:12.055Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -5823,11 +6024,16 @@
     "tmdbSeriesId": 296215,
     "tmdbSeasonId": 528365,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37561356/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:33.374Z"
+    "cachedAt": "2026-10-01T14:32:33.374Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:33.374Z",
+    "doubanId": "37561356",
+    "doubanMatchedTitle": "姐姐当家2",
+    "doubanMatchedSeasonNumber": 2
   },
   "14EVncaObc3": {
     "title": "密室大逃脱第8季",
@@ -5851,7 +6057,9 @@
     "cachedAt": "2026-10-01T14:32:33.495Z",
     "doubanId": "37816907",
     "doubanMatchedTitle": "密室大逃脱 第八季",
-    "doubanMatchedSeasonNumber": 8
+    "doubanMatchedSeasonNumber": 8,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:33.495Z"
   },
   "7euCZd6epLB": {
     "title": "心动的信号第9季",
@@ -5875,7 +6083,9 @@
     "cachedAt": "2026-10-01T14:32:33.273Z",
     "doubanId": "37815941",
     "doubanMatchedTitle": "心动的信号 第九季",
-    "doubanMatchedSeasonNumber": 9
+    "doubanMatchedSeasonNumber": 9,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:33.273Z"
   },
   "ysN7YxFD5u2": {
     "title": "喜剧之王单口季第3季",
@@ -5899,7 +6109,9 @@
     "cachedAt": "2026-10-01T14:32:36.236Z",
     "doubanId": "37937537",
     "doubanMatchedTitle": "喜剧之王单口季 第三季",
-    "doubanMatchedSeasonNumber": 3
+    "doubanMatchedSeasonNumber": 3,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:36.236Z"
   },
   "KZqyG3nxpIB": {
     "title": "中餐厅第10季",
@@ -5944,7 +6156,9 @@
     "cachedAt": "2026-10-01T14:32:39.374Z",
     "doubanId": "38682220",
     "doubanMatchedTitle": "你好时光 第二季",
-    "doubanMatchedSeasonNumber": 2
+    "doubanMatchedSeasonNumber": 2,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:39.374Z"
   },
   "seed_var_2026_09": {
     "title": "青春环游记",
@@ -6208,7 +6422,9 @@
     "cachedAt": "2026-10-01T14:32:35.450Z",
     "doubanId": "26387728",
     "doubanMatchedTitle": "极限挑战 第一季",
-    "doubanMatchedSeasonNumber": 1
+    "doubanMatchedSeasonNumber": 1,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:35.450Z"
   },
   "BJM8WxBHDeB": {
     "title": "脱口秀和Ta的朋友们第3季",
@@ -6229,7 +6445,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33242190/",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:35.867Z"
+    "cachedAt": "2026-10-01T14:32:35.867Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:35.867Z"
   },
   "45CQ2Mk2hG2": {
     "title": "欢乐喜剧人第2季",
@@ -6250,7 +6468,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:37.622Z"
+    "cachedAt": "2026-10-01T14:32:37.622Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.622Z"
   },
   "bzag30c6aq5": {
     "title": "欢乐喜剧人第4季",
@@ -6274,7 +6494,9 @@
     "cachedAt": "2026-10-01T14:32:37.619Z",
     "doubanId": "27665179",
     "doubanMatchedTitle": "欢乐喜剧人 第四季",
-    "doubanMatchedSeasonNumber": 4
+    "doubanMatchedSeasonNumber": 4,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.619Z"
   },
   "3qXYEvtFrn4": {
     "title": "欢乐喜剧人第3季",
@@ -6298,7 +6520,9 @@
     "cachedAt": "2026-10-01T14:32:37.612Z",
     "doubanId": "26785171",
     "doubanMatchedTitle": "欢乐喜剧人 第三季",
-    "doubanMatchedSeasonNumber": 3
+    "doubanMatchedSeasonNumber": 3,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.612Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6322,7 +6546,9 @@
     "cachedAt": "2026-10-01T14:32:37.616Z",
     "doubanId": "30414465",
     "doubanMatchedTitle": "欢乐喜剧人 第五季",
-    "doubanMatchedSeasonNumber": 5
+    "doubanMatchedSeasonNumber": 5,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.616Z"
   },
   "sD4YZE9RktC": {
     "title": "脱口秀和Ta的朋友们第2季",
@@ -6346,7 +6572,9 @@
     "cachedAt": "2026-10-01T14:32:36.293Z",
     "doubanId": "37296943",
     "doubanMatchedTitle": "脱口秀和Ta的朋友们 第二季",
-    "doubanMatchedSeasonNumber": 2
+    "doubanMatchedSeasonNumber": 2,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:36.293Z"
   },
   "WuTfGtF5AyJ": {
     "title": "喜剧总动员第2季",
@@ -6370,7 +6598,9 @@
     "cachedAt": "2026-10-01T14:32:37.722Z",
     "doubanId": "27114995",
     "doubanMatchedTitle": "喜剧总动员 第二季",
-    "doubanMatchedSeasonNumber": 2
+    "doubanMatchedSeasonNumber": 2,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.722Z"
   },
   "bP71pZj8e7B": {
     "title": "花儿与少年露营季Plus版",
@@ -6380,7 +6610,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:33.483Z"
+    "cachedAt": "2026-10-16T10:58:11.998Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6390,7 +6620,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:34.254Z"
+    "cachedAt": "2026-10-16T10:58:12.599Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6400,7 +6630,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.854Z"
+    "cachedAt": "2026-10-16T10:58:11.448Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6431,7 +6661,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:38.408Z"
+    "cachedAt": "2026-10-01T14:32:38.408Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:38.408Z"
   },
   "PtVOviJzz0Q": {
     "title": "喜剧者联盟",
@@ -6441,7 +6673,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.084Z"
+    "cachedAt": "2026-10-16T10:58:10.826Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6465,7 +6697,9 @@
     "cachedAt": "2026-10-01T14:32:38.299Z",
     "doubanId": "35206452",
     "doubanMatchedTitle": "脱口秀大会 第四季",
-    "doubanMatchedSeasonNumber": 4
+    "doubanMatchedSeasonNumber": 4,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:38.299Z"
   },
   "4YKvUGEpC0D": {
     "title": "今晚80后脱口秀",
@@ -6475,7 +6709,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.778Z"
+    "cachedAt": "2026-10-16T10:58:11.404Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6519,7 +6753,9 @@
     "cachedAt": "2026-10-01T14:32:38.451Z",
     "doubanId": "34840339",
     "doubanMatchedTitle": "脱口秀大会 第三季",
-    "doubanMatchedSeasonNumber": 3
+    "doubanMatchedSeasonNumber": 3,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:38.451Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -6529,7 +6765,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:33.093Z"
+    "cachedAt": "2026-10-16T10:58:11.547Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6539,7 +6775,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:33.558Z"
+    "cachedAt": "2026-10-16T10:58:11.996Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6579,7 +6815,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:39.628Z"
+    "cachedAt": "2026-10-01T14:32:39.628Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:39.628Z"
   },
   "YslFQPrSxY0": {
     "title": "圆桌晚晴派",
@@ -6599,7 +6837,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.151Z"
+    "cachedAt": "2026-10-16T10:58:10.819Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6649,7 +6887,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:34.175Z"
+    "cachedAt": "2026-10-16T10:58:12.601Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6659,7 +6897,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:33.811Z"
+    "cachedAt": "2026-10-16T10:58:12.154Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6679,7 +6917,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:34.512Z"
+    "cachedAt": "2026-10-16T10:58:12.774Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6689,7 +6927,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.880Z"
+    "cachedAt": "2026-10-16T10:58:11.401Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6699,11 +6937,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:35.662Z",
-    "doubanUrl": "https://movie.douban.com/subject/26954787/",
-    "doubanId": "26954787",
-    "doubanMatchedTitle": "奔跑吧，防弹！",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-10-16T10:58:13.841Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7007,7 +7241,9 @@
     "cachedAt": "2026-08-29T16:06:19.941Z",
     "doubanId": "37417424",
     "doubanMatchedTitle": "四手联弹，两首奏鸣曲",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-08-29T16:06:19.941Z"
   },
   "UkroxXO6h27": {
     "title": "书虫侦探第2季",
@@ -7085,7 +7321,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt38934633/",
     "wikidataId": "",
-    "cachedAt": "2026-10-01T14:32:37.726Z"
+    "cachedAt": "2026-10-01T14:32:37.726Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:37.726Z"
   },
   "p0TRQmFE2yU": {
     "title": "囧徒之预演告别",
@@ -7225,7 +7463,9 @@
     "cachedAt": "2026-09-03T15:40:53.854Z",
     "doubanId": "37233336",
     "doubanMatchedTitle": "生逢其时",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-03T15:40:53.854Z"
   },
   "jyvbnjmUq6U": {
     "title": "绅士们第2季",
@@ -7269,7 +7509,9 @@
     "cachedAt": "2026-10-01T14:32:33.401Z",
     "doubanId": "37817080",
     "doubanMatchedTitle": "花儿与少年 第八季",
-    "doubanMatchedSeasonNumber": 8
+    "doubanMatchedSeasonNumber": 8,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:33.401Z"
   },
   "bBuoUk82FM8": {
     "title": "乱世爱疾",
@@ -7313,7 +7555,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.398Z"
+    "cachedAt": "2026-10-16T10:58:10.944Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -7360,7 +7602,9 @@
     "cachedAt": "2026-09-06T14:49:35.564Z",
     "doubanId": "36314809",
     "doubanMatchedTitle": "交锋",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-06T14:49:35.564Z"
   },
   "W9h7APlqb24": {
     "title": "用税款买的书",
@@ -7515,7 +7759,9 @@
     "cachedAt": "2026-09-09T15:49:16.081Z",
     "doubanId": "36576514",
     "doubanMatchedTitle": "深渊无间",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-09T15:49:16.081Z"
   },
   "fZ8AnzO9dB9": {
     "title": "最后目击",
@@ -7572,7 +7818,9 @@
     "cachedAt": "2026-09-10T15:44:18.153Z",
     "doubanId": "37214286",
     "doubanMatchedTitle": "中头奖还是要上班",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-10T15:44:18.153Z"
   },
   "sOHxTQWGYuF": {
     "title": "冬城猎凶",
@@ -7629,7 +7877,9 @@
     "cachedAt": "2026-09-11T15:45:43.727Z",
     "doubanId": "37105458",
     "doubanMatchedTitle": "打歌2025",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-11T15:45:43.727Z"
   },
   "ZJKnyszyp2j1": {
     "title": "兰香如故",
@@ -7649,7 +7899,9 @@
     "cachedAt": "2026-09-11T15:45:46.790Z",
     "doubanId": "36449295",
     "doubanMatchedTitle": "兰香如故",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-11T15:45:46.790Z"
   },
   "3NHhqMNCDG9": {
     "title": "可以爱吗",
@@ -7686,7 +7938,9 @@
     "cachedAt": "2026-09-13T02:48:47.654Z",
     "doubanId": "37862873",
     "doubanMatchedTitle": "不是你的恋爱",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-13T02:48:47.654Z"
   },
   "NwapzvnT6O5": {
     "title": "云雀叫天录",
@@ -7740,7 +7994,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-10T04:01:30.826Z"
+    "cachedAt": "2026-10-10T04:01:30.826Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-10T04:01:30.826Z"
   },
   "kkDouz9bUj6": {
     "title": "审判萨达姆",
@@ -7814,7 +8070,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:31.414Z"
+    "cachedAt": "2026-10-16T10:58:10.224Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -7868,7 +8124,9 @@
     "cachedAt": "2026-09-17T16:06:57.503Z",
     "doubanId": "35644140",
     "doubanMatchedTitle": "一瓯春",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-17T16:06:57.503Z"
   },
   "yYYmTiDexWI": {
     "title": "假面美颜",
@@ -7905,7 +8163,9 @@
     "cachedAt": "2026-09-18T15:42:44.062Z",
     "doubanId": "37030853",
     "doubanMatchedTitle": "挑情丑闻",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-18T15:42:44.062Z"
   },
   "mqwnJqgiwU7": {
     "title": "梦想改造家",
@@ -7915,7 +8175,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:31.376Z"
+    "cachedAt": "2026-10-16T10:58:10.222Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8111,7 +8371,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-09-22T16:09:20.430Z"
+    "cachedAt": "2026-09-22T16:09:20.430Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-22T16:09:20.430Z"
   },
   "oE5muvsnzj7": {
     "title": "旗安84的奇趣民宿第2季",
@@ -8121,7 +8383,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T02:52:32.072Z"
+    "cachedAt": "2026-10-16T10:58:10.811Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -8209,7 +8471,9 @@
     "cachedAt": "2026-09-24T16:22:56.721Z",
     "doubanId": "37297001",
     "doubanMatchedTitle": "我不是大师",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-24T16:22:56.721Z"
   },
   "QKceP7uTNz9": {
     "title": "娃娃",
@@ -8317,7 +8581,9 @@
     "cachedAt": "2026-09-28T03:16:28.264Z",
     "doubanId": "37249353",
     "doubanMatchedTitle": "潜入你心",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-28T03:16:28.264Z"
   },
   "TpafUxh0a39": {
     "title": "嫌疑爱人",
@@ -8405,7 +8671,9 @@
     "cachedAt": "2026-09-28T19:09:11.284Z",
     "doubanId": "36117379",
     "doubanMatchedTitle": "无可替代",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-28T19:09:11.284Z"
   },
   "snN2HW0vAzU": {
     "title": "红果果金担担",
@@ -8442,7 +8710,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-09T17:53:54.540Z"
+    "cachedAt": "2026-10-09T17:53:54.540Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-09T17:53:54.540Z"
   },
   "xRNzZ3jqQ26": {
     "title": "消失的裂痕",
@@ -8515,7 +8785,9 @@
     "cachedAt": "2026-09-30T17:29:42.087Z",
     "doubanId": "38433202",
     "doubanMatchedTitle": "向内一公里",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-09-30T17:29:42.087Z"
   },
   "jjcFwPIDvtB": {
     "title": "溺爱男友养成法",
@@ -8590,7 +8862,9 @@
     "cachedAt": "2026-10-01T14:32:35.545Z",
     "doubanId": "37816990",
     "doubanMatchedTitle": "现在就出发 第四季",
-    "doubanMatchedSeasonNumber": 4
+    "doubanMatchedSeasonNumber": 4,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-01T14:32:35.545Z"
   },
   "9YWxqdtyNZJ": {
     "title": "法医温特",
@@ -8959,7 +9233,9 @@
     "cachedAt": "2026-10-07T18:20:38.439Z",
     "doubanId": "38597518",
     "doubanMatchedTitle": "猎人杀",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-07T18:20:38.439Z"
   },
   "qEjO1zggwBK": {
     "title": "爱上草莓的季节",
@@ -9139,7 +9415,9 @@
     "cachedAt": "2026-10-09T17:53:54.047Z",
     "doubanId": "37317490",
     "doubanMatchedTitle": "恋爱充电中",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-09T17:53:54.047Z"
   },
   "sJVlTntwQt1": {
     "title": "Doctor X：白色黑手党时代",
@@ -9156,7 +9434,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/Doctor_X%EF%BC%9A%E7%99%BD%E8%89%B2%E9%BB%91%E6%89%8B%E9%BB%A8%E6%99%82%E4%BB%A3",
     "imdbUrl": "https://www.imdb.com/title/tt39328047/",
     "wikidataId": "Q134207626",
-    "cachedAt": "2026-10-09T17:53:54.378Z"
+    "cachedAt": "2026-10-09T17:53:54.378Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-09T17:53:54.378Z"
   },
   "zQcDmHw5Am1": {
     "title": "喜剧之王",
@@ -9190,7 +9470,9 @@
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37421560/",
     "wikidataId": "",
-    "cachedAt": "2026-10-09T17:54:06.746Z"
+    "cachedAt": "2026-10-09T17:54:06.746Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-09T17:54:06.746Z"
   },
   "jAoKRtQvZZ3": {
     "title": "此处通往繁星",
@@ -9269,7 +9551,9 @@
     "cachedAt": "2026-10-10T16:51:15.764Z",
     "doubanId": "37069670",
     "doubanMatchedTitle": "百日谎言",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-10T16:51:15.764Z"
   },
   "dWjT7XnSxhC": {
     "title": "永属于你",
@@ -9404,11 +9688,16 @@
     "tmdbSeriesId": 299000,
     "tmdbSeasonId": 549684,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38930903/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
-    "cachedAt": "2026-10-12T20:49:32.315Z"
+    "cachedAt": "2026-10-12T20:49:32.315Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-12T20:49:32.315Z",
+    "doubanId": "38930903",
+    "doubanMatchedTitle": "听，谁在唱歌2",
+    "doubanMatchedSeasonNumber": 2
   },
   "gTYMYb3toXC": {
     "title": "有你的恋歌第3季",
@@ -9598,7 +9887,9 @@
     "cachedAt": "2026-10-15T16:11:39.310Z",
     "doubanId": "37317494",
     "doubanMatchedTitle": "心动制造所",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-15T16:11:39.310Z"
   },
   "Yxz2Wgu67C2": {
     "title": "警之光第4季",
@@ -9619,7 +9910,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%AD%A6%E4%B9%8B%E5%85%89",
     "imdbUrl": "https://www.imdb.com/title/tt14466018/",
     "wikidataId": "Q117536144",
-    "cachedAt": "2026-10-15T16:11:42.928Z"
+    "cachedAt": "2026-10-15T16:11:42.928Z",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-15T16:11:42.928Z"
   },
   "BHavV3bAAwE": {
     "title": "把黑夜点燃",
@@ -9712,5 +10005,66 @@
     "doubanId": "38191497",
     "doubanMatchedTitle": "独家黑幕 第二季",
     "doubanMatchedSeasonNumber": 2
+  },
+  "09S2pQtRJx6": {
+    "title": "嫁金钗",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/nKhiK99WZohc3fJsTXJLf4SrSEY.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "嫁金钗",
+    "matchedTitle": "嫁金钗",
+    "tmdbId": 300146,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300146",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt42576855/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:12.682Z",
+    "cachedAt": "2026-10-16T10:58:12.684Z"
+  },
+  "A4pxqobcd75": {
+    "title": "醉梦",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/xvUOJChljBOY9e4vDc36p2yOIOM.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "醉梦",
+    "matchedTitle": "醉梦",
+    "tmdbId": 279923,
+    "tmdbUrl": "https://www.themoviedb.org/tv/279923",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt35288698/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:12.764Z",
+    "cachedAt": "2026-10-16T10:58:12.764Z"
+  },
+  "IReoXfghGZ1": {
+    "title": "塔尔萨之王第4季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/2CU1r47tdxAl4yXiDxPsktrbhoe.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:153312:4",
+    "matchedTitle": "塔尔萨之王第 4 季",
+    "matchedSeriesTitle": "塔尔萨之王",
+    "tmdbId": 153312,
+    "tmdbUrl": "https://www.themoviedb.org/tv/153312/season/4",
+    "tmdbSeriesId": 153312,
+    "tmdbSeasonId": 486637,
+    "tmdbSeasonNumber": 4,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A1%94%E7%88%BE%E8%96%A9%E4%B9%8B%E7%8E%8B",
+    "imdbUrl": "https://www.imdb.com/title/tt16358384/",
+    "wikidataId": "Q111967146",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-16T10:58:13.732Z",
+    "cachedAt": "2026-10-16T10:58:13.734Z"
   }
 }
