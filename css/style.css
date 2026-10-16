@@ -6,7 +6,7 @@
   --bg-card: #1a1a24;
   --bg-card-hover: #22223a;
   --text: #e8e8f0;
-  --text-dim: #8888a0;
+  --text-dim: #9090a8;
   --text-muted: #aaaabd;
   --accent: #6c5ce7;
   --accent-light: #a29bfe;
@@ -21,6 +21,10 @@
 html, body {
   color-scheme: dark;
   -webkit-text-size-adjust: 100%;
+}
+
+html {
+  scroll-padding-top: calc(var(--tabs-scroll-offset, 5rem) + 8px);
 }
 
 body {
@@ -92,7 +96,7 @@ a:visited { color: #8e86d1; }
 }
 
 .subtitle {
-  color: var(--text-dim);
+  color: var(--text-muted);
   max-width: 760px;
   margin: 0 auto;
   font-size: 0.95rem;
@@ -102,7 +106,6 @@ a:visited { color: #8e86d1; }
   margin-top: 12px;
   font-size: 0.85rem;
   color: var(--green);
-  opacity: 0.8;
 }
 
 /* ── Tabs ──────────────────────────────────────────────── */
@@ -464,37 +467,37 @@ a:visited { color: #8e86d1; }
 }
 
 .badge-new {
-  background: rgba(255,107,107,0.9);
+  background: #a82f3c;
   color: #fff;
 }
 
 .badge-complete {
-  background: rgba(0,184,148,0.9);
+  background: #087b60;
   color: #fff;
 }
 
 .badge-ongoing {
-  background: rgba(108,92,231,0.9);
+  background: var(--accent);
   color: #fff;
 }
 
 .badge-classic {
-  background: rgba(253,121,168,0.9);
+  background: #a43263;
   color: #fff;
 }
 
 .badge-discovered {
-  background: rgba(0,206,209,0.9);
+  background: #08797e;
   color: #fff;
 }
 
 .badge-cover-pending {
-  background: rgba(230,126,34,0.9);
+  background: #a3540c;
   color: #fff;
 }
 
 .badge-ai {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #5865c9, #764ba2);
   color: #fff;
 }
 
@@ -517,7 +520,7 @@ a:visited { color: #8e86d1; }
   position: absolute;
   top: 10px;
   right: 10px;
-  background: linear-gradient(135deg, #ff4757, #ff6b81);
+  background: linear-gradient(135deg, #b52d42, #a83257);
   color: #fff;
   padding: 3px 10px;
   border-radius: 4px;
@@ -682,12 +685,12 @@ a:visited { color: #8e86d1; }
 }
 
 .card-action.source-douban {
-  background: #2e963d;
+  background: #237b31;
   color: #fff;
 }
 
 .card-action.source-douban:hover {
-  background: #3eb250;
+  background: #258033;
   color: #fff;
 }
 
@@ -951,10 +954,10 @@ a:visited { color: #8e86d1; }
 
 /* External source action buttons */
 .card-action.source-tvmaze-link {
-  background: linear-gradient(135deg, #1e90ff, #4169e1);
+  background: linear-gradient(135deg, #1868be, #3757c4);
   color: #fff;
 }
 .card-action.source-tvmaze-link:hover {
-  background: linear-gradient(135deg, #3aa0ff, #5a7aee);
+  background: linear-gradient(135deg, #2075c9, #4367d0);
   color: #fff;
 }

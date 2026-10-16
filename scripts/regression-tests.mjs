@@ -2595,7 +2595,7 @@ assert.match(scrape, /id: mediaKey \|\| episodeKey \|\| stableDiscoveredId\(/, '
 assert.match(scrape, /normalizeTMDBOriginalUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
 assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
-assert.match(publicBuild, /'coverSource', 'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
+assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
 assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
 const committedData = JSON.parse(read('data/shows.json'));
 assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');

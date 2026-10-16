@@ -386,6 +386,23 @@
       main.focus({ preventScroll: true });
       main.scrollIntoView?.({ block: 'start' });
     });
+
+    const tabs = document.querySelector?.('.tabs');
+    if (!tabs) return;
+    const updateTabsScrollOffset = () => {
+      const height = tabs.getBoundingClientRect().height;
+      if (Number.isFinite(height) && height > 0) {
+        document.documentElement.style.setProperty('--tabs-scroll-offset', `${Math.ceil(height)}px`);
+      }
+    };
+    // 导航在窄屏或字体缩放后会增高，跳转与原生焦点滚动都需避开其真实高度。
+    updateTabsScrollOffset();
+    if (typeof window.ResizeObserver === 'function') {
+      const observer = new window.ResizeObserver(updateTabsScrollOffset);
+      observer.observe(tabs);
+    } else {
+      window.addEventListener('resize', updateTabsScrollOffset, { passive: true });
+    }
   }
 
   // ── 标签切换 ──────────────────────────────────────────
@@ -404,10 +421,23 @@
         else if (event.key === 'End') nextIndex = visibleTabs.length - 1;
         if (nextIndex == null) return;
         event.preventDefault();
-        visibleTabs[nextIndex].focus();
+        visibleTabs[nextIndex].focus({ preventScroll: true });
         switchTab(visibleTabs[nextIndex].dataset.tab);
       });
     });
+  }
+
+  function revealTabHorizontally(button) {
+    const container = button?.parentElement;
+    if (!container) return;
+    const viewport = container.getBoundingClientRect();
+    const bounds = button.getBoundingClientRect();
+    const style = window.getComputedStyle?.(container);
+    const left = viewport.left + (parseFloat(style?.paddingLeft) || 0);
+    const right = viewport.right - (parseFloat(style?.paddingRight) || 0);
+    const offset = bounds.left < left ? bounds.left - left : bounds.right > right ? bounds.right - right : 0;
+    // 只移动标签容器，避免 sticky 标签的 scrollIntoView 连带改变正文阅读位置。
+    if (offset) container.scrollLeft += offset;
   }
 
   function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true, preserveVisibleCount = false, scrollToTab = true } = {}) {
@@ -426,7 +456,7 @@
       b.tabIndex = active ? 0 : -1;
       if (active) activeButton = b;
     });
-    if (scrollToTab) activeButton?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    if (scrollToTab) revealTabHorizontally(activeButton);
     document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
 
     const newestOption = sortSelect?.querySelector?.('option[value="newest"]');
@@ -495,7 +525,10 @@
       document.getElementById('filterStatus').value = 'all';
       document.getElementById('filterScore').value = '0';
       document.getElementById('sortBy').value = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
-      document.getElementById('searchInput').value = '';
+      const search = document.getElementById('searchInput');
+      search.value = '';
+      // 清除后按钮会隐藏；键盘操作继续留在可编辑的搜索框。
+      if (document.activeElement === document.getElementById('resetFilters')) search.focus({ preventScroll: true });
       syncUrlState();
       applyFilters();
     });
@@ -542,11 +575,12 @@
     _isLoadingMore = true;
     try {
       const firstNewIndex = _visibleShowCount;
+      const loadMoreFocused = document.activeElement === document.getElementById('loadMoreButton');
       _visibleShowCount = Math.min(_visibleShowCount + RENDER_BATCH_SIZE, _filteredShows.length);
       renderVisibleShows();
       updateResultSummary(_filteredShows.length, _visibleShowCount);
-      if (focusNew) {
-        // 新卡片插在按钮之前；手动加载后移入首个新结果，最后一批隐藏按钮也不会丢失焦点。
+      if (focusNew || (loadMoreFocused && document.getElementById('loadMore')?.hidden)) {
+        // 手动加载或自动末批隐藏了当前获焦按钮时，继续从首个新增结果阅读。
         const card = document.getElementById('showGrid')?.children?.[firstNewIndex];
         if (card) {
           card.tabIndex = -1;
@@ -848,6 +882,10 @@
   function clearEmptyState() {
     const empty = document.getElementById('empty');
     const actionElement = document.getElementById('emptyAction');
+    // 重试会立即隐藏操作区；只迁移其中的焦点，避免抢走用户正在操作的筛选控件。
+    if (actionElement && (actionElement === document.activeElement || actionElement.contains?.(document.activeElement))) {
+      document.getElementById('mainContent')?.focus({ preventScroll: true });
+    }
     if (empty) empty.style.display = 'none';
     if (actionElement) {
       actionElement.hidden = true;
