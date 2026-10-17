@@ -148,8 +148,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt39017753/",
     "wikidataId": "Q136945952",
     "cachedAt": "2026-08-23T16:33:59.760Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:33:59.760Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.593Z"
   },
   "seed_kd_2026_11": {
     "title": "秒杀爱情",
@@ -243,8 +243,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt31324295/",
     "wikidataId": "Q121144610",
     "cachedAt": "2026-08-23T16:34:00.241Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:00.241Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.578Z"
   },
   "seed_kd_2025_02": {
     "title": "妈妈朋友的儿子",
@@ -262,8 +262,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt30446769/",
     "wikidataId": "Q124326709",
     "cachedAt": "2026-08-23T16:34:00.308Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:00.308Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.811Z"
   },
   "seed_kd_2025_03": {
     "title": "凌晨两点的灰姑娘",
@@ -300,8 +300,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt26215550/",
     "wikidataId": "Q111820593",
     "cachedAt": "2026-08-23T16:34:00.437Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:00.437Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.794Z"
   },
   "seed_kd_2025_05": {
     "title": "我的完美秘书",
@@ -319,8 +319,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt34730468/",
     "wikidataId": "Q130211747",
     "cachedAt": "2026-08-23T16:34:00.457Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:00.457Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.857Z"
   },
   "seed_kd_2025_06": {
     "title": "法官大人",
@@ -5173,8 +5173,8 @@
     "doubanId": "37194459",
     "doubanMatchedTitle": "菜鸟炊事兵",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:33:59.795Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:10.633Z"
   },
   "sGZbnWpDs1B": {
     "title": "足球教练第4季",
@@ -6288,7 +6288,11 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-15T22:41:07.755Z"
+    "cachedAt": "2026-10-15T22:41:07.755Z",
+    "doubanUrl": "https://movie.douban.com/subject/36742889/",
+    "doubanId": "36742889",
+    "doubanMatchedTitle": "脱口秀和Ta的朋友们",
+    "doubanMatchedSeasonNumber": 0
   },
   "seed_var_2026_22": {
     "title": "德云斗笑社",
@@ -6610,7 +6614,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.121Z"
+    "cachedAt": "2026-10-17T02:44:13.539Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6620,7 +6624,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.673Z"
+    "cachedAt": "2026-10-17T02:44:14.166Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6630,7 +6634,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.589Z"
+    "cachedAt": "2026-10-17T02:44:12.924Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6676,7 +6680,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:23.965Z"
+    "cachedAt": "2026-10-17T02:44:12.226Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6712,7 +6716,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.572Z"
+    "cachedAt": "2026-10-17T02:44:12.866Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6768,7 +6772,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.601Z"
+    "cachedAt": "2026-10-17T02:44:13.109Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6778,7 +6782,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.143Z"
+    "cachedAt": "2026-10-17T02:44:13.523Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6814,13 +6818,16 @@
     "tmdbSeriesId": 93509,
     "tmdbSeasonId": 132154,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/34431573/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:39.628Z",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:39.628Z"
+    "externalMetadataCheckedAt": "2026-10-01T14:32:39.628Z",
+    "doubanId": "34431573",
+    "doubanMatchedTitle": "脱口秀大会 第二季",
+    "doubanMatchedSeasonNumber": 2
   },
   "YslFQPrSxY0": {
     "title": "圆桌晚晴派",
@@ -6840,7 +6847,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.023Z"
+    "cachedAt": "2026-10-17T02:44:12.281Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6890,7 +6897,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.661Z"
+    "cachedAt": "2026-10-17T02:44:13.755Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6900,7 +6907,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.134Z"
+    "cachedAt": "2026-10-17T02:44:13.575Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6920,7 +6927,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:25.735Z"
+    "cachedAt": "2026-10-17T02:44:14.214Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6930,7 +6937,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.551Z"
+    "cachedAt": "2026-10-17T02:44:12.875Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6940,7 +6947,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:26.784Z"
+    "cachedAt": "2026-10-17T02:44:15.511Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7558,7 +7565,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:24.058Z"
+    "cachedAt": "2026-10-17T02:44:12.473Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8075,7 +8082,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:23.444Z"
+    "cachedAt": "2026-10-17T02:44:11.582Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8180,7 +8187,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:23.413Z"
+    "cachedAt": "2026-10-17T02:44:11.638Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8388,7 +8395,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-16T15:58:23.979Z"
+    "cachedAt": "2026-10-17T02:44:12.230Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10071,5 +10078,74 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-16T10:58:13.732Z",
     "cachedAt": "2026-10-16T10:58:13.734Z"
+  },
+  "pr1pD6VKmF9": {
+    "title": "波光和煦夫妻良辰第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/ezeiBiWAGoMGPNJl8POCUa9gJuj.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:287338:2",
+    "matchedTitle": "波光和煦，夫妻良辰第 2 季",
+    "matchedSeriesTitle": "波光和煦，夫妻良辰",
+    "tmdbId": 287338,
+    "tmdbUrl": "https://www.themoviedb.org/tv/287338/season/2",
+    "tmdbSeriesId": 287338,
+    "tmdbSeasonId": 514135,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36693655/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:14.957Z",
+    "cachedAt": "2026-10-17T02:44:14.959Z"
+  },
+  "Haprawgzbzp": {
+    "title": "紧急呼救：纳什维尔第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/63JFLM8L8H1Jlp62kZGPvSKc50j.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:284838:2",
+    "matchedTitle": "紧急呼救：纳什维尔第 2 季",
+    "matchedSeriesTitle": "紧急呼救：纳什维尔",
+    "tmdbId": 284838,
+    "tmdbUrl": "https://www.themoviedb.org/tv/284838/season/2",
+    "tmdbSeriesId": 284838,
+    "tmdbSeasonId": 532872,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%81%AB%E9%80%9F%E6%95%91%E6%8F%B4%E6%9C%80%E5%89%8D%E7%B7%9A%EF%BC%9A%E7%B4%8D%E8%A8%B1%E7%B6%AD%E7%88%BE",
+    "imdbUrl": "https://www.imdb.com/title/tt33550053/",
+    "wikidataId": "Q132673387",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:15.469Z",
+    "cachedAt": "2026-10-17T02:44:15.473Z"
+  },
+  "oPJ92Jz8vhQ": {
+    "title": "紧急呼救第10季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/u6HuWWohheyzAj5PUn4rBd0eH92.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:75219:10",
+    "matchedTitle": "紧急呼救第 10 季",
+    "matchedSeriesTitle": "紧急呼救",
+    "tmdbId": 75219,
+    "tmdbUrl": "https://www.themoviedb.org/tv/75219/season/10",
+    "tmdbSeriesId": 75219,
+    "tmdbSeasonId": 532871,
+    "tmdbSeasonNumber": 10,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%81%AB%E9%80%9F%E6%95%91%E6%8F%B4%E6%9C%80%E5%89%8D%E7%B7%9A",
+    "imdbUrl": "https://www.imdb.com/title/tt7235466/",
+    "wikidataId": "Q30611820",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-17T02:44:15.807Z",
+    "cachedAt": "2026-10-17T02:44:15.810Z"
   }
 }
