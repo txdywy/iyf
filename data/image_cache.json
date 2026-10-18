@@ -547,8 +547,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt18352538/",
     "wikidataId": "Q110244733",
     "cachedAt": "2026-08-23T16:34:01.831Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:01.831Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.331Z"
   },
   "seed_kd_2022_03": {
     "title": "王后伞下",
@@ -566,8 +566,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt22265394/",
     "wikidataId": "Q111986155",
     "cachedAt": "2026-08-23T16:34:01.833Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:01.833Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.484Z"
   },
   "seed_kd_c01": {
     "title": "请回答1988",
@@ -585,8 +585,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt5182866/",
     "wikidataId": "Q19657395",
     "cachedAt": "2026-08-23T16:34:01.794Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:01.794Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.509Z"
   },
   "seed_kd_c02": {
     "title": "机智的医生生活",
@@ -607,8 +607,8 @@
     "doubanId": "33464863",
     "doubanMatchedTitle": "机智医生生活",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:01.967Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.533Z"
   },
   "seed_kd_c03": {
     "title": "机智的监狱生活",
@@ -673,8 +673,8 @@
     "doubanId": "26815054",
     "doubanMatchedTitle": "大力女子都奉顺",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:02.151Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.678Z"
   },
   "seed_kd_c06": {
     "title": "举重妖精金福珠",
@@ -695,8 +695,8 @@
     "doubanId": "26836808",
     "doubanMatchedTitle": "举重妖精金福珠",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:02.342Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T09:21:37.716Z"
   },
   "seed_kd_c07": {
     "title": "文森佐",
@@ -5516,13 +5516,16 @@
     "matchedTitle": "脱口秀和Ta的朋友们",
     "tmdbId": 261471,
     "tmdbUrl": "https://www.themoviedb.org/tv/261471",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36742889/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt33242190/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:19.725Z",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:19.725Z"
+    "externalMetadataCheckedAt": "2026-08-23T16:34:19.725Z",
+    "doubanId": "36742889",
+    "doubanMatchedTitle": "脱口秀和Ta的朋友们",
+    "doubanMatchedSeasonNumber": 0
   },
   "x93IvAFw7l8": {
     "title": "妻子的浪漫旅行",
@@ -6620,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.851Z"
+    "cachedAt": "2026-10-18T09:21:40.517Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6630,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:18.524Z"
+    "cachedAt": "2026-10-18T09:21:40.800Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6640,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.744Z"
+    "cachedAt": "2026-10-18T09:21:39.895Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6686,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:16.382Z"
+    "cachedAt": "2026-10-18T09:21:39.154Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6722,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.684Z"
+    "cachedAt": "2026-10-18T09:21:39.847Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6778,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.747Z"
+    "cachedAt": "2026-10-18T09:21:40.070Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6788,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:18.372Z"
+    "cachedAt": "2026-10-18T09:21:40.538Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6853,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.031Z"
+    "cachedAt": "2026-10-18T09:21:39.207Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6903,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:18.422Z"
+    "cachedAt": "2026-10-18T09:21:40.576Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6913,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:18.424Z"
+    "cachedAt": "2026-10-18T09:21:41.200Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6933,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:19.100Z"
+    "cachedAt": "2026-10-18T09:21:41.266Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6943,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.062Z"
+    "cachedAt": "2026-10-18T09:21:39.839Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6953,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:20.401Z"
+    "cachedAt": "2026-10-18T09:21:42.590Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7571,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:17.172Z"
+    "cachedAt": "2026-10-18T09:21:39.382Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8088,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:15.648Z"
+    "cachedAt": "2026-10-18T09:21:38.466Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8193,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:15.697Z"
+    "cachedAt": "2026-10-18T09:21:38.512Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8385,13 +8388,16 @@
     "matchedTitle": "法医秦明之龙番往事",
     "tmdbId": 287994,
     "tmdbUrl": "https://www.themoviedb.org/tv/287994",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36640239/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-09-22T16:09:20.430Z",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-09-22T16:09:20.430Z"
+    "externalMetadataCheckedAt": "2026-09-22T16:09:20.430Z",
+    "doubanId": "36640239",
+    "doubanMatchedTitle": "法医秦明之龙番往事",
+    "doubanMatchedSeasonNumber": 0
   },
   "oE5muvsnzj7": {
     "title": "旗安84的奇趣民宿第2季",
@@ -8401,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:16.351Z"
+    "cachedAt": "2026-10-18T09:21:39.157Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -9484,13 +9490,16 @@
     "matchedTitle": "美人余",
     "tmdbId": 294446,
     "tmdbUrl": "https://www.themoviedb.org/tv/294446",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36962068/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37421560/",
     "wikidataId": "",
     "cachedAt": "2026-10-09T17:54:06.746Z",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-09T17:54:06.746Z"
+    "externalMetadataCheckedAt": "2026-10-09T17:54:06.746Z",
+    "doubanId": "36962068",
+    "doubanMatchedTitle": "美人余",
+    "doubanMatchedSeasonNumber": 0
   },
   "jAoKRtQvZZ3": {
     "title": "此处通往繁星",
@@ -10231,13 +10240,16 @@
     "matchedTitle": "各取所需",
     "tmdbId": 298550,
     "tmdbUrl": "https://www.themoviedb.org/tv/298550",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37380549/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt37180305/",
     "wikidataId": "Q140668984",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-18T02:45:19.505Z",
-    "cachedAt": "2026-10-18T02:45:19.506Z"
+    "cachedAt": "2026-10-18T02:45:19.506Z",
+    "doubanId": "37380549",
+    "doubanMatchedTitle": "各取所需",
+    "doubanMatchedSeasonNumber": 0
   },
   "4UFHXjXU5P9": {
     "title": "造雨人第2季",
@@ -10293,6 +10305,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:20.177Z"
+    "cachedAt": "2026-10-18T09:21:41.480Z",
+    "doubanUrl": "https://movie.douban.com/subject/38239148/",
+    "doubanId": "38239148",
+    "doubanMatchedTitle": "奇洛李维斯回信",
+    "doubanMatchedSeasonNumber": 0
   }
 }
