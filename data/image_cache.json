@@ -802,8 +802,8 @@
     "doubanId": "30304086",
     "doubanMatchedTitle": "触及真心",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:02.999Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.424Z"
   },
   "seed_kd_c12": {
     "title": "社内相亲",
@@ -824,8 +824,8 @@
     "doubanId": "35400242",
     "doubanMatchedTitle": "社内相亲",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:03.025Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.569Z"
   },
   "seed_kd_c13": {
     "title": "酒鬼都市男女",
@@ -862,8 +862,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt14518756/",
     "wikidataId": "Q106758556",
     "cachedAt": "2026-08-23T16:34:03.147Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:03.147Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.426Z"
   },
   "seed_kd_c15": {
     "title": "非常律师禹英禑",
@@ -881,8 +881,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt20869502/",
     "wikidataId": "Q110118400",
     "cachedAt": "2026-08-23T16:34:03.199Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:03.199Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.825Z"
   },
   "seed_kd_c16": {
     "title": "闪亮的西瓜",
@@ -900,8 +900,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt27446493/",
     "wikidataId": "Q118869205",
     "cachedAt": "2026-08-23T16:34:03.322Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:03.322Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.633Z"
   },
   "seed_kd_c17": {
     "title": "欢迎来到王之国",
@@ -919,8 +919,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt26693803/",
     "wikidataId": "Q114243955",
     "cachedAt": "2026-08-23T16:34:03.364Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:03.364Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:05.802Z"
   },
   "seed_kd_c18": {
     "title": "死期将至",
@@ -6335,7 +6335,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-09-30T17:29:44.144Z"
+    "cachedAt": "2026-10-18T15:17:07.963Z"
   },
   "seed_var_2026_26": {
     "title": "我们的歌",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:48.479Z"
+    "cachedAt": "2026-10-18T15:17:08.660Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:49.062Z"
+    "cachedAt": "2026-10-18T15:17:09.227Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.936Z"
+    "cachedAt": "2026-10-18T15:17:08.494Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.319Z"
+    "cachedAt": "2026-10-18T15:17:07.162Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.904Z"
+    "cachedAt": "2026-10-18T15:17:08.373Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:48.591Z"
+    "cachedAt": "2026-10-18T15:17:08.600Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:48.513Z"
+    "cachedAt": "2026-10-18T15:17:09.001Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6856,11 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.323Z",
-    "doubanUrl": "https://movie.douban.com/subject/35558950/",
-    "doubanId": "35558950",
-    "doubanMatchedTitle": "脱口秀跨年2021",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-10-18T15:17:07.755Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6910,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:48.750Z"
+    "cachedAt": "2026-10-18T15:17:09.188Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6920,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:49.102Z"
+    "cachedAt": "2026-10-18T15:17:09.358Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6940,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:49.328Z"
+    "cachedAt": "2026-10-18T15:17:09.811Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6950,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:48.151Z"
+    "cachedAt": "2026-10-18T15:17:07.892Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6960,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:50.330Z"
+    "cachedAt": "2026-10-18T15:17:10.870Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7578,11 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.449Z",
-    "doubanUrl": "https://movie.douban.com/subject/38640149/",
-    "doubanId": "38640149",
-    "doubanMatchedTitle": "背后 第二季",
-    "doubanMatchedSeasonNumber": 2
+    "cachedAt": "2026-10-18T15:17:07.935Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8099,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:46.747Z"
+    "cachedAt": "2026-10-18T15:17:06.611Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8204,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:46.745Z"
+    "cachedAt": "2026-10-18T15:17:06.546Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8415,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:47.321Z"
+    "cachedAt": "2026-10-18T15:17:07.226Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10313,6 +10305,39 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T09:39:49.646Z"
+    "cachedAt": "2026-10-18T15:17:10.462Z"
+  },
+  "F9C9Uae68tD": {
+    "title": "红皇后第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-10-18T15:17:10.703Z"
+  },
+  "14PnHh3a4e1": {
+    "title": "警与囚第3季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/1dI7GCfTHAgtv8v54CwDlq9iRmt.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:126116:3",
+    "matchedTitle": "警与囚第 3 季",
+    "matchedSeriesTitle": "警与囚",
+    "tmdbId": 126116,
+    "tmdbUrl": "https://www.themoviedb.org/tv/126116/season/3",
+    "tmdbSeriesId": 126116,
+    "tmdbSeasonId": 547505,
+    "tmdbSeasonNumber": 3,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Time_(2021_TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt13138834/",
+    "wikidataId": "Q107324744",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-18T15:17:10.967Z",
+    "cachedAt": "2026-10-18T15:17:10.970Z"
   }
 }
