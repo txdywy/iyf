@@ -22,9 +22,11 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     let display = '';
     const node = {
       id, value, textContent: '0', style: {}, hidden: false, children: [], dataset: {}, tabIndex: -1,
+      htmlWrites: 0, appendWrites: 0,
       classList: {
         add(name) { classes.add(name); },
         remove(name) { classes.delete(name); },
+        contains(name) { return classes.has(name); },
         toggle(name, force = !classes.has(name)) {
           if (force) classes.add(name);
           else classes.delete(name);
@@ -46,6 +48,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       getBoundingClientRect: () => ({ top: 10000 }),
       insertAdjacentHTML(position, value) {
         assert.equal(position, 'beforeend');
+        node.appendWrites++;
         html += value;
         node.children.push(...cards(value));
       },
@@ -84,6 +87,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     Object.defineProperty(node, 'innerHTML', {
       get: () => html,
       set(value) {
+        node.htmlWrites++;
         if (node.contains(document.activeElement)) document.activeElement = document.body;
         html = value;
         node.children = cards(value);
@@ -131,7 +135,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   });
   vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
     globalThis.helpers = {
-      loadData, switchTab, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
+      loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml,
       setAllData: value => { allData = value; },
       setTVmazeCache: shows => {
@@ -149,6 +153,120 @@ function snapshot(count = 1) {
     chineseVariety: [{ id: 'variety', title: '综艺' }],
   };
 }
+
+test('unchanged filter results retain card nodes, poster state and focused links', () => {
+  const { helpers, elements, document } = createApp();
+  const data = snapshot(30);
+  data.koreanDramas.forEach(show => { show.tmdbUrl = 'https://www.themoviedb.org/tv/1'; });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const first = elements.showGrid.children[0];
+  const focused = first.children[0];
+  focused.focus();
+  first.posterState = 'decoded or fallback';
+  const writes = elements.showGrid.htmlWrites;
+  helpers.applyFilters();
+  assert.equal(elements.showGrid.htmlWrites, writes, 'an identical result must not replace the grid');
+  assert.equal(elements.showGrid.children[0], first);
+  assert.equal(first.posterState, 'decoded or fallback');
+  assert.equal(document.activeElement, focused);
+});
+
+test('a no-op filter between progressive batches still appends and retains earlier cards', () => {
+  const { helpers, elements } = createApp();
+  helpers.setAllData(snapshot(70));
+  helpers.switchTab('korean', { animate: false });
+  const first = elements.showGrid.children[0];
+  helpers.applyFilters();
+  assert.equal(helpers.loadMoreShows(), true);
+  assert.equal(elements.showGrid.children.length, 48);
+  assert.equal(elements.showGrid.children[0], first);
+  assert.equal(elements.showGrid.appendWrites, 1);
+});
+
+test('changed snapshots and changed recommendation scales invalidate retained card markup', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(2);
+  Object.assign(data.koreanDramas[0], { score: 9, recommendScore: 50 });
+  Object.assign(data.koreanDramas[1], { score: 9, recommendScore: 40 });
+  elements.filterScore.value = '9';
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const original = elements.showGrid.children[0];
+  assert.match(elements.showGrid.innerHTML, /相对推荐度 100%/u);
+  // 对象相同但新快照的分类最大值变了，不能复用旧的相对推荐度。
+  data.koreanDramas.push({ id: 'outside', title: '筛选外', score: 1, recommendScore: 100 });
+  helpers.switchTab('korean', { animate: false });
+  assert.notEqual(elements.showGrid.children[0], original);
+  assert.match(elements.showGrid.innerHTML, /相对推荐度 50%/u);
+  const next = elements.showGrid.children[0];
+  helpers.setAllData({ ...data, koreanDramas: data.koreanDramas.map(show => ({ ...show, title: `${show.title} 已更新` })) });
+  helpers.switchTab('korean', { animate: false });
+  assert.notEqual(elements.showGrid.children[0], next);
+  assert.match(elements.showGrid.innerHTML, /已更新/u);
+});
+
+test('an equal background response retains snapshot identity for the next local filter', async () => {
+  const data = snapshot(30);
+  const { helpers, elements } = createApp(async () => ({ ok: true, json: async () => structuredClone(data) }), data);
+  await helpers.loadData();
+  const first = elements.showGrid.children[0];
+  const writes = elements.showGrid.htmlWrites;
+  helpers.applyFilters();
+  assert.equal(elements.showGrid.children[0], first);
+  assert.equal(elements.showGrid.htmlWrites, writes);
+});
+
+test('cached remote cards replace skeletons even when the card count is identical', async () => {
+  const { helpers, elements } = createApp();
+  helpers.setAllData(snapshot());
+  helpers.setTVmazeCache(Array.from({ length: 4 }, (_, index) => ({ id: index + 1, name: `时间表${index}`, status: 'Running' })));
+  await helpers.switchTab('tvmaze');
+  await helpers.switchTab('tvmaze');
+  assert.equal(elements.showGrid.children.length, 4);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /skeleton-card/u);
+  assert.match(elements.showGrid.innerHTML, /时间表0/u);
+});
+
+for (const cached of [false, true]) {
+  test(`initial ${cached ? 'cached' : 'network'} recommendations appear without entrance animation or counting delay`, async () => {
+    const data = snapshot(30);
+    const { helpers, elements, view } = createApp(async () => ({ ok: true, json: async () => structuredClone(data) }), cached ? data : null);
+    view.matchMedia = () => ({ matches: false });
+    await helpers.loadData();
+    assert.equal(elements.showGrid.classList.contains('animate'), false);
+    assert.equal(Number(elements.statTotal.textContent), 30);
+    assert.equal(elements.showGrid.children.length, 24);
+  });
+}
+
+test('current-year filtering scans dataset years linearly rather than once per show', () => {
+  const { helpers, elements } = createApp();
+  const year = new Date().getFullYear();
+  const data = snapshot(1000);
+  data.chineseVariety = snapshot(1000).koreanDramas.map(show => ({ ...show, id: `variety-${show.id}` }));
+  let reads = 0;
+  const rows = [...data.koreanDramas, ...data.chineseVariety];
+  rows.forEach((show, index) => Object.defineProperty(show, 'year', { get() { reads++; return index === rows.length - 1 ? year : year - 1; } }));
+  helpers.setAllData(data);
+  helpers.switchTab('year', { animate: false });
+  assert.equal(elements.showGrid.children.length, 0);
+  assert.ok(reads <= 6000, `year selection should be linear, got ${reads} reads for ${rows.length} shows`);
+});
+
+test('rendering one card batch computes the dataset year once for the batch', () => {
+  const { helpers, elements } = createApp();
+  const year = new Date().getFullYear();
+  const data = snapshot(1000);
+  data.chineseVariety = snapshot(1000).koreanDramas.map(show => ({ ...show, id: `variety-${show.id}` }));
+  let reads = 0;
+  const rows = [...data.koreanDramas, ...data.chineseVariety];
+  rows.forEach((show, index) => Object.defineProperty(show, 'year', { get() { reads++; return index === rows.length - 1 ? year : year - 1; } }));
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  assert.equal(elements.showGrid.children.length, 24);
+  assert.ok(reads <= 6000, `one batch must not rescan all years for every card, got ${reads} reads`);
+});
 
 function scrollableTabGeometry({ document, view }) {
   const tabs = document.querySelectorAll('.tab');

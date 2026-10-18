@@ -50,7 +50,8 @@
   const _tabRequestTimeouts = new WeakMap();
   let _filteredShows = [];
   let _visibleShowCount = INITIAL_RENDER_COUNT;
-  let _renderedShows = null;
+  let _renderedShowItems = [];
+  let _renderedContext = null;
   let _renderedShowCount = 0;
   let _loadMoreObserver = null;
   let _isLoadingMore = false;
@@ -84,7 +85,7 @@
     if (cached) {
       allData = cached.data;
       updateYearTabLabels();
-      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
+      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
     } else if (!REMOTE_TAB_LABELS[activeTabName]) {
       showDataLoading();
@@ -96,7 +97,8 @@
       if (requestVersion !== _dataRequestVersion) return;
       if (!isShowDataset(data)) throw new Error('Invalid show data');
       const unchanged = allData && JSON.stringify(data) === JSON.stringify(allData);
-      allData = data;
+      // 内容相同的响应沿用原快照对象，后续筛选仍能保留已渲染卡片。
+      allData = unchanged ? allData : data;
       _dataLoadFailed = false;
       _dataLoadNotice = '';
       saveDataCache(data);
@@ -112,7 +114,7 @@
           restoreReadingState(readingState);
         }
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
-        switchTab(activeTabName, { syncUrl: false, scrollToTab: false });
+        switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
       }
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
@@ -131,6 +133,7 @@
     document.getElementById('loading').style.display = 'none';
     const grid = document.getElementById('showGrid');
     if (grid) {
+      resetRenderedShows();
       grid.innerHTML = '';
       grid.setAttribute('aria-busy', 'false');
     }
@@ -252,6 +255,7 @@
   function renderSkeletons(count = 6) {
     const grid = document.getElementById('showGrid');
     if (!grid) return;
+    resetRenderedShows();
     grid.setAttribute('aria-busy', 'true');
     grid.classList.remove('animate');
     grid.innerHTML = Array.from({ length: count }, () => `
@@ -482,13 +486,17 @@
       case 'korean':
         shows = allData.koreanDramas || [];
         break;
-      case 'year':
-        shows = (allData.koreanDramas || []).filter(s => s.year === getCurrentDataYear());
+      case 'year': {
+        const dataYear = getCurrentDataYear();
+        shows = (allData.koreanDramas || []).filter(s => s.year === dataYear);
         break;
-      case 'varietyYear':
+      }
+      case 'varietyYear': {
+        const dataYear = getCurrentDataYear();
         // 当年新综艺，经典节目统一放在“经典必看”标签中。
-        shows = (allData.chineseVariety || []).filter(s => s.year === getCurrentDataYear());
+        shows = (allData.chineseVariety || []).filter(s => s.year === dataYear);
         break;
+      }
       case 'variety':
         shows = allData.chineseVariety || [];
         break;
@@ -687,6 +695,12 @@
   }
 
   // ── 渲染 ──────────────────────────────────────────
+  function resetRenderedShows() {
+    _renderedShowItems = [];
+    _renderedContext = null;
+    _renderedShowCount = 0;
+  }
+
   function renderShows(shows, animate = false, { preserveVisibleCount = false } = {}) {
     _filteredShows = Array.isArray(shows) ? shows : [];
     _visibleShowCount = Math.min(preserveVisibleCount ? Math.max(INITIAL_RENDER_COUNT, _visibleShowCount) : INITIAL_RENDER_COUNT, _filteredShows.length);
@@ -705,32 +719,43 @@
 
     if (!shows.length) {
       if (grid) grid.innerHTML = '';
-      _renderedShows = null;
-      _renderedShowCount = 0;
+      resetRenderedShows();
       updateLoadMore(0, 0);
       setEmptyState('😢 暂无符合当前条件的推荐');
       return;
     }
 
     clearEmptyState();
-    // 仅在切换标签/首次加载时播放入场动画;筛选/搜索/排序时即时呈现,避免每次按键重放动画造成的抖动。
-    grid.classList.toggle('animate', animate);
-
+    const dataYear = getCurrentDataYear();
     const renderer = activeTabName === 'tvmaze' ? renderTVmazeCard : renderCard;
-
     const visibleShows = shows.slice(0, _visibleShowCount);
-    const canAppend = !animate &&
-      _renderedShows === shows &&
+    // 数据快照不可变。相同渲染上下文和对象前缀可保留已解码海报、焦点与卡片节点。
+    // 新快照、年份、标签或推荐度基准变化都必须重新生成；骨架/错误也会显式失效。
+    const canRetain = _renderedContext?.data === allData &&
+      _renderedContext.tab === activeTabName &&
+      _renderedContext.year === dataYear &&
+      _renderedContext.maximum === _recommendationMaximum &&
       _renderedShowCount > 0 &&
-      _renderedShowCount < visibleShows.length &&
+      _renderedShowCount <= visibleShows.length &&
       grid.children?.length === _renderedShowCount &&
+      _renderedShowItems.every((show, index) => show === visibleShows[index]);
+    if (canRetain && _renderedShowCount === visibleShows.length) {
+      updateLoadMore(visibleShows.length, shows.length);
+      return;
+    }
+
+    // 仅新卡片播放入场动画；结果不变时不重播，筛选/搜索/排序即时呈现。
+    grid.classList.toggle('animate', animate);
+    const canAppend = canRetain && !animate &&
+      _renderedShowCount < visibleShows.length &&
       typeof grid.insertAdjacentHTML === 'function';
     if (canAppend) {
-      grid.insertAdjacentHTML('beforeend', visibleShows.slice(_renderedShowCount).map((show, i) => renderer(show, _renderedShowCount + i)).join(''));
+      grid.insertAdjacentHTML('beforeend', visibleShows.slice(_renderedShowCount).map((show, i) => renderer(show, _renderedShowCount + i, dataYear)).join(''));
     } else {
-      grid.innerHTML = visibleShows.map((show, i) => renderer(show, i)).join('');
+      grid.innerHTML = visibleShows.map((show, i) => renderer(show, i, dataYear)).join('');
     }
-    _renderedShows = shows;
+    _renderedShowItems = visibleShows;
+    _renderedContext = { data: allData, tab: activeTabName, year: dataYear, maximum: _recommendationMaximum };
     _renderedShowCount = visibleShows.length;
     updateLoadMore(visibleShows.length, shows.length);
   }
@@ -746,7 +771,7 @@
     else sentinel.textContent = message;
   }
 
-  function renderCard(show, index) {
+  function renderCard(show, index, dataYear = getCurrentDataYear()) {
     const badges = [];
     const aiScore = normalizeAIScore(show.aiScore);
     const score = toFiniteNumber(show.score, NaN);
@@ -755,7 +780,7 @@
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
-    if (show.year >= getCurrentDataYear()) badges.push(`<span class="badge badge-new">${show.mediaType === '综艺' ? '新综艺' : '新剧'}</span>`);
+    if (show.year >= dataYear) badges.push(`<span class="badge badge-new">${show.mediaType === '综艺' ? '新综艺' : '新剧'}</span>`);
     if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
     else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
 
@@ -1215,6 +1240,7 @@
     _isTabLoading = false;
     _tabLoadError = { tab };
     const grid = document.getElementById('showGrid');
+    resetRenderedShows();
     grid.innerHTML = '';
     grid.setAttribute('aria-busy', 'false');
     document.getElementById('loading').style.display = 'none';
