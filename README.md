@@ -65,3 +65,5 @@ Cloudflare 保留 Git 来源以从 `main` 构建，关闭自动生产与预览�
 Cloudflare 发布任务下载本次工作流的已校验产物，触发部署后以 10 分钟为轮询期限，先确认两个域名的首页均已切换到新版本，再核对正式域名与 Pages 域名的首页、CSS、JS、公开数据、robots 和真实 404 的内容摘要、文件类型（Content-Type），以及缓存和安全响应头。失败日志包含具体域名、文件和受控原因（HTTP 状态、摘要差异、缺失或无效响应头、连接错误），不输出钩子、响应正文或头值。任一域名不可访问、触发失败或线上仍是旧文件时任务失败；GitHub Pages 独立发布，继续作为备用。代码提交、定时抓取和手动运行均经过这条链路，数据机器人提交不会再递归触发抓取。
 
 正式域名 `iyf.hackx64.eu.org` 的 CNAME 指向 `iyf-5l7.pages.dev`。HTML 和 JSON 使用重新验证缓存，CSS/JS 实际文件名包含内容摘要，并使用一年有效期的 `immutable` 缓存；新代码通过新摘要地址更新（参见 [Pages 缓存建议](https://developers.cloudflare.com/pages/configuration/serving-pages/#caching-and-performance)）。Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages 部署钩子文档](https://developers.cloudflare.com/pages/configuration/deploy-hooks/)。
+
+交付策略改变而资源内容未变时，旧摘要地址可能仍命中带旧响应头的缓存。此时同步更新对应资源的交付版本注释，让完整文件字节生成新摘要地址；文件名仍须与内容哈希一致，并通过两个域名的实际响应验收。
