@@ -94,6 +94,15 @@ export async function deployCloudflare({
         }
         if (['index.html', 'data/shows.json'].includes(item.file)
           && !response.headers.get('cache-control')?.includes('no-cache')) failedHeaders.push('cache-control');
+        if (['css/style.css', 'js/app.js'].includes(item.file)) {
+          const directives = (response.headers.get('cache-control') || '').toLowerCase().split(',').map(value => value.trim());
+          const maxAges = directives.map(value => value.match(/^max-age\s*=\s*(\d+)$/u)).filter(Boolean);
+          if (!directives.includes('public') || !directives.includes('immutable') ||
+            maxAges.length !== 1 || Number(maxAges[0][1]) < 31536000 ||
+            directives.some(value => /^(?:no-cache|no-store|private)(?:\s*=|$)/u.test(value))) {
+            failedHeaders.push('cache-control');
+          }
+        }
         return failedHeaders.length ? `${label}: missing or invalid headers (${failedHeaders.join(', ')})` : null;
       } catch (error) { return `${label}: ${requestFailure(error, signal)}`; }
     };

@@ -81,7 +81,7 @@ function createHarness(t, {
         'x-content-type-options': 'nosniff',
         'x-frame-options': 'DENY',
         'content-security-policy': "default-src 'self'; frame-ancestors 'none'",
-        'cache-control': ['css/style.css', 'js/app.js'].includes(file) ? 'public, max-age=86400' : 'no-cache',
+        'cache-control': ['css/style.css', 'js/app.js'].includes(file) ? 'public, max-age=31536000, immutable' : 'no-cache',
       },
     };
     const override = publicReply?.(response) || {};
@@ -112,6 +112,36 @@ test('Cloudflare deployment verifies every artifact file with versioned asset UR
   assert.deepEqual(h.calls.slice(1).map(call => call.address).sort(), VERIFIED_ORIGINS.flatMap(origin => [...h.routes.keys()].map(path => `${origin}${path}`)).sort());
   assert.deepEqual(h.waits, []);
   assert.match(h.logs.at(-1), /production matches the validated artifact/);
+});
+
+for (const target of ['css/style.css', 'js/app.js']) {
+  test(`Cloudflare deployment requires effective immutable caching for ${target}`, async t => {
+    for (const cacheControl of [undefined, 'public, max-age=86400', 'public, max-age=31536000',
+      'private, max-age=31536000, immutable', 'public, max-age=31536000, immutable, no-cache',
+      'public, max-age=31536000, immutable, no-store']) {
+      const h = createHarness(t, {
+        publicReply: ({ file, headers }) => {
+          if (file !== target) return {};
+          if (cacheControl === undefined) delete headers['cache-control'];
+          else headers['cache-control'] = cacheControl;
+          return { headers };
+        },
+      });
+      await assert.rejects(h.run(), error => {
+        assert.ok(error.message.includes(`${target}: missing or invalid headers (cache-control)`));
+        assert.ok(!error.message.includes(HOOK_URL));
+        return true;
+      });
+    }
+  });
+}
+
+test('Cloudflare deployment accepts directive case and optional whitespace in immutable cache headers', async t => {
+  const h = createHarness(t, {
+    publicReply: ({ file, headers }) => ['css/style.css', 'js/app.js'].includes(file)
+      ? { headers: { ...headers, 'cache-control': 'PUBLIC, Max-Age = 31536000, IMMUTABLE' } } : {},
+  });
+  assert.equal((await h.run()).files, 6);
 });
 
 test('Cloudflare deployment rejects CSS served with the wrong MIME type despite matching bytes', async t => {
