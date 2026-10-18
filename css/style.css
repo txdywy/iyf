@@ -1,3 +1,4 @@
+/* 交付版本 immutable-v1：缓存策略迁移时更新资源摘要，淘汰旧地址的响应头缓存。 */
 /* ── Reset & Base ──────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
