@@ -1761,8 +1761,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt4325992/",
     "wikidataId": "Q17869295",
     "cachedAt": "2026-08-23T16:34:06.041Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:06.041Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.247Z"
   },
   "seed_var_2026_02": {
     "title": "王牌对王牌",
@@ -1780,8 +1780,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt6742518/",
     "wikidataId": "Q24836510",
     "cachedAt": "2026-08-23T16:34:06.791Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:06.791Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.255Z"
   },
   "seed_var_2026_02b": {
     "title": "王牌对王牌第九季",
@@ -1814,8 +1814,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt7131118/",
     "wikidataId": "Q20645067",
     "cachedAt": "2026-08-23T16:34:06.505Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:06.505Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.248Z"
   },
   "seed_var_2026_07": {
     "title": "你好星期六",
@@ -1833,8 +1833,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt30985733/",
     "wikidataId": "Q116248040",
     "cachedAt": "2026-08-23T16:34:06.981Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:06.981Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.410Z"
   },
   "seed_var_2026_17": {
     "title": "地球超新鲜",
@@ -3206,8 +3206,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:11.664Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:11.664Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.322Z"
   },
   "seed_var_2026_30": {
     "title": "天才厨人",
@@ -3225,8 +3225,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:11.761Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:11.761Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.329Z"
   },
   "seed_var_2026_33": {
     "title": "风华合伙人",
@@ -5999,8 +5999,8 @@
     "doubanId": "37815373",
     "doubanMatchedTitle": "地球超新鲜 第二季",
     "doubanMatchedSeasonNumber": 2,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:36.061Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.322Z"
   },
   "CzWgzZtvLUt": {
     "title": "你为什么要爬山？",
@@ -6430,8 +6430,8 @@
     "doubanId": "26387728",
     "doubanMatchedTitle": "极限挑战 第一季",
     "doubanMatchedSeasonNumber": 1,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:35.450Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.248Z"
   },
   "BJM8WxBHDeB": {
     "title": "脱口秀和Ta的朋友们第3季",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.959Z"
+    "cachedAt": "2026-10-19T18:15:04.089Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:51.072Z"
+    "cachedAt": "2026-10-19T18:15:04.759Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.879Z"
+    "cachedAt": "2026-10-19T18:15:03.541Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:48.671Z"
+    "cachedAt": "2026-10-19T18:15:02.867Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.921Z"
+    "cachedAt": "2026-10-19T18:15:03.678Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:50.476Z"
+    "cachedAt": "2026-10-19T18:15:04.194Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:50.536Z"
+    "cachedAt": "2026-10-19T18:15:04.211Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6856,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.279Z"
+    "cachedAt": "2026-10-19T18:15:02.854Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6906,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:50.564Z"
+    "cachedAt": "2026-10-19T18:15:04.349Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6916,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:51.177Z"
+    "cachedAt": "2026-10-19T18:15:04.876Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6936,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:51.209Z"
+    "cachedAt": "2026-10-19T18:15:05.021Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6946,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.301Z"
+    "cachedAt": "2026-10-19T18:15:03.523Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6956,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:52.343Z"
+    "cachedAt": "2026-10-19T18:15:06.201Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7574,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.356Z"
+    "cachedAt": "2026-10-19T18:15:03.341Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8091,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:48.072Z"
+    "cachedAt": "2026-10-19T18:15:02.169Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8196,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:48.036Z"
+    "cachedAt": "2026-10-19T18:15:02.182Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8407,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:48.700Z"
+    "cachedAt": "2026-10-19T18:15:02.994Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10377,5 +10377,53 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-19T02:58:51.364Z",
     "cachedAt": "2026-10-19T02:58:51.365Z"
+  },
+  "vyuZhUcuRiM": {
+    "title": "我的有罪之人",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/g3nhbHopH3ggmJpEKY8kRMlztMD.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "我的有罪之人",
+    "matchedTitle": "我的有罪之人",
+    "tmdbId": 303745,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303745",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%81%BD%E8%A3%9D%E6%88%80%E6%84%9B",
+    "imdbUrl": "https://www.imdb.com/title/tt45246384/",
+    "wikidataId": "Q136664062",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:01.756Z",
+    "cachedAt": "2026-10-19T18:15:01.759Z"
+  },
+  "5ElOKGDXnl2": {
+    "title": "好莱坞艺术学院",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/seJH1p7gWvgQBAmzep5xpt3J71a.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "好莱坞艺术学院",
+    "matchedTitle": "好莱坞艺术学院",
+    "tmdbId": 286183,
+    "tmdbUrl": "https://www.themoviedb.org/tv/286183",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Hollywood_Arts",
+    "imdbUrl": "https://www.imdb.com/title/tt35673115/",
+    "wikidataId": "Q136678399",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-19T18:15:05.125Z",
+    "cachedAt": "2026-10-19T18:15:05.128Z"
+  },
+  "SBY1IVAgALB": {
+    "title": "梅格雷探案第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-10-19T18:15:06.636Z"
   }
 }

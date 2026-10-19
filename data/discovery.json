@@ -334,13 +334,13 @@
     ]
   },
   "2026-10-19": {
-    "timestamp": "2026-10-19T02:58:39.810Z",
-    "totalFound": 1,
+    "timestamp": "2026-10-19T18:15:00.202Z",
+    "totalFound": 2,
     "shows": [
       {
         "title": "跨界喜剧王",
         "score": 5,
-        "playCount": 160974,
+        "playCount": 160980,
         "year": 2018,
         "actor": "潘长江,杨树林,文松,张晨光,沙宝亮,海一天,张檬,徐海乔,柳岩",
         "source": "search",
@@ -348,6 +348,18 @@
         "contentType": "",
         "mediaType": "综艺",
         "regional": "大陆"
+      },
+      {
+        "title": "我的有罪之人",
+        "score": 0,
+        "playCount": 2051,
+        "year": 2026,
+        "actor": "任时完,薛仁雅,金正贤,李多斌,金仁权",
+        "source": "api_index",
+        "updateStatus": "更新到01",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
       }
     ]
   }
