@@ -1,23 +1,4 @@
 {
-  "2026-09-19": {
-    "timestamp": "2026-09-19T15:18:10.891Z",
-    "koreanDramasCount": 63,
-    "chineseVarietyCount": 116,
-    "topKoreanDramas": [
-      "请回答1988",
-      "背着善宰跑",
-      "孤单又灿烂的神-鬼怪",
-      "21世纪大君夫人",
-      "订阅男友"
-    ],
-    "topVariety": [
-      "青春环游记",
-      "现在就出发",
-      "哈哈哈哈哈",
-      "欢乐喜剧人",
-      "喜剧大会"
-    ]
-  },
   "2026-09-20": {
     "timestamp": "2026-09-20T15:21:54.678Z",
     "koreanDramasCount": 63,
@@ -552,6 +533,25 @@
   },
   "2026-10-18": {
     "timestamp": "2026-10-18T15:23:14.213Z",
+    "koreanDramasCount": 63,
+    "chineseVarietyCount": 116,
+    "topKoreanDramas": [
+      "背着善宰跑",
+      "21世纪大君夫人",
+      "订阅男友",
+      "菜鸟炊事兵",
+      "孤单又灿烂的神-鬼怪"
+    ],
+    "topVariety": [
+      "青春环游记",
+      "现在就出发",
+      "哈哈哈哈哈",
+      "欢乐喜剧人",
+      "喜剧大会"
+    ]
+  },
+  "2026-10-19": {
+    "timestamp": "2026-10-19T03:01:52.460Z",
     "koreanDramasCount": 63,
     "chineseVarietyCount": 116,
     "topKoreanDramas": [
