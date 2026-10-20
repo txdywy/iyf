@@ -359,17 +359,17 @@
     ]
   },
   "2026-10-20": {
-    "timestamp": "2026-10-20T03:08:12.455Z",
+    "timestamp": "2026-10-20T16:15:19.542Z",
     "totalFound": 2,
     "shows": [
       {
         "title": "我的有罪之人",
-        "score": 0,
-        "playCount": 6716,
+        "score": 7.6,
+        "playCount": 15234,
         "year": 2026,
         "actor": "任时完,薛仁雅,金正贤,李多斌,金仁权",
         "source": "api_index",
-        "updateStatus": "更新到01",
+        "updateStatus": "更新到02",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -377,7 +377,7 @@
       {
         "title": "跨界喜剧王",
         "score": 5,
-        "playCount": 160984,
+        "playCount": 160988,
         "year": 2018,
         "actor": "潘长江,杨树林,文松,张晨光,沙宝亮,海一天,张檬,徐海乔,柳岩",
         "source": "search",
