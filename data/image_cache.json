@@ -1884,8 +1884,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt9332934/",
     "wikidataId": "Q24839121",
     "cachedAt": "2026-08-23T16:34:13.190Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:13.190Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:13.210Z"
   },
   "seed_var_c04": {
     "title": "脱口秀大会",
@@ -1903,8 +1903,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:13.084Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:13.084Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z"
   },
   "seed_var_c05": {
     "title": "欢乐喜剧人",
@@ -1922,8 +1922,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:13.201Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:13.201Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.976Z"
   },
   "seed_var_c06": {
     "title": "吐槽大会",
@@ -1979,8 +1979,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt5830218/",
     "wikidataId": "Q5652568",
     "cachedAt": "2026-08-23T16:34:13.360Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:13.360Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:13.227Z"
   },
   "seed_var_c09": {
     "title": "一年一度喜剧大赛",
@@ -3244,8 +3244,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:12.284Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:12.284Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z"
   },
   "seed_var_2026_34": {
     "title": "超燃青春的合唱",
@@ -3263,8 +3263,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:12.384Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:12.384Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.888Z"
   },
   "7UFbpHvJFM0": {
     "title": "春季露营",
@@ -6479,8 +6479,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:37.622Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:37.622Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.976Z",
     "doubanId": "26705307",
     "doubanMatchedTitle": "欢乐喜剧人 第二季",
     "doubanMatchedSeasonNumber": 2
@@ -6508,8 +6508,8 @@
     "doubanId": "27665179",
     "doubanMatchedTitle": "欢乐喜剧人 第四季",
     "doubanMatchedSeasonNumber": 4,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:37.619Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.976Z"
   },
   "3qXYEvtFrn4": {
     "title": "欢乐喜剧人第3季",
@@ -6534,8 +6534,8 @@
     "doubanId": "26785171",
     "doubanMatchedTitle": "欢乐喜剧人 第三季",
     "doubanMatchedSeasonNumber": 3,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:37.612Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.976Z"
   },
   "EY4JyLF0XOL": {
     "title": "欢乐喜剧人第5季",
@@ -6560,8 +6560,8 @@
     "doubanId": "30414465",
     "doubanMatchedTitle": "欢乐喜剧人 第五季",
     "doubanMatchedSeasonNumber": 5,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:37.616Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.976Z"
   },
   "sD4YZE9RktC": {
     "title": "脱口秀和Ta的朋友们第2季",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.089Z"
+    "cachedAt": "2026-10-20T03:08:15.592Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.759Z"
+    "cachedAt": "2026-10-20T03:08:16.296Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:03.541Z"
+    "cachedAt": "2026-10-20T03:08:15.440Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6675,8 +6675,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:38.408Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:38.408Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z",
     "doubanId": "35890182",
     "doubanMatchedTitle": "脱口秀大会 第五季",
     "doubanMatchedSeasonNumber": 5
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:02.867Z"
+    "cachedAt": "2026-10-20T03:08:14.739Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6714,8 +6714,8 @@
     "doubanId": "35206452",
     "doubanMatchedTitle": "脱口秀大会 第四季",
     "doubanMatchedSeasonNumber": 4,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:38.299Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z"
   },
   "4YKvUGEpC0D": {
     "title": "今晚80后脱口秀",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:03.678Z"
+    "cachedAt": "2026-10-20T03:08:15.448Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6770,8 +6770,8 @@
     "doubanId": "34840339",
     "doubanMatchedTitle": "脱口秀大会 第三季",
     "doubanMatchedSeasonNumber": 3,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:38.451Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z"
   },
   "Vl9gticCaM3": {
     "title": "改造露营车",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.194Z"
+    "cachedAt": "2026-10-20T03:08:16.177Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.211Z"
+    "cachedAt": "2026-10-20T03:08:16.149Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6832,8 +6832,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt14799766/",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:39.628Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:39.628Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-20T03:08:12.889Z",
     "doubanId": "34431573",
     "doubanMatchedTitle": "脱口秀大会 第二季",
     "doubanMatchedSeasonNumber": 2
@@ -6856,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:02.854Z"
+    "cachedAt": "2026-10-20T03:08:14.746Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6906,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.349Z"
+    "cachedAt": "2026-10-20T03:08:16.152Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6916,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:04.876Z"
+    "cachedAt": "2026-10-20T03:08:16.849Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6936,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:05.021Z"
+    "cachedAt": "2026-10-20T03:08:16.934Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6946,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:03.523Z"
+    "cachedAt": "2026-10-20T03:08:15.424Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6956,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:06.201Z"
+    "cachedAt": "2026-10-20T03:08:18.314Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7574,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:03.341Z"
+    "cachedAt": "2026-10-20T03:08:14.886Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8091,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:02.169Z"
+    "cachedAt": "2026-10-20T03:08:13.992Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8196,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:02.182Z"
+    "cachedAt": "2026-10-20T03:08:14.044Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8407,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T18:15:02.994Z"
+    "cachedAt": "2026-10-20T03:08:14.721Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10389,13 +10389,16 @@
     "matchedTitle": "我的有罪之人",
     "tmdbId": 303745,
     "tmdbUrl": "https://www.themoviedb.org/tv/303745",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37806882/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%81%BD%E8%A3%9D%E6%88%80%E6%84%9B",
     "imdbUrl": "https://www.imdb.com/title/tt45246384/",
     "wikidataId": "Q136664062",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-19T18:15:01.756Z",
-    "cachedAt": "2026-10-19T18:15:01.759Z"
+    "cachedAt": "2026-10-19T18:15:01.759Z",
+    "doubanId": "37806882",
+    "doubanMatchedTitle": "我的有罪之人",
+    "doubanMatchedSeasonNumber": 0
   },
   "5ElOKGDXnl2": {
     "title": "好莱坞艺术学院",
