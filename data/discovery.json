@@ -1,9 +1,4 @@
 {
-  "2026-08-22": {
-    "timestamp": "2026-08-22T12:29:01.225Z",
-    "totalFound": 0,
-    "shows": []
-  },
   "2026-08-23": {
     "timestamp": "2026-08-23T16:33:48.136Z",
     "totalFound": 0,
@@ -383,6 +378,60 @@
         "source": "search",
         "updateStatus": "20181110集全",
         "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      }
+    ]
+  },
+  "2026-10-21": {
+    "timestamp": "2026-10-21T03:02:53.769Z",
+    "totalFound": 4,
+    "shows": [
+      {
+        "title": "跨界喜剧王",
+        "score": 5,
+        "playCount": 160988,
+        "year": 2018,
+        "actor": "潘长江,杨树林,文松,张晨光,沙宝亮,海一天,张檬,徐海乔,柳岩",
+        "source": "search",
+        "updateStatus": "20181110集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "偏爱之恋第2季",
+        "score": 0,
+        "playCount": 5195,
+        "year": 2026,
+        "actor": "王天晴,王晟,刘予宁,刘乐怡,刘欣橪,任淳熙,张艺,李宗道,郑守栋,金震宇,胡可儿,高宇恒,钱诗涵,梁泳枫,黄思洋,蔡子伊",
+        "source": "api_index",
+        "updateStatus": "更新到20261020(上)",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "令人心动的offer第8季",
+        "score": 0,
+        "playCount": 4650,
+        "year": 2026,
+        "actor": "陈铭,贺峻霖,徐志胜,张纯烨,麻昊宁,徐晔",
+        "source": "api_index",
+        "updateStatus": "更新到集结篇",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "当家爸爸的聚会第2季",
+        "score": 0,
+        "playCount": 2500,
+        "year": 2026,
+        "actor": "肖,萨琪拉,赵治远,周有君,法特,张雅莲",
+        "source": "api_index",
+        "updateStatus": "更新到20261018(第1期)",
+        "contentType": "真人秀",
         "mediaType": "综艺",
         "regional": "大陆"
       }

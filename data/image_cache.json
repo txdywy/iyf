@@ -2112,8 +2112,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:15.261Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:15.261Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.150Z"
   },
   "V58UNe249y7": {
     "title": "李栋旭想做脱口秀",
@@ -3301,8 +3301,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:14.409Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:14.409Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.090Z"
   },
   "WWxULgJcilB": {
     "title": "机智的露营生活",
@@ -3358,8 +3358,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:15.175Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:15.175Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.129Z"
   },
   "9oo4bay48uO": {
     "title": "美食告白记",
@@ -3547,7 +3547,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:15.154Z"
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.133Z"
   },
   "cwX4qHtZmR8": {
     "title": "千香",
@@ -5100,8 +5100,8 @@
     "doubanId": "38500062",
     "doubanMatchedTitle": "一路向海的少年",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:14.751Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.103Z"
   },
   "2APi9HEUIY6": {
     "title": "夜语记",
@@ -5384,7 +5384,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T02:45:16.998Z"
+    "cachedAt": "2026-10-21T03:02:56.059Z"
   },
   "4EdRcqTVxU6": {
     "title": "重器",
@@ -5480,8 +5480,8 @@
     "doubanId": "38595189",
     "doubanMatchedTitle": "伦敦合伙人",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:15.087Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:54.089Z"
   },
   "ibi0Ecsy8Q0": {
     "title": "姐姐快醒醒",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.964Z"
+    "cachedAt": "2026-10-21T03:02:57.982Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:22.562Z"
+    "cachedAt": "2026-10-21T03:02:58.597Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.859Z"
+    "cachedAt": "2026-10-21T03:02:57.397Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.252Z"
+    "cachedAt": "2026-10-21T03:02:56.852Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.865Z"
+    "cachedAt": "2026-10-21T03:02:57.485Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:22.462Z"
+    "cachedAt": "2026-10-21T03:02:58.084Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:22.459Z"
+    "cachedAt": "2026-10-21T03:02:58.000Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6856,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.248Z"
+    "cachedAt": "2026-10-21T03:02:56.738Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6906,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:22.499Z"
+    "cachedAt": "2026-10-21T03:02:58.268Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6916,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:23.060Z"
+    "cachedAt": "2026-10-21T03:02:58.684Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6936,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:23.100Z"
+    "cachedAt": "2026-10-21T03:02:58.889Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6946,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.869Z"
+    "cachedAt": "2026-10-21T03:02:57.359Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6956,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:24.259Z"
+    "cachedAt": "2026-10-21T03:02:59.823Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7574,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.367Z"
+    "cachedAt": "2026-10-21T03:02:57.652Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8091,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:20.648Z"
+    "cachedAt": "2026-10-21T03:02:55.847Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8196,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:20.646Z"
+    "cachedAt": "2026-10-21T03:02:56.130Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8407,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-20T16:15:21.263Z"
+    "cachedAt": "2026-10-21T03:02:56.791Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10428,5 +10428,78 @@
     "negativeLookupVersion": 2,
     "notFound": true,
     "cachedAt": "2026-10-19T18:15:06.636Z"
+  },
+  "yIu7gzynFQ90": {
+    "title": "令人心动的offer第8季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "url": "https://image.tmdb.org/t/p/original/bbqgHpGkaV2Jkr6RTX9wlmOz5IO.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:106621:8",
+    "matchedTitle": "令人心动的offer第8季",
+    "matchedSeriesTitle": "令人心动的offer",
+    "tmdbId": 106621,
+    "tmdbUrl": "https://www.themoviedb.org/tv/106621/season/8",
+    "tmdbSeriesId": 106621,
+    "tmdbSeasonId": 534552,
+    "tmdbSeasonNumber": 8,
+    "doubanUrl": "https://movie.douban.com/subject/37814643/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt32561473/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:55.259Z",
+    "cachedAt": "2026-10-21T03:02:55.261Z",
+    "doubanId": "37814643",
+    "doubanMatchedTitle": "令人心动的offer 第八季",
+    "doubanMatchedSeasonNumber": 8
+  },
+  "40zRQuBGtM8": {
+    "title": "偏爱之恋第2季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-10-21T03:02:55.542Z",
+    "doubanUrl": "https://movie.douban.com/subject/38458369/",
+    "doubanId": "38458369",
+    "doubanMatchedTitle": "偏爱之恋2",
+    "doubanMatchedSeasonNumber": 2
+  },
+  "1J0cPZSt1p4": {
+    "title": "当家爸爸的聚会第2季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "notFound": true,
+    "cachedAt": "2026-10-21T03:02:55.587Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816911/",
+    "doubanId": "37816911",
+    "doubanMatchedTitle": "当家爸爸的聚会2",
+    "doubanMatchedSeasonNumber": 2
+  },
+  "I7cmwjzTV0H": {
+    "title": "换母疑云",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "url": "https://image.tmdb.org/t/p/original/yvyBTVuLlOuiR67aWOsBhN3ifYM.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "换母疑云",
+    "matchedTitle": "换母疑云",
+    "tmdbId": 275139,
+    "tmdbUrl": "https://www.themoviedb.org/tv/275139",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt21952924/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-21T03:02:58.680Z",
+    "cachedAt": "2026-10-21T03:02:58.682Z"
   }
 }
