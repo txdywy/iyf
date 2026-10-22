@@ -2131,8 +2131,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.715Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:17.715Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.964Z"
   },
   "G15iDgiJy3J": {
     "title": "百川综艺季",
@@ -3282,8 +3282,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.486Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:17.486Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.859Z"
   },
   "n9bKfrF0nqE": {
     "title": "一起露营吧",
@@ -3320,8 +3320,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt14252232/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.313Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:16.313Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.766Z"
   },
   "mLBFI69K9T2": {
     "title": "EXO的爬梯子世界旅行",
@@ -3339,8 +3339,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt28613356/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.597Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:17.597Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.861Z"
   },
   "zbSYqIao0pB": {
     "title": "露营俱乐部",
@@ -4738,8 +4738,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.426Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:16.426Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.766Z"
   },
   "gv4oVHx5oVC": {
     "title": "兰森峡谷第2季",
@@ -5502,8 +5502,8 @@
     "doubanId": "38589272",
     "doubanMatchedTitle": "姐姐快醒醒",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:17.340Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-22T03:01:28.810Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -5892,7 +5892,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:41.513Z"
+    "cachedAt": "2026-10-22T03:01:30.533Z"
   },
   "seed_kd_2026_04": {
     "title": "理事长和我的秘密关系",
@@ -5902,7 +5902,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:41.522Z"
+    "cachedAt": "2026-10-22T03:01:30.529Z"
   },
   "2dJ0cg4lxc1": {
     "title": "杀人者的购物中心2",
@@ -6171,7 +6171,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:42.125Z"
+    "cachedAt": "2026-10-22T03:01:29.824Z"
   },
   "seed_var_2026_08": {
     "title": "萌探探探案",
@@ -6181,7 +6181,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:43.226Z"
+    "cachedAt": "2026-10-22T03:01:30.514Z"
   },
   "seed_var_2026_04": {
     "title": "哈哈哈哈哈",
@@ -6191,7 +6191,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:42.109Z"
+    "cachedAt": "2026-10-22T03:01:30.850Z"
   },
   "seed_var_2026_10": {
     "title": "现在就出发",
@@ -6201,7 +6201,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:42.814Z"
+    "cachedAt": "2026-10-22T03:01:31.200Z"
   },
   "seed_var_2026_13": {
     "title": "快乐的大人",
@@ -6211,7 +6211,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:43.398Z"
+    "cachedAt": "2026-10-22T03:01:31.569Z"
   },
   "seed_var_2026_14": {
     "title": "闪亮的日子",
@@ -6221,7 +6221,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:43.822Z"
+    "cachedAt": "2026-10-22T03:01:31.923Z"
   },
   "seed_var_2026_11": {
     "title": "五十公里桃花坞",
@@ -6231,7 +6231,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:43.297Z"
+    "cachedAt": "2026-10-22T03:01:31.930Z"
   },
   "seed_var_2026_12": {
     "title": "种地吧",
@@ -6241,7 +6241,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:43.306Z"
+    "cachedAt": "2026-10-22T03:01:31.921Z"
   },
   "seed_var_2026_19": {
     "title": "喜剧大会",
@@ -6251,7 +6251,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:44.418Z"
+    "cachedAt": "2026-10-22T03:01:32.904Z"
   },
   "seed_var_2026_15": {
     "title": "快乐再出发",
@@ -6261,7 +6261,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:44.500Z"
+    "cachedAt": "2026-10-22T03:01:32.964Z"
   },
   "seed_var_2026_16": {
     "title": "你好生活",
@@ -6271,7 +6271,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:44.521Z"
+    "cachedAt": "2026-10-22T03:01:33.343Z"
   },
   "seed_var_2026_18": {
     "title": "向往的生活",
@@ -6281,7 +6281,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:44.589Z"
+    "cachedAt": "2026-10-22T03:01:33.348Z"
   },
   "seed_var_2026_20": {
     "title": "脱口秀和TA的朋友们",
@@ -6291,7 +6291,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:45.008Z",
+    "cachedAt": "2026-10-22T03:01:33.632Z",
     "doubanUrl": "https://movie.douban.com/subject/36742889/",
     "doubanId": "36742889",
     "doubanMatchedTitle": "脱口秀和Ta的朋友们",
@@ -6305,7 +6305,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:45.113Z"
+    "cachedAt": "2026-10-22T03:01:34.036Z"
   },
   "seed_var_2026_21": {
     "title": "喜人奇妙夜",
@@ -6315,7 +6315,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:45.693Z"
+    "cachedAt": "2026-10-22T03:01:34.411Z"
   },
   "seed_var_2026_25": {
     "title": "声生不息",
@@ -6325,7 +6325,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:45.774Z"
+    "cachedAt": "2026-10-22T03:01:35.037Z"
   },
   "seed_var_2026_24": {
     "title": "披荆斩棘的哥哥",
@@ -6335,7 +6335,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-18T15:17:07.963Z"
+    "cachedAt": "2026-10-22T03:01:35.418Z"
   },
   "seed_var_2026_26": {
     "title": "我们的歌",
@@ -6345,7 +6345,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:46.235Z"
+    "cachedAt": "2026-10-22T03:01:35.430Z"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -6355,7 +6355,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:46.283Z"
+    "cachedAt": "2026-10-22T03:01:35.783Z"
   },
   "seed_var_2026_27": {
     "title": "大侦探",
@@ -6365,7 +6365,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:46.878Z"
+    "cachedAt": "2026-10-22T03:01:36.427Z"
   },
   "seed_var_2026_29": {
     "title": "中餐厅",
@@ -6375,7 +6375,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:46.948Z"
+    "cachedAt": "2026-10-22T03:01:36.791Z"
   },
   "seed_var_2026_31": {
     "title": "天赐的声音",
@@ -6385,7 +6385,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:47.441Z"
+    "cachedAt": "2026-10-22T03:01:36.870Z"
   },
   "seed_var_2026_35": {
     "title": "无限超越班",
@@ -6395,7 +6395,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:47.482Z"
+    "cachedAt": "2026-10-22T03:01:37.122Z"
   },
   "seed_var_2026_32": {
     "title": "奋斗吧人生",
@@ -6405,7 +6405,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:47.513Z"
+    "cachedAt": "2026-10-22T03:01:37.238Z"
   },
   "seed_var_c02": {
     "title": "极限挑战第一季",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.144Z"
+    "cachedAt": "2026-10-22T03:01:41.044Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:11.173Z"
+    "cachedAt": "2026-10-22T03:01:41.937Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.513Z"
+    "cachedAt": "2026-10-22T03:01:40.348Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6653,7 +6653,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:49.364Z"
+    "cachedAt": "2026-10-22T03:01:39.608Z"
   },
   "XCASHj1Bpx3": {
     "title": "脱口秀大会第5季",
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:09.337Z"
+    "cachedAt": "2026-10-22T03:01:38.969Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.027Z"
+    "cachedAt": "2026-10-22T03:01:40.603Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.716Z"
+    "cachedAt": "2026-10-22T03:01:41.328Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.681Z"
+    "cachedAt": "2026-10-22T03:01:41.239Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6856,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:09.347Z"
+    "cachedAt": "2026-10-22T03:01:39.906Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6906,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.813Z"
+    "cachedAt": "2026-10-22T03:01:41.792Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6916,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:11.374Z"
+    "cachedAt": "2026-10-22T03:01:42.324Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6926,7 +6926,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:50.587Z"
+    "cachedAt": "2026-10-22T03:01:41.617Z"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -6936,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:11.472Z"
+    "cachedAt": "2026-10-22T03:01:42.502Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6946,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:10.032Z"
+    "cachedAt": "2026-10-22T03:01:40.218Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6956,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:12.672Z"
+    "cachedAt": "2026-10-22T03:01:43.489Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7023,7 +7023,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:40.931Z"
+    "cachedAt": "2026-10-22T03:01:37.919Z"
   },
   "Oq4Z8GUXr47": {
     "title": "金色",
@@ -7174,7 +7174,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:41.520Z"
+    "cachedAt": "2026-10-22T03:01:37.554Z"
   },
   "wkooR40Eji0": {
     "title": "鼠惑",
@@ -7574,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:09.481Z"
+    "cachedAt": "2026-10-22T03:01:39.508Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8091,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:08.672Z"
+    "cachedAt": "2026-10-22T03:01:37.803Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8196,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:08.676Z"
+    "cachedAt": "2026-10-22T03:01:38.243Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8407,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:09.333Z"
+    "cachedAt": "2026-10-22T03:01:39.205Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -9734,7 +9734,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-19T02:58:41.631Z"
+    "cachedAt": "2026-10-22T03:01:40.534Z"
   },
   "e2rCXFzJUz2": {
     "title": "玉簟秋",
@@ -10548,6 +10548,6 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-21T16:30:12.468Z"
+    "cachedAt": "2026-10-22T03:01:43.319Z"
   }
 }

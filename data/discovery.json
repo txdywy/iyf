@@ -1,9 +1,4 @@
 {
-  "2026-08-23": {
-    "timestamp": "2026-08-23T16:33:48.136Z",
-    "totalFound": 0,
-    "shows": []
-  },
   "2026-08-24": {
     "timestamp": "2026-08-24T12:39:09.028Z",
     "totalFound": 0,
@@ -432,6 +427,24 @@
         "source": "api_index",
         "updateStatus": "更新到20261018(第1期)",
         "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      }
+    ]
+  },
+  "2026-10-22": {
+    "timestamp": "2026-10-22T03:01:28.262Z",
+    "totalFound": 1,
+    "shows": [
+      {
+        "title": "跨界喜剧王",
+        "score": 5,
+        "playCount": 160996,
+        "year": 2018,
+        "actor": "潘长江,杨树林,文松,张晨光,沙宝亮,海一天,张檬,徐海乔,柳岩",
+        "source": "search",
+        "updateStatus": "20181110集全",
+        "contentType": "",
         "mediaType": "综艺",
         "regional": "大陆"
       }
