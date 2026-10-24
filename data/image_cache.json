@@ -5944,8 +5944,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:33.469Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:33.469Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.796Z",
     "doubanId": "37814254",
     "doubanMatchedTitle": "一饭封神2",
     "doubanMatchedSeasonNumber": 2
@@ -6032,8 +6032,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:33.374Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:33.374Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.696Z",
     "doubanId": "37561356",
     "doubanMatchedTitle": "姐姐当家2",
     "doubanMatchedSeasonNumber": 2
@@ -6061,8 +6061,8 @@
     "doubanId": "37816907",
     "doubanMatchedTitle": "密室大逃脱 第八季",
     "doubanMatchedSeasonNumber": 8,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:33.495Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.884Z"
   },
   "7euCZd6epLB": {
     "title": "心动的信号第9季",
@@ -6087,8 +6087,8 @@
     "doubanId": "37815941",
     "doubanMatchedTitle": "心动的信号 第九季",
     "doubanMatchedSeasonNumber": 9,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:33.273Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.844Z"
   },
   "ysN7YxFD5u2": {
     "title": "喜剧之王单口季第3季",
@@ -6623,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.201Z"
+    "cachedAt": "2026-10-24T03:01:31.291Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6633,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.312Z"
+    "cachedAt": "2026-10-24T03:01:31.994Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6643,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.594Z"
+    "cachedAt": "2026-10-24T03:01:31.804Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6689,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.002Z"
+    "cachedAt": "2026-10-24T03:01:30.482Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6725,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.596Z"
+    "cachedAt": "2026-10-24T03:01:31.104Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6781,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.604Z"
+    "cachedAt": "2026-10-24T03:01:31.177Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6791,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.205Z"
+    "cachedAt": "2026-10-24T03:01:31.894Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6856,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.009Z"
+    "cachedAt": "2026-10-24T03:01:30.474Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6906,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.203Z"
+    "cachedAt": "2026-10-24T03:01:31.899Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6916,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.807Z"
+    "cachedAt": "2026-10-24T03:01:32.496Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6936,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:33.803Z"
+    "cachedAt": "2026-10-24T03:01:32.647Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6946,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.712Z"
+    "cachedAt": "2026-10-24T03:01:31.189Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6956,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:35.018Z"
+    "cachedAt": "2026-10-24T03:01:34.028Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7529,8 +7529,8 @@
     "doubanId": "37817080",
     "doubanMatchedTitle": "花儿与少年 第八季",
     "doubanMatchedSeasonNumber": 8,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-01T14:32:33.401Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.923Z"
   },
   "bBuoUk82FM8": {
     "title": "乱世爱疾",
@@ -7574,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:32.107Z"
+    "cachedAt": "2026-10-24T03:01:30.575Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8091,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:31.418Z"
+    "cachedAt": "2026-10-24T03:01:29.732Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8196,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:31.398Z"
+    "cachedAt": "2026-10-24T03:01:29.743Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8407,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:31.990Z"
+    "cachedAt": "2026-10-24T03:01:30.395Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -8810,8 +8810,8 @@
     "doubanId": "38433202",
     "doubanMatchedTitle": "向内一公里",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-09-30T17:29:42.087Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-24T03:01:28.699Z"
   },
   "jjcFwPIDvtB": {
     "title": "溺爱男友养成法",
@@ -10548,6 +10548,6 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-23T16:20:34.509Z"
+    "cachedAt": "2026-10-24T03:01:33.381Z"
   }
 }
