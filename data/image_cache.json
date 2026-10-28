@@ -6361,7 +6361,11 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-25T15:27:23.570Z"
+    "cachedAt": "2026-10-25T15:27:23.570Z",
+    "doubanUrl": "https://movie.douban.com/subject/4888016/",
+    "doubanId": "4888016",
+    "doubanMatchedTitle": "大侦探",
+    "doubanMatchedSeasonNumber": 0
   },
   "seed_var_2026_29": {
     "title": "中餐厅",
@@ -6619,7 +6623,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.222Z"
+    "cachedAt": "2026-10-28T03:43:04.266Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -6629,7 +6633,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.768Z"
+    "cachedAt": "2026-10-28T03:43:04.813Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -6639,7 +6643,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.125Z"
+    "cachedAt": "2026-10-28T03:43:03.159Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -6685,7 +6689,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.108Z"
+    "cachedAt": "2026-10-28T03:43:03.150Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -6721,7 +6725,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.667Z"
+    "cachedAt": "2026-10-28T03:43:03.713Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -6777,7 +6781,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.676Z"
+    "cachedAt": "2026-10-28T03:43:03.728Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -6787,7 +6791,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.238Z"
+    "cachedAt": "2026-10-28T03:43:04.275Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -6852,7 +6856,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.660Z"
+    "cachedAt": "2026-10-28T03:43:03.703Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -6902,7 +6906,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.218Z"
+    "cachedAt": "2026-10-28T03:43:04.252Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -6912,7 +6916,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.774Z"
+    "cachedAt": "2026-10-28T03:43:04.806Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -6932,7 +6936,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:49.785Z"
+    "cachedAt": "2026-10-28T03:43:04.817Z"
   },
   "Ge7zvNr66y0": {
     "title": "闺蜜的完美旅行",
@@ -6942,7 +6946,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.701Z"
+    "cachedAt": "2026-10-28T03:43:03.738Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -6952,7 +6956,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:50.349Z"
+    "cachedAt": "2026-10-28T03:43:05.370Z"
   },
   "OABoPAZFr60": {
     "title": "哈达克一家第2季",
@@ -7570,7 +7574,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.152Z"
+    "cachedAt": "2026-10-28T03:43:03.189Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -8087,7 +8091,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:47.561Z"
+    "cachedAt": "2026-10-28T03:43:02.605Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -8192,7 +8196,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:47.565Z"
+    "cachedAt": "2026-10-28T03:43:02.610Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -8403,7 +8407,7 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:48.117Z"
+    "cachedAt": "2026-10-28T03:43:03.183Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -10584,6 +10588,6 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-27T17:19:50.836Z"
+    "cachedAt": "2026-10-28T03:43:05.880Z"
   }
 }
