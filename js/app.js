@@ -252,7 +252,7 @@
     }
   }
 
-  function renderSkeletons(count = 6) {
+  function renderSkeletons(count = 6, label = '正在加载推荐数据...') {
     const grid = document.getElementById('showGrid');
     if (!grid) return;
     resetRenderedShows();
@@ -271,6 +271,8 @@
     `).join('');
     updateLoadMore(0, 0);
     const loading = document.getElementById('loading');
+    const loadingText = loading?.querySelector?.('p');
+    if (loadingText && loadingText.textContent !== label) loadingText.textContent = label;
     if (loading) loading.style.display = 'block';
   }
 
@@ -286,7 +288,9 @@
     const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
     const freshnessNotice = freshness.label ? ` · ${freshness.label}` : '';
     const staleNotice = freshness.stale ? ' · 数据可能过期' : '';
-    el.textContent = `最后更新: ${timeStr}${freshnessNotice} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${staleNotice}${notice}`;
+    const text = `最后更新: ${timeStr}${freshnessNotice} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${staleNotice}${notice}`;
+    // role=status 会朗读每次写入；内容未变时不重复播报。
+    if (el.textContent !== text) el.textContent = text;
   }
 
   function getDataFreshness(value, now = Date.now()) {
@@ -413,7 +417,7 @@
   function bindTabs() {
     const tabs = [...document.querySelectorAll('.tab')];
     tabs.forEach(btn => {
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      btn.addEventListener('click', () => selectTabByUser(btn.dataset.tab));
       btn.addEventListener('keydown', event => {
         const visibleTabs = [...document.querySelectorAll('.tab')].filter(tab => !tab.hidden);
         const index = visibleTabs.indexOf(btn);
@@ -426,9 +430,20 @@
         if (nextIndex == null) return;
         event.preventDefault();
         visibleTabs[nextIndex].focus({ preventScroll: true });
-        switchTab(visibleTabs[nextIndex].dataset.tab);
+        selectTabByUser(visibleTabs[nextIndex].dataset.tab);
       });
     });
+  }
+
+  // 用户切换到另一个分类时从结果开头阅读；后台刷新和重复点击当前标签保持原阅读位置。
+  function selectTabByUser(tab) {
+    const changed = normalizeTabName(tab) !== activeTabName;
+    switchTab(tab);
+    if (!changed) return;
+    const main = document.getElementById('mainContent');
+    const top = main?.getBoundingClientRect?.().top;
+    const offset = parseFloat(window.getComputedStyle?.(document.documentElement)?.getPropertyValue?.('--tabs-scroll-offset')) || 0;
+    if (Number.isFinite(top) && top < offset) main.scrollIntoView({ block: 'start' });
   }
 
   function revealTabHorizontally(button) {
@@ -528,7 +543,11 @@
     document.getElementById('filterStatus').addEventListener('change', applyAndSync);
     document.getElementById('filterScore').addEventListener('change', applyAndSync);
     document.getElementById('sortBy').addEventListener('change', applyAndSync);
-    document.getElementById('searchInput').addEventListener('input', debounce(applyAndSync, 300));
+    const searchInput = document.getElementById('searchInput');
+    const debouncedSearch = debounce(applyAndSync, 300);
+    // 中文输入法组字期间的拼音字母不是查询词；组字结束后再筛选。
+    searchInput.addEventListener('input', event => { if (!event?.isComposing) debouncedSearch(); });
+    searchInput.addEventListener('compositionend', debouncedSearch);
     document.getElementById('resetFilters').addEventListener('click', () => {
       document.getElementById('filterStatus').value = 'all';
       document.getElementById('filterScore').value = '0';
@@ -664,7 +683,7 @@
           s.actor,
           s.cast,
           s.contentType,
-          s.network,
+          s.network?.name ?? s.network,
           Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases,
           s.genres,
         ].some(value => toSearchText(value).toLowerCase().includes(query));
@@ -767,8 +786,8 @@
     sentinel.hidden = remaining === 0;
     const status = document.getElementById('loadMoreStatus');
     const message = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
-    if (status) status.textContent = message;
-    else sentinel.textContent = message;
+    const target = status || sentinel;
+    if (target.textContent !== message) target.textContent = message;
   }
 
   function renderCard(show, index, dataYear = getCurrentDataYear()) {
@@ -945,7 +964,8 @@
     if (score && score !== '0') activeFilters.push(`${score}分以上`);
     if (query) activeFilters.push(`搜索“${query}”`);
     const suffix = activeFilters.length ? ` · ${activeFilters.join(' · ')}` : '';
-    const countText = visibleTotal < total ? `显示 ${visibleTotal} / ${total} 个推荐结果` : `显示 ${total} 个推荐结果`;
+    const noun = REMOTE_TAB_LABELS[activeTabName] ? '个节目' : '个推荐结果';
+    const countText = visibleTotal < total ? `显示 ${visibleTotal} / ${total} ${noun}` : `显示 ${total} ${noun}`;
     summary.textContent = `${countText}${suffix}`;
   }
 
@@ -1179,7 +1199,7 @@
       }
     } catch {}
 
-    return `<img src="${escapeHtml(source)}"${responsive} alt="${escapeHtml(title)}" loading="${firstViewport ? 'eager' : 'lazy'}"${firstViewport ? ' fetchpriority="high"' : ''} decoding="async" data-fallback-icon="${fallbackIcon}">`;
+    return `<img src="${escapeHtml(source)}"${responsive} alt="" loading="${firstViewport ? 'eager' : 'lazy'}"${firstViewport ? ' fetchpriority="high"' : ''} decoding="async" data-fallback-icon="${fallbackIcon}">`;
   }
 
   function cancelPendingTabRequest() {
@@ -1205,7 +1225,7 @@
     _visibleShowCount = INITIAL_RENDER_COUNT;
     resetStats();
 
-    renderSkeletons(4);
+    renderSkeletons(4, '正在加载时间表...');
     const summary = document.getElementById('resultSummary');
     if (summary) summary.textContent = '正在加载时间表…';
     clearEmptyState();
@@ -1445,7 +1465,7 @@
     const complete = isShowComplete(show);
     const statusText = complete ? '已完结' : show.status === 'Running' ? '连载中' : '待定/筹备';
     const posterContent = img
-      ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(show.name)}" loading="lazy" decoding="async" data-fallback-icon="📺">`
+      ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" decoding="async" data-fallback-icon="📺">`
       : '<div class="placeholder">📺</div>';
 
     return `
@@ -1465,7 +1485,7 @@
           </div>
           <p class="card-desc">${escapeHtml(summary)}</p>
           <div class="card-footer">
-            <span class="card-status ${complete ? '' : 'ongoing'}">${statusText}</span>
+            <span class="card-status ${isShowOngoing(show) ? 'ongoing' : ''}">${statusText}</span>
             <span class="card-source-label">📡 TVmaze</span>
           </div>
           <div class="card-actions">

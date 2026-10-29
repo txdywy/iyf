@@ -72,6 +72,7 @@ const DOUBAN_SEARCH_DELAY = 900;
 const TMDB_SEARCH_DELAY = 250;
 const WIKI_REQUEST_DELAY = 300;
 const AI_BATCH_DELAY = 1000;
+const YFSP_HOMEPAGE_FAILFAST_PAGES = 4;
 const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 * 60 * 1000;
 let _optionalEnrichmentDeadline = 0;
 
@@ -1357,7 +1358,21 @@ const OPENROUTER_FREE_MODEL = 'openrouter/free';
 const AI_BATCH_SIZE = 10;
 const AI_SCORE_CACHE_VERSION = 4;
 const AI_TOTAL_BUDGET_MS = 8 * 60 * 1000;
+// 推理型免费模型会把思考过程计入输出上限；2000 时常在 JSON 写完前被截断。
+const AI_MAX_TOKENS = 4096;
+// 免费路由每次调用可能选中不同模型，无效输出或临时限流后重试一次即可明显提高单批成功率。
+const AI_CALL_ATTEMPTS = 2;
+// 连续多批完全失败通常是额度或上游故障，继续调用只会消耗每日免费请求数。
+const AI_MAX_CONSECUTIVE_FAILURES = 4;
 let _aiDeadline = 0;
+let _aiConsecutiveFailures = 0;
+let _aiStopReason = '';
+
+function stopAICalls(reason) {
+  if (_aiStopReason) return;
+  _aiStopReason = reason;
+  console.warn(`  [AI] ${reason},本轮停止后续 AI 调用`);
+}
 
 async function callModelsAPI(messages, {
   temperature = 0.3,
@@ -1366,73 +1381,85 @@ async function callModelsAPI(messages, {
   validateRows = rows => rows,
 } = {}) {
   if (!_aiDeadline) _aiDeadline = Date.now() + AI_TOTAL_BUDGET_MS;
-  if (Date.now() >= _aiDeadline) return [];
+  if (Date.now() >= _aiDeadline || _aiStopReason) return [];
 
   const orKey = process.env.OPENROUTER_API_KEY;
   if (!orKey) return [];
 
   const model = safeText(process.env.OPENROUTER_MODEL, 200) || OPENROUTER_FREE_MODEL;
-  const content = await _callEndpoint(
-    OPENROUTER_API,
-    model,
-    orKey,
-    messages,
-    temperature,
-    timeout,
-    0,
-    responseSchema,
-  );
-  if (typeof content !== 'string') return [];
+  for (let attempt = 0; attempt < AI_CALL_ATTEMPTS; attempt++) {
+    if (Date.now() >= _aiDeadline || _aiStopReason) break;
+    const response = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout, responseSchema);
+    if (!response) continue;
+    if (response.retryAfterMs != null) {
+      if (attempt + 1 < AI_CALL_ATTEMPTS) {
+        console.log(`  [AI] ${model}: 429 限流,等 ${Math.round(response.retryAfterMs / 1000)}s 后重试...`);
+        await sleep(Math.max(0, Math.min(response.retryAfterMs, _aiDeadline - Date.now())));
+      }
+      continue;
+    }
 
-  const rows = validateRows(parseJSONArrayResponse(content));
-  if (Array.isArray(rows) && rows.length > 0) {
-    console.log(`  [AI] 使用 OpenRouter: ${model}`);
-    return rows;
+    const rows = validateRows(parseJSONArrayResponse(response.content));
+    if (Array.isArray(rows) && rows.length > 0) {
+      _aiConsecutiveFailures = 0;
+      console.log(`  [AI] 使用 OpenRouter: ${response.model}`);
+      return rows;
+    }
+    console.warn(`  [AI] ${response.model}: 返回内容未通过当前批次校验${response.truncated ? '（输出被截断）' : ''}`);
   }
 
-  console.warn(`  [AI] ${model}: 返回内容未通过当前批次校验`);
+  if (!_aiStopReason && ++_aiConsecutiveFailures >= AI_MAX_CONSECUTIVE_FAILURES) {
+    stopAICalls(`连续 ${_aiConsecutiveFailures} 批未获得有效结果`);
+  }
   return [];
 }
 
-async function _callEndpoint(url, model, token, messages, temperature, timeout, retries = 1, responseSchema) {
+async function _callEndpoint(url, model, token, messages, temperature, timeout, responseSchema) {
+  const remaining = _aiDeadline - Date.now();
+  if (remaining <= 0) return null;
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-  const payload = { model, messages, temperature, max_tokens: 2000 };
+  const payload = { model, messages, temperature, max_tokens: AI_MAX_TOKENS };
   if (responseSchema) payload.response_format = { type: 'json_schema', json_schema: responseSchema };
   payload.provider = { require_parameters: true };
-  const body = JSON.stringify(payload);
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const remaining = _aiDeadline - Date.now();
-    if (remaining <= 0) return null;
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), Math.max(1, Math.min(timeout, remaining)));
-    try {
-      const r = await fetch(url, { method: 'POST', headers, body, signal: ctrl.signal });
-      if (r.status === 429) {
-        await r.body?.cancel?.().catch(() => {});
-        const retryAfter = parseInt(r.headers.get('retry-after') || '0', 10);
-        const waitSec = retryAfter > 0 ? Math.min(retryAfter, 120) : 30;
-        if (attempt < retries) {
-          console.log(`  [AI] ${model}: 429 限流,等 ${waitSec}s 后重试...`);
-          await sleep(Math.max(0, Math.min(waitSec * 1000, _aiDeadline - Date.now())));
-          continue;
-        }
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), Math.max(1, Math.min(timeout, remaining)));
+  try {
+    const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload), signal: ctrl.signal });
+    if (r.status === 429) {
+      // 只分类错误类型，不记录响应正文。
+      const detail = typeof r.text === 'function' ? safeText(await r.text().catch(() => ''), 2000) : '';
+      if (/per[-\s]?day|daily/i.test(detail)) {
+        stopAICalls('OpenRouter 今日免费请求额度已用尽 (HTTP 429)');
         return null;
       }
-      if (!r.ok) {
-        await r.body?.cancel?.().catch(() => {});
-        if (r.status !== 429) console.warn(`  [AI] ${model}: HTTP ${r.status}`);
-        return null;
-      }
-      const data = await r.json();
-      return data.choices?.[0]?.message?.content || null;
-    } catch (error) {
-      console.warn(`  [AI] ${model}: ${error?.name === 'AbortError' ? '请求超时' : '网络请求失败'}`);
+      console.warn(`  [AI] ${model}: HTTP 429 限流`);
+      const retryAfter = parseInt(r.headers?.get?.('retry-after') || '0', 10);
+      return { retryAfterMs: (retryAfter > 0 ? Math.min(retryAfter, 60) : 20) * 1000 };
+    }
+    if (!r.ok) {
+      await r.body?.cancel?.().catch(() => {});
+      console.warn(`  [AI] ${model}: HTTP ${r.status}`);
+      if (r.status === 401 || r.status === 402 || r.status === 403) stopAICalls(`OpenRouter 拒绝请求 (HTTP ${r.status})`);
       return null;
     }
-    finally { clearTimeout(t); }
-  }
-  return null;
+    const data = await r.json();
+    const routedModel = safeText(data?.model, 200) || model;
+    const choice = data?.choices?.[0];
+    const content = choice?.message?.content;
+    if (typeof content === 'string' && content.trim()) {
+      return { content, model: routedModel, truncated: choice?.finish_reason === 'length' };
+    }
+    // OpenRouter 可能以 HTTP 200 返回上游错误对象或空内容；记录分类以便定位，下一次尝试可能路由到其他模型。
+    const reason = data?.error
+      ? `上游错误 ${safeText(data.error.code, 20)}`.trim()
+      : `空内容 (finish_reason=${safeText(choice?.finish_reason, 40) || '无'})`;
+    console.warn(`  [AI] ${routedModel}: 返回${reason}`);
+    return null;
+  } catch (error) {
+    console.warn(`  [AI] ${model}: ${error?.name === 'AbortError' ? '请求超时' : '网络请求失败'}`);
+    return null;
+  } finally { clearTimeout(t); }
 }
 
 const AI_RECOMMENDATION_CONTRACT = `量纲边界: 输入 sourceRating10 是来源评分，满分10；null 表示暂无评分，不能解释为质量差。输出 recommendationScore100 是独立的个人推荐度，满分100，绝不能直接照抄来源评分。
@@ -1686,50 +1713,53 @@ async function aiScoreShows(shows) {
 
   console.log(`  [AI] 评分 ${toScore.length} 个节目 (${shows.length - toScore.length} 个已有缓存)...`);
   const results = new Map();
-  const groups = new Map([
-    ['korean_drama', toScore.filter(show => aiScoreCategory(show) === 'korean_drama')],
-    ['variety', toScore.filter(show => aiScoreCategory(show) === 'variety')],
-  ]);
+  // 预算或额度不足时优先给排名靠前的节目评分，并让两个分类交替推进，避免综艺总排在最后被饿死。
+  const byRank = (a, b) => safeNumber(b.recommendScore) - safeNumber(a.recommendScore);
+  const categoryBatches = ['korean_drama', 'variety'].map(category => {
+    const categoryShows = toScore.filter(show => aiScoreCategory(show) === category).sort(byRank);
+    const batches = [];
+    for (let i = 0; i < categoryShows.length; i += AI_BATCH_SIZE) batches.push({ category, shows: categoryShows.slice(i, i + AI_BATCH_SIZE) });
+    return batches;
+  });
+  const batches = [];
+  for (let i = 0; i < Math.max(...categoryBatches.map(list => list.length)); i++) {
+    for (const list of categoryBatches) if (list[i]) batches.push(list[i]);
+  }
 
-  let processed = 0;
-  for (const [category, categoryShows] of groups) {
+  for (const [batchIndex, { category, shows: batch }] of batches.entries()) {
+    if ((_aiDeadline && Date.now() >= _aiDeadline) || _aiStopReason) break;
     const systemPrompt = category === 'variety' ? AI_VARIETY_SCORE_SYSTEM : AI_KDRAMA_SCORE_SYSTEM;
-    for (let i = 0; i < categoryShows.length; i += AI_BATCH_SIZE) {
-      if (_aiDeadline && Date.now() >= _aiDeadline) break;
-      const batch = categoryShows.slice(i, i + AI_BATCH_SIZE);
-      const items = batch.map(s => ({
-        id: safeText(s.id, 200),
-        title: safeText(s.title, 200),
-        year: safeNumber(s.year),
-        genre: safeText(s.contentType, 300),
-        desc: sourceDescriptionForScoring(s, 500),
-        sourceRating10: sourceRatingForAI(s),
-        plays: Math.max(0, safeNumber(s.playCount)),
-        actor: safeText(s.actor, 100),
-      }));
-      const allowedIds = items.map(item => item.id).filter(Boolean);
-      const noun = category === 'variety' ? '档综艺' : '部韩剧';
-      const prompt = `评估以下 ${batch.length} ${noun}的推荐度:\n${JSON.stringify(items)}`;
-      const rows = await callModelsAPI([
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
-      ], {
-        responseSchema: buildAIResponseSchema(`iyf_${category}_scores`, allowedIds, AI_RECOMMENDATION_PROPERTIES, AI_RECOMMENDATION_REQUIRED),
-        validateRows: candidateRows => validateAIResultRows(candidateRows, allowedIds, validateAIRecommendation),
-      });
+    const items = batch.map(s => ({
+      id: safeText(s.id, 200),
+      title: safeText(s.title, 200),
+      year: safeNumber(s.year),
+      genre: safeText(s.contentType, 300),
+      desc: sourceDescriptionForScoring(s, 500),
+      sourceRating10: sourceRatingForAI(s),
+      plays: Math.max(0, safeNumber(s.playCount)),
+      actor: safeText(s.actor, 100),
+    }));
+    const allowedIds = items.map(item => item.id).filter(Boolean);
+    const noun = category === 'variety' ? '档综艺' : '部韩剧';
+    const prompt = `评估以下 ${batch.length} ${noun}的推荐度:\n${JSON.stringify(items)}`;
+    const rows = await callModelsAPI([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ], {
+      responseSchema: buildAIResponseSchema(`iyf_${category}_scores`, allowedIds, AI_RECOMMENDATION_PROPERTIES, AI_RECOMMENDATION_REQUIRED),
+      validateRows: candidateRows => validateAIResultRows(candidateRows, allowedIds, validateAIRecommendation),
+    });
 
-      for (const item of rows) {
-        const show = batch.find(candidate => String(candidate.id) === item.id);
-        results.set(item.id, {
-          score: item.s,
-          reason: item.r,
-          version: AI_SCORE_CACHE_VERSION,
-          inputHash: aiScoreInputHash(show),
-        });
-      }
-      processed += batch.length;
-      if (processed < toScore.length) await sleep(AI_BATCH_DELAY);
+    for (const item of rows) {
+      const show = batch.find(candidate => String(candidate.id) === item.id);
+      results.set(item.id, {
+        score: item.s,
+        reason: item.r,
+        version: AI_SCORE_CACHE_VERSION,
+        inputHash: aiScoreInputHash(show),
+      });
     }
+    if (batchIndex < batches.length - 1) await sleep(AI_BATCH_DELAY);
   }
 
   // 不重试 — 漏掉的剧靠 7 天缓存+下次定时任务自然补上,节省 API 调用
@@ -1997,10 +2027,17 @@ async function main() {
   const pages = Array.from({ length: 15 }, (_, i) => i + 1);
   const isnValues = [0, 1];
 
-  for (const isn of isnValues) {
+  let failedPagesBeforeSuccess = 0;
+  homepage: for (const isn of isnValues) {
     for (const page of pages) {
+      // 两个官方域名连续拒绝前几页时通常是整段 IP 被拦截；剩余页面只会白耗时间，直接转入搜索回退。
+      if (!successfulPages && failedPagesBeforeSuccess >= YFSP_HOMEPAGE_FAILFAST_PAGES) {
+        console.warn(`  [WARN] 首页前 ${failedPagesBeforeSuccess} 页全部失败，跳过剩余页面`);
+        break homepage;
+      }
       console.log(`  抓取 isn=${isn} page=${page}...`);
       const data = await fetchPage(page, isn);
+      if (!data) failedPagesBeforeSuccess++;
       if (data) {
         successfulPages++;
         const pageShows = extractShows(data);

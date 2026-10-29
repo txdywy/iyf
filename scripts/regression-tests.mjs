@@ -1876,8 +1876,87 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: aiFetchWithContent('{"results":[{"id":"wrong-batch-id","recommendationScore100":99,"recommendationLevel":"strong","r":"不应接受"},{"id":"expected-id","recommendationScore100":"99","recommendationLevel":"strong","r":"类型错误"}]}', invalidCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'expected-id', title: '批次边界测试', year: 2026 }]);
-  assert.equal(invalidCounter.count, 1);
+  assert.equal(invalidCounter.count, 2, 'an invalid free-router answer should be retried once, possibly on another model');
   assert.equal(scores.size, 0, 'HTTP 200 output with wrong IDs or schema types must be rejected');
+}
+
+{
+  const responses = [
+    mockResponse({ json: { model: 'vendor/reasoner:free', choices: [{ finish_reason: 'length', message: { content: null } }] } }),
+    mockResponse({ json: { model: 'vendor/fast:free', choices: [{ message: { content: '{"results":[{"id":"retry-ok","recommendationScore100":72,"recommendationLevel":"strong","r":"重试成功"}]}' } }] } }),
+  ];
+  let maxTokens = 0;
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => { maxTokens = JSON.parse(options.body).max_tokens; return responses.shift(); },
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'retry-ok', title: '空内容重试', year: 2026 }]);
+  assert.equal(scores.get('retry-ok')?.score, 72, 'an empty routed answer should be retried instead of losing the whole batch');
+  assert.ok(maxTokens >= 4000, 'reasoning free models need enough output tokens to finish structured JSON');
+}
+
+{
+  let calls = 0;
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async () => {
+      calls++;
+      return mockResponse({ status: 429, text: '{"error":{"message":"Rate limit exceeded: free-models-per-day"}}' });
+    },
+  });
+  const shows = Array.from({ length: 25 }, (_, index) => ({ id: `quota-${index}`, title: `额度测试${index}`, year: 2026 }));
+  assert.equal((await helpers.aiScoreShows(shows)).size, 0);
+  assert.equal(calls, 1, 'an exhausted daily free quota must stop later batches instead of burning the run budget');
+  assert.equal(await helpers.aiEnhanceDescriptions([{ id: 'quota-desc', title: '额度文案', description: '' }]), 0);
+  assert.equal(calls, 1, 'later AI stages must respect the same stop decision');
+}
+
+{
+  let calls = 0;
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async () => {
+      calls++;
+      if (calls === 1) return mockResponse({ status: 429, text: '{"error":{"message":"temporarily rate-limited upstream"}}' });
+      return mockResponse({ json: { choices: [{ message: { content: '{"results":[{"id":"after-429","recommendationScore100":20,"recommendationLevel":"weak","r":"低分"}]}' } }] } });
+    },
+  });
+  const scores = await helpers.aiScoreShows([{ id: 'after-429', title: '限流重试', year: 2026 }]);
+  assert.equal(scores.get('after-429')?.score, 20, 'a transient upstream 429 should be retried once');
+  assert.equal(calls, 2, 'a batch must never spend more than two requests');
+}
+
+{
+  let calls = 0;
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: aiFetchWithContent('{"results":[]}', { get count() { return calls; }, set count(value) { calls = value; } }),
+  });
+  const shows = Array.from({ length: 80 }, (_, index) => ({ id: `fail-${index}`, title: `连续失败${index}`, year: 2026 }));
+  assert.equal((await helpers.aiScoreShows(shows)).size, 0);
+  assert.equal(calls, 8, 'four consecutive failed batches (two attempts each) should stop the remaining AI calls');
+}
+
+{
+  const order = [];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      order.push(ids);
+      return mockResponse({ json: { choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 50, recommendationLevel: 'moderate', r: '顺序' })),
+      }) } }] } });
+    },
+  });
+  const dramas = Array.from({ length: 12 }, (_, index) => ({ id: `kd-${index}`, title: `韩剧${index}`, year: 2026, recommendScore: index }));
+  const variety = Array.from({ length: 3 }, (_, index) => ({ id: `va-${index}`, title: `综艺${index}`, category: 'variety', mediaType: '综艺', year: 2026, recommendScore: index }));
+  await helpers.aiScoreShows([...dramas, ...variety]);
+  assert.equal(order.length, 3);
+  assert.equal(order[0][0], 'kd-11', 'the highest-ranked shows should be scored first when the free quota runs short');
+  assert.deepEqual(order[1], ['va-2', 'va-1', 'va-0'], 'variety batches should interleave with drama batches instead of waiting behind all of them');
+  assert.deepEqual(order[2], ['kd-1', 'kd-0']);
 }
 
 {

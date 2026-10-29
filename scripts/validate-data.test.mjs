@@ -37,7 +37,7 @@ function dataFixture(counts = {}) {
 }
 
 // 执行真实 CLI，临时根目录保持它的 scripts/../data 文件定位契约。
-function runValidation(data) {
+function runValidation(data, env = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), 'iyf-validator-test-'));
   try {
     const fixtureScripts = join(fixtureRoot, 'scripts');
@@ -54,6 +54,7 @@ function runValidation(data) {
     }
     const result = spawnSync(process.execPath, [validator], {
       cwd: fixtureRoot,
+      env: { ...process.env, IYF_REQUIRE_FRESH_DATA: '', GITHUB_ACTIONS: '', ...env },
       encoding: 'utf8',
       timeout: 10000,
     });
@@ -226,4 +227,18 @@ test('validator rejects structured URL values and blank required cover/link fiel
   const result = runValidation(data);
   assert.equal(result.status, 1, result.stdout);
   assert.match(result.stderr, /missing renderable cover\/link/);
+});
+
+test('stale data blocks only the scrape job while code-only builds warn', () => {
+  const data = dataFixture({ koreanDramas: 1, chineseVariety: 1, otherDramas: 0 });
+  data.lastUpdated = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  data.sourceStatus = 'degraded';
+  const relaxed = runValidation(data);
+  assert.equal(relaxed.status, 0, relaxed.stderr);
+  assert.match(relaxed.stderr, /WARN data\/shows\.json: recommendation data is older than 7 days/u);
+  assert.match(relaxed.stderr, /core source status is degraded/u);
+  const strict = runValidation(data, { IYF_REQUIRE_FRESH_DATA: '1', GITHUB_ACTIONS: 'true' });
+  assert.equal(strict.status, 1, strict.stdout);
+  assert.match(strict.stderr, /::error::data\/shows\.json: recommendation data is older than 7 days/u);
+  assert.match(strict.stderr, /::warning::data\/shows\.json: core source status is degraded/u);
 });

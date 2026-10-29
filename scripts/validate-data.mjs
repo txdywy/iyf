@@ -8,6 +8,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 const warnings = [];
 const MAX_PUBLIC_CATEGORY_SHOWS = 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const REQUIRE_FRESH_DATA = process.env.IYF_REQUIRE_FRESH_DATA === '1';
+// GitHub Actions 注解让降级在绿色运行中也能被看到。
+const annotate = process.env.GITHUB_ACTIONS === 'true';
 const PUBLIC_CATEGORIES = new Set(['koreanDramas', 'chineseVariety']);
 const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
 const TEXT_FIELDS = [
@@ -174,10 +178,17 @@ function validateShows(data) {
   for (const field of ['generatedAt', 'sourceStatus']) {
     if (data[field] != null && typeof data[field] !== 'string') errors.push(`data/shows.json.${field}: must be a string or null`);
   }
+  if (typeof data.sourceStatus === 'string' && data.sourceStatus !== 'healthy') {
+    warnings.push(`data/shows.json: core source status is ${data.sourceStatus}; recommendations keep the previous snapshot time`);
+  }
   const updated = typeof data.lastUpdated === 'string' ? Date.parse(data.lastUpdated) : NaN;
+  const age = Date.now() - updated;
   if (!Number.isFinite(updated)) errors.push('data/shows.json: invalid lastUpdated');
-  else if (Date.now() - updated > 7 * 24 * 60 * 60 * 1000) errors.push('data/shows.json: recommendation data is older than 7 days');
-  else if (updated - Date.now() > 24 * 60 * 60 * 1000) errors.push('data/shows.json: lastUpdated is unexpectedly in the future');
+  else if (age > 7 * DAY_MS) {
+    // 抓取任务必须阻止发布过期数据；PR 和 Cloudflare 重建只校验已提交快照，不能因此阻塞修复抓取器的代码。
+    (REQUIRE_FRESH_DATA ? errors : warnings).push('data/shows.json: recommendation data is older than 7 days');
+  } else if (age > 2 * DAY_MS) warnings.push('data/shows.json: recommendation data is older than 48 hours');
+  else if (-age > DAY_MS) errors.push('data/shows.json: lastUpdated is unexpectedly in the future');
 }
 
 function validateObjectFile(path) {
@@ -191,9 +202,9 @@ validateShows(readJSON('data/shows.json'));
 validateObjectFile('data/image_cache.json');
 validateObjectFile('data/discovery.json');
 
-for (const warning of warnings) console.warn(`WARN ${warning}`);
+for (const warning of warnings) console.warn(`${annotate ? '::warning::' : 'WARN '}${warning}`);
 if (errors.length) {
-  for (const error of errors) console.error(`ERROR ${error}`);
+  for (const error of errors) console.error(`${annotate ? '::error::' : 'ERROR '}${error}`);
   process.exitCode = 1;
 } else {
   console.log(`Data validation passed${warnings.length ? ` with ${warnings.length} warning(s)` : ''}`);
