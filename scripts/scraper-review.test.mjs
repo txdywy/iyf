@@ -45,7 +45,7 @@ function loadHelpers({
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
-        titleMatches, dedupByTitle, findReusableTMDBCache,
+        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage,
       };
     `;
   vm.createContext(context);
@@ -60,6 +60,107 @@ function response(json, { status = 200, html = '' } = {}) {
     body: { cancel: async () => {} },
   };
 }
+
+function homepageFixture(id = 'mirror-show') {
+  return { data: { list: [{ name: '电视剧', list: [{
+    mediaKey: id, title: '备用源测试剧', mediaType: '电视剧', regional: '韩国',
+    score: 8, playCount: 100000, publishTime: '2026-10-29T00:00:00Z',
+    coverImgUrl: 'https://static.yfsp.tv/mirror.jpg',
+  }] }] } };
+}
+
+test('homepage scraping switches from a blocked API to the official mirror and reuses it', async () => {
+  const requests = [];
+  const { helpers } = loadHelpers({ fetchImpl: async (url, options) => {
+    requests.push({ url: new URL(url), headers: options.headers });
+    return new URL(url).hostname === 'api.yfsp.tv'
+      ? response(null, { status: 403 }) : response(homepageFixture());
+  } });
+  assert.ok(await helpers.fetchPage(1, 0));
+  assert.ok(await helpers.fetchPage(2, 1));
+  assert.deepEqual(requests.map(request => request.url.hostname), ['api.yfsp.tv', 'api.iyf.tv', 'api.iyf.tv']);
+  assert.equal(requests[1].headers.Referer, 'https://www.iyf.tv/');
+  assert.equal(requests[2].url.pathname, '/api/list/index');
+  assert.equal(requests[2].url.searchParams.get('page'), '2');
+  assert.equal(requests[2].url.searchParams.get('isn'), '1');
+});
+
+test('homepage scraping falls back on malformed responses and can return to a recovered primary', async () => {
+  for (const bad of [null, { data: { code: 1, info: [] } }, { data: { list: [] } }]) {
+    const requests = [];
+    const { helpers } = loadHelpers({ fetchImpl: async url => {
+      const host = new URL(url).hostname;
+      requests.push(host);
+      if (requests.length === 1) return response(bad);
+      if (requests.length === 3) return response(null, { status: 503 });
+      return response(homepageFixture());
+    } });
+    assert.ok(await helpers.fetchPage(1));
+    assert.ok(await helpers.fetchPage(2));
+    assert.ok(await helpers.fetchPage(3));
+    assert.deepEqual(requests, ['api.yfsp.tv', 'api.iyf.tv', 'api.iyf.tv', 'api.yfsp.tv', 'api.yfsp.tv']);
+  }
+});
+
+test('homepage failover shares the original page deadline and rejects late success', async () => {
+  for (const elapsed of [9000, 15001]) {
+    const timers = [];
+    let calls = 0;
+    const date = '2026-10-29T00:00:00Z';
+    const { helpers, setNow } = loadHelpers({
+      date,
+      setTimeoutImpl: (fn, delay) => { timers.push(delay); return 0; },
+      fetchImpl: async () => {
+        if (++calls === 1) {
+          setNow(new Date(Date.parse(date) + elapsed).toISOString());
+          return response(null, { status: 503 });
+        }
+        return response(homepageFixture());
+      },
+    });
+    const result = await helpers.fetchPage(1);
+    assert.equal(Boolean(result), elapsed < 15000);
+    assert.deepEqual(timers, elapsed < 15000 ? [7500, 6000] : [7500]);
+    assert.equal(calls, elapsed < 15000 ? 2 : 1);
+  }
+  const { helpers, setNow } = loadHelpers({
+    date: '2026-10-29T00:00:00Z',
+    fetchImpl: async () => {
+      setNow('2026-10-29T00:00:16Z');
+      return response(homepageFixture());
+    },
+  });
+  assert.equal(await helpers.fetchPage(1), null);
+});
+
+test('a blocked primary with a healthy mirror produces fresh data while total failure stays degraded', async () => {
+  for (const mirrorHealthy of [true, false]) {
+    const previous = {
+      lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 30 },
+      koreanDramas: [], chineseVariety: [], otherDramas: [],
+    };
+    let mirrorCalls = 0;
+    const date = '2026-10-29T00:00:00.000Z';
+    const { helpers, files } = loadHelpers({
+      date, initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+      fetchImpl: async url => {
+        const parsed = new URL(url);
+        if (mirrorHealthy && parsed.hostname === 'api.iyf.tv') {
+          mirrorCalls++;
+          return response(homepageFixture(`mirror-${parsed.searchParams.get('isn')}-${parsed.searchParams.get('page')}`));
+        }
+        return response(null, { status: 403 });
+      },
+    });
+    await helpers.main();
+    const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+    assert.equal(published.sourceStatus, mirrorHealthy ? 'healthy' : 'degraded');
+    assert.equal(published.lastUpdated, mirrorHealthy ? date : previous.lastUpdated);
+    assert.equal(published.sourcePagesSucceeded, mirrorHealthy ? 30 : 0);
+    assert.equal(mirrorCalls, mirrorHealthy ? 30 : 0);
+    assert.equal(published.generatedAt, date);
+  }
+});
 
 test('first-seen dates follow show identity and expire after their own first observation', async () => {
   const observedAt = '2026-10-13T04:00:00.000Z';
