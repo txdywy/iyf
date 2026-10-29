@@ -1971,3 +1971,47 @@ test('an exhausted optional-enrichment budget cannot query or alter reliable med
   assert.equal(show.description, '已有本季可靠介绍');
   assert.equal(show.descriptionSource, 'yfsp');
 });
+
+test('dead YFSP search thumbnails are published as their full-size originals', () => {
+  const { helpers } = loadHelpers();
+  const show = helpers.normalizeOutputShow({
+    id: 'thumb', title: '缩略图封面', year: 2021, mediaType: '综艺', regional: '大陆',
+    coverImg: 'https://static.yfsp.tv/upload/video/202102211656175652868s.gif',
+    yfspCoverImg: 'https://static.yfsp.tv/upload/video/202102211656175652868s.gif',
+    yfspUrl: 'https://www.yfsp.tv/play/thumb',
+  });
+  assert.equal(show.coverImg, 'https://static.yfsp.tv/upload/video/202102211656175652868.gif');
+  assert.equal(show.yfspCoverImg, 'https://static.yfsp.tv/upload/video/202102211656175652868.gif');
+  for (const kept of [
+    'https://static.yfsp.tv/upload/video/202609221854045416180.gif',
+    'https://static.yfsp.tv/upload/video/833771c7518940a79e96f55a52f91640.gif',
+    'https://image.tmdb.org/t/p/original/poster.jpg',
+  ]) {
+    assert.equal(helpers.normalizeOutputShow({ id: 'kept', title: '原图', coverImg: kept }).coverImg, kept, 'only timestamped search thumbnails are rewritten');
+  }
+});
+
+test('a GIF fallback cover respects the TMDB negative cache instead of searching every run', async () => {
+  let tmdbCalls = 0;
+  const { helpers } = loadHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ gif: {
+      title: '动图兜底', year: 2021, mediaType: '综艺', source: 'tmdb', version: 16,
+      negativeLookupVersion: 2, notFound: true, cachedAt: '2026-09-29T04:00:00Z',
+    } }) },
+    fetchImpl: async () => { tmdbCalls++; return response({ results: [] }); },
+  });
+  const show = {
+    id: 'gif', title: '动图兜底', year: 2021, mediaType: '综艺', regional: '大陆', category: 'variety',
+    coverImg: 'https://static.yfsp.tv/upload/video/202102211656175652868.gif',
+    yfspUrl: 'https://www.yfsp.tv/play/gif',
+  };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(tmdbCalls, 0, 'an unchanged query cannot succeed one run after a confirmed miss');
+  assert.equal(show.coverImg, 'https://static.yfsp.tv/upload/video/202102211656175652868.gif');
+});
+
+test('the coverless duplicate talk-show seed stays retired', () => {
+  const { helpers } = loadHelpers();
+  assert.equal(helpers.SEED_VARIETY.some(show => show.id === 'seed_var_2026_20'), false);
+});

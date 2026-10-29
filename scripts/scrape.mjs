@@ -1991,7 +1991,7 @@ const SEED_VARIETY = [
 
   // ── 喜剧/脱口秀 ──
   { id:'seed_var_2026_19', title:'喜剧大会', year:2026, score:7.5, playCount:210000, contentType:'喜剧·竞演·搞笑', actor:'郭麒麟,李诞,谢娜,大张伟', description:'喜剧人竞演舞台,sketch小品+即兴喜剧,笑声不断。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_20', title:'脱口秀和TA的朋友们', year:2026, score:7.6, playCount:230000, contentType:'脱口秀·搞笑', actor:'李诞,徐志胜,何广智,鸟鸟,童漠男', description:'脱口秀好友局,新老选手同台竞技,爆梗频出。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  // seed_var_2026_20（脱口秀和TA的朋友们）已退役：没有可用封面，每轮富化后都被丢弃；实际节目以“第3季”条目收录。
   { id:'seed_var_2026_21', title:'喜人奇妙夜', year:2026, score:7.8, playCount:190000, contentType:'喜剧·竞演·搞笑', actor:'马东,黄渤,徐峥,于和伟', description:'一年一度喜剧大赛团队新作, Sketch喜剧竞演,创意与笑点齐飞。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_22', title:'德云斗笑社', year:2026, score:7.4, playCount:280000, contentType:'喜剧·相声·搞笑', actor:'郭德纲,于谦,岳云鹏,烧饼,孟鹤堂', description:'德云社团综,相声竞演+游戏互动,德云男孩的快乐源泉。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
@@ -2547,6 +2547,15 @@ function safeOutputUrl(value) {
   }
 }
 
+// rankv21 搜索返回的 imgPath 是缩略图（文件名在扩展名前多一个 s）。源站会清理旧缩略图，
+// 而同名原图仍然可用；输出时统一改用原图，避免搜索回退每轮把可用封面换回失效缩略图。
+const YFSP_THUMBNAIL_COVER = /^(https:\/\/static\.yfsp\.tv\/[^?#]*\/\d{12,})s(\.(?:gif|jpe?g|png|webp))$/i;
+
+function fullSizeYfspCover(url) {
+  const text = safeText(url, 1200);
+  return text.replace(YFSP_THUMBNAIL_COVER, '$1$2');
+}
+
 function normalizeOutputShow(show) {
   repairKnownIdentityCorruption(show);
   show.id = safeText(show.id, 200);
@@ -2562,7 +2571,7 @@ function normalizeOutputShow(show) {
     show.titleAliases = show.titleAliases.map(value => safeText(value, 200)).filter(Boolean).slice(0, 20);
   }
   for (const field of ['coverImg', 'yfspCoverImg', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'descriptionTmdbSeasonUrl']) {
-    if (Object.hasOwn(show, field)) show[field] = safeOutputUrl(show[field]);
+    if (Object.hasOwn(show, field)) show[field] = safeOutputUrl(field === 'coverImg' || field === 'yfspCoverImg' ? fullSizeYfspCover(show[field]) : show[field]);
   }
   syncTMDBCoverStatus(show);
   if (Object.hasOwn(show, 'score')) show.score = boundedScore(show.score);
@@ -4120,8 +4129,7 @@ async function enrichCoversFromTMDB(shows) {
   await refreshCachedExternalMetadata(shows, cache);
 
   // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。
-  //    yfsp 的 .gif 动图封面视为低质量，强制重新搜索。
-  const isLowQualityYfspCover = (url = '') => /\.gif(?:\?|$)/i.test(url);
+  //    负缓存对 .gif 兜底图同样生效：查询条件不变时每轮重查不可能成功，只会消耗请求。
   const NOT_FOUND_RETRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
   const TMDB_PENDING_RETRY_MS = 12 * 60 * 60 * 1000; // 对齐每天两次的定时任务
   const toFetch = shows.filter(s => {
@@ -4130,8 +4138,6 @@ async function enrichCoversFromTMDB(shows) {
     // 直连映射是人工确认过的实体，不能被旧的 notFound 负缓存阻止重试。
     if (getTMDBDirectEntry(s)) return true;
     if (cached?.notFound && cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION) {
-      // gif 封面质量太差，始终尝试刷新
-      if (isLowQualityYfspCover(s.yfspCoverImg)) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
       if (s.tmdbCoverPending && age >= TMDB_PENDING_RETRY_MS) return true;
       // 推荐类(韩剧/综艺)重试更积极(3天),其他类 7 天;
