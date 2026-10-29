@@ -44,7 +44,7 @@ The test suite is dependency-free and uses Node's built-in test runner. `scripts
 
 **Single-file scraper** (`scripts/scrape.mjs`): ES module, runs the entire pipeline in `main()`:
 
-1. Scrape YFSP API (30 pages) → `Map<mediaKey, show>`
+1. Scrape YFSP API (30 pages, official yfsp.tv/iyf.tv host failover) → `Map<mediaKey, show>`. If homepage coverage is unhealthy, refresh known YFSP titles through rankv21 search: up to 30 per recommendation category, concurrency three, 90 seconds total. Freshness advances only with at least 30 observed items and 60% coverage in each category (minimum three); preserve other dramas whenever the homepage remains unhealthy. Private `sourceKind` and search counters distinguish this path from homepage success.
 2. Split into KDramas / Variety / Other, merge with hardcoded seed libraries (SEED_KDRAMAS, SEED_VARIETY); title aliases and last-published enrichment are used to keep accepted cards stable when YFSP IDs/pages change
 3. Discover new shows via dynamic current-year keyword search
 4. Enrich from TMDB/Wikidata/YFSP/Douban/Wikipedia, with bounded concurrency, tri-state link verification, negative caches and time budgets
