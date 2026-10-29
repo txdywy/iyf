@@ -224,6 +224,53 @@ test('a runner blocked by both homepage hosts refreshes from verified title sear
   assert.equal(refreshed.scrapedAt, date);
 });
 
+test('the last free model that produced valid AI scores is reused by the next run and kept private', async () => {
+  const previous = { lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 38 }, aiPreferredModel: 'vendor/kept:free' };
+  for (const [category, count, mediaType, regional] of [
+    ['koreanDramas', 12, '电视剧', '韩国'], ['chineseVariety', 30, '综艺', '大陆'], ['otherDramas', 1, '电视剧', '欧美'],
+  ]) {
+    previous[category] = Array.from({ length: count }, (_, index) => ({
+      id: `${category}-${index}`, title: `${category}模型粘滞节目${index}`, year: 2026,
+      mediaType, regional, score: 8, playCount: 100000, isSerial: true, isComplete: false,
+      scrapedAt: previous.lastUpdated, publishTime: '2026-09-01', updateStatus: '更新到03',
+      description: '保留此前经来源确认的节目简介。喜剧、搞笑、爆笑、旅行、美食、真人秀、治愈、轻松。', descriptionSource: 'tmdb',
+      coverImg: 'https://image.tmdb.org/t/p/original/retained.jpg',
+      yfspUrl: `https://www.yfsp.tv/play/${category}-${index}`,
+      primaryUrl: `https://www.yfsp.tv/play/${category}-${index}`,
+    }));
+  }
+  const targets = new Map([...previous.koreanDramas, ...previous.chineseVariety].map(show => [show.title, show]));
+  const aiModels = [];
+  const { helpers, files } = loadHelpers({
+    date: '2026-10-29T00:00:00.000Z',
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async (url, options) => {
+      if (String(url).startsWith('https://openrouter.ai/')) {
+        const body = JSON.parse(options.body);
+        aiModels.push(body.model);
+        const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+        return response({ model: body.model, choices: [{ message: { content: JSON.stringify({
+          results: ids.map(id => ({ id, recommendationScore100: 80, recommendationLevel: 'strong', r: '沿用模型' })),
+        }) } }] });
+      }
+      const title = new URL(url).searchParams.get('tags');
+      const show = targets.get(title);
+      if (!show) return response(null, { status: 403 });
+      return response({ data: { info: [{ result: [{
+        contxt: show.id, title: show.title, atypeName: show.mediaType, regional: show.regional,
+        score: '8.1', hot: 200000, postTime: '2026-09-01', lastName: '更新到05',
+        imgPath: 'https://static.yfsp.tv/search.jpg', isSerial: true,
+      }] }] } });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.ok(aiModels.length > 0);
+  assert.ok(aiModels.every(model => model === 'vendor/kept:free'), 'a run should start with the previously successful free model instead of a random router pick');
+  assert.equal(published.aiPreferredModel, 'vendor/kept:free');
+});
+
 function searchSnapshotFixture(count = 30) {
   return Object.fromEntries(['koreanDramas', 'chineseVariety'].map((category, group) => [category,
     Array.from({ length: count }, (_, index) => ({

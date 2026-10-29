@@ -730,6 +730,7 @@ function loadPreviousShows() {
     }
     return {
       lastUpdated: safeText(prev.lastUpdated, 100),
+      aiPreferredModel: safeText(prev.aiPreferredModel, 200),
       stats: prev.stats && typeof prev.stats === 'object' ? prev.stats : {},
       koreanDramas: prev.koreanDramas.map(repairKnownSeedMetadata),
       chineseVariety: prev.chineseVariety,
@@ -1367,6 +1368,15 @@ const AI_MAX_CONSECUTIVE_FAILURES = 4;
 let _aiDeadline = 0;
 let _aiConsecutiveFailures = 0;
 let _aiStopReason = '';
+// 免费路由每次随机选择模型；记住最近产出有效批次的具体模型并优先复用，
+// 避免把每日免费请求额度浪费在输出被截断的随机模型上。
+let _aiPreferredModel = '';
+
+function setAIPreferredModel(model) {
+  const id = safeText(model, 200);
+  // 只固定具体的 :free 模型，绝不因路由返回付费模型而产生费用。
+  _aiPreferredModel = /^[\w.-]+\/[\w.:-]+:free$/.test(id) ? id : '';
+}
 
 function stopAICalls(reason) {
   if (_aiStopReason) return;
@@ -1386,10 +1396,20 @@ async function callModelsAPI(messages, {
   const orKey = process.env.OPENROUTER_API_KEY;
   if (!orKey) return [];
 
-  const model = safeText(process.env.OPENROUTER_MODEL, 200) || OPENROUTER_FREE_MODEL;
+  const configuredModel = safeText(process.env.OPENROUTER_MODEL, 200);
+  const model = configuredModel || OPENROUTER_FREE_MODEL;
+  // 显式配置具体模型时完全尊重配置，只有免费路由才使用粘滞模型。
+  const canPin = model === OPENROUTER_FREE_MODEL;
   for (let attempt = 0; attempt < AI_CALL_ATTEMPTS; attempt++) {
     if (Date.now() >= _aiDeadline || _aiStopReason) break;
-    const response = await _callEndpoint(OPENROUTER_API, model, orKey, messages, temperature, timeout, responseSchema);
+    const pinned = canPin && attempt === 0 ? _aiPreferredModel : '';
+    const response = await _callEndpoint(OPENROUTER_API, pinned || model, orKey, messages, temperature, timeout, responseSchema);
+    if (pinned && (!response || response.retryAfterMs != null)) {
+      // 固定模型失败后立即改走免费路由；路由下一次成功会重新选定模型。
+      // 额度用尽或预算耗尽不是模型本身的问题，保留它供下一轮使用。
+      if (!_aiStopReason && Date.now() < _aiDeadline) _aiPreferredModel = '';
+      continue;
+    }
     if (!response) continue;
     if (response.retryAfterMs != null) {
       if (attempt + 1 < AI_CALL_ATTEMPTS) {
@@ -1402,10 +1422,12 @@ async function callModelsAPI(messages, {
     const rows = validateRows(parseJSONArrayResponse(response.content));
     if (Array.isArray(rows) && rows.length > 0) {
       _aiConsecutiveFailures = 0;
-      console.log(`  [AI] 使用 OpenRouter: ${response.model}`);
+      if (canPin) setAIPreferredModel(response.model);
+      console.log(`  [AI] 使用 OpenRouter: ${response.model}${pinned ? '（沿用上次成功模型）' : ''}`);
       return rows;
     }
     console.warn(`  [AI] ${response.model}: 返回内容未通过当前批次校验${response.truncated ? '（输出被截断）' : ''}`);
+    if (pinned) _aiPreferredModel = '';
   }
 
   if (!_aiStopReason && ++_aiConsecutiveFailures >= AI_MAX_CONSECUTIVE_FAILURES) {
@@ -2053,6 +2075,7 @@ async function main() {
 
   console.log(`  抓取到 ${liveShows.size} 个独立节目 (API)`);
   const prevShows = loadPreviousShows();
+  setAIPreferredModel(prevShows.aiPreferredModel);
   const totalRequestedPages = pages.length * isnValues.length;
   const minimumHealthyPages = Math.ceil(totalRequestedPages * 0.6);
   const previousScraped = Math.max(0, safeNumber(prevShows.stats?.totalScraped));
@@ -2321,6 +2344,8 @@ async function main() {
     sourcePagesMeaningful: meaningfulPages,
     sourceSearchMatched: searchSnapshot.shows.size,
     sourceSearchTargets: searchSnapshot.targetCount,
+    // 私有运行状态：下一轮优先复用该免费模型；公开数据投影不包含此字段。
+    ...(_aiPreferredModel ? { aiPreferredModel: _aiPreferredModel } : {}),
     stats: {
       koreanDramas: koreanDramas.length,
       chineseVariety: chineseVariety.length,
