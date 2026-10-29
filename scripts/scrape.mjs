@@ -936,6 +936,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
         const match = best.result;
         const found = {
           title: safeText(match.title, 200) || show.title,
+          mediaType: safeText(match.atypeName, 20),
           url: best.url,
           coverImg: safeText(match.imgPath, 1000),
           actor: safeText(match.starring, 500),
@@ -943,7 +944,10 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
           lang: safeText(match.lang, 40),
           publishTime: safeText(match.postTime, 100),
           updateStatus: safeText(match.lastName, 200),
+          contentType: safeText(match.tag, 300) || safeText(match.cid, 300),
+          cidMapper: safeText(match.cidMapper, 300),
         };
+        if (typeof match.isSerial === 'boolean') found.isSerial = match.isSerial;
         // Preserve “missing” vs explicit zero. A partial upstream response must
         // not erase the last reliable score/play count, while a real 0 remains
         // a valid update.
@@ -962,6 +966,42 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
     await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, requestDeadline - Date.now())));
   }
   return { lookupState: !hadError && completedQueries > 0 ? 'not_found' : 'unknown' };
+}
+
+async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000 } = {}) {
+  const shows = new Map();
+  const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
+    category, matched: new Set(),
+    targets: (previous[category] || [])
+      .filter(show => safeText(show?.title) && /^https:\/\/www\.yfsp\.tv\/play\/[^/?#]+(?:[/?#]|$)/u.test(safeOutputUrl(show.yfspUrl)))
+      .sort((a, b) => Number(Boolean(b.isSerial)) - Number(Boolean(a.isSerial)) ||
+        (Date.parse(a.scrapedAt) || 0) - (Date.parse(b.scrapedAt) || 0))
+      .slice(0, 30),
+  }));
+  const targets = groups.flatMap(group => group.targets.map(show => ({ show, group })));
+  console.log(`  首页不可用，按已验证标题搜索回退 (${targets.length} 部，90 秒预算)...`);
+  await mapPool(targets, 3, async ({ show, group }) => {
+    if (Date.now() >= deadline) return;
+    const found = await searchYfspTitle(show, { deadline });
+    if (Date.now() >= deadline || !found?.url || found.mediaType !== show.mediaType || found.regional !== show.regional) return;
+    const observed = normalizeItem({
+      mediaKey: decodeURIComponent(new URL(found.url).pathname.split('/').pop()),
+      title: found.title, mediaType: found.mediaType, regional: found.regional,
+      lang: found.lang, actor: found.actor, contentType: found.contentType, cidMapper: found.cidMapper,
+      publishTime: found.publishTime, updateStatus: found.updateStatus, coverImgUrl: found.coverImg,
+      ...(Object.hasOwn(found, 'isSerial') ? { isSerial: found.isSerial } : {}),
+      ...(Object.hasOwn(found, 'score') ? { score: found.score } : {}),
+      ...(Object.hasOwn(found, 'playCount') ? { playCount: found.playCount } : {}),
+    });
+    shows.set(observed.id, mergeLiveSnapshots(shows.get(observed.id), observed));
+    group.matched.add(observed.id);
+    await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, deadline - Date.now())));
+  });
+  // 每类均须刷新足够比例，不能仅凭几个综艺命中就声称整份推荐已更新。
+  const healthy = shows.size >= minimumItems && groups.every(group =>
+    group.matched.size >= Math.max(3, Math.ceil(group.targets.length * 0.6)));
+  console.log(`  搜索回退命中 ${shows.size}/${targets.length} 部（韩剧 ${groups[0].matched.size}/${groups[0].targets.length}，综艺 ${groups[1].matched.size}/${groups[1].targets.length}），${healthy ? '来源健康' : '覆盖不足，保留快照时间'}`);
+  return { shows, healthy, targetCount: targets.length };
 }
 
 function applyYfspSearchFields(show, found) {
@@ -1942,6 +1982,7 @@ const SEED_VARIETY = [
 
 async function main() {
   console.log(`[SCRAPER] 开始抓取 ${new Date().toISOString()}`);
+  _optionalEnrichmentDeadline = 0;
 
   // ── 0. 检查 TMDB_TOKEN ──
   if (!TMDB_TOKEN) {
@@ -1979,9 +2020,13 @@ async function main() {
   const minimumHealthyPages = Math.ceil(totalRequestedPages * 0.6);
   const previousScraped = Math.max(0, safeNumber(prevShows.stats?.totalScraped));
   const minimumHealthyItems = Math.max(30, Math.floor(previousScraped * 0.5));
-  const sourceHealthy = successfulPages >= minimumHealthyPages &&
+  const homepageHealthy = successfulPages >= minimumHealthyPages &&
     meaningfulPages >= Math.ceil(minimumHealthyPages / 2) &&
     liveShows.size >= minimumHealthyItems;
+  const searchSnapshot = homepageHealthy ? { shows: new Map(), healthy: false, targetCount: 0 }
+    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
+  for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
+  const sourceHealthy = homepageHealthy || searchSnapshot.healthy;
   if (!sourceHealthy) {
     console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，${liveShows.size}/${minimumHealthyItems} 条），将保留上一版快照时间和缺失分类`);
   }
@@ -2054,7 +2099,7 @@ async function main() {
       otherDramas.push(show);
     }
   }
-  if (!sourceHealthy) {
+  if (!homepageHealthy) {
     for (const previous of prevShows.otherDramas) {
       if (otherDramas.some(current => sameShowIdentity(current, previous))) continue;
       const restored = reconcileShowStatus({ ...previous, isLive: false, source: previous.source || 'previous_output' });
@@ -2234,8 +2279,11 @@ async function main() {
     lastUpdated: sourceHealthy ? generatedAt : (prevShows.lastUpdated || generatedAt),
     generatedAt,
     sourceStatus: sourceHealthy ? 'healthy' : 'degraded',
+    sourceKind: homepageHealthy ? 'homepage' : searchSnapshot.healthy ? 'search' : 'degraded',
     sourcePagesSucceeded: successfulPages,
     sourcePagesMeaningful: meaningfulPages,
+    sourceSearchMatched: searchSnapshot.shows.size,
+    sourceSearchTargets: searchSnapshot.targetCount,
     stats: {
       koreanDramas: koreanDramas.length,
       chineseVariety: chineseVariety.length,

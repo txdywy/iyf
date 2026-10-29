@@ -45,7 +45,7 @@ function loadHelpers({
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
-        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage,
+        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
       };
     `;
   vm.createContext(context);
@@ -159,6 +159,123 @@ test('a blocked primary with a healthy mirror produces fresh data while total fa
     assert.equal(published.sourcePagesSucceeded, mirrorHealthy ? 30 : 0);
     assert.equal(mirrorCalls, mirrorHealthy ? 30 : 0);
     assert.equal(published.generatedAt, date);
+  }
+});
+
+test('a runner blocked by both homepage hosts refreshes from verified title searches without losing other dramas', async () => {
+  const previous = { lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 38 } };
+  for (const [category, count, mediaType, regional] of [
+    ['koreanDramas', 12, '电视剧', '韩国'], ['chineseVariety', 30, '综艺', '大陆'], ['otherDramas', 1, '电视剧', '欧美'],
+  ]) {
+    previous[category] = Array.from({ length: count }, (_, index) => ({
+      id: `${category}-${index}`, title: `${category}搜索回退节目${index}`, year: 2026,
+      mediaType, regional, score: 8, playCount: 100000, isSerial: true, isComplete: false,
+      scrapedAt: previous.lastUpdated, publishTime: '2026-09-01', updateStatus: '更新到03',
+      description: '保留此前经来源确认的节目简介。喜剧、搞笑、爆笑、旅行、美食、真人秀、治愈、轻松。', descriptionSource: 'tmdb',
+      coverImg: 'https://image.tmdb.org/t/p/original/retained.jpg',
+      yfspUrl: `https://www.yfsp.tv/play/${category}-${index}`,
+      primaryUrl: `https://www.yfsp.tv/play/${category}-${index}`,
+    }));
+  }
+  const targets = new Map([...previous.koreanDramas, ...previous.chineseVariety].map(show => [show.title, show]));
+  const date = '2026-10-29T00:00:00.000Z';
+  const { helpers, files } = loadHelpers({
+    date, initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      const title = new URL(url).searchParams.get('tags');
+      const show = targets.get(title);
+      if (!show) return response(null, { status: 403 });
+      return response({ data: { info: [{ result: [{
+        contxt: show.id, title: show.title, atypeName: show.mediaType, regional: show.regional,
+        score: '8.1', hot: 200000, postTime: '2026-09-01', lastName: '更新到05',
+        imgPath: 'https://static.yfsp.tv/search.jpg', isSerial: true,
+      }] }] } });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(published.sourceStatus, 'healthy');
+  assert.equal(published.sourceKind, 'search');
+  assert.equal(published.sourcePagesSucceeded, 0);
+  assert.equal(published.sourceSearchMatched, 42);
+  assert.equal(published.lastUpdated, date);
+  assert.equal(published.otherDramas[0].id, previous.otherDramas[0].id);
+  const refreshed = published.koreanDramas.find(show => show.id === previous.koreanDramas[0].id);
+  assert.equal(refreshed.playCount, 200000);
+  assert.equal(refreshed.currentEpisode, 5);
+  assert.equal(refreshed.description, previous.koreanDramas[0].description);
+  assert.equal(refreshed.coverImg, previous.koreanDramas[0].coverImg);
+  assert.equal(refreshed.scrapedAt, date);
+});
+
+function searchSnapshotFixture(count = 30) {
+  return Object.fromEntries(['koreanDramas', 'chineseVariety'].map((category, group) => [category,
+    Array.from({ length: count }, (_, index) => ({
+      id: `${category}-${index}`, title: `${category}独立验证${index}`, year: 2026,
+      mediaType: group ? '综艺' : '电视剧', regional: group ? '大陆' : '韩国',
+      yfspUrl: `https://www.yfsp.tv/play/${category}-${index}`,
+    })),
+  ]));
+}
+
+function searchSnapshotResponse(show, extra = {}) {
+  return response({ data: { info: [{ result: show ? [{
+    contxt: show.id, title: show.title, atypeName: show.mediaType, regional: show.regional,
+    postTime: '2026-01-01', imgPath: 'https://static.yfsp.tv/fallback.jpg', ...extra,
+  }] : [] }] } });
+}
+
+test('search snapshot caps each category, bounds concurrency, and requires both category and total coverage', async () => {
+  for (const [count, onlyKorean, expectedHealthy] of [[45, false, true], [30, true, false], [10, false, false]]) {
+    const previous = searchSnapshotFixture(count);
+    const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
+    let active = 0;
+    let peak = 0;
+    const requested = new Set();
+    const { helpers } = loadHelpers({ fetchImpl: async url => {
+      const show = byTitle.get(new URL(url).searchParams.get('tags'));
+      requested.add(show?.id);
+      peak = Math.max(peak, ++active);
+      await Promise.resolve();
+      active--;
+      return searchSnapshotResponse(onlyKorean && show?.regional !== '韩国' ? null : show);
+    } });
+    const result = await helpers.fetchSearchSnapshot(previous);
+    assert.equal(result.healthy, expectedHealthy);
+    assert.equal(result.targetCount, Math.min(30, count) * 2);
+    assert.equal(result.shows.size, Math.min(30, count) * (onlyKorean ? 1 : 2));
+    assert.ok(peak <= 3, `peak concurrency ${peak}`);
+    assert.ok(requested.size <= 60);
+  }
+});
+
+test('search snapshot rejects late results and does not launch more work after its deadline', async () => {
+  const previous = searchSnapshotFixture();
+  const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
+  const date = '2026-10-29T00:00:00Z';
+  let calls = 0;
+  const { helpers, setNow } = loadHelpers({ date, fetchImpl: async url => {
+    calls++;
+    setNow('2026-10-29T00:00:03Z');
+    return searchSnapshotResponse(byTitle.get(new URL(url).searchParams.get('tags')));
+  } });
+  const result = await helpers.fetchSearchSnapshot(previous, { deadline: Date.parse(date) + 2000 });
+  assert.equal(result.healthy, false);
+  assert.equal(result.shows.size, 0);
+  assert.ok(calls <= 3);
+});
+
+test('search snapshot preserves absent numeric fields and retains explicit source zero', async () => {
+  const previous = searchSnapshotFixture(1);
+  const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
+  for (const numeric of [{}, { score: 0, hot: 0 }, { score: {}, hot: [] }]) {
+    const { helpers } = loadHelpers({ fetchImpl: async url =>
+      searchSnapshotResponse(byTitle.get(new URL(url).searchParams.get('tags')), numeric) });
+    const result = await helpers.fetchSearchSnapshot(previous);
+    const observed = [...result.shows.values()][0];
+    const merged = helpers.mergePreviousShowState(observed, { ...observed, score: 8.5, playCount: 12345 });
+    assert.equal(merged.score, numeric.score === 0 ? 0 : 8.5);
+    assert.equal(merged.playCount, numeric.hot === 0 ? 0 : 12345);
   }
 });
 
