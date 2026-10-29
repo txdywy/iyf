@@ -323,6 +323,24 @@ test('activating an already visible tab leaves horizontal and vertical scroll un
   assert.equal(view.scrollY, 2200);
 });
 
+test('switching to another category starts at the results while repeated activation keeps the reading position', () => {
+  const app = createApp();
+  const { helpers, elements } = app;
+  const { tabs } = scrollableTabGeometry(app);
+  helpers.setAllData(snapshot());
+  helpers.bindTabs();
+  elements.mainContent.getBoundingClientRect = () => ({ top: -1800 });
+  elements.mainContent.scrolled = false;
+  tabs[0].dispatch('click');
+  assert.equal(elements.mainContent.scrolled, false, 'activating the current tab must not move the page');
+  tabs[3].dispatch('click');
+  assert.equal(elements.mainContent.scrolled, true, 'a new category must not open in the middle of its result list');
+  elements.mainContent.scrolled = false;
+  elements.mainContent.getBoundingClientRect = () => ({ top: 400 });
+  tabs[4].dispatch('click');
+  assert.equal(elements.mainContent.scrolled, false, 'results already below the sticky tabs need no jump');
+});
+
 test('tab keyboard navigation reveals both overflow edges without moving the page', () => {
   const app = createApp();
   const { helpers, document, view } = app;

@@ -162,6 +162,22 @@ test('a blocked primary with a healthy mirror produces fresh data while total fa
   }
 });
 
+test('homepage scraping stops after the first pages are rejected by both hosts', async () => {
+  const previous = { lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 30 }, koreanDramas: [], chineseVariety: [], otherDramas: [] };
+  let homepageCalls = 0;
+  const { helpers, files } = loadHelpers({
+    date: '2026-10-29T00:00:00.000Z',
+    initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (new URL(url).pathname.includes('/index')) homepageCalls++;
+      return response(null, { status: 403 });
+    },
+  });
+  await helpers.main();
+  assert.equal(homepageCalls, 8, 'four blocked pages on both official hosts are enough evidence to skip the remaining 26 pages');
+  assert.equal(JSON.parse(files.get(join(dataDir, 'shows.json'))).sourceStatus, 'degraded');
+});
+
 test('a runner blocked by both homepage hosts refreshes from verified title searches without losing other dramas', async () => {
   const previous = { lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 38 } };
   for (const [category, count, mediaType, regional] of [

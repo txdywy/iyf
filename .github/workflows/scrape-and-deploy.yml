@@ -26,9 +26,18 @@ jobs:
     timeout-minutes: 40
     permissions:
       contents: write
+    outputs:
+      publish: ${{ steps.commit.outputs.publish }}
+      sha: ${{ steps.commit.outputs.sha }}
+    env:
+      # 抓取任务必须拒绝发布超过 7 天的数据；PR 和 Cloudflare 重建只给出警告。
+      IYF_REQUIRE_FRESH_DATA: '1'
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # 抓取器处理不可信的外部响应；写权限令牌只在提交步骤中临时使用。
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -61,16 +70,29 @@ jobs:
         run: node scripts/validate-data.mjs
 
       - name: Commit updated data
+        id: commit
+        env:
+          PUSH_TOKEN: ${{ github.token }}
         run: |
+          basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$basic"
+          git_auth() { git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" "$@"; }
+          base_sha="$GITHUB_SHA"
+
+          skip_stale() {
+            # 抓取期间 main 已前进：新 push 已在同一并发组排队，会用新代码完整重跑并部署。
+            echo "::notice::main advanced from $base_sha to $1 while scraping; skipping this publish in favor of the queued run."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
           if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json data/history.json; then
             # 抓取和校验耗时较长。若期间 main 已前进，不能把旧抓取器生成的数据
-            # rebase 到新 schema 上；新 main push 已会排队触发一次完整工作流。
-            git fetch --no-tags origin main
-            base_sha="$GITHUB_SHA"
+            # rebase 到新 schema 上。
+            git_auth fetch --no-tags origin main
             remote_sha="$(git rev-parse origin/main)"
             if [ "$remote_sha" != "$base_sha" ]; then
-              echo "::error::main advanced from $base_sha to $remote_sha while scraping; refusing to publish stale-schema data."
-              exit 1
+              skip_stale "$remote_sha"
             fi
 
             git config user.name "github-actions[bot]"
@@ -82,12 +104,12 @@ jobs:
             pushed=false
             local_sha="$(git rev-parse HEAD)"
             for i in 1 2 3; do
-              if git push origin HEAD:main; then
+              if git_auth push origin HEAD:main; then
                 pushed=true
                 break
               fi
 
-              git fetch --no-tags origin main
+              git_auth fetch --no-tags origin main
               remote_sha="$(git rev-parse origin/main)"
               if [ "$remote_sha" = "$local_sha" ]; then
                 # The server accepted the push but the client lost the response.
@@ -95,8 +117,7 @@ jobs:
                 break
               fi
               if [ "$remote_sha" != "$base_sha" ]; then
-                echo "::error::main advanced to $remote_sha before the data push; refusing to rebase stale-schema output."
-                exit 1
+                skip_stale "$remote_sha"
               fi
               echo "Push attempt $i failed, retrying..."
               sleep 5
@@ -106,12 +127,23 @@ jobs:
               echo "::error::Failed to push scraped data to main; refusing to deploy an uncommitted Pages artifact."
               exit 1
             fi
+          else
+            # 数据未变时也要确认 main 仍是本次构建的代码，否则 Cloudflare 会构建更新的 main 并与产物不一致。
+            git_auth fetch --no-tags origin main
+            remote_sha="$(git rev-parse origin/main)"
+            if [ "$remote_sha" != "$base_sha" ]; then
+              skip_stale "$remote_sha"
+            fi
           fi
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build Pages artifact
+        if: steps.commit.outputs.publish == 'true'
         run: node scripts/build-site.mjs
 
       - name: Upload Pages artifact
+        if: steps.commit.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: 'site'
@@ -119,6 +151,7 @@ jobs:
   deploy:
     name: 部署 GitHub Pages
     needs: scrape
+    if: needs.scrape.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -138,6 +171,7 @@ jobs:
   deploy-cloudflare:
     name: 部署并验证 Cloudflare Pages
     needs: scrape
+    if: needs.scrape.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
@@ -166,7 +200,22 @@ jobs:
           mkdir -p site
           tar -xf pages-artifact/artifact.tar -C site
 
+      - name: Confirm main still matches the artifact
+        id: head
+        env:
+          ARTIFACT_SHA: ${{ needs.scrape.outputs.sha }}
+        run: |
+          # Cloudflare 部署钩子总是构建 main 的最新提交；若 main 已前进，排队中的新运行会负责部署。
+          remote_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$remote_sha" != "$ARTIFACT_SHA" ]; then
+            echo "::notice::main advanced from $ARTIFACT_SHA to $remote_sha; skipping Cloudflare deploy in favor of the queued run."
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Trigger build and verify published files
+        if: steps.head.outputs.current == 'true'
         run: node scripts/deploy-cloudflare.mjs
         env:
           CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
