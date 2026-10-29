@@ -50,6 +50,9 @@ function writeFileSyncAtomic(path, data) {
 }
 
 const API_BASE = 'https://api.yfsp.tv';
+// iyf.tv 是源站官方前端列出的同站域名；某个 API 域名被 runner 拒绝时切换。
+const API_BASES = [API_BASE, 'https://api.iyf.tv'];
+let _preferredYfspApiBase = API_BASE;
 const API_PATH = '/api/list/index';
 const YFSP_RANK_BASE = 'https://rankv21.yfsp.tv';
 const HEADERS = {
@@ -86,11 +89,11 @@ function getOptionalEnrichmentTimeout(defaultTimeout, deadline = Infinity) {
 // API 抓取
 // ════════════════════════════════════════════════════════════════
 
-async function fetchWithTimeout(url, { timeout = 15000, asText = false } = {}) {
+async function fetchWithTimeout(url, { timeout = 15000, asText = false, headers = HEADERS } = {}) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(url, { headers: HEADERS, signal: ctrl.signal });
+    const r = await fetch(url, { headers, signal: ctrl.signal });
     if (!r.ok) {
       await r.body?.cancel?.().catch(() => {});
       throw new Error(`HTTP ${r.status}`);
@@ -103,12 +106,29 @@ async function fetchJSON(url) { return fetchWithTimeout(url); }
 async function fetchText(url) { return fetchWithTimeout(url, { asText: true }); }
 
 async function fetchPage(page, isn = 0) {
-  const url = `${API_BASE}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=${isn}&isfree=-1`;
-  try {
-    const d = await fetchJSON(url);
-    if (Array.isArray(d?.data?.list)) return d;
-  } catch (e) {
-    console.warn(`  [WARN] page ${page}: ${e.message}`);
+  const deadline = Date.now() + 15000;
+  const bases = [_preferredYfspApiBase, ...API_BASES.filter(base => base !== _preferredYfspApiBase)];
+  for (const base of bases) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    const url = `${base}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=${isn}&isfree=-1`;
+    try {
+      const d = await fetchWithTimeout(url, {
+        // 为备用源留出时间；两个请求合计仍受原来的 15 秒页面预算限制。
+        timeout: Math.min(7500, remaining),
+        headers: { ...HEADERS, Referer: `${base.replace('api.', 'www.')}/` },
+      });
+      if (Date.now() >= deadline) break;
+      if (!Array.isArray(d?.data?.list) || !d.data.list.some(section =>
+        ['电视剧', '综艺', '电影'].includes(section?.name) && Array.isArray(section.list) && section.list.length)) {
+        throw new Error('invalid homepage data');
+      }
+      if (base !== _preferredYfspApiBase) console.log(`  首页 API 切换到 ${new URL(base).hostname}`);
+      _preferredYfspApiBase = base;
+      return d;
+    } catch (e) {
+      console.warn(`  [WARN] ${new URL(base).hostname} page ${page}: ${e.message}`);
+    }
   }
   return null;
 }
