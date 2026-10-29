@@ -944,7 +944,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
           lang: safeText(match.lang, 40),
           publishTime: safeText(match.postTime, 100),
           updateStatus: safeText(match.lastName, 200),
-          contentType: safeText(match.tag, 300) || safeText(match.cid, 300),
+          contentType: safeText(match.tag, 300),
           cidMapper: safeText(match.cidMapper, 300),
         };
         if (typeof match.isSerial === 'boolean') found.isSerial = match.isSerial;

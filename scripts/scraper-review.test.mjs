@@ -270,12 +270,13 @@ test('search snapshot preserves absent numeric fields and retains explicit sourc
   const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
   for (const numeric of [{}, { score: 0, hot: 0 }, { score: {}, hot: [] }]) {
     const { helpers } = loadHelpers({ fetchImpl: async url =>
-      searchSnapshotResponse(byTitle.get(new URL(url).searchParams.get('tags')), numeric) });
+      searchSnapshotResponse(byTitle.get(new URL(url).searchParams.get('tags')), { cid: '剧情', ...numeric }) });
     const result = await helpers.fetchSearchSnapshot(previous);
     const observed = [...result.shows.values()][0];
-    const merged = helpers.mergePreviousShowState(observed, { ...observed, score: 8.5, playCount: 12345 });
+    const merged = helpers.mergePreviousShowState(observed, { ...observed, score: 8.5, playCount: 12345, contentType: '喜剧·爱情' });
     assert.equal(merged.score, numeric.score === 0 ? 0 : 8.5);
     assert.equal(merged.playCount, numeric.hot === 0 ? 0 : 12345);
+    assert.equal(merged.contentType, '喜剧·爱情', 'a broad catalog category must not replace missing detailed genres');
   }
 });
 
