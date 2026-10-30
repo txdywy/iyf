@@ -3419,6 +3419,37 @@ function isTMDBOriginalImageUrl(url = '') {
   }
 }
 
+function verifiedDoubanTitleIdentity(show) {
+  const year = boundedYear(show?.year);
+  if (show?.mediaType !== '电视剧' || show?.regional !== '韩国' || !year ||
+      seasonKey(show?.title) || (show?.doubanMatchedSeasonNumber != null && Number(show.doubanMatchedSeasonNumber) !== 0)) return null;
+  const id = safeText(show?.doubanId, 100);
+  const url = safeOutputUrl(show?.doubanUrl);
+  const subjectId = url.match(/^https:\/\/movie\.douban\.com\/subject\/([1-9]\d*)\/?(?:[?#]|$)/u)?.[1];
+  if (!/^[1-9]\d*$/u.test(id) || id !== subjectId || !normalizeTitle(show.title) ||
+      normalizeTitle(show.title) !== normalizeTitle(show.doubanMatchedTitle)) return null;
+  return { id, url, title: show.title, year };
+}
+
+function isReusableDoubanTitleMatch(cached, show, matchedTitle) {
+  const evidence = cached?.doubanMatchEvidence;
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence) ||
+      cached.regional !== '韩国' || cached.mediaType !== '电视剧' || cached.year !== show?.year ||
+      cached.tmdbUrl !== `${TMDB_WEB_BASE}/tv/${cached.tmdbId}`) return false;
+  const identity = verifiedDoubanTitleIdentity({ ...show, doubanId: cached.doubanId,
+    doubanUrl: cached.doubanUrl, doubanMatchedTitle: cached.doubanMatchedTitle,
+    doubanMatchedSeasonNumber: cached.doubanMatchedSeasonNumber });
+  if (!identity || evidence.id !== identity.id || evidence.year !== identity.year ||
+      normalizeTitle(evidence.title) !== normalizeTitle(identity.title) ||
+      (show.doubanId && safeText(show.doubanId, 100) !== identity.id) ||
+      (show.doubanMatchedTitle && normalizeTitle(show.doubanMatchedTitle) !== normalizeTitle(identity.title)) ||
+      (show.doubanMatchedSeasonNumber != null && Number(show.doubanMatchedSeasonNumber) !== 0) ||
+      (show.doubanUrl && safeOutputUrl(show.doubanUrl).match(/^https:\/\/movie\.douban\.com\/subject\/([1-9]\d*)\/?(?:[?#]|$)/u)?.[1] !== identity.id)) return false;
+  const originalTitle = safeText(evidence.originalTitle, 200);
+  return /\p{Script=Hangul}/u.test(originalTitle) && !seasonKey(originalTitle) &&
+    normalizeTitle(originalTitle) === normalizeTitle(matchedTitle);
+}
+
 function isReusableTMDBCoverCache(cached, show) {
   const matchedTitle = safeText(cached?.matchedTitle, 300).trim();
   const matchedSeriesTitle = safeText(cached?.matchedSeriesTitle, 300).trim();
@@ -3426,9 +3457,13 @@ function isReusableTMDBCoverCache(cached, show) {
   const cachedSeasonNumber = Number(cached?.tmdbSeasonNumber);
   const cachedSeasonUrlNumber = extractTMDBSeasonNumber(cached?.tmdbUrl);
   const cachedSeriesUrlId = extractTMDBSeriesId(cached?.tmdbUrl);
-  const cachedEntityUrlId = safeText(cached?.tmdbUrl, 500)
-    .match(/^https?:\/\/(?:www\.)?themoviedb\.org\/(?:tv|movie)\/(\d+)(?:[/?#]|$)/iu)?.[1];
+  const cachedEntity = safeText(cached?.tmdbUrl, 500)
+    .match(/^https?:\/\/(?:www\.)?themoviedb\.org\/(tv|movie)\/(\d+)(?:[/?#]|$)/iu);
+  const expectedMediaKind = show?.mediaType === '电影' ? 'movie' : ['电视剧', '综艺'].includes(show?.mediaType) ? 'tv' : '';
   const hasEntityPair = cached?.tmdbId != null && !!cached?.tmdbUrl;
+  const directEntry = !expectedSeasonNumber ? getTMDBDirectEntry(show) : null;
+  const matchesDirectEntry = directEntry && cached?.tmdbId === directEntry.id &&
+    cached?.query === `direct:${directEntry.id}` && cached?.tmdbUrl === `${TMDB_WEB_BASE}/${directEntry.kind}/${directEntry.id}`;
   return cached &&
     typeof cached === 'object' &&
     cached.version === COVER_CACHE_VERSION &&
@@ -3437,10 +3472,13 @@ function isReusableTMDBCoverCache(cached, show) {
     matchedTitle &&
     // 历史非季缓存若同时提供 ID 和链接，两者必须指向同一主体；缺省旧字段仍可兼容。
     (expectedSeasonNumber || !hasEntityPair || (Number.isSafeInteger(cached.tmdbId) && cached.tmdbId > 0 &&
-      Number(cachedEntityUrlId) === cached.tmdbId)) &&
+      Number(cachedEntity?.[2]) === cached.tmdbId && (!expectedMediaKind || cachedEntity?.[1]?.toLowerCase() === expectedMediaKind))) &&
     titleMatches(cached.title, show.title) &&
     isTMDBResultSeasonCompatible(show, { name: cached.title }) &&
     (titleMatches(matchedTitle, show.title) ||
+      (!expectedSeasonNumber && TITLE_EN_MAP[show.title] && titleMatches(matchedTitle, TITLE_EN_MAP[show.title])) ||
+      matchesDirectEntry ||
+      (!expectedSeasonNumber && isReusableDoubanTitleMatch(cached, show, matchedTitle)) ||
       (expectedSeasonNumber && matchesTMDBSeriesTitle(show, stripSeasonSuffix(matchedTitle)))) &&
     isTMDBResultSeasonCompatible(show, { name: matchedTitle }) &&
     // 旧季缓存曾直接用输入标题生成 matchedTitle，不能把它当作实际系列身份的证据。
@@ -4016,6 +4054,70 @@ function isTMDBResultYearCompatible(show, result, { yearParam = '' } = {}) {
   return isLongRunningVarietyTitle(show);
 }
 
+// 只在豆瓣主体、中文名、年份均已核实时使用韩文原名；再要求 TMDB 年份、地区和原名完全一致。
+async function lookupTMDBFromVerifiedDouban(show, identity) {
+  const suggestions = await fetchDoubanSuggest(identity.title);
+  if (!Array.isArray(suggestions)) throw new Error('Douban suggest returned invalid data');
+  for (const item of suggestions) {
+    if (!item || typeof item !== 'object' || Array.isArray(item) || !/^[1-9]\d*$/u.test(safeText(item.id, 100)) ||
+        typeof item.title !== 'string' || (item.year != null && !['string', 'number'].includes(typeof item.year)) ||
+        (item.sub_title != null && typeof item.sub_title !== 'string')) throw new Error('Douban suggest returned invalid result');
+  }
+  const titles = new Set(suggestions.filter(item => safeText(item.id, 100) === identity.id && safeText(item.year, 100) === String(identity.year) &&
+    normalizeTitle(item.title) === normalizeTitle(identity.title))
+    .map(item => safeText(item.sub_title, 200))
+    .filter(title => /\p{Script=Hangul}/u.test(title) && normalizeTitle(title).length >= 2 && !seasonKey(title)));
+  if (titles.size !== 1) return null;
+  const originalTitle = [...titles][0];
+  await sleep(Math.max(0, Math.min(DOUBAN_SEARCH_DELAY, (_optionalEnrichmentDeadline || Infinity) - Date.now())));
+  if (!hasOptionalEnrichmentBudget()) throw new Error('optional enrichment budget exhausted');
+  const data = await fetchTMDBJSON(`search/tv?query=${encodeURIComponent(originalTitle)}&language=zh-CN&page=1&first_air_date_year=${identity.year}`);
+  if (!data) return null;
+  if (!Array.isArray(data.results)) throw new Error('TMDB search returned invalid data');
+  if (!Number.isInteger(data.total_pages) || data.total_pages < 0 || (data.total_pages === 0 && data.results.length)) {
+    throw new Error('TMDB search returned invalid pagination');
+  }
+  // 无法确认其他页是否存在同名条目时，宁可保留原图而不是猜测。
+  if (data.total_pages !== 1) return null;
+  const matches = new Map();
+  for (const result of data.results) {
+    if (!result || typeof result !== 'object' || Array.isArray(result) ||
+        !Number.isSafeInteger(result.id) || result.id <= 0) throw new Error('TMDB search returned invalid result');
+    if ((result.origin_country != null && (!Array.isArray(result.origin_country) || result.origin_country.some(value => typeof value !== 'string'))) ||
+        (result.first_air_date != null && typeof result.first_air_date !== 'string') ||
+        [result.name, result.original_name, result.title, result.original_title].some(value => value != null && typeof value !== 'string')) {
+      throw new Error('TMDB search returned invalid identity data');
+    }
+    if (!Array.isArray(result.origin_country) || !result.origin_country.includes('KR') ||
+        extractYear(result.first_air_date || '') !== identity.year ||
+        !isTMDBResultSeasonCompatible(show, result)) continue;
+    const matchedTitle = [result.name, result.original_name, result.title, result.original_title]
+      .find(name => typeof name === 'string' && normalizeTitle(name) === normalizeTitle(originalTitle));
+    if (!matchedTitle) continue;
+    const posterPath = tmdbPosterPath(result.poster_path);
+    matches.set(result.id, { result, matchedTitle, posterPath });
+  }
+  if (matches.size !== 1) return null;
+  const { result, matchedTitle, posterPath } = [...matches.values()][0];
+  if (!posterPath) return null;
+  const external = await fetchTMDBExternalMetadata('tv', result.id, show.title);
+  if (!hasOptionalEnrichmentBudget()) throw new Error('optional enrichment budget exhausted');
+  return {
+    url: `${TMDB_IMG_BASE}${posterPath}`,
+    tmdbUrl: `${TMDB_WEB_BASE}/tv/${result.id}`,
+    ...external,
+    doubanUrl: identity.url,
+    doubanId: identity.id,
+    doubanMatchedTitle: identity.title,
+    doubanMatchedSeasonNumber: 0,
+    doubanMatchEvidence: { id: identity.id, title: identity.title, year: identity.year, originalTitle },
+    matchedTitle,
+    tmdbId: result.id,
+    mediaKind: 'tv',
+    query: originalTitle,
+  };
+}
+
 async function searchTMDBImage(show, { cacheEntry = null } = {}) {
   let hadTransientError = false;
   if (!hasOptionalEnrichmentBudget()) return { lookupState: 'unknown' };
@@ -4089,10 +4191,10 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
           if (!isTMDBResultRegionCompatible(show, r)) continue;
           const names = [r.title, r.original_title, r.name, r.original_name].filter(Boolean);
           const expected = [...titleCandidates(show.title), enTitle, query].filter(Boolean);
-          const isMatch = names.some(name =>
+          const matchedTitle = names.find(name =>
             expected.some(value => titleMatches(name, value))
           );
-          if (!isMatch) continue;
+          if (!matchedTitle) continue;
 
           if (expectedSeasonNumber) {
             const seriesExpected = [
@@ -4122,7 +4224,7 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
               url: `${TMDB_IMG_BASE}${posterPath}`,
               tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${r.id}`,
               ...external,
-              matchedTitle: r.name || r.original_name || r.title || r.original_title || '',
+              matchedTitle,
               tmdbId: r.id,
               mediaKind,
               query,
@@ -4136,7 +4238,20 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
       await sleep(TMDB_SEARCH_DELAY);
     }
   }
-  return { lookupState: hadTransientError ? 'unknown' : 'not_found' };
+  if (!hasOptionalEnrichmentBudget()) return { lookupState: 'unknown' };
+  const doubanIdentity = verifiedDoubanTitleIdentity(show);
+  let doubanLookupId = '';
+  if (doubanIdentity && hasOptionalEnrichmentBudget()) {
+    try {
+      const found = await lookupTMDBFromVerifiedDouban(show, doubanIdentity);
+      doubanLookupId = doubanIdentity.id;
+      if (found) return found;
+    } catch (error) {
+      hadTransientError = true;
+      console.warn(`  [WARN] verified Douban title lookup failed for "${show.title}": ${error.message}`);
+    }
+  }
+  return { lookupState: hadTransientError ? 'unknown' : 'not_found', ...(doubanLookupId ? { doubanLookupId } : {}) };
 }
 
 async function refreshCachedExternalMetadata(shows, cache) {
@@ -4243,6 +4358,8 @@ async function enrichCoversFromTMDB(shows) {
     // 直连映射是人工确认过的实体，不能被旧的 notFound 负缓存阻止重试。
     if (getTMDBDirectEntry(s)) return true;
     if (cached?.notFound && cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION) {
+      const doubanIdentity = verifiedDoubanTitleIdentity(s);
+      if (doubanIdentity && cached.doubanLookupId !== doubanIdentity.id) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
       if (s.tmdbCoverPending && age >= TMDB_PENDING_RETRY_MS) return true;
       // 推荐类(韩剧/综艺)重试更积极(3天),其他类 7 天;
@@ -4291,6 +4408,7 @@ async function enrichCoversFromTMDB(shows) {
         ...(img.tmdbSeriesId ? { tmdbSeriesId: img.tmdbSeriesId } : {}),
         ...(img.tmdbSeasonId ? { tmdbSeasonId: img.tmdbSeasonId } : {}),
         ...(img.tmdbSeasonNumber ? { tmdbSeasonNumber: img.tmdbSeasonNumber } : {}),
+        ...(img.doubanMatchEvidence ? { doubanMatchEvidence: img.doubanMatchEvidence } : {}),
         ...douban,
         wikipediaUrl,
         imdbUrl,
@@ -4323,6 +4441,7 @@ async function enrichCoversFromTMDB(shows) {
         source: 'tmdb',
         version: COVER_CACHE_VERSION,
         negativeLookupVersion: TMDB_NEGATIVE_CACHE_VERSION,
+        ...(img.doubanLookupId ? { doubanLookupId: img.doubanLookupId } : {}),
         notFound: true,
         cachedAt: new Date().toISOString(),
       };

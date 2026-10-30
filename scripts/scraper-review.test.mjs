@@ -61,6 +61,224 @@ function response(json, { status = 200, html = '' } = {}) {
   };
 }
 
+test('TMDB search caches the name that actually proved the match', async () => {
+  const show = { id: 'matched-original', title: '真实匹配的节目', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg' };
+  const requests = [];
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url); requests.push(target.pathname);
+    if (target.pathname === '/3/search/tv') return response({ results: [{
+      id: 730001, name: '另一种译名', original_name: show.title, first_air_date: '2026-01-01',
+      origin_country: ['KR'], poster_path: '/matched-original.jpg',
+    }] });
+    if (target.pathname === '/3/tv/730001/external_ids') return response({ id: 730001 });
+    throw new Error(`unexpected request ${target.pathname}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(cached.matchedTitle, '真实匹配的节目');
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+  assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, tmdbUrl: 'https://www.themoviedb.org/movie/730001' }, show),
+    'a movie link must not validate a TV poster cache');
+  const requestCount = requests.length;
+  await helpers.enrichCoversFromTMDB([{ ...show, coverImg: 'https://static.yfsp.tv/poster.jpg' }]);
+  assert.equal(requests.length, requestCount, 'the next scrape should reuse the verified poster');
+});
+
+test('TMDB English search mappings remain valid when reusing a verified poster', async () => {
+  const show = { id: 'mapped-english', title: '理事长和我的秘密关系', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg' };
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url);
+    if (target.pathname === '/3/search/tv') return response({ results: target.searchParams.get('query') === 'Positively Yours' ? [{
+      id: 730002, name: 'Positively Yours', original_name: '당신과 나', first_air_date: '2026-01-01',
+      origin_country: ['KR'], poster_path: '/mapped-english.jpg',
+    }] : [] });
+    if (target.pathname === '/3/tv/730002/external_ids') return response({ id: 730002 });
+    throw new Error(`unexpected request ${target.pathname}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/mapped-english.jpg');
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+});
+
+test('a verified direct TMDB ID remains reusable when its localized name differs', async () => {
+  const show = { id: 'mapped-direct', title: '明天也要上班！', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg' };
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url);
+    if (target.pathname === '/3/tv/289763') return response({ id: 289763, name: '另一个译名', poster_path: '/direct-poster.jpg' });
+    if (target.pathname === '/3/tv/289763/external_ids') return response({ id: 289763 });
+    throw new Error(`unexpected request ${target.href}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+  for (const altered of [
+    { query: 'unverified search' }, { tmdbId: 999 }, { tmdbUrl: 'https://www.themoviedb.org/tv/999' },
+  ]) assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, ...altered }, show), JSON.stringify(altered));
+});
+
+test('a verified Douban original title upgrades a new Korean drama and survives later scrapes', async () => {
+  const show = { id: 'douban-original', title: '一部新韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg',
+    doubanId: '40000001', doubanUrl: 'https://movie.douban.com/subject/40000001/', doubanMatchedTitle: '一部新韩剧' };
+  const negative = { title: show.title, year: show.year, mediaType: show.mediaType, source: 'tmdb', version: 16,
+    negativeLookupVersion: 2, notFound: true, cachedAt: '2026-09-30T04:00:00.000Z' };
+  const requests = [];
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [show.id]: negative }) },
+    fetchImpl: async url => {
+      const target = new URL(url); requests.push(target.href);
+      if (target.hostname === 'movie.douban.com') return response([{
+        id: '40000001', title: '一部新韩剧', year: '2026', sub_title: '여름방학',
+      }]);
+      if (target.pathname === '/3/search/tv') return response({ total_pages: 1,
+        results: target.searchParams.get('query') === '여름방학' ? [{ id: 730003, name: '夏日假期',
+          original_name: '여름방학', origin_country: ['KR'], first_air_date: '2026-10-26', poster_path: '/new-drama.jpg' }] : [] });
+      if (target.pathname === '/3/tv/730003/external_ids') return response({ id: 730003 });
+      throw new Error(`unexpected request ${target.href}`);
+    },
+  });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/new-drama.jpg');
+  assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/40000001/');
+  assert.equal(cached.matchedTitle, '여름방학');
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+  for (const altered of [
+    { regional: '大陆' }, { year: 2025 }, { doubanId: '40000002' },
+    { doubanUrl: 'https://movie.douban.com/subject/40000002/' },
+    { doubanMatchedTitle: '另一部剧' }, { doubanMatchedSeasonNumber: 2 },
+  ]) assert.ok(!helpers.isReusableTMDBCoverCache(cached, { ...show, ...altered }), JSON.stringify(altered));
+  for (const altered of [
+    { id: '40000002' }, { year: 2025 }, { title: '另一部剧' }, { originalTitle: '다른 드라마' },
+  ]) assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached,
+    doubanMatchEvidence: { ...cached.doubanMatchEvidence, ...altered } }, show), JSON.stringify(altered));
+  assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, tmdbUrl: 'https://www.themoviedb.org/movie/730003' }, show));
+  const requestCount = requests.length;
+  const refreshed = { ...show, coverImg: 'https://static.yfsp.tv/new-source.jpg' };
+  await helpers.enrichCoversFromTMDB([refreshed]);
+  assert.equal(refreshed.coverImg, show.coverImg);
+  assert.equal(requests.length, requestCount, 'verified alternate-title evidence should make the cache reusable');
+});
+
+test('Douban alternate-title lookup rejects unverified identities and ambiguous TMDB results', async t => {
+  const baseShow = { id: 'identity-test', title: '一部新韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+    doubanId: '40000001', doubanUrl: 'https://movie.douban.com/subject/40000001/', doubanMatchedTitle: '一部新韩剧' };
+  const suggestion = { id: '40000001', title: '一部新韩剧', year: '2026', sub_title: '여름방학' };
+  const candidate = { id: 730003, name: '夏日假期', original_name: '여름방학', origin_country: ['KR'],
+    first_air_date: '2026-10-26', poster_path: '/new-drama.jpg' };
+  const cases = [
+    { name: 'unverified title', show: { doubanMatchedTitle: '别的剧' }, noDouban: true },
+    { name: 'wrong linked subject', show: { doubanUrl: 'https://movie.douban.com/subject/40000002/' }, noDouban: true },
+    { name: 'unknown year', show: { year: 0 }, noDouban: true },
+    { name: 'wrong region', show: { regional: '大陆' }, noDouban: true },
+    { name: 'wrong media type', show: { mediaType: '综艺' }, noDouban: true },
+    { name: 'season identity', show: { doubanMatchedSeasonNumber: 2 }, noDouban: true },
+    { name: 'invalid season identity', show: { doubanMatchedSeasonNumber: 'unknown' }, noDouban: true },
+    { name: 'season title', show: { title: '一部新韩剧第2季', doubanMatchedTitle: '一部新韩剧第2季' }, noDouban: true },
+    { name: 'different Douban subject', suggestion: { id: '40000002' }, noAlternate: true },
+    { name: 'different Douban title', suggestion: { title: '别的剧' }, noAlternate: true },
+    { name: 'different Douban year', suggestion: { year: '2025' }, noAlternate: true },
+    { name: 'non-Korean subtitle', suggestion: { sub_title: 'Summer Vacation' }, noAlternate: true },
+    { name: 'missing TMDB country', candidate: { origin_country: [] } },
+    { name: 'wrong TMDB country', candidate: { origin_country: ['CN'] } },
+    { name: 'missing TMDB year', candidate: { first_air_date: '' } },
+    { name: 'wrong TMDB year', candidate: { first_air_date: '2025-10-26' } },
+    { name: 'different TMDB original', candidate: { original_name: '다른 드라마' } },
+    { name: 'multiple TMDB results', extra: { ...candidate, id: 730004 } },
+    { name: 'ambiguous result without a poster', extra: { ...candidate, id: 730004, poster_path: null } },
+    { name: 'additional TMDB results page', pages: 2 },
+  ];
+  for (const item of cases) await t.test(item.name, async () => {
+    const requests = [];
+    const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+      const target = new URL(url); requests.push(target);
+      if (target.hostname === 'movie.douban.com') return response([{ ...suggestion, ...item.suggestion }]);
+      if (target.pathname === '/3/search/tv') return response({ total_pages: item.pages ?? 1,
+        results: target.searchParams.get('query') === '여름방학' ? [{ ...candidate, ...item.candidate }, ...(item.extra ? [item.extra] : [])] : [] });
+      throw new Error(`unexpected request ${target.href}`);
+    } });
+    const result = await helpers.searchTMDBImage({ ...baseShow, ...item.show });
+    assert.equal(result.url, undefined);
+    assert.equal(result.lookupState, 'not_found');
+    if (item.noDouban) assert.equal(requests.some(url => url.hostname === 'movie.douban.com'), false);
+    if (item.noAlternate) assert.equal(requests.some(url => url.searchParams.get('query') === '여름방학'), false);
+  });
+});
+
+test('an unsuccessful verified alternate-title search is cached until the normal retry', async () => {
+  const show = { id: 'douban-miss', title: '一部新韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg',
+    doubanId: '40000001', doubanUrl: 'https://movie.douban.com/subject/40000001/', doubanMatchedTitle: '一部新韩剧' };
+  const requests = [];
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url); requests.push(target.href);
+    if (target.hostname === 'movie.douban.com') return response([{ id: show.doubanId, title: show.title, year: '2026', sub_title: '여름방학' }]);
+    if (target.pathname === '/3/search/tv') return response({ total_pages: 1, results: [] });
+    throw new Error(`unexpected request ${target.href}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(cached.notFound, true);
+  assert.equal(cached.doubanLookupId, show.doubanId);
+  const requestCount = requests.length;
+  await helpers.enrichCoversFromTMDB([{ ...show }]);
+  assert.equal(requests.length, requestCount);
+});
+
+test('a failed Douban original-title lookup never becomes a negative cache entry', async () => {
+  const show = { id: 'douban-outage', title: '一部新韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg',
+    doubanId: '40000001', doubanUrl: 'https://movie.douban.com/subject/40000001/', doubanMatchedTitle: '一部新韩剧' };
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url);
+    if (target.hostname === 'movie.douban.com') return response({}, { status: 503 });
+    if (target.pathname === '/3/search/tv') return response({ total_pages: 1, results: [] });
+    throw new Error(`unexpected request ${target.href}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.notEqual(cached?.notFound, true);
+  assert.equal(show.tmdbCoverPending, true);
+});
+
+test('malformed alternate-title results and late metadata do not replace the fallback cover', async t => {
+  for (const mode of ['malformed-douban', 'malformed-result', 'malformed-identity', 'malformed-pagination', 'late-external-metadata']) await t.test(mode, async () => {
+    const show = { id: 'douban-invalid', title: '一部新韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+      category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg',
+      doubanId: '40000001', doubanUrl: 'https://movie.douban.com/subject/40000001/', doubanMatchedTitle: '一部新韩剧' };
+    const candidate = { id: 730003, name: '夏日假期', original_name: '여름방학', origin_country: ['KR'],
+      first_air_date: '2026-10-26', poster_path: '/new-drama.jpg' };
+    let advanceTime;
+    const { helpers, files, setNow } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+      const target = new URL(url);
+      if (target.hostname === 'movie.douban.com') return response(mode === 'malformed-douban' ? [null] : [{ id: show.doubanId, title: show.title, year: '2026', sub_title: '여름방학' }]);
+      if (target.pathname === '/3/search/tv') {
+        if (target.searchParams.get('query') !== '여름방학') return response({ total_pages: 1, results: [] });
+        if (mode === 'malformed-result') return response({ total_pages: 1, results: [null] });
+        if (mode === 'malformed-identity') return response({ total_pages: 1, results: [{ ...candidate, origin_country: {} }] });
+        if (mode === 'malformed-pagination') return response({ total_pages: 'invalid', results: [candidate] });
+        return response({ total_pages: 1, results: [candidate] });
+      }
+      if (target.pathname === '/3/tv/730003/external_ids') {
+        advanceTime();
+        return response({ id: 730003 });
+      }
+      throw new Error(`unexpected request ${target.href}`);
+    } });
+    advanceTime = () => setNow('2026-09-30T04:00:10.000Z');
+    helpers.setEnrichmentDeadline(Date.parse('2026-09-30T04:00:10.000Z'));
+    await helpers.enrichCoversFromTMDB([show]);
+    const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+    assert.notEqual(cached?.notFound, true);
+    assert.equal(show.coverImg, 'https://static.yfsp.tv/poster.jpg');
+    assert.equal(show.tmdbCoverPending, true);
+  });
+});
+
 function tmdbPosterFixture(source, poster, { laterValid = false } = {}) {
   const direct = source.startsWith('direct');
   const season = source.startsWith('season');
