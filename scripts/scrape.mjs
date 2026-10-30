@@ -494,6 +494,7 @@ const TITLE_ALIAS_MAP = {
   '新进职员姜会长': ['新进社员姜会长', 'The New Employee Chairman Kang'],
   '菜鸟炊事兵': ['菜鸟伙房兵', 'The Legend of Kitchen Soldier'],
   '好，我们离婚吧': ['好吧离婚吧', '好吧，离婚吧', 'OK! Let\'s Get Divorced', 'Yeah, Let\'s Get a Divorce', '그래, 이혼하자'],
+  '暑假': ['夏日假期', '여름방학', 'Summer Vacation'],
 };
 
 // 将别名组反向索引,这样用户输入的俗称、英文名和数据源正式名都能互相匹配。
@@ -3449,6 +3450,7 @@ function isReusableTMDBCoverCache(cached, show) {
       cachedSeasonNumber === expectedSeasonNumber && cachedSeasonUrlNumber === expectedSeasonNumber)) &&
     (!cached.year || !show.year || cached.year === show.year) &&
     (!cached.mediaType || !show.mediaType || cached.mediaType === show.mediaType) &&
+    (!cached.regional || cached.regional === show.regional) &&
     isTMDBOriginalImageUrl(cached.url);
 }
 
@@ -3865,11 +3867,16 @@ const TMDB_ID_MAP = {
   '好，我们离婚吧': { id: 276470, kind: 'tv' },
   '好吧离婚吧': { id: 276470, kind: 'tv' },
   '그래, 이혼하자': { id: 276470, kind: 'tv' },
+  // 同名作品很多，限定这部韩剧的年份、地区和类型。
+  '暑假': { id: 335951, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
 };
 
 function getTMDBDirectEntry(show) {
   const candidates = [show.title, simplifyTitleForSearch(show.title)];
-  return candidates.map(candidate => TMDB_ID_MAP[candidate]).find(Boolean) || null;
+  return candidates.map(candidate => TMDB_ID_MAP[candidate]).find(entry => entry &&
+    (!entry.year || entry.year === show.year) &&
+    (!entry.regional || entry.regional === show.regional) &&
+    (!entry.mediaType || entry.mediaType === show.mediaType)) || null;
 }
 
 function tmdbPosterPath(value) {
@@ -4206,7 +4213,7 @@ async function enrichCoversFromTMDB(shows) {
       if (cached.tmdbId) show.tmdbId = cached.tmdbId;
       if (cached.tmdbSeriesId) show.tmdbSeriesId = cached.tmdbSeriesId;
       if (cached.tmdbSeasonNumber) show.tmdbSeasonNumber = cached.tmdbSeasonNumber;
-      if (!cache[show.id]) cache[show.id] = { ...cached, title: show.title, year: show.year, mediaType: show.mediaType };
+      if (!cache[show.id]) cache[show.id] = { ...cached, title: show.title, year: show.year, mediaType: show.mediaType, regional: show.regional || '' };
     } else if (originalCover && cached?.source === 'tmdb' && show.yfspCoverImg) {
       // 旧的正向缓存可能来自更宽松的标题/季数规则。失效期间不能继续发布已知可能串季的 TMDB 图。
       show.coverImg = show.yfspCoverImg;
@@ -4272,6 +4279,7 @@ async function enrichCoversFromTMDB(shows) {
         title: show.title,
         year: show.year,
         mediaType: show.mediaType,
+        regional: show.regional || '',
         url: img.url,
         source: 'tmdb',
         version: COVER_CACHE_VERSION,

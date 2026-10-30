@@ -123,6 +123,7 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
         extractTMDBSeasonNumber,
         isTMDBResultSeasonCompatible,
         isTMDBResultYearCompatible,
+        getTMDBDirectEntry,
         repairKnownIdentityCorruption,
         assertOutputContinuity,
         assertOutputSchema,
@@ -2271,6 +2272,52 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(show.coverSource, 'tmdb', 'manual TMDB ID matches should be marked as TMDB');
   assert.notEqual(show.tmdbCoverPending, true, 'manual TMDB matches should clear the pending fallback marker');
   assert.equal(show.tmdbUrl, 'https://www.themoviedb.org/tv/276470', 'manual TMDB ID matches should retain the canonical TMDB link');
+}
+
+{
+  const requests = [];
+  const { helpers, writes } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    initialFiles: {
+      '/tmp/iyf-test/scripts/../data/image_cache.json': JSON.stringify({
+        VfgJaL6Pgz6: {
+          title: '暑假', year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+          negativeLookupVersion: 2, notFound: true, cachedAt: new Date().toISOString(),
+        },
+      }),
+    },
+    fetchImpl: async url => {
+      const textUrl = String(url);
+      requests.push(textUrl);
+      if (textUrl.includes('/tv/335951?language=zh-CN')) {
+        return mockResponse({ json: { id: 335951, name: '夏日假期', original_name: '여름방학', poster_path: '/summer-vacation.jpg' } });
+      }
+      if (textUrl.includes('/tv/335951/external_ids')) return mockResponse({ json: { id: 335951 } });
+      throw new Error(`unexpected Summer Vacation TMDB URL: ${textUrl}`);
+    },
+  });
+  const fallback = {
+    id: 'VfgJaL6Pgz6', title: '暑假', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/upload/video/summer.gif',
+    primaryUrl: 'https://www.yfsp.tv/play/VfgJaL6Pgz6',
+  };
+  const show = { ...fallback };
+  await helpers.enrichCoversFromTMDB([show]);
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/summer-vacation.jpg', 'verified Summer Vacation must bypass the fresh negative cache');
+  assert.equal(show.tmdbUrl, 'https://www.themoviedb.org/tv/335951');
+  assert.notEqual(show.tmdbCoverPending, true);
+  const cached = JSON.parse(writes.get('/tmp/iyf-test/scripts/../data/image_cache.json')).VfgJaL6Pgz6;
+  assert.equal(cached.matchedTitle, '夏日假期');
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, fallback), true, 'the returned Chinese title should remain reusable on later scrapes');
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, { ...fallback, regional: '大陆' }), false, 'a cached Korean poster must not be reused for a same-title Chinese drama');
+  const requestCount = requests.length;
+  const nextShow = { ...fallback };
+  await helpers.enrichCoversFromTMDB([nextShow]);
+  assert.equal(nextShow.coverImg, show.coverImg, 'a later source refresh should reuse the verified high-resolution poster');
+  assert.equal(requests.length, requestCount, 'a reusable cover should not need another TMDB lookup');
+  assert.equal(helpers.getTMDBDirectEntry({ ...fallback, year: 2020 }), null, 'an older same-title show must not reuse the 2026 mapping');
+  assert.equal(helpers.getTMDBDirectEntry({ ...fallback, regional: '大陆' }), null, 'a same-title show from another region must not reuse the Korean mapping');
+  assert.equal(helpers.getTMDBDirectEntry({ ...fallback, mediaType: '综艺' }), null, 'a same-title variety show must not reuse the drama mapping');
 }
 
 {
