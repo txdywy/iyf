@@ -1,0 +1,62 @@
+name: Temporary poster identity diagnostic
+on:
+  push:
+    branches: [codex/poster-matching-hardening]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Verify actual Douban and TMDB identity matching
+        env:
+          TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          import vm from 'node:vm';
+          assert.ok(process.env.TMDB_TOKEN, 'TMDB token must be configured');
+          let source = readFileSync('scripts/scrape.mjs', 'utf8');
+          const alias = "  '暑假': ['夏日假期', '여름방학', 'Summer Vacation'],";
+          const direct = "  '暑假': { id: 335951, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },";
+          assert.ok(source.includes(alias) && source.includes(direct), 'known-title controls should exist');
+          source = source.replace(alias, '').replace(direct, '')
+            .replace(/^import .*$/gm, '')
+            .replace(/const __dirname = dirname\(fileURLToPath\(import\.meta\.url\)\);/, "const __dirname = '/tmp/iyf-probe/scripts';")
+            .replace(/const run = process\.argv[\s\S]*$/m, '') + '\nglobalThis.enrich = enrichCoversFromTMDB; globalThis.reusable = isReusableTMDBCoverCache;';
+          const show = JSON.parse(readFileSync('data/shows.json', 'utf8')).koreanDramas.find(item => item.title === '暑假');
+          assert.ok(show?.doubanId && show?.yfspCoverImg);
+          show.coverImg = show.yfspCoverImg;
+          show.coverSource = 'yfsp';
+          delete show.tmdbUrl;
+          delete show.tmdbId;
+          const oldCache = { title: show.title, year: show.year, mediaType: show.mediaType, source: 'tmdb',
+            version: 16, negativeLookupVersion: 2, notFound: true, cachedAt: new Date().toISOString() };
+          const cachePath = '/tmp/iyf-probe/data/image_cache.json';
+          const files = new Map([[cachePath, JSON.stringify({ [show.id]: oldCache })]]);
+          const context = { process: { env: { TMDB_TOKEN: process.env.TMDB_TOKEN } },
+            console: { log() {}, warn() {}, error() {} }, fetch, URL, Date, AbortController, setTimeout, clearTimeout, join,
+            mkdirSync() {}, existsSync: path => files.has(path), readFileSync: path => files.get(path),
+            writeFileSync: (path, value) => files.set(path, value),
+            renameSync: (from, to) => { files.set(to, files.get(from)); files.delete(from); } };
+          vm.createContext(context);
+          vm.runInContext(source, context);
+          await context.enrich([show]);
+          const cache = JSON.parse(files.get(cachePath))[show.id];
+          assert.equal(show.tmdbId, 335951, 'live verified title must match the intended TMDB show');
+          assert.equal(cache.matchedTitle, '여름방학');
+          assert.equal(cache.doubanMatchEvidence?.id, '38910050');
+          assert.ok(context.reusable(cache, show));
+          assert.ok(show.coverImg.startsWith('https://image.tmdb.org/t/p/original/'));
+          console.log('Verified real Douban subject, Korean title, TMDB identity and reusable original poster.');
+          NODE
