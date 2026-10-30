@@ -15,7 +15,7 @@ const assetPath = (sourceRoot, path) => path.replace(/\.(css|js)$/u, `.${createH
 // 保留真实构建脚本和资产，仅刷新隔离副本的快照时间，避免陈旧数据挡住抓取前的测试。
 function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, 'data/shows.json')))) {
   for (const path of [
-    'scripts/build-site.mjs', 'scripts/build-site-index.mjs', 'scripts/build-public-data.mjs', 'scripts/build-output-path.mjs', 'scripts/validate-data.mjs',
+    'scripts/build-site.mjs', 'scripts/build-site-index.mjs', 'scripts/build-public-data.mjs', 'scripts/build-output-path.mjs', 'scripts/prepare-github-pages.mjs', 'scripts/validate-data.mjs',
     'index.html', 'css/style.css', 'js/app.js', '404.html', '_headers', 'robots.txt',
   ]) {
     const target = join(directory, path);
@@ -123,6 +123,37 @@ test('the real deployment build is repeatable and publishes only validated publi
     assert.match(read(join(output, '404.html')), /href="\/">返回推荐首页/);
   } finally {
     rmSync(temporary, { recursive: true, force: true });
+  }
+});
+
+test('GitHub Pages 404 preparation uses the project prefix without changing other files', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-github-pages-build-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'));
+  const output = join(temporary, 'site');
+  assert.equal(build(output, sourceRoot).status, 0);
+  const original = read(join(output, '404.html'));
+  const index = read(join(output, 'index.html'));
+  const css = assetPath(sourceRoot, 'css/style.css');
+  const result = spawnSync(process.execPath, [join(sourceRoot, 'scripts/prepare-github-pages.mjs'), '--output', join(output, '404.html')], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const adapted = read(join(output, '404.html'));
+  assert.equal(adapted, original.replace(`href="/${css}"`, `href="/iyf/${css}"`).replace('href="/">返回推荐首页', 'href="/iyf/">返回推荐首页'));
+  assert.equal(read(join(output, 'index.html')), index);
+});
+
+test('GitHub Pages 404 preparation refuses malformed templates without modifying them', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-github-pages-invalid-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'));
+  for (const body of ['<link href="/css/style.css"><a href="/">返回推荐首页</a>',
+    '<link href="/css/style.0123456789ab.css"><a href="/">返回推荐首页</a><a href="/">返回推荐首页</a>']) {
+    const output = join(temporary, '404.html');
+    writeFileSync(output, body);
+    const result = spawnSync(process.execPath, [join(sourceRoot, 'scripts/prepare-github-pages.mjs'), '--output', output], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Expected exactly one/u);
+    assert.equal(read(output), body);
   }
 });
 
