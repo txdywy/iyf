@@ -61,6 +61,224 @@ function response(json, { status = 200, html = '' } = {}) {
   };
 }
 
+function tmdbPosterFixture(source, poster, { laterValid = false } = {}) {
+  const direct = source.startsWith('direct');
+  const season = source.startsWith('season');
+  const id = direct ? 289763 : 6200;
+  const title = direct ? '明天也要上班！' : `海报校验测试${season ? '第2季' : ''}`;
+  const show = {
+    id: 'poster-validation', title, year: 2026, mediaType: '电视剧', regional: '韩国',
+    ...(season ? { tmdbSeriesId: id, tmdbUrl: `https://www.themoviedb.org/tv/${id}/season/2` } : {}),
+  };
+  const imageRows = [{ file_path: poster }, ...(laterValid ? [null, { file_path: '/verified-poster.jpg' }] : [])];
+  const searchRow = path => ({ id, name: title, poster_path: path, first_air_date: '2026-01-01', origin_country: ['KR'] });
+  return {
+    show,
+    fetchImpl: async url => {
+      const path = new URL(url).pathname;
+      if (path.endsWith('/external_ids')) return response({ id });
+      if (path.includes('/search/')) return response({ results: source === 'search'
+        ? [searchRow(poster), ...(laterValid ? [searchRow('/verified-poster.jpg')] : [])] : [] });
+      if (path.endsWith('/images')) return response({ posters: imageRows });
+      if (path.endsWith('/season/2')) return response({ season_number: 2, air_date: '2026-01-01',
+        poster_path: source === 'season-detail' ? poster : null });
+      if (path.endsWith(`/tv/${id}`)) return response({ id, name: direct ? title : '海报校验测试',
+        poster_path: source === 'direct-detail' ? poster : null, origin_country: ['KR'] });
+      throw new Error(`unexpected TMDB test URL: ${url}`);
+    },
+  };
+}
+
+test('TMDB direct detail IDs must match the requested entity before accepting its poster or external links', async () => {
+  for (const invalidId of [777, '289763', { value: 289763 }]) {
+    const externalIds = [];
+    const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+      if (url.includes('/external_ids')) {
+        const id = Number(new URL(url).pathname.split('/')[3]);
+        externalIds.push(id);
+        return response({ id });
+      }
+      if (url.includes('/search/')) return response({ results: [{ id: 289763, name: '明天也要上班！',
+        poster_path: '/verified-poster.jpg', first_air_date: '2026-01-01', origin_country: ['KR'] }] });
+      return response({ id: invalidId, name: '明天也要上班！', poster_path: '/wrong-entity.jpg' });
+    } });
+    const result = await helpers.searchTMDBImage({ title: '明天也要上班！', year: 2026, mediaType: '电视剧', regional: '韩国' });
+    assert.equal(result.tmdbId, 289763);
+    assert.equal(result.url, 'https://image.tmdb.org/t/p/original/verified-poster.jpg');
+    assert.deepEqual(externalIds, [289763], 'only the verified entity may supply external IDs');
+  }
+});
+
+for (const source of ['direct-detail', 'direct-images', 'season-detail', 'season-images', 'search']) {
+  test(`TMDB ${source} treats malformed poster paths as transient errors and retains a verified cover`, async () => {
+    for (const poster of [{ bad: 'path' }, ['/coerced-poster.jpg'], 42, 'poster.jpg',
+      'https://image.tmdb.org/poster.jpg', '/poster.jpg?size=1', '/bad\nposter.jpg', '/../poster.jpg']) {
+      const fixture = tmdbPosterFixture(source, poster);
+      const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: fixture.fetchImpl });
+      const result = await helpers.searchTMDBImage(fixture.show);
+      assert.equal(result.lookupState, 'unknown', `${source}: ${JSON.stringify(poster)}`);
+      const coverImg = 'https://image.tmdb.org/t/p/original/known-good.jpg';
+      const show = { ...fixture.show, coverImg, coverSource: 'tmdb' };
+      await helpers.enrichCoversFromTMDB([show]);
+      helpers.normalizeOutputShow(show);
+      assert.equal(show.coverImg, coverImg, 'a malformed optional response must preserve the verified cover');
+      const cache = JSON.parse(files.get(join(dataDir, 'image_cache.json')));
+      assert.equal(Object.hasOwn(cache, show.id), false, 'malformed data must establish neither a positive nor negative cache');
+    }
+  });
+}
+
+for (const source of ['direct-images', 'season-images', 'search']) {
+  test(`TMDB ${source} skips malformed poster rows before a valid later result`, async () => {
+    const fixture = tmdbPosterFixture(source, 'not-a-relative-path', { laterValid: true });
+    const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: fixture.fetchImpl });
+    const result = await helpers.searchTMDBImage(fixture.show);
+    assert.equal(result.url, 'https://image.tmdb.org/t/p/original/verified-poster.jpg');
+  });
+}
+
+test('an empty TMDB images response remains a confirmed miss rather than malformed data', async () => {
+  const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    if (url.includes('/search/')) return response({ results: [] });
+    if (url.includes('/images')) return response({ posters: [] });
+    return response({ id: 289763, name: '明天也要上班！', poster_path: null });
+  } });
+  const result = await helpers.searchTMDBImage({ title: '明天也要上班！', year: 2026, mediaType: '电视剧' });
+  assert.equal(result.lookupState, 'not_found');
+});
+
+test('non-season TMDB caches reject inconsistent entity pairs while preserving compatible legacy entries', async () => {
+  const show = { id: 'direct-cache', title: '明天也要上班！', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const cached = {
+    ...show, matchedTitle: show.title, source: 'tmdb', version: 16,
+    url: 'https://image.tmdb.org/t/p/original/cached.jpg',
+    tmdbId: 289763, tmdbUrl: 'https://www.themoviedb.org/tv/289763',
+    externalMetadataState: 'complete', externalMetadataCheckedAt: '2026-09-30T04:00:00Z',
+  };
+  const { helpers } = loadHelpers();
+  assert.ok(helpers.isReusableTMDBCoverCache(cached, show));
+  for (const tmdbId of [777, '289763', { value: 289763 }, 0, -1, Number.MAX_SAFE_INTEGER + 1]) {
+    assert.equal(Boolean(helpers.isReusableTMDBCoverCache({ ...cached, tmdbId }, show)), false);
+  }
+  for (const field of ['tmdbId', 'tmdbUrl']) {
+    const legacy = { ...cached };
+    delete legacy[field];
+    assert.ok(helpers.isReusableTMDBCoverCache(legacy, show), 'an absent legacy field alone must not invalidate a verified cover');
+  }
+  for (const consistent of [true, false]) {
+    let detailCalls = 0;
+    const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [show.id]: { ...cached, tmdbId: consistent ? 289763 : 777 } }) },
+      fetchImpl: async url => {
+        if (url.includes('/external_ids')) return response({ id: 289763 });
+        detailCalls++;
+        return response({ id: 289763, name: show.title, poster_path: '/refetched.jpg' });
+      },
+    });
+    const actual = { ...show };
+    await helpers.enrichCoversFromTMDB([actual]);
+    assert.equal(detailCalls, consistent ? 0 : 1);
+    assert.equal(actual.coverImg, consistent ? cached.url : 'https://image.tmdb.org/t/p/original/refetched.jpg');
+    assert.equal(JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id].tmdbId, 289763);
+  }
+});
+
+for (const source of ['Douban', 'Wikipedia']) {
+  test(`${source} metadata arriving after the global deadline cannot replace verified content`, async () => {
+    for (const phase of ['headers', 'json', 'within-budget']) {
+      const show = {
+        id: 'late-metadata', title: '预算校验测试剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+        coverImg: 'https://image.tmdb.org/t/p/original/verified.jpg',
+        description: '来源确认的原有简介。', descriptionSource: 'yfsp',
+        ...(source === 'Wikipedia' ? { wikipediaUrl: 'https://zh.wikipedia.org/wiki/预算校验测试剧' } : {}),
+      };
+      const before = { ...show };
+      const data = source === 'Douban' ? [{ id: '1234567', title: show.title, year: '2026' }]
+        : { extract: '本次接口返回的可靠新简介，正常预算内可以用于补充已有资料。' };
+      let jsonCalls = 0;
+      let cancelled = 0;
+      const { helpers, setNow } = loadHelpers({
+        date: '2026-09-30T04:00:00Z', setTimeoutImpl: (fn, delay) => { if (delay < 1000) fn(); return 0; },
+        fetchImpl: async () => {
+          if (phase === 'headers') setNow('2026-09-30T04:00:02Z');
+          return {
+            ...response(data), body: { cancel: async () => { cancelled++; } },
+            json: async () => {
+              jsonCalls++;
+              if (phase === 'json') setNow('2026-09-30T04:00:02Z');
+              return data;
+            },
+          };
+        },
+      });
+      helpers.setEnrichmentDeadline(Date.parse('2026-09-30T04:00:01Z'));
+      if (source === 'Douban') await helpers.enrichDoubanLinks([show]);
+      else await helpers.enrichDescriptions([show]);
+      if (phase === 'within-budget') {
+        if (source === 'Douban') assert.equal(show.doubanUrl, 'https://movie.douban.com/subject/1234567/');
+        else assert.equal(show.descriptionSource, 'wikipedia');
+      } else assert.deepEqual(show, before, 'expired metadata must leave the verified snapshot unchanged');
+      if (phase === 'headers') {
+        assert.equal(jsonCalls, 0, 'an expired response body must not be read');
+        assert.equal(cancelled, 1, 'the unread body must be released');
+      }
+    }
+  });
+}
+
+function tmdbDescriptionFixture(season = false) {
+  const title = `来源简介测试${season ? '第2季' : ''}`;
+  return {
+    show: { id: 'description-proof', title, year: 2026, mediaType: '电视剧', regional: '韩国',
+      description: '此前来源确认的可靠简介。', descriptionSource: 'yfsp' },
+    cached: {
+      title, matchedTitle: title, year: 2026, mediaType: '电视剧', source: 'tmdb', version: 16,
+      url: 'https://image.tmdb.org/t/p/original/description.jpg', tmdbId: 123,
+      tmdbUrl: `https://www.themoviedb.org/tv/123${season ? '/season/2' : ''}`,
+      ...(season ? { matchedSeriesTitle: '来源简介测试', tmdbSeriesId: 123, tmdbSeasonNumber: 2, tmdbSeasonId: 456 } : {}),
+    },
+  };
+}
+
+for (const season of [false, true]) {
+  test(`TMDB ${season ? 'season' : 'series'} synopsis identity must match the requested subject`, async () => {
+    const goodId = season ? 456 : 123;
+    for (const id of [999, String(goodId), undefined, goodId]) {
+      const { show, cached } = tmdbDescriptionFixture(season);
+      const before = { ...show };
+      const overview = id === goodId ? '经过主体核验的新剧情简介，保留节目本身的故事和人物信息。' : '错误实体的血腥丧尸剧情，不应进入已有节目。';
+      const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+        initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [show.id]: cached }) },
+        fetchImpl: async () => response({ id, ...(season ? { season_number: 2 } : {}), overview }),
+      });
+      await helpers.enrichDescriptions([show]);
+      if (id === goodId) {
+        assert.equal(show.description, overview);
+        assert.equal(show.descriptionSource, 'tmdb');
+        if (season) assert.equal(show.descriptionTmdbSeasonUrl, cached.tmdbUrl);
+      } else {
+        assert.deepEqual(show, before);
+        assert.equal(helpers.isEligibleKDrama(show), true, 'wrong-entity prose must not establish a hard content exclusion');
+      }
+    }
+  });
+}
+
+test('malformed season overviews cannot certify an empty synopsis or erase legacy content', async () => {
+  for (const payload of [{ overview: {} }, {}]) {
+    const { show, cached } = tmdbDescriptionFixture(true);
+    show.description = '此前保留的历史剧情简介，只有取得正确且完整的季响应后才可以迁移。'.repeat(4);
+    show.descriptionSource = 'tmdb';
+    const before = { ...show };
+    const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [show.id]: cached }) },
+      fetchImpl: async () => response({ id: 456, season_number: 2, ...payload }),
+    });
+    await helpers.enrichDescriptions([show]);
+    assert.deepEqual(show, before);
+  }
+});
+
 function homepageFixture(id = 'mirror-show') {
   return { data: { list: [{ name: '电视剧', list: [{
     mediaKey: id, title: '备用源测试剧', mediaType: '电视剧', regional: '韩国',
@@ -522,7 +740,7 @@ for (const withAI of [false, true]) {
       initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [item.mediaKey]: cached }) },
       fetchImpl: async (url, options) => {
         if (url.includes('api.yfsp.tv/api/list/index') && ++pages === 1) return response({ data: { list: [{ name: '电视剧', list: [item] }] } });
-        if (url.includes('/tv/123456?language=')) return response({ overview: '一群昔日的好友在城市相遇，开始寻找失散已久的同伴。他们齐心协力破解难题，在冒险中重建信任，也经历了许多意想不到的转折。' });
+        if (url.includes('/tv/123456?language=')) return response({ id: 123456, overview: '一群昔日的好友在城市相遇，开始寻找失散已久的同伴。他们齐心协力破解难题，在冒险中重建信任，也经历了许多意想不到的转折。' });
         if (url.includes('/play/sourced-risk')) return response({}, { html: `<title>${item.title}-免费在线观看</title>` });
         if (url.includes('openrouter.ai')) {
           const request = JSON.parse(options.body);
@@ -559,7 +777,7 @@ test('description upgrades retain sourced exclusion evidence without treating AI
     }) },
     fetchImpl: async url => url.includes('wikipedia.org')
       ? response({ extract: wikiOverview })
-      : response({ overview: url.includes('/123452?') ? sourceDescription : sourceOverview }),
+      : response({ id: Number(new URL(url).pathname.split('/').pop()), overview: url.includes('/123452?') ? sourceDescription : sourceOverview }),
   });
   const shows = ['yfsp', 'tmdb', 'ai'].map((descriptionSource, index) => ({
     id: descriptionSource, title: `简介升级测试${123451 + index}`, year: 2026, mediaType: '电视剧', regional: '韩国',

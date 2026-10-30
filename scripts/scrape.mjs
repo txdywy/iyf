@@ -2860,13 +2860,14 @@ async function searchDoubanSubject(show) {
         else if (isDoubanYearCompatible(show, subjectYear) && isDoubanSeasonCompatible(show, match)) compatible ||= match;
         else if (isDoubanFallbackAllowed(show, match)) fallback ||= match;
       }
+      if (!hasOptionalEnrichmentBudget()) return null;
       if (exact) return exact;
       if (compatible) return compatible;
       if (fallback) return fallback;
     } catch (e) {
       console.warn(`  [WARN] douban search failed for "${query}": ${e.message}`);
     }
-    await sleep(DOUBAN_SEARCH_DELAY);
+    await sleep(Math.max(0, Math.min(DOUBAN_SEARCH_DELAY, (_optionalEnrichmentDeadline || Infinity) - Date.now())));
   }
   return null;
 }
@@ -2883,8 +2884,14 @@ async function fetchDoubanSuggest(query) {
       },
       signal: ctrl.signal,
     });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    return await resp.json();
+    if (!resp.ok || !hasOptionalEnrichmentBudget()) {
+      await resp.body?.cancel?.().catch(() => {});
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      throw new Error('optional enrichment budget exhausted');
+    }
+    const data = await resp.json();
+    getOptionalEnrichmentTimeout(12000);
+    return data;
   } finally { clearTimeout(t); }
 }
 
@@ -2914,7 +2921,7 @@ async function enrichDoubanLinks(shows) {
     } else {
       console.log(`    ✗ ${show.title}`);
     }
-    await sleep(DOUBAN_SEARCH_DELAY);
+    await sleep(Math.max(0, Math.min(DOUBAN_SEARCH_DELAY, (_optionalEnrichmentDeadline || Infinity) - Date.now())));
   });
   saveImageCache(cache);
   console.log(`  补充 ${matched} 个豆瓣具体页`);
@@ -2934,12 +2941,13 @@ async function enrichDescriptions(shows) {
       const seriesUrl = c?.tmdbUrl;
       const seriesId = extractTMDBSeriesId(seriesUrl);
       if (!seriesId || extractTMDBSeasonNumber(seriesUrl) !== seasonNumber) return null;
-      return { path: `tv/${seriesId}/season/${seasonNumber}`, seasonNumber, tmdbUrl: seriesUrl };
+      return { path: `tv/${seriesId}/season/${seasonNumber}`, seasonNumber, tmdbUrl: seriesUrl,
+        entityId: Number.isSafeInteger(c.tmdbSeasonId) && c.tmdbSeasonId > 0 ? c.tmdbSeasonId : 0 };
     }
     const tmdbId = Number(c?.tmdbId);
     if (!Number.isInteger(tmdbId) || tmdbId <= 0) return null;
     const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
-    return { path: `${mediaKind}/${tmdbId}`, seasonNumber: 0 };
+    return { path: `${mediaKind}/${tmdbId}`, seasonNumber: 0, entityId: tmdbId };
   };
   const hasSeasonDescriptionEvidence = (show, target) =>
     target?.seasonNumber && show.descriptionSource === 'tmdb' && show.descriptionTmdbSeasonUrl === target.tmdbUrl;
@@ -2967,7 +2975,13 @@ async function enrichDescriptions(shows) {
 
     try {
       const data = await fetchTMDBJSON(`${target.path}?language=zh-CN`);
-      if (target.seasonNumber && Number(data?.season_number) !== target.seasonNumber) return;
+      if (!data) return;
+      if (typeof data !== 'object' || Array.isArray(data) ||
+          (target.entityId && data.id !== target.entityId) ||
+          (target.seasonNumber && data.season_number !== target.seasonNumber) ||
+          !Object.hasOwn(data, 'overview') || (data.overview != null && typeof data.overview !== 'string')) {
+        throw new Error('TMDB description returned invalid data');
+      }
       const overview = typeof data?.overview === 'string' ? safeText(data.overview, 2000) : '';
       if (overview && (show.descriptionSource === 'ai' || target.seasonNumber || overview.length > (show.description || '').length)) {
         // Display copy may improve without erasing reliable content evidence.
@@ -3009,8 +3023,13 @@ async function enrichDescriptions(shows) {
           headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
           signal: ctrl.signal,
         });
+        if (!hasOptionalEnrichmentBudget()) {
+          await resp.body?.cancel?.().catch(() => {});
+          break;
+        }
         if (resp.ok) {
           const data = await resp.json();
+          if (!hasOptionalEnrichmentBudget()) break;
           const extract = typeof data?.extract === 'string' ? safeText(data.extract, 2000) : '';
           if (extract && (show.descriptionSource === 'ai' || extract.length > (show.description || '').length)) {
             rememberSourcedHardExclusion(show);
@@ -3406,12 +3425,18 @@ function isReusableTMDBCoverCache(cached, show) {
   const cachedSeasonNumber = Number(cached?.tmdbSeasonNumber);
   const cachedSeasonUrlNumber = extractTMDBSeasonNumber(cached?.tmdbUrl);
   const cachedSeriesUrlId = extractTMDBSeriesId(cached?.tmdbUrl);
+  const cachedEntityUrlId = safeText(cached?.tmdbUrl, 500)
+    .match(/^https?:\/\/(?:www\.)?themoviedb\.org\/(?:tv|movie)\/(\d+)(?:[/?#]|$)/iu)?.[1];
+  const hasEntityPair = cached?.tmdbId != null && !!cached?.tmdbUrl;
   return cached &&
     typeof cached === 'object' &&
     cached.version === COVER_CACHE_VERSION &&
     cached.source === 'tmdb' &&
     cached.url &&
     matchedTitle &&
+    // 历史非季缓存若同时提供 ID 和链接，两者必须指向同一主体；缺省旧字段仍可兼容。
+    (expectedSeasonNumber || !hasEntityPair || (Number.isSafeInteger(cached.tmdbId) && cached.tmdbId > 0 &&
+      Number(cachedEntityUrlId) === cached.tmdbId)) &&
     titleMatches(cached.title, show.title) &&
     isTMDBResultSeasonCompatible(show, { name: cached.title }) &&
     (titleMatches(matchedTitle, show.title) ||
@@ -3843,19 +3868,49 @@ function getTMDBDirectEntry(show) {
   return candidates.map(candidate => TMDB_ID_MAP[candidate]).find(Boolean) || null;
 }
 
+function tmdbPosterPath(value) {
+  if (value == null || value === '') return '';
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') ||
+      value !== value.trim() || /[\\?#\u0000-\u001F\u007F]/u.test(value)) {
+    throw new Error('TMDB returned invalid poster path');
+  }
+  const url = new URL(`${TMDB_IMG_BASE}${value}`);
+  if (!url.pathname.startsWith('/t/p/original/') || url.pathname === '/t/p/original/') {
+    throw new Error('TMDB returned invalid poster path');
+  }
+  return value;
+}
+
+function tmdbPosterFromImages(images) {
+  if (images == null) return '';
+  if (!Array.isArray(images.posters)) throw new Error('TMDB images returned invalid data');
+  let malformed = false;
+  for (const image of images.posters) {
+    try {
+      const path = image && typeof image === 'object' && !Array.isArray(image)
+        ? tmdbPosterPath(image.file_path) : '';
+      if (path) return path;
+    } catch {}
+    malformed = true;
+  }
+  if (malformed) throw new Error('TMDB images returned invalid poster data');
+  return '';
+}
+
 async function lookupTMDBDirect(show) {
   const entry = getTMDBDirectEntry(show);
   if (!entry) return null;
 
   const mediaKind = entry.kind;
   const data = await fetchTMDBJSON(`${mediaKind}/${entry.id}?language=zh-CN`);
-  if (!data?.id) return null;
+  if (!data) return null;
+  if (!Number.isSafeInteger(data.id) || data.id !== entry.id) throw new Error('TMDB direct lookup returned invalid entity');
 
   // poster_path 可能在详情 API 中,也可能需要 images API
-  let posterPath = data.poster_path;
+  let posterPath = tmdbPosterPath(data.poster_path);
   if (!posterPath) {
     const images = await fetchTMDBJSON(`${mediaKind}/${entry.id}/images`);
-    posterPath = images?.posters?.[0]?.file_path || null;
+    posterPath = tmdbPosterFromImages(images);
   }
   if (!posterPath) return null;
 
@@ -3881,10 +3936,10 @@ async function lookupTMDBSeasonById(show, seriesId, matchedSeriesTitle) {
   if (!Number.isInteger(returnedSeasonNumber)) throw new Error('TMDB season returned invalid data');
   if (returnedSeasonNumber !== seasonNumber) return null;
 
-  let posterPath = data.poster_path || '';
+  let posterPath = tmdbPosterPath(data.poster_path);
   if (!posterPath) {
     const images = await fetchTMDBJSON(`tv/${seriesId}/season/${seasonNumber}/images`);
-    posterPath = images?.posters?.[0]?.file_path || '';
+    posterPath = tmdbPosterFromImages(images);
   }
   if (!posterPath) return null;
 
@@ -4010,15 +4065,16 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
         if (!Array.isArray(data.results)) throw new Error('TMDB search returned invalid data');
         // 只接受能被标题或人工映射词验证的结果,避免把第一条无关结果写入缓存。
         for (const r of (data.results || [])) {
-          if (!r || typeof r !== 'object' || Array.isArray(r) ||
-            !Number.isSafeInteger(r.id) || r.id <= 0 ||
-            (r.poster_path != null && typeof r.poster_path !== 'string')) {
+          if (!r || typeof r !== 'object' || Array.isArray(r) || !Number.isSafeInteger(r.id) || r.id <= 0) {
             hadTransientError = true;
             continue;
           }
+          let posterPath;
+          try { posterPath = tmdbPosterPath(r.poster_path); }
+          catch { hadTransientError = true; continue; }
           if (rejectedSeasonIds.has(Number(r.id))) continue;
           // 季海报可能存在而系列海报为空，先解析匹配的 season 再判断封面。
-          if (!expectedSeasonNumber && !r.poster_path) continue;
+          if (!expectedSeasonNumber && !posterPath) continue;
           if (!isTMDBResultRegionCompatible(show, r)) continue;
           const names = [r.title, r.original_title, r.name, r.original_name].filter(Boolean);
           const expected = [...titleCandidates(show.title), enTitle, query].filter(Boolean);
@@ -4052,7 +4108,7 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
           if (isTMDBResultYearCompatible(show, r, { yearParam })) {
             const external = await fetchTMDBExternalMetadata(mediaKind, r.id, show.title);
             return {
-              url: `${TMDB_IMG_BASE}${r.poster_path}`,
+              url: `${TMDB_IMG_BASE}${posterPath}`,
               tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${r.id}`,
               ...external,
               matchedTitle: r.name || r.original_name || r.title || r.original_title || '',
