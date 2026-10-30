@@ -104,7 +104,6 @@ async function fetchWithTimeout(url, { timeout = 15000, asText = false, headers 
 }
 
 async function fetchJSON(url) { return fetchWithTimeout(url); }
-async function fetchText(url) { return fetchWithTimeout(url, { asText: true }); }
 
 async function fetchPage(page, isn = 0) {
   const deadline = Date.now() + 15000;
@@ -541,7 +540,9 @@ function titleMatches(a, b) {
     return aSeason === bSeason && titleMatches(stripSeasonSuffix(a), stripSeasonSuffix(b));
   }
   if (normalizedTitleMatches(a, b)) return true;
-  return titleCandidates(a).some(ta => titleCandidates(b).some(tb => normalizedTitleMatches(ta, tb)));
+  // 别名本身也可能带季号（如“酒鬼都市女人们第1季”），候选之间同样不能靠编辑距离跨季合并。
+  return titleCandidates(a).some(ta => titleCandidates(b).some(tb =>
+    haveCompatibleTitleSeasons(ta, tb) && normalizedTitleMatches(ta, tb)));
 }
 
 function normalizedTitleMatches(a, b) {
@@ -746,7 +747,7 @@ const PREVIOUS_STABLE_FIELDS = [
   'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'wikidataId',
   'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'doubanId', 'doubanMatchedTitle', 'doubanMatchedSeasonNumber', 'linkMatchedTitle',
   'description', 'descriptionSource', 'descriptionTmdbSeasonUrl', 'titleAliases',
-  'yfspLookupState', 'yfspLookupCheckedAt', 'yfspLookupUrl', 'yfspRefreshCheckedAt',
+  'yfspLookupState', 'yfspLookupCheckedAt', 'yfspLookupUrl', 'yfspRefreshCheckedAt', 'sourceSearchCheckedAt',
 ];
 
 function sameShowIdentity(a, b) {
@@ -970,20 +971,31 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
   return { lookupState: !hadError && completedQueries > 0 ? 'not_found' : 'unknown' };
 }
 
+// 连载节目提前一天轮到，以便更快刷新集数；完结节目仍按轮换获得续期机会。
+const SEARCH_FALLBACK_SERIAL_LEAD_MS = 24 * 60 * 60 * 1000;
+
+function searchFallbackDueAt(show) {
+  // 未命中的目标也记录尝试时间，避免永远占据名额而让其余卡片在首页封锁期间集中退休。
+  const lastTouched = Math.max(comparableTimestamp(show.lastLiveAt), comparableTimestamp(show.scrapedAt),
+    comparableTimestamp(show.sourceSearchCheckedAt));
+  return lastTouched - (show.isSerial ? SEARCH_FALLBACK_SERIAL_LEAD_MS : 0);
+}
+
 async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000 } = {}) {
   const shows = new Map();
   const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
     category, matched: new Set(),
     targets: (previous[category] || [])
       .filter(show => safeText(show?.title) && /^https:\/\/www\.yfsp\.tv\/play\/[^/?#]+(?:[/?#]|$)/u.test(safeOutputUrl(show.yfspUrl)))
-      .sort((a, b) => Number(Boolean(b.isSerial)) - Number(Boolean(a.isSerial)) ||
-        (Date.parse(a.scrapedAt) || 0) - (Date.parse(b.scrapedAt) || 0))
+      .sort((a, b) => searchFallbackDueAt(a) - searchFallbackDueAt(b) ||
+        safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
       .slice(0, 30),
   }));
   const targets = groups.flatMap(group => group.targets.map(show => ({ show, group })));
   console.log(`  首页不可用，按已验证标题搜索回退 (${targets.length} 部，90 秒预算)...`);
   await mapPool(targets, 3, async ({ show, group }) => {
     if (Date.now() >= deadline) return;
+    show.sourceSearchCheckedAt = new Date().toISOString();
     const found = await searchYfspTitle(show, { deadline });
     if (Date.now() >= deadline || !found?.url || found.mediaType !== show.mediaType || found.regional !== show.regional) return;
     const observed = normalizeItem({
@@ -1408,6 +1420,10 @@ async function callModelsAPI(messages, {
       // 固定模型失败后立即改走免费路由；路由下一次成功会重新选定模型。
       // 额度用尽或预算耗尽不是模型本身的问题，保留它供下一轮使用。
       if (!_aiStopReason && Date.now() < _aiDeadline) _aiPreferredModel = '';
+      // 免费额度的分钟级限流通常按账号计算，换路由前同样要先退避，否则唯一的重试也会被限流。
+      if (response?.retryAfterMs != null) {
+        await sleep(Math.max(0, Math.min(response.retryAfterMs, _aiDeadline - Date.now())));
+      }
       continue;
     }
     if (!response) continue;
@@ -1422,7 +1438,8 @@ async function callModelsAPI(messages, {
     const rows = validateRows(parseJSONArrayResponse(response.content));
     if (Array.isArray(rows) && rows.length > 0) {
       _aiConsecutiveFailures = 0;
-      if (canPin) setAIPreferredModel(response.model);
+      // 固定模型成功时保留请求所用的 ID；响应可能报告不带 :free 的规范名，不能因此丢失固定。
+      if (canPin) setAIPreferredModel(pinned || response.model);
       console.log(`  [AI] 使用 OpenRouter: ${response.model}${pinned ? '（沿用上次成功模型）' : ''}`);
       return rows;
     }
@@ -1980,7 +1997,7 @@ const SEED_VARIETY = [
 
   // ── 旅行/生活搞笑 ──
   { id:'seed_var_2026_04', title:'哈哈哈哈哈', year:2026, score:8.2, playCount:350000, contentType:'真人秀·旅行·搞笑', actor:'邓超,陈赫,鹿晗,范志毅,王勉', description:'五哈兄弟团欢乐旅行,公路喜剧+真实旅行,全程笑到停不下来。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
-  { id:'seed_var_2026_10', title:'现在就出发', year:2026, score:7.7, playCount:340000, contentType:'真人秀·旅行·搞笑', actor:'沈腾,贾冰,范丞丞,白敬亭,金晨', description:'明星嘉宾出发去野外,露营+游戏+美食,轻松解压的旅行综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  // seed_var_2026_10（现在就出发）已退役：无季号标题与已收录的“第4季”真实卡片重复，种子文案会覆盖来源事实。
   { id:'seed_var_2026_11', title:'五十公里桃花坞', year:2026, score:7.5, playCount:260000, contentType:'真人秀·生活·搞笑', actor:'宋丹丹,汪苏泷,李雪琴,王鹤棣,孟子义', description:'明星群居社交实验,尴尬与欢乐齐飞,真实又好笑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_12', title:'种地吧', year:2026, score:8.5, playCount:420000, contentType:'真人秀·生活·搞笑', actor:'十个勤天,蒋敦豪,鹭卓,李耕耘', description:'十个年轻人真实种地,从播种到收获,热血又搞笑,治愈力满分。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_13', title:'快乐的大人', year:2026, score:7.8, playCount:220000, contentType:'真人秀·生活·搞笑', actor:'沈月,王敬轩,吴宇恒,周彦辰', description:'沈月和她的朋友们的真实日常,友情治愈,笑料自然不做作。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
@@ -2001,11 +2018,11 @@ const SEED_VARIETY = [
   { id:'seed_var_2026_26', title:'我们的歌', year:2026, score:7.3, playCount:240000, contentType:'真人秀·音乐', actor:'林海,庾澄庆,那英,周深', description:'新老歌手搭档竞演,经典新唱,音乐碰撞出火花。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ── 密室/推理搞笑 ──
-  { id:'seed_var_2026_05', title:'密室大逃脱', year:2026, score:8.0, playCount:280000, contentType:'真人秀·推理·搞笑', actor:'杨幂,大张伟,黄明昊,张国伟,许凯', description:'明星密室逃脱,紧张刺激又搞笑,2026新主题更烧脑。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  // seed_var_2026_05（密室大逃脱）已退役：实际节目以“第8季”卡片收录，旧种子会降低其播放量等来源事实。
   { id:'seed_var_2026_27', title:'大侦探', year:2026, score:8.5, playCount:350000, contentType:'真人秀·推理·搞笑', actor:'何炅,张若昀,王鸥,魏晨,杨蓉', description:'明星推理探案,剧本杀沉浸体验,逻辑与笑料并存。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
 
   // ── 美食/旅行/生活 新增 ──
-  { id:'seed_var_2026_28', title:'地球超新鲜', year:2026, score:7.8, playCount:300000, contentType:'真人秀·旅行·搞笑', actor:'孙红雷,李乃文,郭京飞,刘宇宁,龚俊,陈赫', description:'明星自驾旅行探索地球新鲜事,笑料不断+涨知识,轻松解压。第二季热播中。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
+  // seed_var_2026_28（地球超新鲜）已退役：实际节目以“第2季”卡片收录，旧种子会覆盖其来源简介。
   { id:'seed_var_2026_29', title:'中餐厅', year:2026, score:7.5, playCount:135000, contentType:'真人秀·美食·旅行', actor:'黄晓明,王俊凯,昆凌,靳梦佳', description:'明星海外开中餐厅,美食+旅行+跨文化碰撞,轻松治愈下饭综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_30', title:'天才厨人', year:2026, score:7.6, playCount:114000, contentType:'真人秀·美食·搞笑', actor:'黄渤,吕严,马頔,王祖蓝', description:'明星厨艺大比拼,黄渤带队下厨,笑料百出的美食综艺。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
   { id:'seed_var_2026_31', title:'天赐的声音', year:2026, score:7.4, playCount:97000, contentType:'真人秀·音乐', actor:'陈楚生,黄霄云,黄子弘凡', description:'音乐搭档竞演综艺,新老歌手碰撞,好听又好看。', totalEpisodes:0, isComplete:false, currentEpisode:0, regional:'大陆', lang:'国语', isSerial:true },
@@ -3038,6 +3055,25 @@ function hasKnownDiscoveryIdentity(candidate, ...collections) {
     [...collection.values()].some(existing => sameShowIdentity(existing, candidate)));
 }
 
+function hasSameTitleCard(candidate, collection) {
+  // 发布前按完整标题去重；同名旧版本（不同来源 ID/年份）每轮都会被当作新发现再丢弃。
+  // 只有本年度、晚于已有卡片的同名新版本才值得进入收录流程并替换旧卡。
+  const title = safeText(candidate.title, 200).trim();
+  return [...collection.values()].some(existing =>
+    safeText(existing?.title, 200).trim() === title &&
+    (!existing.mediaType || existing.mediaType === candidate.mediaType) &&
+    (!existing.regional || !candidate.regional || existing.regional === candidate.regional) &&
+    !(candidate.year >= CURRENT_YEAR && candidate.year > (boundedYear(existing.year) || 0)));
+}
+
+function renewDiscoveredSourceId(contentKey, collection) {
+  // 关键词搜索再次返回已收录节目的同一来源 ID，即是它仍在来源中的直接证据；别名匹配不算。
+  if (!contentKey) return;
+  for (const existing of collection.values()) {
+    if (existing?.id === contentKey) existing.lastLiveAt = new Date().toISOString();
+  }
+}
+
 function recordDiscoveryHistory(discovered) {
   const today = new Date().toISOString().split('T')[0];
   let history = {};
@@ -3102,7 +3138,8 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
           id: contentKey || stableDiscoveredId('disc_kd', r.title, yr),
           title: safeText(r.title, 200), year: yr, mediaType: '电视剧',
         };
-        if (candidate.title && !hasKnownDiscoveryIdentity(candidate, kdramaMap, discovered)) {
+        renewDiscoveredSourceId(contentKey, kdramaMap);
+        if (candidate.title && !hasKnownDiscoveryIdentity(candidate, kdramaMap, discovered) && !hasSameTitleCard(candidate, kdramaMap)) {
           const sc = isNumericScalar(r.score) ? boundedScore(r.score) : 0;
           const plays = isNumericScalar(r.hot) ? boundedPlayCount(r.hot) : 0;
           if (!passesKDramaDiscoveryThreshold({ year: yr, score: sc, playCount: plays })) continue;
@@ -3214,7 +3251,8 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
           id: contentKey || stableDiscoveredId('disc_var', cleanTitle, yr),
           title: cleanTitle, year: yr, mediaType: '综艺', regional: r.regional,
         };
-        if (candidate.title && !hasKnownDiscoveryIdentity(candidate, varietyMap, discovered)) {
+        renewDiscoveredSourceId(contentKey, varietyMap);
+        if (candidate.title && !hasKnownDiscoveryIdentity(candidate, varietyMap, discovered) && !hasSameTitleCard(candidate, varietyMap)) {
           const sc = isNumericScalar(r.score) ? boundedScore(r.score) : 0;
           const plays = isNumericScalar(r.hot) ? boundedPlayCount(r.hot) : 0;
           const minSc = yr >= CURRENT_YEAR ? VARIETY_DISCOVERY_CURRENT_MIN_SCORE : VARIETY_DISCOVERY_MIN_SCORE;

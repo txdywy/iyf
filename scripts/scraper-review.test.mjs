@@ -222,6 +222,7 @@ test('a runner blocked by both homepage hosts refreshes from verified title sear
   assert.equal(refreshed.description, previous.koreanDramas[0].description);
   assert.equal(refreshed.coverImg, previous.koreanDramas[0].coverImg);
   assert.equal(refreshed.scrapedAt, date);
+  assert.equal(refreshed.sourceSearchCheckedAt, date, 'the search attempt is remembered so later runs can rotate targets');
 });
 
 test('the last free model that produced valid AI scores is reused by the next run and kept private', async () => {
@@ -726,7 +727,7 @@ for (const explicit of [false, true]) {
 
 test('variety seeds and title-based snapshot identity cannot combine different regions', () => {
   const { helpers } = loadHelpers();
-  const seed = helpers.SEED_VARIETY.find(show => show.title === '密室大逃脱');
+  const seed = helpers.SEED_VARIETY.find(show => show.title === '大侦探');
   assert.equal(seed.regional, '大陆');
   const foreign = { id: 'foreign', title: seed.title, year: seed.year, mediaType: '综艺', regional: '韩国', score: 10, actor: '其他地区演员' };
   assert.equal(helpers.findLiveTitleMatch(seed, new Map([[foreign.id, foreign]]), '综艺', show => ['大陆', '韩国'].includes(show.regional)), null);
@@ -2011,7 +2012,77 @@ test('a GIF fallback cover respects the TMDB negative cache instead of searching
   assert.equal(show.coverImg, 'https://static.yfsp.tv/upload/video/202102211656175652868.gif');
 });
 
-test('the coverless duplicate talk-show seed stays retired', () => {
+test('a season-specific alias cannot match a different season by edit distance', () => {
   const { helpers } = loadHelpers();
-  assert.equal(helpers.SEED_VARIETY.some(show => show.id === 'seed_var_2026_20'), false);
+  const seed = helpers.SEED_KDRAMAS.find(show => show.title === '酒鬼都市男女');
+  const live = title => ({ id: title, title, mediaType: '电视剧', regional: '韩国', year: 2022, score: 8, playCount: 1000 });
+  assert.equal(helpers.titleMatches(seed.title, '酒鬼都市女人们第2季'), false);
+  assert.equal(helpers.findLiveTitleMatch(seed, new Map([['s2', live('酒鬼都市女人们第2季')]]), '电视剧', show => show.regional === '韩国'), null);
+  for (const title of ['酒鬼都市女人们', '酒鬼都市女人们第1季']) {
+    assert.equal(helpers.titleMatches(seed.title, title), true, title);
+    assert.equal(helpers.findLiveTitleMatch(seed, new Map([[title, live(title)]]), '电视剧', show => show.regional === '韩国')?.title, title);
+  }
 });
+
+test('seeds duplicated by real season cards stay retired', () => {
+  const { helpers } = loadHelpers();
+  for (const id of ['seed_var_2026_20', 'seed_var_2026_10', 'seed_var_2026_05', 'seed_var_2026_28']) {
+    assert.equal(helpers.SEED_VARIETY.some(show => show.id === id), false, id);
+  }
+});
+
+test('search fallback rotates past repeated misses and gives ongoing shows a one-day lead', async () => {
+  const previous = searchSnapshotFixture(45);
+  const date = '2026-10-29T00:00:00.000Z';
+  const requested = [];
+  const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
+  const { helpers, setNow } = loadHelpers({ date, fetchImpl: async url => {
+    const show = byTitle.get(new URL(url).searchParams.get('tags'));
+    if (show) requested.push(show.id);
+    return searchSnapshotResponse(null);
+  } });
+  await helpers.fetchSearchSnapshot(previous);
+  const first = new Set(requested);
+  assert.equal(first.size, 60);
+  assert.ok(Object.values(previous).flat().filter(show => first.has(show.id)).every(show => show.sourceSearchCheckedAt === date));
+
+  requested.length = 0;
+  setNow('2026-10-29T12:00:00.000Z');
+  await helpers.fetchSearchSnapshot(previous);
+  const untried = Object.values(previous).flat().filter(show => !first.has(show.id)).map(show => show.id);
+  assert.equal(untried.length, 30);
+  assert.ok(untried.every(id => requested.includes(id)), 'cards that were never tried must precede repeated misses');
+
+  const variety = Array.from({ length: 31 }, (_, index) => ({
+    ...previous.chineseVariety[index], isSerial: false, sourceSearchCheckedAt: '2026-10-29T02:00:00.000Z',
+  }));
+  variety[30] = { ...variety[30], isSerial: true, sourceSearchCheckedAt: '2026-10-29T10:00:00.000Z' };
+  requested.length = 0;
+  await helpers.fetchSearchSnapshot({ koreanDramas: [], chineseVariety: variety });
+  assert.ok(requested.includes(variety[30].id), 'an ongoing show refreshed more recently still precedes completed shows within one day');
+  assert.equal(new Set(requested).size, 30);
+});
+
+for (const kind of ['KDrama', 'variety']) {
+  test(`${kind} discovery renews an exact source ID and ignores older same-title editions`, async () => {
+    const isVariety = kind === 'variety';
+    const mediaType = isVariety ? '综艺' : '电视剧';
+    const regional = isVariety ? '大陆' : '韩国';
+    const existing = { id: 'known-id', title: '同名老节目', year: 2018, mediaType, regional, lastLiveAt: '2026-08-01T00:00:00Z' };
+    const aliasOnly = { id: 'alias-only', title: '另一档节目', year: 2024, mediaType, regional, lastLiveAt: '2026-08-01T00:00:00Z' };
+    const row = { title: existing.title, regional, atypeName: mediaType, postTime: '2018-03-01', score: 8.5, hot: 200000, contxt: existing.id };
+    const { helpers, files } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [
+      row,
+      { ...row, contxt: 'older-edition', postTime: '2021-01-01' },
+      { ...row, contxt: 'current-edition', postTime: '2026-08-01' },
+      { ...row, title: aliasOnly.title, contxt: 'alias-other-id', postTime: '2024-01-01' },
+    ] }] } }) });
+    const known = new Map([[existing.id, existing], [aliasOnly.id, aliasOnly]]);
+    const discovered = await (isVariety ? helpers.discoverNewVariety(new Map(), known) : helpers.discoverNewKDramas(new Map(), known));
+    assert.equal(existing.lastLiveAt, '2026-09-30T04:00:00.000Z', 'the same source ID proves the card is still live');
+    assert.equal(aliasOnly.lastLiveAt, '2026-08-01T00:00:00Z', 'a different source ID with a matching title is not proof');
+    assert.deepEqual(Array.from(discovered, show => show.id), ['current-edition']);
+    const history = JSON.parse(files.get(join(dataDir, 'discovery.json')))['2026-09-30'];
+    assert.deepEqual(history.shows.map(show => show.year), [2026], 'an older same-title edition is not rediscovered every run');
+  });
+}

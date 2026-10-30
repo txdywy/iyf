@@ -1967,6 +1967,33 @@ for (const hasStaleCache of [false, true]) {
 
 {
   const requested = [];
+  const delays = [];
+  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free'];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    setTimeoutImpl: (fn, delay) => { delays.push(delay); fn(); return 0; },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const answer = answers.shift();
+      if (answer === 429) return mockResponse({ status: 429, text: '{"error":{"message":"rate-limited upstream"}}' });
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      return mockResponse({ json: { model: answer, choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 75, recommendationLevel: 'strong', r: '规范名' })),
+      }) } }] } });
+    },
+  });
+  const shows = Array.from({ length: 30 }, (_, index) => ({ id: `slug-${index}`, title: `规范名${index}`, year: 2026, recommendScore: 100 - index }));
+  await helpers.aiScoreShows(shows.slice(0, 20));
+  const delayCount = delays.length;
+  await helpers.aiScoreShows(shows.slice(20));
+  assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'vendor/good:free', 'openrouter/free'],
+    'a pinned success reported under a canonical slug keeps the requested free model');
+  assert.ok(delays.slice(delayCount).includes(20000), 'a rate-limited pinned model backs off before the router retry');
+}
+
+{
+  const requested = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: async (_url, options) => {
