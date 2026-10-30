@@ -82,6 +82,8 @@ Deployment verification also checks each file's Content-Type essence, accepting 
 
 Parse Cache-Control directives with quoted values and escapes, rather than substring matching. HTML/JSON require unqualified `no-cache`; quoted extension values cannot establish revalidation or immutable asset policy. CSP checks follow the first occurrence of each directive within a policy and the combined restrictions of multiple policies.
 
+Cloudflare Web Analytics is enabled on the custom domain and may inject its SRI-protected beacon into browser HTML responses. Both the HTTP and meta CSP must allow only `https://static.cloudflareinsights.com/beacon.min.js` and its version subpaths; automatic analytics reports to the existing same-origin `connect-src`. The deployment verifier compares the bytes returned to its own requests, which does not guarantee browser HTML is untransformed by Cloudflare. Keep other third-party script paths disallowed.
+
 GitHub Actions secrets: `OPENROUTER_API_KEY` (AI scoring), `TMDB_TOKEN` (TMDB API v4 Read Access Token for high-res poster images), and `CLOUDFLARE_DEPLOY_HOOK` (the full Pages deploy hook URL for main). `OPENROUTER_MODEL` is an optional Actions variable; when unset the scraper uses `openrouter/free`.
 
 ## Key Data Flow
