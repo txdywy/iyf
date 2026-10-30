@@ -118,7 +118,11 @@ for (const target of ['css/style.css', 'js/app.js']) {
   test(`Cloudflare deployment requires effective immutable caching for ${target}`, async t => {
     for (const cacheControl of [undefined, 'public, max-age=86400', 'public, max-age=31536000',
       'private, max-age=31536000, immutable', 'public, max-age=31536000, immutable, no-cache',
-      'public, max-age=31536000, immutable, no-store']) {
+      'public, max-age=31536000, immutable, no-store',
+      'public, max-age=31536000, note="prefix, immutable, suffix"',
+      'immutable, max-age=31536000, note="prefix, public, suffix"',
+      'public, immutable, note="prefix, max-age=31536000, suffix"',
+      'public, max-age=31536000, note="prefix, immutable, suffix']) {
       const h = createHarness(t, {
         publicReply: ({ file, headers }) => {
           if (file !== target) return {};
@@ -332,9 +336,42 @@ test('Cloudflare deployment rejects a CSP that does not prevent framing', async 
   await assert.rejects(h.run(), /did not match.*deployment timeout/);
 });
 
+test('Cloudflare framing verification respects effective directives rather than text fragments', async t => {
+  for (const policy of [
+    "frame-ancestors https://embed.example; frame-ancestors 'none'",
+    "frame-ancestors 'none' https://embed.example",
+    "report-uri /frame-ancestors 'none'",
+    "x-frame-ancestors 'none'",
+    "x-note \"foo, frame-ancestors *; default-src \"bar; frame-ancestors 'none'",
+  ]) {
+    const h = createHarness(t, { publicReply: ({ file, headers }) => file === 'index.html'
+      ? { headers: { ...headers, 'content-security-policy': policy } } : {} });
+    await assert.rejects(h.run(), /content-security-policy/);
+  }
+});
+
+test('Cloudflare framing verification accepts restrictive first directives and combined policies', async t => {
+  for (const policy of [
+    "FRAME-ANCESTORS 'NoNe'",
+    "frame-ancestors 'none'; frame-ancestors https://embed.example",
+    "default-src 'self', frame-ancestors 'none'",
+    "frame-ancestors https://embed.example, frame-ancestors 'none'",
+    "frame-ancestors 'none', frame-ancestors https://embed.example",
+    "report-uri \"value, frame-ancestors 'none'; report-to group\"",
+  ]) {
+    const h = createHarness(t, { publicReply: ({ file, headers }) => file === 'index.html'
+      ? { headers: { ...headers, 'content-security-policy': policy } } : {} });
+    await assert.doesNotReject(h.run());
+  }
+});
+
 for (const target of ['index.html', 'data/shows.json']) {
   test(`Cloudflare deployment requires revalidation cache headers for ${target}`, async t => {
-    for (const cacheControl of [undefined, 'public, max-age=86400']) {
+    for (const cacheControl of [undefined, 'public, max-age=86400',
+      'public, max-age=31536000, note=no-cache',
+      'public, max-age=31536000, note="prefix, no-cache, suffix"',
+      'public, max-age=31536000, note="escaped\\\", no-cache, suffix"',
+      'public, max-age=31536000, no-cache="Set-Cookie"']) {
       const h = createHarness(t, {
         publicReply: ({ file, headers }) => {
           if (file !== target) return {};
@@ -347,6 +384,25 @@ for (const target of ['index.html', 'data/shows.json']) {
     }
   });
 }
+
+test('Cloudflare revalidation verification accepts case-insensitive bare no-cache and quoted extensions', async t => {
+  for (const cacheControl of ['No-Cache', ' Public, NO-CACHE , note="value, private, tail"']) {
+    const h = createHarness(t, { publicReply: ({ file, headers }) => ['index.html', 'data/shows.json'].includes(file)
+      ? { headers: { ...headers, 'cache-control': cacheControl } } : {} });
+    await assert.doesNotReject(h.run());
+  }
+});
+
+test('Cloudflare immutable verification keeps quoted extension contents opaque', async t => {
+  for (const cacheControl of [
+    'public, max-age=31536000, immutable, note="prefix, no-cache, private, suffix"',
+    'public, max-age="31536000", immutable, note="escaped\\\", no-cache, tail"',
+  ]) {
+    const h = createHarness(t, { publicReply: ({ file, headers }) => ['css/style.css', 'js/app.js'].includes(file)
+      ? { headers: { ...headers, 'cache-control': cacheControl } } : {} });
+    await assert.doesNotReject(h.run());
+  }
+});
 
 test('Cloudflare deployment times out with stale files and bounds the final polling delay', async t => {
   const h = createHarness(t, { publicReply: ({ file }) => file === 'data/shows.json' ? { body: '{}' } : {} });
