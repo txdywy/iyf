@@ -10604,7 +10604,11 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/335951",
     "externalMetadataState": "unknown",
     "externalMetadataCheckedAt": "2026-10-30T11:03:19.000Z",
-    "cachedAt": "2026-10-30T11:03:19.000Z"
+    "cachedAt": "2026-10-30T11:03:19.000Z",
+    "doubanUrl": "https://movie.douban.com/subject/38910050/",
+    "doubanId": "38910050",
+    "doubanMatchedTitle": "暑假",
+    "doubanMatchedSeasonNumber": 0
   },
   "ZSuWjaKpsr9": {
     "title": "后会友期",
