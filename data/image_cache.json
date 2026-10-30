@@ -10682,7 +10682,11 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-29T17:56:28.247Z"
+    "cachedAt": "2026-10-29T17:56:28.247Z",
+    "doubanUrl": "https://movie.douban.com/subject/38529496/",
+    "doubanId": "38529496",
+    "doubanMatchedTitle": "青之花 器之森",
+    "doubanMatchedSeasonNumber": 0
   },
   "COU8WoEeVf9": {
     "title": "尚公主",
