@@ -78,6 +78,8 @@ test('TMDB search caches the name that actually proved the match', async () => {
   const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
   assert.equal(cached.matchedTitle, '真实匹配的节目');
   assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+  assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, tmdbUrl: 'https://www.themoviedb.org/movie/730001' }, show),
+    'a movie link must not validate a TV poster cache');
   const requestCount = requests.length;
   await helpers.enrichCoversFromTMDB([{ ...show, coverImg: 'https://static.yfsp.tv/poster.jpg' }]);
   assert.equal(requests.length, requestCount, 'the next scrape should reuse the verified poster');
@@ -99,6 +101,23 @@ test('TMDB English search mappings remain valid when reusing a verified poster',
   const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
   assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/mapped-english.jpg');
   assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+});
+
+test('a verified direct TMDB ID remains reusable when its localized name differs', async () => {
+  const show = { id: 'mapped-direct', title: '明天也要上班！', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/poster.jpg' };
+  const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+    const target = new URL(url);
+    if (target.pathname === '/3/tv/289763') return response({ id: 289763, name: '另一个译名', poster_path: '/direct-poster.jpg' });
+    if (target.pathname === '/3/tv/289763/external_ids') return response({ id: 289763 });
+    throw new Error(`unexpected request ${target.href}`);
+  } });
+  await helpers.enrichCoversFromTMDB([show]);
+  const cached = JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id];
+  assert.equal(helpers.isReusableTMDBCoverCache(cached, show), true);
+  for (const altered of [
+    { query: 'unverified search' }, { tmdbId: 999 }, { tmdbUrl: 'https://www.themoviedb.org/tv/999' },
+  ]) assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, ...altered }, show), JSON.stringify(altered));
 });
 
 test('a verified Douban original title upgrades a new Korean drama and survives later scrapes', async () => {
@@ -137,6 +156,7 @@ test('a verified Douban original title upgrades a new Korean drama and survives 
     { id: '40000002' }, { year: 2025 }, { title: '另一部剧' }, { originalTitle: '다른 드라마' },
   ]) assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached,
     doubanMatchEvidence: { ...cached.doubanMatchEvidence, ...altered } }, show), JSON.stringify(altered));
+  assert.ok(!helpers.isReusableTMDBCoverCache({ ...cached, tmdbUrl: 'https://www.themoviedb.org/movie/730003' }, show));
   const requestCount = requests.length;
   const refreshed = { ...show, coverImg: 'https://static.yfsp.tv/new-source.jpg' };
   await helpers.enrichCoversFromTMDB([refreshed]);

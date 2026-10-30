@@ -3434,7 +3434,8 @@ function verifiedDoubanTitleIdentity(show) {
 function isReusableDoubanTitleMatch(cached, show, matchedTitle) {
   const evidence = cached?.doubanMatchEvidence;
   if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence) ||
-      cached.regional !== '韩国' || cached.mediaType !== '电视剧' || cached.year !== show?.year) return false;
+      cached.regional !== '韩国' || cached.mediaType !== '电视剧' || cached.year !== show?.year ||
+      cached.tmdbUrl !== `${TMDB_WEB_BASE}/tv/${cached.tmdbId}`) return false;
   const identity = verifiedDoubanTitleIdentity({ ...show, doubanId: cached.doubanId,
     doubanUrl: cached.doubanUrl, doubanMatchedTitle: cached.doubanMatchedTitle,
     doubanMatchedSeasonNumber: cached.doubanMatchedSeasonNumber });
@@ -3456,9 +3457,13 @@ function isReusableTMDBCoverCache(cached, show) {
   const cachedSeasonNumber = Number(cached?.tmdbSeasonNumber);
   const cachedSeasonUrlNumber = extractTMDBSeasonNumber(cached?.tmdbUrl);
   const cachedSeriesUrlId = extractTMDBSeriesId(cached?.tmdbUrl);
-  const cachedEntityUrlId = safeText(cached?.tmdbUrl, 500)
-    .match(/^https?:\/\/(?:www\.)?themoviedb\.org\/(?:tv|movie)\/(\d+)(?:[/?#]|$)/iu)?.[1];
+  const cachedEntity = safeText(cached?.tmdbUrl, 500)
+    .match(/^https?:\/\/(?:www\.)?themoviedb\.org\/(tv|movie)\/(\d+)(?:[/?#]|$)/iu);
+  const expectedMediaKind = show?.mediaType === '电影' ? 'movie' : ['电视剧', '综艺'].includes(show?.mediaType) ? 'tv' : '';
   const hasEntityPair = cached?.tmdbId != null && !!cached?.tmdbUrl;
+  const directEntry = !expectedSeasonNumber ? getTMDBDirectEntry(show) : null;
+  const matchesDirectEntry = directEntry && cached?.tmdbId === directEntry.id &&
+    cached?.query === `direct:${directEntry.id}` && cached?.tmdbUrl === `${TMDB_WEB_BASE}/${directEntry.kind}/${directEntry.id}`;
   return cached &&
     typeof cached === 'object' &&
     cached.version === COVER_CACHE_VERSION &&
@@ -3467,11 +3472,12 @@ function isReusableTMDBCoverCache(cached, show) {
     matchedTitle &&
     // 历史非季缓存若同时提供 ID 和链接，两者必须指向同一主体；缺省旧字段仍可兼容。
     (expectedSeasonNumber || !hasEntityPair || (Number.isSafeInteger(cached.tmdbId) && cached.tmdbId > 0 &&
-      Number(cachedEntityUrlId) === cached.tmdbId)) &&
+      Number(cachedEntity?.[2]) === cached.tmdbId && (!expectedMediaKind || cachedEntity?.[1]?.toLowerCase() === expectedMediaKind))) &&
     titleMatches(cached.title, show.title) &&
     isTMDBResultSeasonCompatible(show, { name: cached.title }) &&
     (titleMatches(matchedTitle, show.title) ||
       (!expectedSeasonNumber && TITLE_EN_MAP[show.title] && titleMatches(matchedTitle, TITLE_EN_MAP[show.title])) ||
+      matchesDirectEntry ||
       (!expectedSeasonNumber && isReusableDoubanTitleMatch(cached, show, matchedTitle)) ||
       (expectedSeasonNumber && matchesTMDBSeriesTitle(show, stripSeasonSuffix(matchedTitle)))) &&
     isTMDBResultSeasonCompatible(show, { name: matchedTitle }) &&
