@@ -10594,11 +10594,17 @@
     "title": "暑假",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/2pfLfAuUZmnQF1NPp8UP7cGRcnl.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-10-30T07:24:59.337Z"
+    "query": "direct:335951",
+    "matchedTitle": "夏日假期",
+    "tmdbId": 335951,
+    "tmdbUrl": "https://www.themoviedb.org/tv/335951",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-10-30T11:03:19.000Z",
+    "cachedAt": "2026-10-30T11:03:19.000Z"
   },
   "ZSuWjaKpsr9": {
     "title": "后会友期",
