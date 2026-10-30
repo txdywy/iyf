@@ -48,7 +48,7 @@ node scripts/scrape.mjs --recalculate-existing
 
 ## 发布
 
-生产工作流仅在 `main` 运行，避免手动选择其他分支后白跑抓取。GitHub Actions 在抓取、校验和提交成功后构建 `site/`，再通过独立任务发布 GitHub Pages 和 Cloudflare Pages。两者使用相同的 `scripts/build-site.mjs`，Cloudflare 的线上文件必须与该次已校验产物一致才算发布成功。
+生产工作流仅在 `main` 运行，避免手动选择其他分支后白跑抓取。GitHub Actions 在抓取、校验和提交成功后构建 `site/`，再通过独立任务发布 GitHub Pages 和 Cloudflare Pages。两者使用相同的 `scripts/build-site.mjs`，Cloudflare 验收请求取得的线上文件必须与该次已校验产物一致才算发布成功。
 
 Cloudflare 项目地址：[iyf-5l7.pages.dev](https://iyf-5l7.pages.dev/)。
 
@@ -69,6 +69,8 @@ Cloudflare 保留 Git 来源以从 `main` 构建，关闭自动生产与预览�
 Cloudflare 发布任务下载本次工作流的已校验产物，触发部署后以 10 分钟为轮询期限，先确认两个域名的首页均已切换到新版本，再核对正式域名与 Pages 域名的首页、CSS、JS、公开数据、robots 和真实 404 的内容摘要、文件类型（Content-Type），以及缓存和安全响应头。失败日志包含具体域名、文件和受控原因（HTTP 状态、摘要差异、缺失或无效响应头、连接错误），不输出钩子、响应正文或头值。任一域名不可访问、触发失败或线上仍是旧文件时任务失败；GitHub Pages 独立发布，继续作为备用。代码提交、定时抓取和手动运行均经过这条链路，数据机器人提交不会再递归触发抓取。
 
 缓存验收解析实际指令，正确处理大小写、引号和转义；HTML/JSON 必须包含无参数的 `no-cache`。安全策略按浏览器的重复指令和多策略规则核验，避免把字符串片段误认为有效保护。
+
+自定义域名已启用 Cloudflare 访问性能统计，Cloudflare 可能对浏览器的 HTML 响应自动注入带完整性校验的统计脚本；构建产物本身不包含该脚本。HTTP 头和 HTML 的安全策略仅允许这一脚本的固定路径及版本子路径，同源上报沿用现有 `connect-src`。部署验收校验的是其请求实际取得的内容，不代表浏览器收到的 HTML 一定未被 Cloudflare 转换。
 
 正式域名 `iyf.hackx64.eu.org` 的 CNAME 指向 `iyf-5l7.pages.dev`。HTML 和 JSON 使用重新验证缓存，CSS/JS 实际文件名包含内容摘要，并使用一年有效期的 `immutable` 缓存；新代码通过新摘要地址更新（参见 [Pages 缓存建议](https://developers.cloudflare.com/pages/configuration/serving-pages/#caching-and-performance)）。Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages 部署钩子文档](https://developers.cloudflare.com/pages/configuration/deploy-hooks/)。
 

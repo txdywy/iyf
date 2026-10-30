@@ -126,6 +126,23 @@ test('the real deployment build is repeatable and publishes only validated publi
   }
 });
 
+test('both CSP policies permit only the configured Cloudflare analytics beacon alongside same-origin scripts', () => {
+  const html = read(join(root, 'index.html'));
+  const headers = read(join(root, '_headers'));
+  const metaPolicy = html.match(/<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]+)"/iu)?.[1];
+  const headerPolicy = headers.match(/^\s*Content-Security-Policy:\s*(.+)$/imu)?.[1];
+  assert.ok(metaPolicy, 'the HTML fallback policy must exist');
+  assert.ok(headerPolicy, 'the Cloudflare response policy must exist');
+  const sources = (policy, name) => policy.split(';').map(directive => directive.trim().split(/\s+/u))
+    .find(([directive]) => directive.toLowerCase() === name)?.slice(1);
+  const expectedScripts = ["'self'", 'https://static.cloudflareinsights.com/beacon.min.js',
+    'https://static.cloudflareinsights.com/beacon.min.js/'];
+  for (const policy of [metaPolicy, headerPolicy]) {
+    assert.deepEqual(sources(policy, 'script-src'), expectedScripts);
+    assert.ok(sources(policy, 'connect-src')?.includes("'self'"), 'automatic analytics reports to the same origin');
+  }
+});
+
 test('rebuilding replaces only obsolete owned assets and migrates legacy stable asset paths', t => {
   const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-asset-cleanup-'));
   t.after(() => rmSync(temporary, { recursive: true, force: true }));
