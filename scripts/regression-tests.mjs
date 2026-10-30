@@ -768,6 +768,8 @@ for (const tab of ['korean', 'tvmaze']) {
         assert.equal(published[category][i].aiScoreInputHash, undefined, 'internal scoring metadata must not leak into the public payload');
       }
     }
+    assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'lastUpdated', 'sourceStatus', 'stats'],
+      'private run state such as the preferred AI model must not leak into the public payload');
     const helpers = loadAppHelpers();
     assert.ok(helpers.isShowDataset(published), 'the deployed artifact must satisfy the frontend contract');
   } finally {
@@ -1935,6 +1937,93 @@ for (const hasStaleCache of [false, true]) {
   const shows = Array.from({ length: 80 }, (_, index) => ({ id: `fail-${index}`, title: `连续失败${index}`, year: 2026 }));
   assert.equal((await helpers.aiScoreShows(shows)).size, 0);
   assert.equal(calls, 8, 'four consecutive failed batches (two attempts each) should stop the remaining AI calls');
+}
+
+{
+  const requested = [];
+  const routedModels = ['vendor/good:free', 'vendor/good:free', 'vendor/other:free'];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      if (requested.length === 3) {
+        return mockResponse({ json: { model: body.model, choices: [{ finish_reason: 'length', message: { content: null } }] } });
+      }
+      return mockResponse({ json: { model: routedModels.shift(), choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 75, recommendationLevel: 'strong', r: '粘滞模型' })),
+      }) } }] } });
+    },
+  });
+  const shows = Array.from({ length: 40 }, (_, index) => ({ id: `pin-${index}`, title: `粘滞${index}`, year: 2026, recommendScore: 100 - index }));
+  const scores = await helpers.aiScoreShows(shows.slice(0, 30));
+  assert.equal(scores.size, 30);
+  assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'vendor/good:free', 'openrouter/free'],
+    'a model that produced a valid batch should be reused, and a failed pinned model should fall back to the free router in the same batch');
+  await helpers.aiScoreShows(shows.slice(30));
+  assert.equal(requested.at(-1), 'vendor/other:free', 'the model that rescued the failed batch should become the new preference');
+}
+
+{
+  const requested = [];
+  const delays = [];
+  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free'];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    setTimeoutImpl: (fn, delay) => { delays.push(delay); fn(); return 0; },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const answer = answers.shift();
+      if (answer === 429) return mockResponse({ status: 429, text: '{"error":{"message":"rate-limited upstream"}}' });
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      return mockResponse({ json: { model: answer, choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 75, recommendationLevel: 'strong', r: '规范名' })),
+      }) } }] } });
+    },
+  });
+  const shows = Array.from({ length: 30 }, (_, index) => ({ id: `slug-${index}`, title: `规范名${index}`, year: 2026, recommendScore: 100 - index }));
+  await helpers.aiScoreShows(shows.slice(0, 20));
+  const delayCount = delays.length;
+  await helpers.aiScoreShows(shows.slice(20));
+  assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'vendor/good:free', 'openrouter/free'],
+    'a pinned success reported under a canonical slug keeps the requested free model');
+  assert.ok(delays.slice(delayCount).includes(20000), 'a rate-limited pinned model backs off before the router retry');
+}
+
+{
+  const requested = [];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      return mockResponse({ json: { model: 'vendor/paid-model', choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 60, recommendationLevel: 'moderate', r: '付费' })),
+      }) } }] } });
+    },
+  });
+  await helpers.aiScoreShows(Array.from({ length: 20 }, (_, index) => ({ id: `paid-${index}`, title: `付费${index}`, year: 2026 })));
+  assert.deepEqual(requested, ['openrouter/free', 'openrouter/free'], 'a non-free routed model must never be pinned, so pinning cannot incur charges');
+}
+
+{
+  const requested = [];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key', OPENROUTER_MODEL: 'vendor/explicit:free' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      return mockResponse({ json: { model: 'vendor/other:free', choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 60, recommendationLevel: 'moderate', r: '显式' })),
+      }) } }] } });
+    },
+  });
+  await helpers.aiScoreShows(Array.from({ length: 20 }, (_, index) => ({ id: `explicit-${index}`, title: `显式${index}`, year: 2026 })));
+  assert.deepEqual(requested, ['vendor/explicit:free', 'vendor/explicit:free'], 'an explicitly configured model must not be replaced by a pinned model');
 }
 
 {
