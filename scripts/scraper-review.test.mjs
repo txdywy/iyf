@@ -109,6 +109,30 @@ test('TMDB direct detail IDs must match the requested entity before accepting it
   }
 });
 
+test('malformed successful TMDB roots cannot establish a not-found cache or replace verified content', async () => {
+  for (const payload of [null, false, 0, '', [], ['invalid']]) {
+    const show = { id: 'malformed-tmdb-root', title: '明天也要上班！', year: 2026,
+      mediaType: '电视剧', regional: '韩国',
+      coverImg: 'https://image.tmdb.org/t/p/original/known-good.jpg', coverSource: 'tmdb' };
+    const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+      fetchImpl: async () => response(payload),
+    });
+    assert.equal((await helpers.searchTMDBImage(show)).lookupState, 'unknown', JSON.stringify(payload));
+    await helpers.enrichCoversFromTMDB([show]);
+    assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/known-good.jpg');
+    const cache = JSON.parse(files.get(join(dataDir, 'image_cache.json')));
+    assert.equal(Object.hasOwn(cache, show.id), false, 'malformed success is not evidence for a negative cache');
+  }
+});
+
+test('TMDB HTTP 404 remains a confirmed miss rather than a malformed successful response', async () => {
+  const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' },
+    fetchImpl: async () => response(null, { status: 404 }),
+  });
+  const result = await helpers.searchTMDBImage({ title: '明天也要上班！', year: 2026, mediaType: '电视剧' });
+  assert.equal(result.lookupState, 'not_found');
+});
+
 for (const source of ['direct-detail', 'direct-images', 'season-detail', 'season-images', 'search']) {
   test(`TMDB ${source} treats malformed poster paths as transient errors and retains a verified cover`, async () => {
     for (const poster of [{ bad: 'path' }, ['/coerced-poster.jpg'], 42, 'poster.jpg',

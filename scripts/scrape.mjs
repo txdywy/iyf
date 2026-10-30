@@ -3649,6 +3649,10 @@ async function fetchTMDBJSON(path, { deadline = Infinity } = {}) {
     }
     const data = await resp.json();
     getOptionalEnrichmentTimeout(12000, deadline);
+    // 仅 HTTP 404 表示确认未找到；成功响应必须具有 TMDB 的对象结构。
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      throw new Error('TMDB returned invalid JSON data');
+    }
     return data;
   } finally { clearTimeout(t); }
 }
