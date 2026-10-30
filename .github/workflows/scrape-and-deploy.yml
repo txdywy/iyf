@@ -143,19 +143,35 @@ jobs:
         if: steps.commit.outputs.publish == 'true'
         run: node scripts/build-site.mjs
 
-      - name: Upload Pages artifact
+      - name: Upload validated Cloudflare artifact
         if: steps.commit.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
+          name: cloudflare-pages
           path: 'site'
+
+      - name: Prepare GitHub Pages backup artifact
+        if: steps.commit.outputs.publish == 'true'
+        run: |
+          cp -a site "$RUNNER_TEMP/iyf-github-pages"
+          node scripts/prepare-github-pages.mjs --output "$RUNNER_TEMP/iyf-github-pages/404.html"
+
+      - name: Upload GitHub Pages artifact
+        if: steps.commit.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: '${{ runner.temp }}/iyf-github-pages'
 
   deploy:
     name: 部署 GitHub Pages
     needs: scrape
     if: needs.scrape.outputs.publish == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 部署最多 10 分钟，额外预留 5 分钟检查公开备用站与准备产物。
+    timeout-minutes: 17
     permissions:
+      contents: read
+      actions: read
       pages: write
       id-token: write
     environment:
@@ -168,6 +184,29 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+
+      - name: Checkout verification script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.node-version'
+          package-manager-cache: false
+
+      - name: Download deployed Pages artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: github-pages
+          path: pages-artifact
+
+      - name: Verify independent GitHub Pages backup
+        run: |
+          mkdir -p site
+          tar -xf pages-artifact/artifact.tar -C site
+          node scripts/verify-github-pages.mjs
 
   deploy-cloudflare:
     name: 部署并验证 Cloudflare Pages
@@ -193,7 +232,7 @@ jobs:
       - name: Download validated Pages artifact
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          name: github-pages
+          name: cloudflare-pages
           path: pages-artifact
 
       - name: Extract validated site
