@@ -78,17 +78,25 @@
   async function loadData() {
     const requestVersion = ++_dataRequestVersion;
     const cached = readCachedData();
-    const renderedFromCache = Boolean(cached);
+    let renderedFromCache = false;
     _dataLoadFailed = false;
     _dataLoadNotice = cached ? ' · 正在后台更新' : '';
 
-    if (cached) {
-      allData = cached.data;
-      updateYearTabLabels();
-      if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
-      if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
-    } else if (!REMOTE_TAB_LABELS[activeTabName]) {
-      showDataLoading();
+    try {
+      if (cached) {
+        allData = cached.data;
+        updateYearTabLabels();
+        if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
+        if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
+        renderedFromCache = true;
+      } else if (!REMOTE_TAB_LABELS[activeTabName]) {
+        showDataLoading();
+      }
+    } catch {
+      // 缓存绘制失败也要继续在线恢复，不能在发出请求前永久卡住重试。
+      allData = null;
+      _dataLoadNotice = '';
+      if (!REMOTE_TAB_LABELS[activeTabName]) showDataLoading();
     }
 
     try {
@@ -101,11 +109,13 @@
       allData = unchanged ? allData : data;
       _dataLoadFailed = false;
       _dataLoadNotice = '';
-      saveDataCache(data);
       updateYearTabLabels();
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
       // 同一快照无需重建卡片，保留阅读位置与当前焦点。
-      if (unchanged && renderedFromCache) return;
+      if (unchanged && renderedFromCache) {
+        saveDataCache(data);
+        return;
+      }
       if (renderedFromCache) {
         // 后台更新不抢走用户已经切换到的标签或筛选状态。
         if (!REMOTE_TAB_LABELS[activeTabName]) {
@@ -116,6 +126,7 @@
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
         switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
       }
+      saveDataCache(data);
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
       if (renderedFromCache) {
@@ -1134,15 +1145,31 @@
   }
 
   function isShowDataset(value) {
-    return !!value && typeof value === 'object' &&
-      !Array.isArray(value) && Number.isFinite(Date.parse(value.lastUpdated || '')) &&
-      Array.isArray(value.koreanDramas) &&
-      Array.isArray(value.chineseVariety) &&
-      value.koreanDramas.length <= 1000 && value.chineseVariety.length <= 1000 &&
-      [...value.koreanDramas, ...value.chineseVariety].every(show =>
-        show && typeof show === 'object' && !Array.isArray(show) &&
-        typeof show.id === 'string' && !!show.id.trim() &&
-        typeof show.title === 'string' && !!show.title.trim() && show.title.length <= 200);
+    const isRecord = item => item !== null && typeof item === 'object' && !Array.isArray(item);
+    const optionalNumber = item => item == null || (typeof item === 'number' && Number.isFinite(item));
+    const optionalText = item => item == null || typeof item === 'string';
+    if (!isRecord(value) || typeof value.lastUpdated !== 'string' || !Number.isFinite(Date.parse(value.lastUpdated)) ||
+      !Array.isArray(value.koreanDramas) || !Array.isArray(value.chineseVariety) ||
+      value.koreanDramas.length > 1000 || value.chineseVariety.length > 1000 ||
+      ![value.generatedAt, value.sourceStatus].every(optionalText)) return false;
+    if (value.stats != null && (!isRecord(value.stats) ||
+      ![value.stats.koreanDramas, value.stats.chineseVariety].every(optionalNumber))) return false;
+    const numericFields = ['year', 'score', 'playCount', 'recommendScore', 'aiScore', 'currentEpisode', 'totalEpisodes', 'mdlRating', 'watchers'];
+    const booleanFields = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
+    const textFields = [
+      'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor', 'description', 'descriptionSource',
+      'coverImg', 'publishTime', 'airDate', 'firstSeenAt', 'scrapedAt', 'updateMsg', 'updateStatus', 'primaryUrl',
+      'primaryUrlSource', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl',
+    ];
+    // 网络和本地缓存共用渲染契约；可选字段允许缺省/null，结构值不能进入隐式数值或字符串转换。
+    return [...value.koreanDramas, ...value.chineseVariety].every(show =>
+      isRecord(show) && typeof show.id === 'string' && !!show.id.trim() &&
+      typeof show.title === 'string' && !!show.title.trim() && show.title.length <= 200 &&
+      numericFields.every(field => optionalNumber(show[field])) &&
+      booleanFields.every(field => show[field] == null || typeof show[field] === 'boolean') &&
+      textFields.every(field => optionalText(show[field])) &&
+      (show.titleAliases == null || (Array.isArray(show.titleAliases) && show.titleAliases.every(alias => typeof alias === 'string'))) &&
+      (show.rating == null || (isRecord(show.rating) && optionalNumber(show.rating.average))));
   }
 
   function updateSourceInfo(label, value) {

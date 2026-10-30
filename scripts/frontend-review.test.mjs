@@ -143,7 +143,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       },
     };
   })();`), context, { timeout: 1000 });
-  return { helpers: context.helpers, elements: Object.fromEntries(elements), document, view };
+  return { helpers: context.helpers, elements: Object.fromEntries(elements), document, view, getSavedData: () => savedData };
 }
 
 function snapshot(count = 1) {
@@ -153,6 +153,140 @@ function snapshot(count = 1) {
     chineseVariety: [{ id: 'variety', title: '综艺' }],
   };
 }
+
+const malformedRecommendationFields = {
+  year: data => { data.koreanDramas[0].year = { toString: 'broken' }; },
+  totalEpisodes: data => { Object.assign(data.koreanDramas[0], { isComplete: true, totalEpisodes: { toString: 'broken' } }); },
+  currentEpisode: data => { data.koreanDramas[0].currentEpisode = { toString: 'broken' }; },
+  airDate: data => { data.koreanDramas[0].airDate = { toString: 'broken' }; },
+  score: data => { data.koreanDramas[0].score = []; },
+  playCount: data => { data.koreanDramas[0].playCount = {}; },
+  completeFlag: data => { data.koreanDramas[0].isComplete = 'false'; },
+  titleAliases: data => { data.koreanDramas[0].titleAliases = [{ toString: 'broken' }]; },
+  statistics: data => { data.stats = { koreanDramas: { toString: 'broken' } }; },
+  description: data => { data.koreanDramas[0].description = { toString: 'broken' }; },
+};
+
+for (const [field, damage] of Object.entries(malformedRecommendationFields)) {
+  test(`malformed recommendation ${field} cannot poison the cache or prevent a successful retry`, async () => {
+    const malformed = snapshot();
+    damage(malformed);
+    const recovered = snapshot(2);
+    recovered.koreanDramas[0].title = '网络恢复节目';
+    let calls = 0;
+    const client = createApp(async () => ({ ok: true, json: async () => structuredClone(++calls === 1 ? malformed : recovered) }));
+    await client.helpers.loadData();
+    assert.match(client.elements.updateInfo.textContent, /推荐数据加载失败/u);
+    assert.equal(client.getSavedData(), null, 'unusable network data must not enter local storage');
+    await assert.doesNotReject(client.helpers.loadData());
+    assert.equal(calls, 2);
+    assert.match(client.elements.showGrid.innerHTML, /网络恢复节目/u);
+    assert.equal(client.getSavedData().koreanDramas.length, 2);
+  });
+
+  test(`malformed cached recommendation ${field} cannot prevent network recovery`, async () => {
+    const malformed = snapshot();
+    damage(malformed);
+    const recovered = snapshot();
+    recovered.koreanDramas[0].title = '坏缓存恢复节目';
+    let calls = 0;
+    const client = createApp(async () => { calls++; return { ok: true, json: async () => structuredClone(recovered) }; }, malformed);
+    await assert.doesNotReject(client.helpers.loadData());
+    assert.equal(calls, 1);
+    assert.match(client.elements.showGrid.innerHTML, /坏缓存恢复节目/u);
+    assert.equal(client.getSavedData().koreanDramas[0].title, '坏缓存恢复节目');
+  });
+}
+
+test('a cache rendering failure still reaches the network and restores usable content', async () => {
+  const cached = snapshot();
+  const fresh = snapshot();
+  fresh.koreanDramas[0].title = '渲染恢复节目';
+  let calls = 0;
+  const client = createApp(async () => { calls++; return { ok: true, json: async () => structuredClone(fresh) }; }, cached);
+  const toggle = client.elements.showGrid.classList.toggle;
+  let failed = false;
+  client.elements.showGrid.classList.toggle = (...args) => {
+    if (!failed) { failed = true; throw new Error('transient cached render failure'); }
+    return toggle(...args);
+  };
+  await assert.doesNotReject(client.helpers.loadData());
+  assert.equal(calls, 1);
+  assert.match(client.elements.showGrid.innerHTML, /渲染恢复节目/u);
+});
+
+test('a structured release date cannot be cached before newest sorting consumes it', async () => {
+  const malformed = snapshot(2);
+  malformed.koreanDramas[0].airDate = { toString: 'broken' };
+  const recovered = snapshot(2);
+  Object.assign(recovered.koreanDramas[0], { title: '日期恢复节目', airDate: '2026-10-30' });
+  let calls = 0;
+  const client = createApp(async () => ({ ok: true, json: async () => structuredClone(++calls === 1 ? malformed : recovered) }));
+  await client.helpers.loadData();
+  client.elements.sortBy.value = 'newest';
+  assert.doesNotThrow(() => client.helpers.applyFilters(), 'changing sort must not discover an unusable date already accepted into the snapshot');
+  assert.equal(client.getSavedData(), null);
+  await client.helpers.loadData();
+  assert.equal(calls, 2);
+  assert.match(client.elements.showGrid.innerHTML, /日期恢复节目/u);
+});
+
+test('a failed network render does not persist the snapshot before a retry succeeds', async () => {
+  const fresh = snapshot();
+  let calls = 0;
+  const client = createApp(async () => { calls++; return { ok: true, json: async () => structuredClone(fresh) }; });
+  const toggle = client.elements.showGrid.classList.toggle;
+  let failed = false;
+  client.elements.showGrid.classList.toggle = (...args) => {
+    if (!failed) { failed = true; throw new Error('transient network render failure'); }
+    return toggle(...args);
+  };
+  await client.helpers.loadData();
+  assert.equal(client.getSavedData(), null);
+  assert.match(client.elements.updateInfo.textContent, /推荐数据加载失败/u);
+  await client.helpers.loadData();
+  assert.equal(calls, 2);
+  assert.match(client.elements.showGrid.innerHTML, /剧目0/u);
+  assert.equal(client.getSavedData().koreanDramas.length, 1);
+});
+
+test('an invalid background response preserves the validated cached snapshot and its reading position', async () => {
+  const cached = snapshot(30);
+  const malformed = snapshot();
+  malformed.stats = { koreanDramas: { toString: 'broken' } };
+  let finishFetch;
+  const client = createApp(() => new Promise(resolve => { finishFetch = resolve; }), cached);
+  const pending = client.helpers.loadData();
+  const first = client.elements.showGrid.children[0];
+  client.view.scrollY = 500;
+  first.focus();
+  finishFetch({ ok: true, json: async () => malformed });
+  await pending;
+  assert.equal(client.elements.showGrid.children.length, 24);
+  assert.equal(client.elements.showGrid.children[0], first);
+  assert.equal(client.document.activeElement, first);
+  assert.equal(client.view.scrollY, 500);
+  assert.equal(client.getSavedData().koreanDramas.length, 30);
+  assert.match(client.elements.updateInfo.textContent, /网络更新失败，展示本地缓存/u);
+  client.helpers.switchTab('variety');
+  assert.match(client.elements.showGrid.innerHTML, /综艺/u);
+});
+
+test('recommendation validation keeps minimal rows and nullable optional metadata renderable', async () => {
+  const data = snapshot();
+  Object.assign(data.koreanDramas[0], {
+    year: 0, score: 0, playCount: 0, recommendScore: 0, aiScore: null,
+    currentEpisode: null, totalEpisodes: null, isComplete: false, isSerial: false,
+    actor: null, contentType: null, description: null, descriptionSource: null,
+    titleAliases: null, coverImg: null, yfspUrl: null, primaryUrl: null,
+  });
+  data.stats = { koreanDramas: 1, chineseVariety: 1 };
+  const client = createApp(async () => ({ ok: true, json: async () => data }));
+  await client.helpers.loadData();
+  assert.match(client.elements.showGrid.innerHTML, /剧目0/u);
+  assert.equal(client.elements.showGrid.children.length, 1);
+  assert.equal(client.elements.empty.style.display, 'none');
+});
 
 test('unchanged filter results retain card nodes, poster state and focused links', () => {
   const { helpers, elements, document } = createApp();
