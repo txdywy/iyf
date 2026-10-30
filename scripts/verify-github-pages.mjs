@@ -22,17 +22,17 @@ export async function verifyGitHubPages({
     }
   }
   const items = [
-    ['index.html', '', 200, ['text/html']],
+    // 显式 index 地址不受 GitHub CDN 对旧目录 301 的缓存影响。
+    ['index.html', 'index.html', 200, ['text/html']],
     ['css/style.css', assetPaths.get('css/style.css'), 200, ['text/css']],
     ['js/app.js', assetPaths.get('js/app.js'), 200, ['text/javascript', 'application/javascript']],
     ['data/shows.json', 'data/shows.json', 200, ['application/json']],
     ['robots.txt', 'robots.txt', 200, ['text/plain']],
     ['404.html', '404.html', 200, ['text/html']],
-    // GitHub may use the account-level 404 for a project-site missing path;
-    // verify the actual status independently of the project 404 file.
+    // 检查真实深层缺失路径也返回本站的 404，避免误落到账号级错误页。
     ['missing route', '__deployment_404_check__/nested', 404, ['text/html']],
   ].map(([file, path, status, contentTypes]) => ({
-    file, path, status, contentTypes, digest: file === 'missing route' ? null : hash(read(assetPaths.get(file) || file)),
+    file, path, status, contentTypes, digest: hash(read(file === 'missing route' ? '404.html' : assetPaths.get(file) || file)),
   }));
   const lastUpdated = JSON.parse(read('data/shows.json').toString('utf8')).lastUpdated;
   const deadline = now() + timeoutMs;
@@ -56,10 +56,8 @@ export async function verifyGitHubPages({
           await response.body?.cancel?.().catch(() => {});
           return `${label}: invalid content-type`;
         }
-        if (item.digest) {
-          const actual = hash(Buffer.from(await response.arrayBuffer()));
-          if (actual !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${actual.slice(0, 12)})`;
-        } else await response.body?.cancel?.().catch(() => {});
+        const actual = hash(Buffer.from(await response.arrayBuffer()));
+        if (actual !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${actual.slice(0, 12)})`;
         return null;
       } catch (error) {
         return `${label}: ${signal?.aborted || error?.name === 'TimeoutError' || error?.name === 'AbortError' ? 'request timed out' : 'request failed'}`;
@@ -69,7 +67,7 @@ export async function verifyGitHubPages({
     if (now() >= deadline) { lastFailures = ['verification deadline expired']; break; }
     if (!failures.length) {
       log(`GitHub Pages backup matches the validated artifact (lastUpdated: ${lastUpdated}).`);
-      return { lastUpdated, files: 6, baseUrl: BASE_URL };
+      return { lastUpdated, files: 6, url: new URL('index.html', BASE_URL).href };
     }
     lastFailures = failures;
     const summary = failures.join('; ');

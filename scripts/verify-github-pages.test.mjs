@@ -25,14 +25,14 @@ function createHarness(t, { publicReply, timeoutMs = 25, pollIntervalMs = 10 } =
   const css = `css/style.${digest(files.get('css/style.css'))}.css`;
   const js = `js/app.${digest(files.get('js/app.js'))}.js`;
   files.set('index.html', `<!doctype html><link href="${css}" rel="stylesheet"><script src="${js}"></script>\n`);
-  files.set('404.html', `<!doctype html><link href="/iyf/${css}" rel="stylesheet"><a href="/iyf/">返回推荐首页</a>\n`);
+  files.set('404.html', `<!doctype html><link href="/iyf/${css}" rel="stylesheet"><a href="/iyf/index.html">返回推荐首页</a>\n`);
   for (const [file, body] of files) {
     const path = join(outputRoot, file === 'css/style.css' ? css : file === 'js/app.js' ? js : file);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, body);
   }
   const routes = new Map([
-    ['/iyf/', 'index.html'], [`/iyf/${css}`, 'css/style.css'], [`/iyf/${js}`, 'js/app.js'],
+    ['/iyf/index.html', 'index.html'], [`/iyf/${css}`, 'css/style.css'], [`/iyf/${js}`, 'js/app.js'],
     ['/iyf/data/shows.json', 'data/shows.json'], ['/iyf/robots.txt', 'robots.txt'],
     ['/iyf/404.html', '404.html'], ['/iyf/__deployment_404_check__/nested', 'missing'],
   ]);
@@ -51,7 +51,7 @@ function createHarness(t, { publicReply, timeoutMs = 25, pollIntervalMs = 10 } =
     calls.push(address);
     if (file === 'index.html') poll++;
     const reply = { file, poll, status: file === 'missing' ? 404 : 200,
-      body: file === 'missing' ? 'GitHub Pages 404' : files.get(file),
+      body: file === 'missing' ? files.get('404.html') : files.get(file),
       headers: { 'content-type': contentTypes[file] } };
     const override = publicReply?.(reply) || {};
     if (override.error) throw override.error;
@@ -65,7 +65,7 @@ function createHarness(t, { publicReply, timeoutMs = 25, pollIntervalMs = 10 } =
 
 test('GitHub Pages backup verifies independent homepage, assets, data and 404 routes', async t => {
   const h = createHarness(t);
-  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, baseUrl: BASE });
+  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, url: `${BASE}index.html` });
   assert.deepEqual(h.calls.sort(), [...h.routes.keys()].map(path => `https://txdywy.github.io${path}`).sort());
   assert.deepEqual(h.waits, []);
 });
@@ -92,6 +92,11 @@ test('GitHub Pages backup rejects a missing or stale custom 404 file', async t =
 test('GitHub Pages backup requires a real 404 for nested missing routes', async t => {
   const h = createHarness(t, { publicReply: ({ file }) => file === 'missing' ? { status: 200 } : {} });
   await assert.rejects(h.run(), /missing route: HTTP 200/u);
+});
+
+test('GitHub Pages backup rejects a generic or account-level 404 for nested missing routes', async t => {
+  const h = createHarness(t, { publicReply: ({ file }) => file === 'missing' ? { body: 'generic account 404' } : {} });
+  await assert.rejects(h.run(), /missing route: content hash mismatch/u);
 });
 
 test('GitHub Pages backup accepts both standard JavaScript MIME types and rejects wrong ones', async t => {

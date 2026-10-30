@@ -52,7 +52,7 @@ node scripts/scrape.mjs --recalculate-existing
 
 Cloudflare 项目地址：[iyf-5l7.pages.dev](https://iyf-5l7.pages.dev/)。
 
-独立备用地址：[txdywy.github.io/iyf/](https://txdywy.github.io/iyf/)。GitHub Pages 不绑定正式域名，避免备用地址跳回 Cloudflare；如需让正式域名改由 GitHub 接管，必须重新绑定域名、切换 DNS 并等待 HTTPS 证书签发。
+独立备用地址：[txdywy.github.io/iyf/index.html](https://txdywy.github.io/iyf/index.html)。显式的 `index.html` 可避免 GitHub CDN 缓存旧目录跳转影响访问。GitHub Pages 不绑定正式域名；如需让正式域名改由 GitHub 接管，必须重新绑定域名、切换 DNS 并等待 HTTPS 证书签发。
 
 | 设置 | 值 |
 | --- | --- |
@@ -68,7 +68,7 @@ Cloudflare 保留 Git 来源以从 `main` 构建，关闭自动生产与预览�
 
 Cloudflare 发布任务下载本次工作流的已校验产物，触发部署后以 10 分钟为轮询期限，先确认两个域名的首页均已切换到新版本，再核对正式域名与 Pages 域名的首页、CSS、JS、公开数据、robots 和真实 404 的内容摘要、文件类型（Content-Type），以及缓存和安全响应头。失败日志包含具体域名、文件和受控原因（HTTP 状态、摘要差异、缺失或无效响应头、连接错误），不输出钩子、响应正文或头值。任一域名不可访问、触发失败或线上仍是旧文件时任务失败；GitHub Pages 独立发布，继续作为备用。代码提交、定时抓取和手动运行均经过这条链路，数据机器人提交不会再递归触发抓取。
 
-GitHub Pages 发布后同样核对备用地址的首页、CSS、JS、公开数据、robots 和 404 文件内容及文件类型，并拒绝跳转到正式域名；另检查深层不存在的路径返回 404。检查最多等待 5 分钟，失败时任务明确报错。
+GitHub Pages 发布后同样核对备用地址的首页、CSS、JS、公开数据、robots 和 404 文件内容及文件类型，并拒绝跳转到正式域名；另检查深层不存在的路径返回本站 404 页面。检查最多等待 5 分钟，失败时任务明确报错。
 
 缓存验收解析实际指令，正确处理大小写、引号和转义；HTML/JSON 必须包含无参数的 `no-cache`。安全策略按浏览器的重复指令和多策略规则核验，避免把字符串片段误认为有效保护。
 

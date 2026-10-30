@@ -138,7 +138,7 @@ test('GitHub Pages 404 preparation uses the project prefix without changing othe
   const result = spawnSync(process.execPath, [join(sourceRoot, 'scripts/prepare-github-pages.mjs'), '--output', join(output, '404.html')], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   const adapted = read(join(output, '404.html'));
-  assert.equal(adapted, original.replace(`href="/${css}"`, `href="/iyf/${css}"`).replace('href="/">返回推荐首页', 'href="/iyf/">返回推荐首页'));
+  assert.equal(adapted, original.replace(`href="/${css}"`, `href="/iyf/${css}"`).replace('href="/">返回推荐首页', 'href="/iyf/index.html">返回推荐首页'));
   assert.equal(read(join(output, 'index.html')), index);
 });
 

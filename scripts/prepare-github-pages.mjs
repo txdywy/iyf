@@ -14,6 +14,6 @@ if (cssLinks.length !== 1 || html.split(homeMarker).length !== 2) {
   throw new Error('Expected exactly one versioned stylesheet and home link in 404.html');
 }
 const adapted = html.replace(`href="${cssLinks[0][1]}"`, `href="/iyf${cssLinks[0][1]}"`)
-  .replace(homeMarker, 'href="/iyf/">返回推荐首页</a>');
+  .replace(homeMarker, 'href="/iyf/index.html">返回推荐首页</a>');
 writeFileSync(output, adapted, 'utf8');
 console.log(`Prepared GitHub Pages 404: ${output}`);
