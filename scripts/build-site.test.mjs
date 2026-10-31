@@ -89,6 +89,33 @@ for (const [script, sourceFile] of [
     }
     assert.equal(existsSync(join(sourceRoot, 'data', 'generated.json')), false);
   });
+
+  test(`${script} protects environment files across case variants and hard-link aliases`, t => {
+    const temporary = mkdtempSync(join(tmpdir(), 'iyf-generator-env-case-'));
+    t.after(() => rmSync(temporary, { recursive: true, force: true }));
+    const sourceRoot = createBuildFixture(join(temporary, 'source'));
+    for (const [index, name] of ['.ENV', '.ENV.LOCAL', '.EnV.Production'].entries()) {
+      const source = join(sourceRoot, name);
+      const original = 'TEST_CONFIGURATION=keep\n';
+      writeFileSync(source, original);
+      const hardAlias = join(temporary, `env-alias-${index}`);
+      linkSync(source, hardAlias);
+      for (const output of [source, join(sourceRoot, name.toLowerCase()), join(sourceRoot, name.toUpperCase()), hardAlias]) {
+        const result = generate(sourceRoot, ['--output', output]);
+        assert.equal(result.status, 1, result.stdout);
+        assert.match(result.stderr, /Build output must not overwrite/u);
+        assert.equal(read(source), original);
+        assert.equal(read(hardAlias), original);
+      }
+    }
+    for (const name of ['.ENV.NEW', '.EnV.Future/nested.json']) {
+      const output = join(sourceRoot, name);
+      const result = generate(sourceRoot, ['--output', output]);
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, /Build output must not overwrite/u);
+      assert.equal(existsSync(output), false);
+    }
+  });
 }
 
 test('the real deployment build is repeatable and publishes only validated public files', () => {

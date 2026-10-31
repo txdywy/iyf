@@ -108,6 +108,16 @@ test('GitHub Pages backup accepts both standard JavaScript MIME types and reject
   }
 });
 
+test('GitHub Pages MIME verification does not normalize non-HTTP whitespace into a usable asset type', async t => {
+  for (const [target, type] of [['css/style.css', 'text/css'], ['js/app.js', 'application/javascript']]) {
+    for (const value of [`\u00a0${type}`, `${type}\u00a0`, `${type}\u00a0; charset=utf-8`]) {
+      const h = createHarness(t, { publicReply: ({ file, headers }) => file === target
+        ? { headers: { ...headers, 'content-type': value } } : {} });
+      await assert.rejects(h.run(), /invalid content-type/u);
+    }
+  }
+});
+
 test('GitHub Pages backup cannot report success after the polling deadline', async t => {
   const h = createHarness(t, { publicReply: ({ file }) => file === 'index.html' ? { advance: 30 } : {} });
   await assert.rejects(h.run(), /verification deadline/u);

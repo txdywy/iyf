@@ -51,7 +51,7 @@ export async function verifyGitHubPages({
           await response.body?.cancel?.().catch(() => {});
           return `${label}: HTTP ${response.status} (expected ${item.status})`;
         }
-        const type = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+        const type = response.headers.get('content-type')?.split(';', 1)[0].replace(/^[\t\n\r ]+|[\t\n\r ]+$/gu, '').toLowerCase();
         if (!item.contentTypes.includes(type)) {
           await response.body?.cancel?.().catch(() => {});
           return `${label}: invalid content-type`;

@@ -328,6 +328,16 @@ for (const header of ['x-content-type-options', 'x-frame-options', 'content-secu
   });
 }
 
+test('Cloudflare MIME verification does not normalize non-HTTP whitespace into a usable asset type', async t => {
+  for (const [target, type] of [['css/style.css', 'text/css'], ['js/app.js', 'application/javascript']]) {
+    for (const value of [`\u00a0${type}`, `${type}\u00a0`, `${type}\u00a0; charset=utf-8`]) {
+      const h = createHarness(t, { publicReply: ({ file, headers }) => file === target
+        ? { headers: { ...headers, 'content-type': value } } : {} });
+      await assert.rejects(h.run(), /content-type/u);
+    }
+  }
+});
+
 test('Cloudflare deployment rejects a CSP that does not prevent framing', async t => {
   const h = createHarness(t, {
     publicReply: ({ file, headers }) => file === 'index.html'
