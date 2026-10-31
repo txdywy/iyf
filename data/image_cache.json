@@ -10553,13 +10553,16 @@
     "matchedTitle": "小城良方",
     "tmdbId": 285625,
     "tmdbUrl": "https://www.themoviedb.org/tv/285625",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36675942/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt38715296/",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-21T16:30:11.525Z",
-    "cachedAt": "2026-10-21T16:30:11.527Z"
+    "cachedAt": "2026-10-21T16:30:11.527Z",
+    "doubanId": "36675942",
+    "doubanMatchedTitle": "小城良方",
+    "doubanMatchedSeasonNumber": 0
   },
   "jUfU51uzlu3": {
     "title": "莫语者",
@@ -10712,13 +10715,16 @@
     "matchedTitle": "尚公主",
     "tmdbId": 286171,
     "tmdbUrl": "https://www.themoviedb.org/tv/286171",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/35861007/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt35324004/",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-29T01:16:02.542Z",
-    "cachedAt": "2026-10-29T01:16:02.544Z"
+    "cachedAt": "2026-10-29T01:16:02.544Z",
+    "doubanId": "35861007",
+    "doubanMatchedTitle": "尚公主",
+    "doubanMatchedSeasonNumber": 0
   },
   "X8elUhZzUyn": {
     "title": "旺达在哪里第2季",
@@ -10735,13 +10741,16 @@
     "tmdbSeriesId": 234310,
     "tmdbSeasonId": 530026,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37253554/",
     "wikipediaUrl": "https://en.wikipedia.org/wiki/Where%27s_Wanda%3F",
     "imdbUrl": "https://www.imdb.com/title/tt29011445/",
     "wikidataId": "Q130765418",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-29T01:16:03.512Z",
-    "cachedAt": "2026-10-29T01:16:03.514Z"
+    "cachedAt": "2026-10-29T01:16:03.514Z",
+    "doubanId": "37253554",
+    "doubanMatchedTitle": "旺达在哪里？ 第二季",
+    "doubanMatchedSeasonNumber": 2
   },
   "HOEPqjONBF0": {
     "title": "合理怀疑第4季",
@@ -10751,6 +10760,10 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "notFound": true,
-    "cachedAt": "2026-10-29T17:56:28.807Z"
+    "cachedAt": "2026-10-29T17:56:28.807Z",
+    "doubanUrl": "https://movie.douban.com/subject/37841629/",
+    "doubanId": "37841629",
+    "doubanMatchedTitle": "合理怀疑 第四季",
+    "doubanMatchedSeasonNumber": 4
   }
 }
