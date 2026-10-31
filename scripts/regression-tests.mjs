@@ -2796,7 +2796,17 @@ assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER
 assert.match(scrape, /const refreshTargets = shows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
 assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
-assert.match(scrape, /cached && typeof cached === 'object' && cached\.version === COVER_CACHE_VERSION/, 'TMDB cache fallback should guard null cached entries');
+{
+  const { helpers, writes } = loadScrapeHelpers({
+    env: { TMDB_TOKEN: 'tmdb-test-token' },
+    initialFiles: { '/tmp/iyf-test/scripts/../data/image_cache.json': JSON.stringify({ 'null-cache': null }) },
+    fetchImpl: async () => mockResponse({ json: { results: [] } }),
+  });
+  await helpers.enrichCoversFromTMDB([{ id: 'null-cache', title: '空缓存测试节目', year: 2026,
+    mediaType: '综艺', regional: '大陆', category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg' }]);
+  const cache = JSON.parse(writes.get('/tmp/iyf-test/scripts/../data/image_cache.json'));
+  assert.equal(cache['null-cache'].notFound, true, 'a null cache entry should allow a fresh lookup');
+}
 assert.match(scrape, /'订阅男友': 'Boyfriend on Demand'/, 'TMDB English title for 订阅男友 should be corrected');
 assert.match(scrape, /'大叔再出招': \['Fifties Professionals', '오십프로', '五十专家', '五十專家'\]/, '大叔再出招 should have TMDB search aliases');
 assert.match(scrape, /'大叔再出招': 'Fifties Professionals'/, '大叔再出招 should use its TMDB English title');

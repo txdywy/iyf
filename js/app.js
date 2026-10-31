@@ -1219,10 +1219,13 @@
         const path185 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w185/');
         const path342 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w342/');
         const path500 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w500/');
+        const path780 = parsed.pathname.replace(/\/t\/p\/(?:original|w\d+)\//u, '/t/p/w780/');
         const url185 = `${parsed.origin}${path185}${parsed.search}`;
         const url342 = `${parsed.origin}${path342}${parsed.search}`;
         const url500 = `${parsed.origin}${path500}${parsed.search}`;
-        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), 374px"`;
+        const url780 = `${parsed.origin}${path780}${parsed.search}`;
+        // 使用宽度描述符后 src 不参与候选；桌面 374px 海报在 2x 屏上需要至少 748px。
+        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w, ${escapeHtml(url780)} 780w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), 374px"`;
       }
     } catch {}
 
