@@ -3547,7 +3547,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-30T01:37:00.886Z"
+    "externalMetadataCheckedAt": "2026-10-31T05:58:08.155Z"
   },
   "cwX4qHtZmR8": {
     "title": "千香",
@@ -5974,7 +5974,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-30T01:37:01.093Z"
+    "externalMetadataCheckedAt": "2026-10-31T05:58:08.411Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -10602,13 +10602,16 @@
     "matchedTitle": "夏日假期",
     "tmdbId": 335951,
     "tmdbUrl": "https://www.themoviedb.org/tv/335951",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-10-30T11:03:19.000Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-10-31T05:58:08.153Z",
     "cachedAt": "2026-10-30T11:03:19.000Z",
     "doubanUrl": "https://movie.douban.com/subject/38910050/",
     "doubanId": "38910050",
     "doubanMatchedTitle": "暑假",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt47596978/",
+    "wikidataId": ""
   },
   "ZSuWjaKpsr9": {
     "title": "后会友期",
