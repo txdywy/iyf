@@ -40,7 +40,7 @@ function loadHelpers({
         aiEnhanceDescriptions, findLiveTitleMatch, scoreYfspCandidate,
         searchYfspTitle, verifyYfspUrl, searchDoubanSubject, searchTMDBImage,
         enrichMissingYfspLinks, restorePreviousCategory, normalizeItem,
-        applyLiveFields, mergePreviousShowState, sameShowIdentity, main, loadPreviousShows, recalculateExistingData,
+        applyLiveFields, applyYfspSearchFields, mergePreviousShowState, sameShowIdentity, main, loadPreviousShows, recalculateExistingData,
         enrichDescriptions, enrichCoversFromTMDB, enrichDoubanLinks, isReusableTMDBCoverCache, SEED_VARIETY,
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
@@ -60,6 +60,24 @@ function response(json, { status = 200, html = '' } = {}) {
     body: { cancel: async () => {} },
   };
 }
+
+test('YFSP search refresh respects explicit serial flags without reviving stale status text', () => {
+  const { helpers } = loadHelpers();
+  const cases = [
+    { previous: { updateStatus: '更新到08', isSerial: true, isComplete: false }, found: { isSerial: false }, expected: ['', false, true] },
+    { previous: { updateStatus: '16集全', isSerial: false, isComplete: true }, found: { isSerial: true }, expected: ['', true, false] },
+    { previous: { updateStatus: '更新到08', isSerial: true, isComplete: false }, found: { updateStatus: '敬请期待', isSerial: false }, expected: ['敬请期待', false, true] },
+    { previous: { updateStatus: '更新到08', isSerial: true, isComplete: false }, found: {}, expected: ['更新到08', true, false] },
+    { previous: { updateStatus: '更新到08', isSerial: true, isComplete: false }, found: { updateStatus: '16集全', isSerial: true }, expected: ['16集全', false, true] },
+    { previous: { updateStatus: '16集全', isSerial: false, isComplete: true }, found: { updateStatus: '更新到09', isSerial: false }, expected: ['更新到09', true, false] },
+  ];
+  for (const { previous, found, expected } of cases) {
+    const show = { title: '状态测试剧', ...previous };
+    helpers.applyYfspSearchFields(show, { url: 'https://www.yfsp.tv/play/status', ...found });
+    assert.deepEqual([show.updateStatus, show.isSerial, show.isComplete], expected, JSON.stringify(found));
+    assert.ok(show.lastLiveAt);
+  }
+});
 
 test('TMDB search caches the name that actually proved the match', async () => {
   const show = { id: 'matched-original', title: '真实匹配的节目', year: 2026, mediaType: '电视剧', regional: '韩国',
@@ -83,6 +101,29 @@ test('TMDB search caches the name that actually proved the match', async () => {
   const requestCount = requests.length;
   await helpers.enrichCoversFromTMDB([{ ...show, coverImg: 'https://static.yfsp.tv/poster.jpg' }]);
   assert.equal(requests.length, requestCount, 'the next scrape should reuse the verified poster');
+});
+
+test('TMDB negative cache only suppresses the same lookup with a valid non-future timestamp', async t => {
+  const show = { id: 'changed-lookup', title: '旅行节目的新篇章', year: 2026, mediaType: '综艺', regional: '大陆',
+    category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg' };
+  const negative = { title: show.title, year: show.year, mediaType: show.mediaType, regional: show.regional,
+    source: 'tmdb', version: 16, negativeLookupVersion: 2, notFound: true, cachedAt: '2026-09-30T03:00:00.000Z' };
+  for (const [name, patch, shouldRetry] of [
+    ['unchanged lookup', {}, false], ['legacy region omitted', { regional: undefined }, false],
+    ['same source ID with a new year', { year: 2025 }, true], ['changed title', { title: '旧节目' }, true],
+    ['changed media type', { mediaType: '电影' }, true], ['changed region', { regional: '韩国' }, true],
+    ['invalid date', { cachedAt: 'invalid' }, true], ['structured date', { cachedAt: { toString: 'broken' } }, true],
+    ['future date', { cachedAt: '2027-01-01T00:00:00Z' }, true],
+  ]) await t.test(name, async () => {
+    let requests = 0;
+    const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' },
+      initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ [show.id]: { ...negative, ...patch } }) },
+      fetchImpl: async () => { requests++; return response({ results: [] }); },
+    });
+    await helpers.enrichCoversFromTMDB([{ ...show }]);
+    assert.equal(requests > 0, shouldRetry);
+    if (shouldRetry) assert.equal(JSON.parse(files.get(join(dataDir, 'image_cache.json')))[show.id].regional, '大陆');
+  });
 });
 
 test('TMDB English search mappings remain valid when reusing a verified poster', async () => {
@@ -822,6 +863,7 @@ test('first-seen dates follow show identity and expire after their own first obs
       previousShow('old-id', '换源身份测试剧', { firstSeenAt: changedIdFirstSeen }),
       previousShow('invalid-date', '无效日期测试剧', { firstSeenAt: 'invalid-date' }),
       previousShow('future-date', '未来日期测试剧', { firstSeenAt: '2027-01-01T00:00:00.000Z' }),
+      previousShow('same-id-new-season', '季身份测试剧第1季', { description: '上一季可靠简介', descriptionSource: 'tmdb' }),
     ],
     chineseVariety: [previousShow('old-variety', '同名类型测试剧', { mediaType: '综艺', category: 'variety' })],
     otherDramas: [previousShow('old-region', '同名地区测试剧', { regional: '大陆', category: 'other_drama' })],
@@ -830,6 +872,7 @@ test('first-seen dates follow show identity and expire after their own first obs
     ['new-region', '同名地区测试剧'], ['new-type', '同名类型测试剧'], ['new-remake', '跨年翻拍测试剧'],
     ['same-id', '新名称测试剧'], ['new-id', '换源身份测试剧！'],
     ['invalid-date', '无效日期测试剧'], ['future-date', '未来日期测试剧'],
+    ['same-id-new-season', '季身份测试剧第2季'],
   ].map(([mediaKey, title]) => ({
     mediaKey, title, mediaType: '电视剧', regional: '韩国', publishTime: '2026-10-12T00:00:00Z',
     score: 8, playCount: 100000, coverImgUrl: 'https://static.yfsp.tv/identity.jpg',
@@ -848,7 +891,7 @@ test('first-seen dates follow show identity and expire after their own first obs
   await helpers.main();
   const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
   const byId = new Map(published.koreanDramas.map(show => [show.id, show]));
-  for (const id of ['new-region', 'new-type', 'new-remake', 'invalid-date', 'future-date']) {
+  for (const id of ['new-region', 'new-type', 'new-remake', 'invalid-date', 'future-date', 'same-id-new-season']) {
     assert.equal(byId.get(id)?.firstSeenAt, observedAt, id);
     assert.equal(byId.get(id)?.isNew, true, id);
   }
@@ -856,6 +899,8 @@ test('first-seen dates follow show identity and expire after their own first obs
   assert.equal(byId.get('same-id')?.isNew, false);
   assert.equal(byId.get('new-id')?.firstSeenAt, changedIdFirstSeen);
   assert.equal(byId.get('new-id')?.isNew, true);
+  assert.equal(byId.get('same-id-new-season')?.title, '季身份测试剧第2季');
+  assert.notEqual(byId.get('same-id-new-season')?.description, '上一季可靠简介');
 
   setNow('2026-11-13T04:00:00.000Z');
   await helpers.main();
@@ -865,6 +910,26 @@ test('first-seen dates follow show identity and expire after their own first obs
     assert.equal(show?.firstSeenAt, observedAt, id);
     assert.equal(show?.isNew, false, `${id}: a repaired timestamp must expire normally`);
   }
+});
+
+test('the same source ID cannot transfer old metadata across explicit identity conflicts', () => {
+  const { helpers } = loadHelpers();
+  const previous = { id: 'reused-id', title: '季身份测试剧第1季', mediaType: '电视剧', regional: '韩国', year: 2025,
+    description: '上一季简介', descriptionSource: 'tmdb', coverImg: 'https://image.tmdb.org/t/p/original/old.jpg',
+    tmdbUrl: 'https://www.themoviedb.org/tv/123/season/1', scrapedAt: '2026-09-29T00:00:00Z' };
+  for (const patch of [{ title: '季身份测试剧第2季' }, { regional: '大陆' }, { mediaType: '综艺' }]) {
+    const current = helpers.normalizeItem({ mediaKey: previous.id, title: previous.title, mediaType: '电视剧', regional: '韩国',
+      publishTime: '2026-01-01', coverImgUrl: 'https://static.yfsp.tv/new.jpg', ...patch });
+    assert.equal(helpers.sameShowIdentity(previous, current), false);
+    const retained = new Map([[current.id, current]]);
+    helpers.restorePreviousCategory(retained, [previous], 'korean_drama', '电视剧', helpers.scoreKDrama, 'disc_kd');
+    assert.equal(retained.get(current.id).title, current.title);
+    assert.equal(retained.get(current.id).coverImg, current.coverImg);
+    assert.equal(retained.get(current.id).tmdbUrl, undefined);
+    assert.notEqual(retained.get(current.id).description, previous.description);
+  }
+  assert.equal(helpers.sameShowIdentity(previous, { ...previous, title: '来源新译名' }), true);
+  assert.equal(helpers.sameShowIdentity({ ...previous, mediaType: '综艺' }, { ...previous, mediaType: '综艺', year: 2026 }), true);
 });
 
 test('malformed discovery and metadata rows cannot hide later valid results', async () => {

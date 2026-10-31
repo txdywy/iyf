@@ -130,5 +130,5 @@ AI blending is category-aware: variety receives a mild adjustment, while low Kor
 - Seed ID format: `seed_kd_YYYY_NN`, `seed_var_YYYY_NN`, `seed_kd_cNN` (classics)
 - Constants UPPER_SNAKE_CASE, functions camelCase
 - Enrichment cache: `data/image_cache.json`, keyed by show ID, `COVER_CACHE_VERSION` for invalidation
-- TMDB cache keeps `original` source URLs; the frontend renders responsive `w342/w500` variants
+- TMDB cache keeps `original` source URLs; the frontend renders responsive `w185/w342/w500/w780` variants, including enough pixels for desktop 2x displays
 - TMDB API token: `TMDB_TOKEN` env var (GitHub Actions secret)

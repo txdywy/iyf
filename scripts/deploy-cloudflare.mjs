@@ -75,10 +75,10 @@ function parseCacheControl(value) {
 
 function preventsFraming(value) {
   // CSP 的逗号总是分隔策略（引号也不例外）；每个策略只认首条同名指令。
+  // 首条值含非 ASCII 时也占用名称，不能跳过后再采信重复指令。
   // https://www.w3.org/TR/CSP3/#parse-serialized-policy
   return (value || '').split(',').some(policy => {
     for (const part of policy.split(';')) {
-      if (/[^\x00-\x7f]/u.test(part)) continue;
       const tokens = part.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/gu, '').split(/[\t\n\f\r ]+/u);
       if (tokens[0].toLowerCase() === 'frame-ancestors') {
         return tokens.length === 2 && tokens[1].toLowerCase() === "'none'";

@@ -753,14 +753,16 @@ const PREVIOUS_STABLE_FIELDS = [
 
 function sameShowIdentity(a, b) {
   if (!a?.title || !b?.title) return false;
-  if (a.id && b.id && a.id === b.id) return true;
   if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
   if (a.regional && b.regional && a.regional !== b.regional) return false;
+  const aSeason = seasonKey(a.title);
+  const bSeason = seasonKey(b.title);
+  if (aSeason && bSeason && aSeason !== bSeason) return false;
+  // 来源 ID 可以证明改名，不能推翻双方已明确给出的不同实体身份。
+  if (a.id && b.id && a.id === b.id) return true;
   if (!titleMatches(a.title, b.title)) return false;
 
   // normalizeTitle 会去掉季号,但续保时不能把不同季合并成一张卡。
-  const aSeason = seasonKey(a.title);
-  const bSeason = seasonKey(b.title);
   if (aSeason !== bSeason) return false;
   if (a.mediaType === '综艺' && a.year && b.year && a.year !== b.year && !a.isClassic && !b.isClassic) return false;
   if (a.year && b.year && Math.abs(a.year - b.year) > 1) return false;
@@ -847,6 +849,8 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
   for (const prev of previous) {
     if (!prev?.title || prev.seedId) continue;
     if ([...targetMap.values()].some(current => sameShowIdentity(current, prev))) continue;
+    // 同 ID 的明确新身份已经出现时，不得用旧季快照覆盖本轮来源对象。
+    if (prev.id && targetMap.has(prev.id)) continue;
     const now = Date.now();
     const lastSeen = Math.max(comparableTimestamp(prev.lastLiveAt), comparableTimestamp(prev.scrapedAt));
     if (!lastSeen || lastSeen > now || now - lastSeen > PREVIOUS_RECOMMENDATION_RETENTION_MS) {
@@ -1022,7 +1026,15 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
 function applyYfspSearchFields(show, found) {
   // 经过身份校验的成功搜索也证明节目仍在来源中，不能只靠首页曝光续保。
   show.lastLiveAt = new Date().toISOString();
-  show.updateStatus = found.updateStatus || show.updateStatus || '';
+  const foundStatus = safeText(found.updateStatus, 200);
+  const hasExplicitSerial = typeof found.isSerial === 'boolean';
+  const authoritativeStatus = parseUpdateStatus(foundStatus).isComplete || isOngoingStatus(foundStatus);
+  // 搜索与首页使用同一状态优先级；新布尔值不能被上一轮的连载/完结文案推翻。
+  show.updateStatus = foundStatus || (hasExplicitSerial ? '' : show.updateStatus || '');
+  if (hasExplicitSerial && !authoritativeStatus) {
+    show.isSerial = found.isSerial;
+    show.isComplete = !found.isSerial;
+  }
   const parsed = parseUpdateStatus(show.updateStatus);
   if (parsed.totalEpisodes) show.totalEpisodes = parsed.totalEpisodes;
   if (parsed.currentEpisode) show.currentEpisode = parsed.currentEpisode;
@@ -2220,7 +2232,7 @@ async function main() {
     if (s.aiScore != null && s.aiScoredAt) prevMap.set(s.id, s);
     const firstSeenAt = Date.parse(s.firstSeenAt || '');
     if (typeof s.firstSeenAt === 'string' && Number.isFinite(firstSeenAt) && firstSeenAt <= firstSeenNow) {
-      prevFirstSeenMap.set(s.id, s.firstSeenAt);
+      prevFirstSeenMap.set(s.id, s);
       prevFirstSeenShows.push(s);
     }
   }
@@ -2346,7 +2358,8 @@ async function main() {
     }
     const prevId = prevFirstSeenMap.get(show.id);
     const prevIdentity = prevFirstSeenShows.find(previous => sameShowIdentity(show, previous));
-    show.firstSeenAt = prevId || prevIdentity?.firstSeenAt || new Date(nowMs).toISOString();
+    show.firstSeenAt = (prevId && sameShowIdentity(show, prevId) ? prevId.firstSeenAt : '') ||
+      prevIdentity?.firstSeenAt || new Date(nowMs).toISOString();
     const age = nowMs - Date.parse(show.firstSeenAt);
     show.isNew = age >= 0 && age < ONE_MONTH_MS;
   }
@@ -3492,6 +3505,14 @@ function isReusableTMDBCoverCache(cached, show) {
     isTMDBOriginalImageUrl(cached.url);
 }
 
+function isReusableTMDBNegativeCache(cached, show, now = Date.now()) {
+  const cachedAt = typeof cached?.cachedAt === 'string' ? Date.parse(cached.cachedAt) : NaN;
+  return cached?.version === COVER_CACHE_VERSION && cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION &&
+    cached.notFound === true && cached.title === show.title &&
+    (cached.year || 0) === (show.year || 0) && cached.mediaType === show.mediaType &&
+    (!cached.regional || cached.regional === show.regional) && Number.isFinite(cachedAt) && cachedAt <= now;
+}
+
 function resolveDoubanMetadata(show, ...sources) {
   for (const entry of [show, ...sources]) {
     if (!entry?.doubanUrl || !entry.doubanMatchedTitle) continue;
@@ -4333,8 +4354,7 @@ async function enrichCoversFromTMDB(shows) {
       // 旧的正向缓存可能来自更宽松的标题/季数规则。失效期间不能继续发布已知可能串季的 TMDB 图。
       show.coverImg = show.yfspCoverImg;
       show.coverSource = 'yfsp';
-    } else if (cached && typeof cached === 'object' && cached.version === COVER_CACHE_VERSION &&
-        cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION && cached.notFound && show.yfspCoverImg) {
+    } else if (isReusableTMDBNegativeCache(cached, show) && show.yfspCoverImg) {
       show.coverImg = show.yfspCoverImg;
     }
     syncTMDBCoverStatus(show);
@@ -4357,7 +4377,7 @@ async function enrichCoversFromTMDB(shows) {
     if (isReusableTMDBCoverCache(cached, s)) return false;
     // 直连映射是人工确认过的实体，不能被旧的 notFound 负缓存阻止重试。
     if (getTMDBDirectEntry(s)) return true;
-    if (cached?.notFound && cached.negativeLookupVersion === TMDB_NEGATIVE_CACHE_VERSION) {
+    if (isReusableTMDBNegativeCache(cached, s)) {
       const doubanIdentity = verifiedDoubanTitleIdentity(s);
       if (doubanIdentity && cached.doubanLookupId !== doubanIdentity.id) return true;
       const age = Date.now() - new Date(cached.cachedAt || 0).getTime();
@@ -4441,6 +4461,7 @@ async function enrichCoversFromTMDB(shows) {
         source: 'tmdb',
         version: COVER_CACHE_VERSION,
         negativeLookupVersion: TMDB_NEGATIVE_CACHE_VERSION,
+        regional: show.regional || '',
         ...(img.doubanLookupId ? { doubanLookupId: img.doubanLookupId } : {}),
         notFound: true,
         cachedAt: new Date().toISOString(),

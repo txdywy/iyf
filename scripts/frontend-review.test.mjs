@@ -154,6 +154,22 @@ function snapshot(count = 1) {
   };
 }
 
+for (const sourceSize of ['original', 'w500']) {
+  test(`TMDB ${sourceSize} posters have enough candidate pixels for a desktop 2x display`, async () => {
+    const data = snapshot();
+    data.koreanDramas[0].coverImg = `https://image.tmdb.org/t/p/${sourceSize}/retina.jpg`;
+    const client = createApp(async () => ({ ok: true, json: async () => data }));
+    await client.helpers.loadData();
+    const markup = client.elements.showGrid.innerHTML;
+    const srcset = markup.match(/srcset="([^"]+)"/u)?.[1] || '';
+    const candidates = srcset.split(',').map(value => value.trim().split(/\s+/u));
+    const retina = candidates.find(([, width]) => parseInt(width, 10) >= 374 * 2);
+    assert.ok(retina, 'src=/original is not a fallback candidate when width-based srcset is present');
+    assert.equal(retina[0], 'https://image.tmdb.org/t/p/w780/retina.jpg');
+    assert.ok(candidates.some(([, width]) => width === '185w'), 'small screens retain a lightweight candidate');
+  });
+}
+
 const malformedRecommendationFields = {
   year: data => { data.koreanDramas[0].year = { toString: 'broken' }; },
   totalEpisodes: data => { Object.assign(data.koreanDramas[0], { isComplete: true, totalEpisodes: { toString: 'broken' } }); },

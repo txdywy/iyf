@@ -339,6 +339,7 @@ test('Cloudflare deployment rejects a CSP that does not prevent framing', async 
 test('Cloudflare framing verification respects effective directives rather than text fragments', async t => {
   for (const policy of [
     "frame-ancestors https://embed.example; frame-ancestors 'none'",
+    "frame-ancestors * \u0080; frame-ancestors 'none'",
     "frame-ancestors 'none' https://embed.example",
     "report-uri /frame-ancestors 'none'",
     "x-frame-ancestors 'none'",
