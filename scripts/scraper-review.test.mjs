@@ -1647,6 +1647,26 @@ test('valid completed YFSP pages renew continuity while invalid and unknown page
   assert.deepEqual([...retained.keys()], ['valid']);
 });
 
+test('an admitted current-year edition replaces its higher-scored namesake before title and external deduplication', () => {
+  const { helpers } = loadHelpers();
+  const previous = { id: 'previous-edition', title: '欢乐旅行', year: 2025, regional: '大陆', mediaType: '综艺', recommendScore: 228 };
+  const current = { ...previous, id: 'current-edition', year: 2026, recommendScore: 116 };
+  const other = { ...previous, id: 'other', title: '其他节目', recommendScore: 180 };
+  const byRank = (a, b) => b.recommendScore - a.recommendScore;
+  for (const sharedLink of [false, true]) {
+    const oldShow = { ...previous, ...(sharedLink ? { tmdbUrl: 'https://www.themoviedb.org/tv/123' } : {}) };
+    const newShow = { ...current, ...(sharedLink ? { tmdbUrl: oldShow.tmdbUrl } : {}) };
+    for (const input of [[oldShow, newShow], [newShow, oldShow]]) {
+      assert.deepEqual(Array.from(helpers.dedupByTitle(input), show => show.id), ['current-edition']);
+      assert.deepEqual(Array.from(helpers.dedupByTitle([...input, other].sort(byRank)), show => show.id), ['other', 'current-edition']);
+    }
+  }
+  for (const patch of [{ year: 2024 }, { year: 2025 }, { regional: '韩国' }, { mediaType: '电视剧' }, { regional: '' }]) {
+    const result = helpers.dedupByTitle([previous, { ...current, ...patch }].sort(byRank));
+    assert.equal(result[0].id, 'previous-edition', `do not replace another identity or an older edition: ${JSON.stringify(patch)}`);
+  }
+});
+
 function seasonCache(overrides = {}) {
   return {
     title: '财阀X刑警第2季', year: 2026, mediaType: '电视剧',

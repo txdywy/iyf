@@ -2482,7 +2482,7 @@ function countIdentityOverlap(current, previous) {
   return previous.filter(candidate => current.some(show => sameShowIdentity(show, candidate))).length;
 }
 
-// 按精确标题去重(列表已按推荐分降序,保留分数更高的那条),
+// 按精确标题去重(列表已按推荐分降序,本年度新版优先,其余保留高分条目),
 // 防止同名条目(如季号变体撞名)重复成卡。不按 normalizeTitle 合并,
 // 以保留确实不同的季(如"黑暗荣耀"/"黑暗荣耀第2季"、"极限挑战"/"极限挑战第一季")。
 function externalIdentityKeys(show) {
@@ -2550,9 +2550,21 @@ function shouldDedupByExternal(a, b) {
 }
 
 function dedupByTitle(list) {
+  // 新版已经通过收录门禁后，同名旧版不能仅凭更高分占住卡片。
+  // 先找出同地区/类型的最新年度版本，再按原推荐分顺序去重。
+  const editionKey = show => show.mediaType && show.regional
+    ? JSON.stringify([(show.title || '').trim(), show.mediaType, show.regional]) : '';
+  const newestEditions = new Map();
+  for (const show of list) {
+    const key = editionKey(show);
+    const year = boundedYear(show.year);
+    if (key && year >= CURRENT_YEAR) newestEditions.set(key, Math.max(year, newestEditions.get(key) || 0));
+  }
   const seenTitles = new Set();
   const seenExternal = new Map();
   return list.filter(s => {
+    const newestYear = newestEditions.get(editionKey(s));
+    if (newestYear && boundedYear(s.year) < newestYear) return false;
     const key = (s.title || '').trim();
     if (!key || seenTitles.has(key)) return false;
 
