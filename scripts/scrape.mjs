@@ -49,6 +49,18 @@ function writeFileSyncAtomic(path, data) {
   }
 }
 
+// 可重建的缓存/日志要求对象字典；合法 JSON 的 null、数组或标量同样属于损坏根。
+// 主数据 shows.json 仍由 loadPreviousShows 严格校验，不能在这里静默重置。
+function readAuxiliaryObject(path) {
+  try {
+    if (!existsSync(path)) return {};
+    const value = JSON.parse(readFileSync(path, 'utf-8'));
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
+  }
+}
+
 const API_BASE = 'https://api.yfsp.tv';
 // iyf.tv 是源站官方前端列出的同站域名；某个 API 域名被 runner 拒绝时切换。
 const API_BASES = [API_BASE, 'https://api.iyf.tv'];
@@ -2655,8 +2667,7 @@ function assertOutputSchema(output) {
 }
 
 function saveHistory(output) {
-  let h = {};
-  if (existsSync(HISTORY_FILE)) try { h = JSON.parse(readFileSync(HISTORY_FILE, 'utf-8')); } catch {}
+  const h = readAuxiliaryObject(HISTORY_FILE);
   const today = new Date().toISOString().split('T')[0];
   h[today] = {
     timestamp: new Date().toISOString(),
@@ -3109,10 +3120,7 @@ function renewDiscoveredSourceId(contentKey, collection) {
 
 function recordDiscoveryHistory(discovered) {
   const today = new Date().toISOString().split('T')[0];
-  let history = {};
-  if (existsSync(DISCOVERY_FILE)) {
-    try { history = JSON.parse(readFileSync(DISCOVERY_FILE, 'utf-8')); } catch {}
-  }
+  const history = readAuxiliaryObject(DISCOVERY_FILE);
   // 旧日志只记录韩剧；补全身份维度后与综艺共享同日累计，不能互相覆盖。
   const dailyShows = new Map();
   for (const show of Array.isArray(history[today]?.shows) ? history[today].shows : []) {
@@ -3376,10 +3384,7 @@ const EXTERNAL_METADATA_BUDGET_MS = 40 * 1000;
 let _imageCacheMemo = null;
 function loadImageCache() {
   if (_imageCacheMemo) return _imageCacheMemo;
-  let cache = {};
-  if (existsSync(IMAGE_CACHE_FILE)) {
-    try { cache = JSON.parse(readFileSync(IMAGE_CACHE_FILE, 'utf-8')); } catch {}
-  }
+  const cache = readAuxiliaryObject(IMAGE_CACHE_FILE);
   for (const [id, entry] of Object.entries(cache)) {
     if (!entry || typeof entry !== 'object') continue;
     if (entry.tmdbId === 33238 && normalizeTitle(entry.title) === normalizeTitle('奔跑吧兄弟')) {

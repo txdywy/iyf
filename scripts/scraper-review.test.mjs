@@ -44,6 +44,7 @@ function loadHelpers({
         enrichDescriptions, enrichCoversFromTMDB, enrichDoubanLinks, isReusableTMDBCoverCache, SEED_VARIETY,
         discoverNewKDramas, discoverNewVariety, assertOutputContinuity, normalizeOutputShow, isRenderableShow, SEED_KDRAMAS,
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
+        saveHistory, recordDiscoveryHistory,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
       };
@@ -60,6 +61,44 @@ function response(json, { status = 200, html = '' } = {}) {
     body: { cancel: async () => {} },
   };
 }
+
+test('auxiliary JSON files recover malformed roots and preserve valid existing records', async t => {
+  const today = '2026-09-30';
+  const oldDate = '2026-09-29';
+  const show = { id: 'new-cache-entry', title: '新增节目', year: 2026, mediaType: '电视剧', regional: '韩国',
+    category: 'korean_drama', coverImg: 'https://static.yfsp.tv/new.jpg' };
+  for (const value of [null, [], ['invalid row'], 'text', 42, true, { [oldDate]: { preserved: true } }]) {
+    const contents = JSON.stringify(value);
+    const validRoot = value && typeof value === 'object' && !Array.isArray(value);
+    await t.test(`image cache root ${contents}`, async () => {
+      const path = join(dataDir, 'image_cache.json');
+      const { helpers, files } = loadHelpers({ initialFiles: { [path]: contents }, env: { TMDB_TOKEN: 'test' },
+        fetchImpl: async url => {
+          const target = new URL(url);
+          if (target.pathname === '/3/search/tv') return response({ results: [{ id: 999001, name: show.title,
+            first_air_date: '2026-01-01', origin_country: ['KR'], poster_path: '/new-cache.jpg' }] });
+          if (target.pathname === '/3/tv/999001/external_ids') return response({ id: 999001 });
+          throw new Error(`unexpected request ${url}`);
+        },
+      });
+      await helpers.enrichCoversFromTMDB([{ ...show }]);
+      const saved = JSON.parse(files.get(path));
+      assert.equal(Array.isArray(saved), false);
+      assert.equal(saved[show.id].tmdbId, 999001, 'a recovered cache must persist subsequent successful lookups');
+      if (validRoot) assert.deepEqual(saved[oldDate], value[oldDate]);
+    });
+    for (const filename of ['history.json', 'discovery.json']) await t.test(`${filename} root ${contents}`, () => {
+      const path = join(dataDir, filename);
+      const { helpers, files } = loadHelpers({ initialFiles: { [path]: contents } });
+      if (filename === 'history.json') helpers.saveHistory({ stats: { koreanDramas: 1, chineseVariety: 0 }, koreanDramas: [show], chineseVariety: [] });
+      else helpers.recordDiscoveryHistory([show]);
+      const saved = JSON.parse(files.get(path));
+      assert.equal(Array.isArray(saved), false);
+      assert.equal(saved[today][filename === 'history.json' ? 'koreanDramasCount' : 'totalFound'], 1);
+      if (validRoot) assert.deepEqual(saved[oldDate], value[oldDate]);
+    });
+  }
+});
 
 test('YFSP search refresh respects explicit serial flags without reviving stale status text', () => {
   const { helpers } = loadHelpers();

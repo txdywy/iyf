@@ -27,13 +27,14 @@ export function resolveBuildOutput(root, args, defaultPath, command) {
 
 export function assertBuildOutputPath(root, output) {
   root = realpathSync(root);
-  const protectedEntries = new Set([...PROTECTED_ENTRIES, ...readdirSync(root).filter(entry => entry.startsWith('.env.'))]);
+  const protectedEntries = new Set([...PROTECTED_ENTRIES, ...readdirSync(root).filter(entry => /^\.env(?:\.|$)/iu.test(entry))]);
+  const protectedNames = new Set([...protectedEntries].map(entry => entry.toLowerCase()));
   output = resolve(output);
   // 父目录的符号链接和系统别名也参与保护，未创建的输出不能绕过来源路径检查。
   for (const path of [output, resolveExistingAncestor(output)]) {
     const toRoot = relative(path, root);
-    const fromRoot = relative(root, path).split(sep)[0];
-    if ((!toRoot.startsWith(`..${sep}`) && toRoot !== '..') || protectedEntries.has(fromRoot) || fromRoot.startsWith('.env.')) {
+    const fromRoot = relative(root, path).split(sep)[0].toLowerCase();
+    if ((!toRoot.startsWith(`..${sep}`) && toRoot !== '..') || protectedNames.has(fromRoot) || fromRoot.startsWith('.env.')) {
       throw new Error('Build output must not overwrite the repository or its source directories');
     }
   }

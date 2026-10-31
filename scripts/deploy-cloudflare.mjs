@@ -144,7 +144,7 @@ export async function deployCloudflare({
         if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
         if (item.file === 'index.html') readyOrigins.add(origin);
         const failedHeaders = [];
-        const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+        const contentType = response.headers.get('content-type')?.split(';', 1)[0].replace(/^[\t\n\r ]+|[\t\n\r ]+$/gu, '').toLowerCase();
         const cacheDirectives = parseCacheControl(response.headers.get('cache-control'));
         if (!item.contentTypes.includes(contentType)) failedHeaders.push('content-type');
         if (item.file === 'index.html') {
