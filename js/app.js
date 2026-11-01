@@ -449,8 +449,8 @@
   // 用户切换到另一个分类时从结果开头阅读；后台刷新和重复点击当前标签保持原阅读位置。
   function selectTabByUser(tab) {
     const changed = normalizeTabName(tab) !== activeTabName;
-    switchTab(tab);
     if (!changed) return;
+    switchTab(tab);
     const main = document.getElementById('mainContent');
     const top = main?.getBoundingClientRect?.().top;
     const offset = parseFloat(window.getComputedStyle?.(document.documentElement)?.getPropertyValue?.('--tabs-scroll-offset')) || 0;
