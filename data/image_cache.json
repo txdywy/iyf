@@ -229,8 +229,9 @@
   },
   "seed_kd_2025_01": {
     "title": "背着善宰跑",
-    "year": 2025,
+    "year": 2024,
     "mediaType": "电视剧",
+    "regional": "韩国",
     "url": "https://image.tmdb.org/t/p/original/tHwUooE44ZgxC9pvxBPZ6j6Xedw.jpg",
     "source": "tmdb",
     "version": 16,
@@ -242,14 +243,15 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%83%8C%E7%9D%80%E5%96%84%E5%AE%B0%E8%B7%91",
     "imdbUrl": "https://www.imdb.com/title/tt31324295/",
     "wikidataId": "Q121144610",
-    "cachedAt": "2026-08-23T16:34:00.241Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.578Z"
+    "externalMetadataCheckedAt": "2026-11-01T06:54:36.823Z",
+    "cachedAt": "2026-11-01T06:54:36.828Z"
   },
   "seed_kd_2025_02": {
     "title": "妈妈朋友的儿子",
-    "year": 2025,
+    "year": 2024,
     "mediaType": "电视剧",
+    "regional": "韩国",
     "url": "https://image.tmdb.org/t/p/original/9GyKqh5vK9pm65uJQVQ3VMSMPEM.jpg",
     "source": "tmdb",
     "version": 16,
@@ -261,9 +263,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%AA%BD%E5%AA%BD%E6%9C%8B%E5%8F%8B%E7%9A%84%E5%85%92%E5%AD%90",
     "imdbUrl": "https://www.imdb.com/title/tt30446769/",
     "wikidataId": "Q124326709",
-    "cachedAt": "2026-08-23T16:34:00.308Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.811Z"
+    "externalMetadataCheckedAt": "2026-11-01T06:54:36.813Z",
+    "cachedAt": "2026-11-01T06:54:36.817Z"
   },
   "seed_kd_2025_03": {
     "title": "凌晨两点的灰姑娘",
@@ -324,8 +326,9 @@
   },
   "seed_kd_2025_06": {
     "title": "法官大人",
-    "year": 2025,
+    "year": 2024,
     "mediaType": "电视剧",
+    "regional": "韩国",
     "url": "https://image.tmdb.org/t/p/original/rFZ0Mh8Ha7MoJmbGwj8vQhWB6DZ.jpg",
     "source": "tmdb",
     "version": 16,
@@ -337,9 +340,9 @@
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%AE%98%E5%A4%A7%E4%BA%BA_(2024%E5%B9%B4%E9%9B%BB%E8%A6%96%E5%8A%87)",
     "imdbUrl": "https://www.imdb.com/title/tt33092060/",
     "wikidataId": "Q126364716",
-    "cachedAt": "2026-08-23T16:34:01.449Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T02:45:14.542Z"
+    "externalMetadataCheckedAt": "2026-11-01T06:54:36.771Z",
+    "cachedAt": "2026-11-01T06:54:36.774Z"
   },
   "seed_kd_2025_07": {
     "title": "善意的竞争",
@@ -10792,5 +10795,44 @@
     "doubanId": "37841629",
     "doubanMatchedTitle": "合理怀疑 第四季",
     "doubanMatchedSeasonNumber": 4
+  },
+  "yR9Hzn0mkYa": {
+    "title": "美食告白记第2季",
+    "year": 2018,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/3last0MTMjt6B8beJKv6cdx09MS.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:273092:2",
+    "matchedTitle": "美食告白记第 2 季",
+    "matchedSeriesTitle": "美食告白记",
+    "tmdbId": 273092,
+    "tmdbUrl": "https://www.themoviedb.org/tv/273092/season/2",
+    "tmdbSeriesId": 273092,
+    "tmdbSeasonId": 421211,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-01T06:54:37.271Z",
+    "cachedAt": "2026-11-01T06:54:37.274Z"
+  },
+  "GcrCssMdToA": {
+    "title": "改造露营车-冬天的故事",
+    "year": 2020,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "韩国",
+    "notFound": true,
+    "cachedAt": "2026-11-01T06:54:37.357Z",
+    "doubanUrl": "https://movie.douban.com/subject/35274579/",
+    "doubanId": "35274579",
+    "doubanMatchedTitle": "改造露营车 - 冬天的故事",
+    "doubanMatchedSeasonNumber": 0
   }
 }

@@ -537,8 +537,69 @@
     "shows": []
   },
   "2026-11-01": {
-    "timestamp": "2026-11-01T06:27:09.510Z",
-    "totalFound": 0,
-    "shows": []
+    "timestamp": "2026-11-01T06:54:35.606Z",
+    "totalFound": 5,
+    "shows": [
+      {
+        "title": "美食告白记第2季",
+        "score": 4.6,
+        "playCount": 24061,
+        "year": 2018,
+        "actor": "黄圣依,杨安迪,谢娜,林更新,林心如,大张伟,孙艺洲,俞灏明,熊梓淇",
+        "source": "search",
+        "updateStatus": "20180717集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "摩登音乐秀",
+        "score": 3.8,
+        "playCount": 21687,
+        "year": 2018,
+        "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
+        "source": "search",
+        "updateStatus": "20181202集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "音乐同学会-好歌谣",
+        "score": 0,
+        "playCount": 18172,
+        "year": 2020,
+        "actor": "李寿根,郑恩地,刘世允,金信英",
+        "source": "search",
+        "updateStatus": "20200216集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "改造露营车-冬天的故事",
+        "score": 4.6,
+        "playCount": 17644,
+        "year": 2020,
+        "actor": "金淑,罗美兰,郑赫,李天熙,尹泽",
+        "source": "search",
+        "updateStatus": "20210122集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "我的音乐老师，你好",
+        "score": 3.3,
+        "playCount": 10825,
+        "year": 2020,
+        "actor": "尹度玹,金在奂,刘载焕]",
+        "source": "search",
+        "updateStatus": "02集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      }
+    ]
   }
 }
