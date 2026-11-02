@@ -2670,3 +2670,26 @@ for (const kind of ['KDrama', 'variety']) {
     assert.deepEqual(history.shows.map(show => show.year), [2026], 'an older same-title edition is not rediscovered every run');
   });
 }
+
+test('YFSP page verification decodes title entities and keeps apostrophes inside quoted attributes', async () => {
+  let html = '';
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(null, { html }) });
+  html = '<title>好&amp;坏的东载-免费在线观看-爱壹帆国际版</title>';
+  assert.equal(await helpers.verifyYfspUrl({ title: '好&坏的东载' }, 'https://www.yfsp.tv/play/entity'), 'valid');
+  html = '<meta name="title" content="OK! Let&#39;s Get Divorced-免费在线观看">';
+  assert.equal(await helpers.verifyYfspUrl({ title: "OK! Let's Get Divorced" }, 'https://www.yfsp.tv/play/quoted'), 'valid');
+  html = '<meta property="og:title" content="Kick Kick Kick Kick">';
+  assert.equal(await helpers.verifyYfspUrl({ title: 'Let\'s Get Divorced' }, 'https://www.yfsp.tv/play/other'), 'invalid');
+});
+
+test('search refresh and keyword discovery ignore unparseable publish times', async () => {
+  const row = { title: '新发现韩剧', atypeName: '电视剧', regional: '韩国', postTime: '未知', contxt: 'bad-date', score: 8, hot: 500000 };
+  const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [row] }] } }) });
+  const found = await helpers.searchYfspTitle({ title: row.title, mediaType: '电视剧', regional: '韩国' });
+  assert.equal(found.publishTime, '');
+  const show = { title: row.title, publishTime: '2026-03-01' };
+  helpers.applyYfspSearchFields(show, found);
+  assert.equal(show.publishTime, '2026-03-01', 'a malformed search date cannot replace a reliable one');
+  const discovered = await helpers.discoverNewKDramas(new Map(), new Map());
+  assert.equal(discovered.find(item => item.id === 'bad-date')?.publishTime, '');
+});

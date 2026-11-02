@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * 爱壹帆 韩剧 & 国内综艺 推荐数据抓取器
- * 每天 00:00/12:00 UTC 由 GitHub Actions 执行
+ * 每天 00:23/12:23 UTC 由 GitHub Actions 执行
  *
  * 数据采集:
  *   - 从 api.yfsp.tv 抓取首页数据 (isn=0 + isn=1, 共 30 页)
  *   - 用关键词搜索 YFSP 发现更多新韩剧 (韩剧/最新韩剧/韩剧2026 等)
- *   - 与内置精选推荐库合并 (54 部韩剧 + 16 部综艺, 覆盖经典和 2024-2026 新剧)
+ *   - 与内置精选推荐库合并 (53 部韩剧 + 37 部综艺, 覆盖经典和近年新剧)
  *
  * 数据富化:
  *   - TMDB 高清封面 (original) + Wikidata 豆瓣/Wikipedia/IMDb 链接
@@ -169,6 +169,12 @@ function safeText(value, maxLength = 2000) {
   return /[\uD800-\uDBFF]$/u.test(clipped) ? clipped.slice(0, -1) : clipped;
 }
 
+// 与首页同一规则：无法解析的来源日期视为缺失，不能进入排序、热度和年份推断。
+function sourcePublishTime(value) {
+  const text = safeText(value, 100);
+  return Number.isFinite(Date.parse(text)) ? text : '';
+}
+
 function safeSourceIdentifier(value, maxLength = 200) {
   if (typeof value !== 'string' && typeof value !== 'number') return '';
   const identifier = String(value);
@@ -219,8 +225,7 @@ function normalizeItem(it) {
   const rawTitle = safeText(it.title, 200);
   const title = it.mediaType === '综艺' ? cleanShowTitle(rawTitle) : rawTitle;
   const description = safeText(it.description, 2000) || safeText(it.introduce, 2000);
-  const sourcePublishTime = safeText(it.publishTime, 100) || safeText(it.date, 100);
-  const publishTime = Number.isFinite(Date.parse(sourcePublishTime)) ? sourcePublishTime : '';
+  const publishTime = sourcePublishTime(it.publishTime) || sourcePublishTime(it.date);
   const year = boundedYear(extractYear(publishTime));
   const fallbackPrefix = it.mediaType === '综艺' ? 'disc_var' : it.mediaType === '电视剧' ? 'disc_kd' : 'disc_live';
   const sourceFields = new Set();
@@ -973,7 +978,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
           actor: safeText(match.starring, 500),
           regional: safeText(match.regional, 40),
           lang: safeText(match.lang, 40),
-          publishTime: safeText(match.postTime, 100),
+          publishTime: sourcePublishTime(match.postTime),
           updateStatus: safeText(match.lastName, 200),
           contentType: safeText(match.tag, 300),
           cidMapper: safeText(match.cidMapper, 300),
@@ -1080,7 +1085,6 @@ function applyYfspSearchFields(show, found) {
     show.coverImg = found.coverImg;
     show.coverSource = 'yfsp';
   }
-  if (!show.publishTime && found.publishTime) show.publishTime = found.publishTime;
   if (!show.actor && found.actor) show.actor = found.actor;
   if (!show.regional && found.regional) show.regional = found.regional;
   if (!show.lang && found.lang) show.lang = found.lang;
@@ -1090,6 +1094,16 @@ function applyYfspSearchFields(show, found) {
 }
 
 const YFSP_VERIFY_STATUS = Object.freeze({ VALID: 'valid', INVALID: 'invalid', UNKNOWN: 'unknown' });
+const HTML_NAMED_ENTITIES = Object.freeze({ amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', middot: '·' });
+
+function decodeHtmlEntities(text = '') {
+  return safeText(text, 1000).replace(/&(#\d+|#x[\da-f]+|[a-z]+);/giu, (entity, name) => {
+    if (name[0] !== '#') return HTML_NAMED_ENTITIES[name.toLowerCase()] ?? entity;
+    const hexadecimal = name[1].toLowerCase() === 'x';
+    const code = parseInt(name.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+    return code > 0 && code <= 0x10ffff && (code < 0xd800 || code > 0xdfff) ? String.fromCodePoint(code) : entity;
+  });
+}
 
 async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
   if (!url) return YFSP_VERIFY_STATUS.INVALID;
@@ -1128,9 +1142,9 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
     }
     const html = await response.text();
     if (Date.now() >= requestDeadline) return YFSP_VERIFY_STATUS.UNKNOWN;
-    const title = html.match(/<meta\s+(?:name|property)=["'](?:title|og:title)["']\s+content=["']([^"']+)/i)?.[1]
-      || html.match(/<title>([^<]+)/i)?.[1]
-      || '';
+    const meta = html.match(/<meta\s+(?:name|property)=["'](?:title|og:title)["']\s+content=(?:"([^"]*)"|'([^']*)')/i);
+    // 属性值按其自身引号截取并解码实体；否则“&amp;”或标题内的单引号会让有效页被判为无效。
+    const title = decodeHtmlEntities(meta?.[1] || meta?.[2] || html.match(/<title>([^<]+)/i)?.[1] || '').trim();
     // 200 页面缺少可识别标题可能是站点模板改版，不能据此删除已知链接。
     if (!title || title.includes('爱壹帆国际版-海量')) return YFSP_VERIFY_STATUS.UNKNOWN;
     const cleanTitle = title
@@ -3264,7 +3278,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
             contentType: safeText(r.tag, 300), cidMapper: '', description: '',
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
-            publishTime: safeText(r.postTime, 100),
+            publishTime: sourcePublishTime(r.postTime),
             yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
@@ -3376,7 +3390,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
             contentType: safeText(r.tag, 300), cidMapper: '', description: '',
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
-            publishTime: safeText(r.postTime, 100),
+            publishTime: sourcePublishTime(r.postTime),
             yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,

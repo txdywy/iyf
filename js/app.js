@@ -1491,7 +1491,8 @@
     const rating = toFiniteNumber(show.rating?.average, NaN);
     const img = safeExternalUrl(show.image?.medium || show.image?.original || '', REMOTE_LINK_HOSTS.tvmazeImage);
     const showUrl = safeExternalUrl(show.url, REMOTE_LINK_HOSTS.tvmaze);
-    const summary = decodeSummaryText(show.summary).slice(0, 120);
+    // 按码点截断，避免把补充平面字符拆成孤立代理项。
+    const summary = Array.from(decodeSummaryText(show.summary)).slice(0, 120).join('');
     const complete = isShowComplete(show);
     const statusText = complete ? '已完结' : show.status === 'Running' ? '连载中' : '待定/筹备';
     const posterContent = img
