@@ -139,7 +139,11 @@ export async function deployCloudflare({
         if (remaining <= 0) return `${label}: verification deadline expired`;
         signal = AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining)));
         const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store' });
-        if (response.status !== item.status) return `${label}: HTTP ${response.status} (expected ${item.status})`;
+        if (response.status !== item.status) {
+          // 轮询期间旧部署会持续返回非预期状态；释放未读正文，避免连接堆积到截止时间。
+          await response.body?.cancel?.().catch(() => {});
+          return `${label}: HTTP ${response.status} (expected ${item.status})`;
+        }
         const digest = hash(Buffer.from(await response.arrayBuffer()));
         if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
         if (item.file === 'index.html') readyOrigins.add(origin);
