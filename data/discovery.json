@@ -1,9 +1,4 @@
 {
-  "2026-09-03": {
-    "timestamp": "2026-09-03T15:40:42.177Z",
-    "totalFound": 0,
-    "shows": []
-  },
   "2026-09-04": {
     "timestamp": "2026-09-04T15:39:15.316Z",
     "totalFound": 0,
@@ -592,6 +587,48 @@
         "title": "我的音乐老师，你好",
         "score": 3.3,
         "playCount": 10826,
+        "year": 2020,
+        "actor": "尹度玹,金在奂,刘载焕]",
+        "source": "search",
+        "updateStatus": "02集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      }
+    ]
+  },
+  "2026-11-02": {
+    "timestamp": "2026-11-02T04:34:36.409Z",
+    "totalFound": 3,
+    "shows": [
+      {
+        "title": "摩登音乐秀",
+        "score": 3.8,
+        "playCount": 21703,
+        "year": 2018,
+        "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
+        "source": "search",
+        "updateStatus": "20181202集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "音乐同学会-好歌谣",
+        "score": 0,
+        "playCount": 18173,
+        "year": 2020,
+        "actor": "李寿根,郑恩地,刘世允,金信英",
+        "source": "search",
+        "updateStatus": "20200216集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "我的音乐老师，你好",
+        "score": 3.3,
+        "playCount": 10828,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",

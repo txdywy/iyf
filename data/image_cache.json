@@ -3550,7 +3550,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-01T06:27:09.849Z"
+    "externalMetadataCheckedAt": "2026-11-02T04:34:36.726Z"
   },
   "cwX4qHtZmR8": {
     "title": "千香",
@@ -5980,7 +5980,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-01T06:27:09.995Z"
+    "externalMetadataCheckedAt": "2026-11-02T04:34:36.929Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -10828,13 +10828,16 @@
     "tmdbSeriesId": 273092,
     "tmdbSeasonId": 421211,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/30258074/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-01T06:54:37.271Z",
-    "cachedAt": "2026-11-01T06:54:37.274Z"
+    "cachedAt": "2026-11-01T06:54:37.274Z",
+    "doubanId": "30258074",
+    "doubanMatchedTitle": "美食告白记 第二季",
+    "doubanMatchedSeasonNumber": 2
   },
   "GcrCssMdToA": {
     "title": "改造露营车-冬天的故事",
