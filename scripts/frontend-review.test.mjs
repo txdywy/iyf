@@ -568,6 +568,29 @@ test('clearing filters keeps keyboard focus in the search input after the reset 
   assert.equal(view.scrollY, 350, 'clearing filters should not jump away from the controls');
 });
 
+test('an earlier search debounce cannot filter unfinished IME composition text', async () => {
+  const { helpers, elements } = createApp();
+  helpers.setAllData(snapshot(2));
+  helpers.bindFilters();
+  helpers.switchTab('korean', { animate: false });
+  const search = elements.searchInput;
+  search.value = '剧目0';
+  search.dispatch('input', { isComposing: false });
+  await new Promise(resolve => setTimeout(resolve, 120));
+
+  search.dispatch('compositionstart');
+  search.value = '未完成拼音';
+  search.dispatch('input', { isComposing: true });
+  await new Promise(resolve => setTimeout(resolve, 250));
+  assert.equal(elements.showGrid.children.length, 2, 'the previous timer must be cancelled when composition starts');
+
+  search.value = '剧目1';
+  search.dispatch('compositionend');
+  await new Promise(resolve => setTimeout(resolve, 350));
+  assert.equal(elements.showGrid.children.length, 1, 'the committed query is applied after composition ends');
+  assert.match(elements.showGrid.innerHTML, /剧目1/u);
+});
+
 test('retrying recommendations moves focus from the disappearing retry button into the main content', async () => {
   let attempt = 0;
   let resolveRetry;

@@ -555,10 +555,22 @@
     document.getElementById('filterScore').addEventListener('change', applyAndSync);
     document.getElementById('sortBy').addEventListener('change', applyAndSync);
     const searchInput = document.getElementById('searchInput');
-    const debouncedSearch = debounce(applyAndSync, 300);
+    let isComposing = false;
+    const debouncedSearch = debounce(() => {
+      if (!isComposing) applyAndSync();
+    }, 300);
     // 中文输入法组字期间的拼音字母不是查询词；组字结束后再筛选。
-    searchInput.addEventListener('input', event => { if (!event?.isComposing) debouncedSearch(); });
-    searchInput.addEventListener('compositionend', debouncedSearch);
+    searchInput.addEventListener('compositionstart', () => {
+      isComposing = true;
+      debouncedSearch.cancel();
+    });
+    searchInput.addEventListener('input', event => {
+      if (!isComposing && !event?.isComposing) debouncedSearch();
+    });
+    searchInput.addEventListener('compositionend', () => {
+      isComposing = false;
+      debouncedSearch();
+    });
     document.getElementById('resetFilters').addEventListener('click', () => {
       document.getElementById('filterStatus').value = 'all';
       document.getElementById('filterScore').value = '0';
@@ -1310,10 +1322,18 @@
 
   function debounce(fn, delay) {
     let timer;
-    return function (...args) {
+    const debounced = function (...args) {
       clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), delay);
+      timer = setTimeout(() => {
+        timer = undefined;
+        fn.apply(this, args);
+      }, delay);
     };
+    debounced.cancel = () => {
+      clearTimeout(timer);
+      timer = undefined;
+    };
+    return debounced;
   }
 
   // ── 外部数据源: TVmaze 韩剧时间表 ─────────────────────────

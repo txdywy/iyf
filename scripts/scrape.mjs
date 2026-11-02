@@ -507,7 +507,7 @@ const TITLE_ALIAS_MAP = {
   '金星脱口秀': ['金星秀', 'The Jin Xing Show'],
   '综艺大热门': ['綜藝大熱門', 'Hot Door Night'],
   '披荆斩棘的哥哥': ['披荆斩棘', 'Call Me by Fire'],
-  'BTS综艺年代记': ['BTS Variety Chronicle', 'Run BTS!'],
+  'BTS综艺年代记': ['BTS Variety Chronicle'],
   '新进职员姜会长': ['新进社员姜会长', 'The New Employee Chairman Kang'],
   '菜鸟炊事兵': ['菜鸟伙房兵', 'The Legend of Kitchen Soldier'],
   '好，我们离婚吧': ['好吧离婚吧', '好吧，离婚吧', 'OK! Let\'s Get Divorced', 'Yeah, Let\'s Get a Divorce', '그래, 이혼하자'],
@@ -746,6 +746,25 @@ function applyLiveFields(seedShow, liveMatch) {
   return reconcileShowStatus(merged);
 }
 
+function sameSeedShowIdentity(a, b) {
+  if (!a?.seedId || a.seedId !== b?.seedId || !a.title || !b?.title) return false;
+  if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
+  if (a.regional && b.regional && a.regional !== b.regional) return false;
+  if (a.year && b.year && Math.abs(a.year - b.year) > 1) return false;
+  const aSeason = seasonKey(a.title);
+  const bSeason = seasonKey(b.title);
+  if (aSeason && bSeason) return aSeason === bSeason && titleMatches(a.title, b.title);
+  if (!titleMatches(a.title, b.title)) return false;
+
+  // A seed can intentionally represent an explicitly listed season alias. Do not
+  // let that exception match another season or an unlisted seasonal spelling.
+  const unseasonedTitle = aSeason ? b.title : a.title;
+  const seasonalTitle = aSeason ? a.title : b.title;
+  const seasonalKey = seasonKey(seasonalTitle);
+  return titleCandidates(unseasonedTitle).some(alias =>
+    seasonKey(alias) === seasonalKey && normalizedTitleMatches(alias, seasonalTitle));
+}
+
 function loadPreviousShows() {
   const empty = { lastUpdated: '', stats: {}, koreanDramas: [], chineseVariety: [], otherDramas: [] };
   if (!existsSync(SHOWS_FILE)) return empty;
@@ -864,19 +883,36 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
 
   // 同标题或同 ID 的新抓取对象保留动态更新,同时继承上次已经验证过的富化结果。
   for (const [id, current] of [...targetMap.entries()]) {
-    const prev = previous.find(candidate => sameShowIdentity(candidate, current));
+    const prev = previous.find(candidate =>
+      sameShowIdentity(candidate, current) || sameSeedShowIdentity(candidate, current));
     if (!prev) continue;
+    const restoredSeedAlias = !sameShowIdentity(prev, current) && sameSeedShowIdentity(prev, current);
     const merged = reconcileShowStatus(mergePreviousShowState(current, prev));
+    if (restoredSeedAlias) {
+      // Keep the last published seasonal title and live ID while the seed supplies
+      // the fallback card during a source outage.
+      merged.id = prev.id || merged.id;
+      merged.title = prev.title;
+      for (const field of PREVIOUS_STABLE_FIELDS) {
+        if (prev[field]) merged[field] = prev[field];
+      }
+    }
     merged.category = category;
     merged.mediaType = merged.mediaType || mediaType;
     merged.recommendScore = scoreFn(merged);
     attachLinkFields(merged, merged.yfspUrl, merged.doubanUrl);
-    targetMap.set(id, merged);
+    if (restoredSeedAlias && merged.id !== id) {
+      targetMap.delete(id);
+      targetMap.set(merged.id, merged);
+    } else {
+      targetMap.set(id, merged);
+    }
   }
 
   for (const prev of previous) {
     if (!prev?.title || prev.seedId) continue;
-    if ([...targetMap.values()].some(current => sameShowIdentity(current, prev))) continue;
+    if ([...targetMap.values()].some(current =>
+      sameShowIdentity(current, prev) || sameSeedShowIdentity(current, prev))) continue;
     // 同 ID 的明确新身份已经出现时，不得用旧季快照覆盖本轮来源对象。
     if (prev.id && targetMap.has(prev.id)) continue;
     const now = Date.now();
@@ -3194,11 +3230,14 @@ function hasSameTitleCard(candidate, collection) {
     !(candidate.year >= CURRENT_YEAR && candidate.year > (boundedYear(existing.year) || 0)));
 }
 
-function renewDiscoveredSourceId(contentKey, collection) {
-  // 关键词搜索再次返回已收录节目的同一来源 ID，即是它仍在来源中的直接证据；别名匹配不算。
-  if (!contentKey) return;
+function renewDiscoveredSourceId(candidate, collection) {
+  // 关键词搜索再次返回同一身份的来源 ID，才算它仍在来源中的直接证据。
+  // 来源 ID 被复用到另一季时，不能因此延长旧季的保留期。
+  if (!candidate?.id || !candidate.title) return;
   for (const existing of collection.values()) {
-    if (existing?.id === contentKey) existing.lastLiveAt = new Date().toISOString();
+    if (existing?.id === candidate.id && sameShowIdentity(existing, candidate)) {
+      existing.lastLiveAt = new Date().toISOString();
+    }
   }
 }
 
@@ -3254,16 +3293,17 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
       const results = Array.isArray(rawResults) ? rawResults.filter(r => r && typeof r === 'object') : [];
       for (const r of results) {
         if (r.regional !== '韩国' || r.atypeName !== '电视剧') continue;
-        const yr = boundedYear(extractYear(r.postTime || ''));
+        const publishTime = sourcePublishTime(r.postTime);
+        const yr = boundedYear(extractYear(publishTime));
         const norm = discoveryIdentityKey(r.title || '', yr);
         let contentKey;
         try { contentKey = safeSourceIdentifier(r.contxt); }
         catch { console.warn('  [WARN] skipped malformed drama discovery identifier'); continue; }
         const candidate = {
           id: contentKey || stableDiscoveredId('disc_kd', r.title, yr),
-          title: safeText(r.title, 200), year: yr, mediaType: '电视剧',
+          title: safeText(r.title, 200), year: yr, mediaType: '电视剧', regional: '韩国',
         };
-        renewDiscoveredSourceId(contentKey, kdramaMap);
+        renewDiscoveredSourceId(candidate, kdramaMap);
         if (candidate.title && !hasKnownDiscoveryIdentity(candidate, kdramaMap, discovered) && !hasSameTitleCard(candidate, kdramaMap)) {
           const sc = isNumericScalar(r.score) ? boundedScore(r.score) : 0;
           const plays = isNumericScalar(r.hot) ? boundedPlayCount(r.hot) : 0;
@@ -3278,7 +3318,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
             contentType: safeText(r.tag, 300), cidMapper: '', description: '',
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
-            publishTime: sourcePublishTime(r.postTime),
+            publishTime,
             yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
@@ -3367,7 +3407,8 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
         const title = safeText(r.title, 200);
         if (!title || VarietyExclude.some(kw => title.includes(kw))) continue;
         const cleanTitle = cleanShowTitle(title);
-        const yr = boundedYear(extractYear(r.postTime || ''));
+        const publishTime = sourcePublishTime(r.postTime);
+        const yr = boundedYear(extractYear(publishTime));
         const norm = discoveryRecordIdentityKey({ title: cleanTitle, year: yr, mediaType: '综艺', regional: r.regional });
         let contentKey;
         try { contentKey = safeSourceIdentifier(r.contxt); }
@@ -3376,7 +3417,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
           id: contentKey || stableDiscoveredId('disc_var', cleanTitle, yr),
           title: cleanTitle, year: yr, mediaType: '综艺', regional: r.regional,
         };
-        renewDiscoveredSourceId(contentKey, varietyMap);
+        renewDiscoveredSourceId(candidate, varietyMap);
         if (candidate.title && !hasKnownDiscoveryIdentity(candidate, varietyMap, discovered) && !hasSameTitleCard(candidate, varietyMap)) {
           const sc = isNumericScalar(r.score) ? boundedScore(r.score) : 0;
           const plays = isNumericScalar(r.hot) ? boundedPlayCount(r.hot) : 0;
@@ -3390,7 +3431,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
             contentType: safeText(r.tag, 300), cidMapper: '', description: '',
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
-            publishTime: sourcePublishTime(r.postTime),
+            publishTime,
             yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
@@ -3893,6 +3934,36 @@ function matchesTMDBSeriesTitle(show, title) {
   return expected.some(candidate => titleMatches(stripSeasonSuffix(title), candidate));
 }
 
+function isValidTMDBDate(value) {
+  if (value == null || value === '') return true;
+  if (typeof value !== 'string') return false;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/u);
+  if (!match) return false;
+  const [, yearText, monthText, dayText] = match;
+  const date = new Date(0);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(Number(yearText), Number(monthText) - 1, Number(dayText));
+  return date.getUTCFullYear() === Number(yearText) &&
+    date.getUTCMonth() === Number(monthText) - 1 &&
+    date.getUTCDate() === Number(dayText);
+}
+
+function isTMDBIdentityFieldsWellFormed(result) {
+  if (!result || typeof result !== 'object' || Array.isArray(result)) return false;
+  const nameFields = ['title', 'original_title', 'name', 'original_name'];
+  if (nameFields.some(field => result[field] != null && typeof result[field] !== 'string')) return false;
+  if (['first_air_date', 'release_date'].some(field => !isValidTMDBDate(result[field]))) return false;
+  if (result.origin_country != null &&
+      (!Array.isArray(result.origin_country) || result.origin_country.some(country =>
+        typeof country !== 'string' || !/^[A-Z]{2}$/u.test(country)))) return false;
+  return true;
+}
+
+function tmdbResultNames(result) {
+  return [result?.title, result?.original_title, result?.name, result?.original_name]
+    .filter(name => typeof name === 'string' && name.trim());
+}
+
 function isTMDBResultRegionCompatible(show, result) {
   const regionCountries = {
     '大陆': 'CN', '韩国': 'KR', '台湾': 'TW', '香港': 'HK',
@@ -3900,6 +3971,7 @@ function isTMDBResultRegionCompatible(show, result) {
   };
   const expectedCountry = regionCountries[show.regional];
   const countries = Array.isArray(result?.origin_country) ? result.origin_country : [];
+  if (!isTMDBIdentityFieldsWellFormed(result)) return false;
   return !expectedCountry || !countries.length || countries.includes(expectedCountry);
 }
 
@@ -3965,7 +4037,8 @@ async function resolveTMDBSeasonSeries(show, cacheEntry) {
   // 未认证的历史 ID/链接先取系列实体。负缓存会丢掉旧 ID，裸链接不能在下一轮重新洗白它。
   const data = await fetchTMDBJSON(`tv/${id}?language=zh-CN`);
   if (!data) return null;
-  const names = [data.name, data.original_name].filter(name => typeof name === 'string' && name.trim());
+  if (!isTMDBIdentityFieldsWellFormed(data)) throw new Error('TMDB series returned invalid identity data');
+  const names = tmdbResultNames(data);
   if (Number(data.id) !== id || !names.length) throw new Error('TMDB series returned invalid data');
   const title = names.find(name => matchesTMDBSeriesTitle(show, name));
   if (!title || !isTMDBResultRegionCompatible(show, data)) {
@@ -4060,7 +4133,10 @@ async function lookupTMDBDirect(show) {
   const mediaKind = entry.kind;
   const data = await fetchTMDBJSON(`${mediaKind}/${entry.id}?language=zh-CN`);
   if (!data) return null;
-  if (!Number.isSafeInteger(data.id) || data.id !== entry.id) throw new Error('TMDB direct lookup returned invalid entity');
+  if (!Number.isSafeInteger(data.id) || data.id !== entry.id ||
+      !isTMDBIdentityFieldsWellFormed(data) || !tmdbResultNames(data).length) {
+    throw new Error('TMDB direct lookup returned invalid entity');
+  }
 
   // poster_path 可能在详情 API 中,也可能需要 images API
   let posterPath = tmdbPosterPath(data.poster_path);
@@ -4088,6 +4164,11 @@ async function lookupTMDBSeasonById(show, seriesId, matchedSeriesTitle) {
 
   const data = await fetchTMDBJSON(`tv/${seriesId}/season/${seasonNumber}?language=zh-CN`);
   if (!data) return null;
+  if ((data.name != null && typeof data.name !== 'string') || !isValidTMDBDate(data.air_date) ||
+      (data.episodes != null && (!Array.isArray(data.episodes) || data.episodes.some(episode =>
+        !episode || typeof episode !== 'object' || Array.isArray(episode) || !isValidTMDBDate(episode.air_date))))) {
+    throw new Error('TMDB season returned invalid identity data');
+  }
   const returnedSeasonNumber = Number(data.season_number);
   if (!Number.isInteger(returnedSeasonNumber)) throw new Error('TMDB season returned invalid data');
   if (returnedSeasonNumber !== seasonNumber) return null;
@@ -4100,9 +4181,7 @@ async function lookupTMDBSeasonById(show, seriesId, matchedSeriesTitle) {
   if (!posterPath) return null;
 
   const expectedYear = boundedYear(show?.year);
-  const firstEpisodeAirDate = Array.isArray(data.episodes)
-    ? data.episodes.find(episode => episode?.air_date)?.air_date
-    : '';
+  const firstEpisodeAirDate = data.episodes?.find(episode => episode.air_date)?.air_date || '';
   const seasonYear = extractYear(data.air_date || firstEpisodeAirDate || '');
   if (expectedYear && seasonYear && Math.abs(expectedYear - seasonYear) > 1) return null;
 
@@ -4148,6 +4227,7 @@ function isTMDBResultSeasonCompatible(show, result) {
 }
 
 function isTMDBResultYearCompatible(show, result, { yearParam = '' } = {}) {
+  if (!isTMDBIdentityFieldsWellFormed(result)) return false;
   if (!isTMDBResultSeasonCompatible(show, result)) return false;
   const expectedYear = boundedYear(show?.year);
   if (!expectedYear) return true;
@@ -4189,10 +4269,8 @@ async function lookupTMDBFromVerifiedDouban(show, identity) {
   const matches = new Map();
   for (const result of data.results) {
     if (!result || typeof result !== 'object' || Array.isArray(result) ||
-        !Number.isSafeInteger(result.id) || result.id <= 0) throw new Error('TMDB search returned invalid result');
-    if ((result.origin_country != null && (!Array.isArray(result.origin_country) || result.origin_country.some(value => typeof value !== 'string'))) ||
-        (result.first_air_date != null && typeof result.first_air_date !== 'string') ||
-        [result.name, result.original_name, result.title, result.original_title].some(value => value != null && typeof value !== 'string')) {
+        !Number.isSafeInteger(result.id) || result.id <= 0 ||
+        !isTMDBIdentityFieldsWellFormed(result) || !tmdbResultNames(result).length) {
       throw new Error('TMDB search returned invalid identity data');
     }
     if (!Array.isArray(result.origin_country) || !result.origin_country.includes('KR') ||
@@ -4289,6 +4367,10 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
             hadTransientError = true;
             continue;
           }
+          if (!isTMDBIdentityFieldsWellFormed(r) || !tmdbResultNames(r).length) {
+            hadTransientError = true;
+            continue;
+          }
           let posterPath;
           try { posterPath = tmdbPosterPath(r.poster_path); }
           catch { hadTransientError = true; continue; }
@@ -4296,7 +4378,7 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
           // 季海报可能存在而系列海报为空，先解析匹配的 season 再判断封面。
           if (!expectedSeasonNumber && !posterPath) continue;
           if (!isTMDBResultRegionCompatible(show, r)) continue;
-          const names = [r.title, r.original_title, r.name, r.original_name].filter(Boolean);
+          const names = tmdbResultNames(r);
           const expected = [...titleCandidates(show.title), enTitle, query].filter(Boolean);
           const matchedTitle = names.find(name =>
             expected.some(value => titleMatches(name, value))
