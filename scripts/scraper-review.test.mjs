@@ -62,6 +62,45 @@ function response(json, { status = 200, html = '' } = {}) {
   };
 }
 
+test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', () => {
+  const { helpers } = loadHelpers();
+  assert.equal(helpers.titleMatches('BTS综艺年代记', 'Run BTS!'), false);
+  const shows = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
+  const show = shows.chineseVariety.find(item => item.id === 'gME4Wj46fvE');
+  assert.ok(show);
+  assert.equal(show.primaryUrl, show.yfspUrl);
+  assert.equal(show.url, show.yfspUrl);
+  assert.equal(show.primaryUrlSource, 'yfsp');
+  assert.equal(Object.hasOwn(show, 'doubanId'), false);
+  assert.equal(Object.hasOwn(show, 'doubanMatchedTitle'), false);
+});
+
+test('a published seasonal seed alias survives an outage without merging another season', () => {
+  const { helpers } = loadHelpers();
+  const currentSeed = {
+    id: 'seed_kd_c13', seedId: 'seed_kd_c13', title: '酒鬼都市男女', year: 2022,
+    mediaType: '电视剧', regional: '韩国', category: 'korean_drama', isLive: false,
+    coverImg: 'https://static.yfsp.tv/seed.jpg', coverSource: 'seed',
+  };
+  const previousSeason = {
+    id: 'live-season-1', seedId: 'seed_kd_c13', title: '酒鬼都市女人们第1季', year: 2021,
+    mediaType: '电视剧', regional: '韩国', category: 'korean_drama', scrapedAt: '2026-09-29T04:00:00Z',
+    lastLiveAt: '2026-09-29T04:00:00Z', coverImg: 'https://image.tmdb.org/t/p/original/season-1.jpg',
+    coverSource: 'tmdb', tmdbUrl: 'https://www.themoviedb.org/tv/133744/season/1',
+  };
+  const map = new Map([[currentSeed.id, currentSeed]]);
+  helpers.restorePreviousCategory(map, [previousSeason], 'korean_drama', '电视剧', () => 10, 'disc_kd');
+  assert.deepEqual(Array.from(map.keys()), [previousSeason.id]);
+  assert.equal(map.get(previousSeason.id).title, previousSeason.title);
+  assert.equal(map.get(previousSeason.id).coverImg, previousSeason.coverImg);
+  assert.equal(map.get(previousSeason.id).tmdbUrl, previousSeason.tmdbUrl);
+
+  const otherSeason = { ...previousSeason, id: 'live-season-2', title: '酒鬼都市女人们第2季', year: 2022 };
+  const otherMap = new Map([[currentSeed.id, { ...currentSeed }]]);
+  helpers.restorePreviousCategory(otherMap, [otherSeason], 'korean_drama', '电视剧', () => 10, 'disc_kd');
+  assert.deepEqual(Array.from(otherMap.keys()), [currentSeed.id], 'only the explicitly listed first-season alias may reuse this seed');
+});
+
 test('auxiliary JSON files recover malformed roots and preserve valid existing records', async t => {
   const today = '2026-09-30';
   const oldDate = '2026-09-29';
@@ -421,6 +460,49 @@ test('malformed successful TMDB roots cannot establish a not-found cache or repl
     const cache = JSON.parse(files.get(join(dataDir, 'image_cache.json')));
     assert.equal(Object.hasOwn(cache, show.id), false, 'malformed success is not evidence for a negative cache');
   }
+});
+
+test('malformed TMDB identity fields stay retryable and cannot win a cover match', async t => {
+  for (const malformedName of [true, false]) await t.test(malformedName ? 'object title' : 'object country and date', async () => {
+    const show = { id: 'malformed-identity', title: '元数据测试韩剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+      category: 'korean_drama', coverImg: 'https://static.yfsp.tv/fallback.jpg' };
+    let repaired = false;
+    let searchRequests = 0;
+    const { helpers, files } = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async url => {
+      const target = new URL(url);
+      if (target.pathname === '/3/search/tv') {
+        searchRequests++;
+        if (malformedName && !repaired) return response({ results: [{
+          id: 730100, name: { malformed: true }, poster_path: '/wrong.jpg',
+          origin_country: ['KR'], first_air_date: '2026-01-01',
+        }] });
+        if (!malformedName && !repaired) return response({ results: [
+          { id: 730100, name: show.title, poster_path: '/wrong.jpg',
+            origin_country: { country: 'US' }, first_air_date: { date: '1990-01-01' } },
+          { id: 730101, name: show.title, poster_path: '/right.jpg',
+            origin_country: ['KR'], first_air_date: '2026-01-01' },
+        ] });
+        return response({ results: [{ id: 730101, name: show.title, poster_path: '/right.jpg',
+          origin_country: ['KR'], first_air_date: '2026-01-01' }] });
+      }
+      if (target.pathname === '/3/tv/730101/external_ids') return response({ id: 730101 });
+      throw new Error(`unexpected TMDB request ${target.href}`);
+    } });
+
+    await helpers.enrichCoversFromTMDB([show]);
+    const cachePath = join(dataDir, 'image_cache.json');
+    let cache = JSON.parse(files.get(cachePath));
+    if (malformedName) {
+      assert.notEqual(cache[show.id]?.notFound, true, 'a malformed title cannot be treated as a reliable miss');
+      const beforeRepair = searchRequests;
+      repaired = true;
+      await helpers.enrichCoversFromTMDB([show]);
+      assert.ok(searchRequests > beforeRepair, 'the next run retries instead of being suppressed by a negative cache');
+      cache = JSON.parse(files.get(cachePath));
+    }
+    assert.equal(cache[show.id].tmdbId, 730101);
+    assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/right.jpg');
+  });
 });
 
 test('TMDB HTTP 404 remains a confirmed miss rather than a malformed successful response', async () => {
@@ -2671,6 +2753,18 @@ for (const kind of ['KDrama', 'variety']) {
   });
 }
 
+test('a reused source ID in a new season does not renew the old season card', async () => {
+  const existing = { id: 'reused-season-id', title: '续期测试第1季', year: 2024, mediaType: '电视剧',
+    regional: '韩国', lastLiveAt: '2026-08-16T04:00:00.000Z' };
+  const row = { title: '续期测试第2季', regional: '韩国', atypeName: '电视剧', postTime: '2026-01-01',
+    score: 0, hot: 0, contxt: existing.id };
+  const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [row] }] } }) });
+  const known = new Map([[existing.id, existing]]);
+  const discovered = await helpers.discoverNewKDramas(new Map(), known);
+  assert.equal(existing.lastLiveAt, '2026-08-16T04:00:00.000Z');
+  assert.equal(discovered.length, 0);
+});
+
 test('YFSP page verification decodes title entities and keeps apostrophes inside quoted attributes', async () => {
   let html = '';
   const { helpers } = loadHelpers({ fetchImpl: async () => response(null, { html }) });
@@ -2692,4 +2786,14 @@ test('search refresh and keyword discovery ignore unparseable publish times', as
   assert.equal(show.publishTime, '2026-03-01', 'a malformed search date cannot replace a reliable one');
   const discovered = await helpers.discoverNewKDramas(new Map(), new Map());
   assert.equal(discovered.find(item => item.id === 'bad-date')?.publishTime, '');
+});
+
+test('an unparseable discovery date cannot supply the current year or its lower admission threshold', async () => {
+  const row = { title: '日期测试韩剧', atypeName: '电视剧', regional: '韩国', postTime: 'bad 2026 date',
+    contxt: 'bad-date-year', score: 4, hot: 0 };
+  const { helpers, files } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [row] }] } }) });
+  const discovered = await helpers.discoverNewKDramas(new Map(), new Map());
+  assert.equal(discovered.some(show => show.id === row.contxt), false);
+  const history = JSON.parse(files.get(join(dataDir, 'discovery.json')));
+  assert.equal(history['2026-09-30'].totalFound, 0);
 });
