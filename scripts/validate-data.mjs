@@ -184,11 +184,18 @@ function validateShows(data) {
   const updated = typeof data.lastUpdated === 'string' ? Date.parse(data.lastUpdated) : NaN;
   const age = Date.now() - updated;
   if (!Number.isFinite(updated)) errors.push('data/shows.json: invalid lastUpdated');
-  else if (age > 7 * DAY_MS) {
-    // 抓取任务必须阻止发布过期数据；PR 和 Cloudflare 重建只校验已提交快照，不能因此阻塞修复抓取器的代码。
-    (REQUIRE_FRESH_DATA ? errors : warnings).push('data/shows.json: recommendation data is older than 7 days');
-  } else if (age > 2 * DAY_MS) warnings.push('data/shows.json: recommendation data is older than 48 hours');
+  // 来源降级时 lastUpdated 保持上次健康快照时间；线上无论如何都会继续提供该快照，
+  // 因此过旧只警告，不能阻塞代码修复或缓存进度的发布。
+  else if (age > 7 * DAY_MS) warnings.push('data/shows.json: recommendation data is older than 7 days');
+  else if (age > 2 * DAY_MS) warnings.push('data/shows.json: recommendation data is older than 48 hours');
   else if (-age > DAY_MS) errors.push('data/shows.json: lastUpdated is unexpectedly in the future');
+  if (REQUIRE_FRESH_DATA) {
+    // 抓取任务必须确认本次运行确实写出了数据，避免把未更新的旧文件当作新结果发布。
+    const generated = typeof data.generatedAt === 'string' ? Date.parse(data.generatedAt) : NaN;
+    if (!Number.isFinite(generated) || Date.now() - generated > DAY_MS) {
+      errors.push('data/shows.json: generatedAt was not refreshed by this scrape run');
+    }
+  }
 }
 
 function validateObjectFile(path) {

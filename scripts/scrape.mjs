@@ -780,6 +780,7 @@ function loadPreviousShows() {
     return {
       lastUpdated: safeText(prev.lastUpdated, 100),
       aiPreferredModel: safeText(prev.aiPreferredModel, 200),
+      discoveryRejections: prev.discoveryRejections,
       stats: prev.stats && typeof prev.stats === 'object' ? prev.stats : {},
       koreanDramas: prev.koreanDramas.map(repairKnownSeedMetadata),
       chineseVariety: prev.chineseVariety,
@@ -797,6 +798,22 @@ const PREVIOUS_STABLE_FIELDS = [
   'description', 'descriptionSource', 'descriptionTmdbSeasonUrl', 'titleAliases',
   'yfspLookupState', 'yfspLookupCheckedAt', 'yfspLookupUrl', 'yfspRefreshCheckedAt', 'sourceSearchCheckedAt',
 ];
+
+// 来源会在不同季之间复用同一 ID；新发现项不能覆盖同 ID 但身份不同的已收录卡片，
+// 否则收录门拒绝新季时会连同旧卡一起删除。
+function addDiscoveredShows(targetMap, shows) {
+  let added = 0;
+  for (const show of shows) {
+    const existing = targetMap.get(show.id);
+    if (existing && !sameShowIdentity(existing, show)) {
+      console.warn(`  跳过与已收录「${existing.title}」共用来源 ID 的新发现「${show.title}」`);
+      continue;
+    }
+    targetMap.set(show.id, show);
+    added++;
+  }
+  return added;
+}
 
 function sameShowIdentity(a, b) {
   if (!a?.title || !b?.title) return false;
@@ -1042,6 +1059,8 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
 
 // 连载节目提前一天轮到，以便更快刷新集数；完结节目仍按轮换获得续期机会。
 const SEARCH_FALLBACK_SERIAL_LEAD_MS = 24 * 60 * 60 * 1000;
+// 小于定时间隔(12 小时)，只覆盖同一轮运行里首页回退已经完成的标题搜索。
+const YFSP_REFRESH_RECENT_SEARCH_MS = 6 * 60 * 60 * 1000;
 
 function searchFallbackDueAt(show) {
   // 未命中的目标也记录尝试时间，避免永远占据名额而让其余卡片在首页封锁期间集中退休。
@@ -1207,13 +1226,15 @@ const KDramaGenreBoost = {
   '喜剧': 25, '搞笑': 25, '浪漫': 20, '爱情': 15, '轻松': 20,
   '奇幻': 12, '都市': 12, '家庭': 12, '青春': 12, '职场': 8,
   '治愈': 18, '温馨': 18, '甜宠': 20,
-  '悬疑': 5, '犯罪': 0, '惊悚': -10, '恐怖': -30,
+  // 恐怖题材由 KDramaHardExclude 直接排除，不在类型分里重复计分
+  '悬疑': 5, '犯罪': 0, '惊悚': -10,
   '剧情': 8, '古装': 5, '动作': 0,
   // 观众偏好加权(基于66部已看韩剧)
   '律师': 12, '法律': 12, '法官': 12, '检察官': 8,
   '身份': 12, '伪装': 12, '冒充': 12, '替身': 12,
   '漫改': 8, '改编': 8,
-  '办公室': 8, '职场剧': 8,
+  // 「职场剧」已被「职场」子串命中，避免同一题材重复加分
+  '办公室': 8,
   // 轻松喜剧的细分偏好: 军营成长、做饭/美食题材也属于用户明确喜欢的解压内容
   '军营': 8, '军旅': 8, '成长': 8, '炊事': 8, '厨艺': 8, '美食': 8,
 };
@@ -1260,7 +1281,8 @@ const VarietyBoost = {
   '真人秀': 20, '搞笑': 35, '喜剧': 35, '幽默': 30, '欢乐': 25, '爆笑': 25,
   '竞技': 15, '旅行': 20, '游戏': 25, '户外': 18,
   '脱口秀': 20, '访谈': 10, '选秀': 10,
-  '生活': 15, '美食': 15, '慢生活': 15, '治愈': 15, '温馨': 15,
+  // 「慢生活」已被「生活」子串命中，不重复计分
+  '生活': 15, '美食': 15, '治愈': 15, '温馨': 15,
   '推理': 12, '探案': 12, '剧本杀': 12,
   '音乐': 8, '竞演': 8, '舞台': 8,
   '相声': 20, '小品': 20, 'sketch': 20,
@@ -1269,12 +1291,13 @@ const VarietyBoost = {
   '做饭': 10, '料理': 10, '厨艺': 10, '农场': 12, '种地': 12,
   '搭档': 8, '团建': 10, '兄弟': 8, '闺蜜': 8,
   '解压': 10, '下饭': 12, '轻松': 12,
-  // 明星加成（轻量）
-  '沈腾': 5, '贾玲': 5, '邓超': 5, '陈赫': 5, '大张伟': 5, '杨迪': 5,
-  '何炅': 5, '撒贝宁': 5, '李诞': 3,
-  '黄渤': 5, '贾冰': 5, '白敬亭': 3, '范丞丞': 3, '刘宇宁': 3,
-  '沙溢': 3, '王鹤棣': 3, '秦霄贤': 3, '郭麒麟': 3,
+  // 明星加成只按 actor 字段计算(见 VarietyHighWeightHosts)；简介/标题中偶然出现的名字不再加分
 };
+
+// 综艺收录地区：首页观测、关键词发现和刷新共用，避免已收录节目在下一轮被忽略。
+const VARIETY_REGIONS = Object.freeze(['大陆', '韩国', '台湾', '香港']);
+// 首页直接收录的核心地区；其余地区的新节目只能经发现门槛收录。
+const CORE_VARIETY_REGIONS = Object.freeze(['大陆', '韩国']);
 
 const VarietyExclude = ['浪姐', '乘风', '姐姐们', '女儿们的恋爱', '怦然再心动', '我们离婚了'];
 
@@ -1411,11 +1434,10 @@ function applyAIRecommendationAdjustment(show) {
   if (show.category === 'variety') {
     // 综艺使用更温和的调整,避免韩剧向 AI 误伤国产综艺
     show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.25));
-  } else if (show.aiScore >= 60) {
-    // 韩剧: 高分温和加成,低分强力惩罚
-    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.4));
   } else {
-    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * 0.8));
+    // 韩剧: 高分温和加成,低分强力惩罚；在 50 处切换系数，保证 AI 分越高调整越大
+    const weight = show.aiScore >= 50 ? 0.4 : 0.8;
+    show.recommendScore = Math.max(0, Math.round(show.recommendScore + (show.aiScore - 50) * weight));
   }
   return show.recommendScore;
 }
@@ -1483,6 +1505,8 @@ let _aiStopReason = '';
 // 免费路由每次随机选择模型；记住最近产出有效批次的具体模型并优先复用，
 // 避免把每日免费请求额度浪费在输出被截断的随机模型上。
 let _aiPreferredModel = '';
+// 固定模型在本轮已遇到的 429 次数：首次按账号级分钟限流保留固定，再次 429 视为该模型上游持续限流而放弃。
+let _aiPinnedRateLimits = 0;
 
 function setAIPreferredModel(model) {
   const id = safeText(model, 200);
@@ -1518,8 +1542,10 @@ async function callModelsAPI(messages, {
     const response = await _callEndpoint(OPENROUTER_API, pinned || model, orKey, messages, temperature, timeout, responseSchema);
     if (pinned && (!response || response.retryAfterMs != null)) {
       // 固定模型失败后立即改走免费路由；路由下一次成功会重新选定模型。
-      // 额度用尽或预算耗尽不是模型本身的问题，保留它供下一轮使用。
-      if (!_aiStopReason && Date.now() < _aiDeadline) _aiPreferredModel = '';
+      // 额度用尽、预算耗尽和本轮首次分钟级 429 不是模型本身的问题，保留它供下一批使用；
+      // 同一固定模型再次 429 说明它在上游持续限流，继续固定只会让每批多花一次请求。
+      const rateLimited = response?.retryAfterMs != null;
+      if (!_aiStopReason && Date.now() < _aiDeadline && (!rateLimited || ++_aiPinnedRateLimits > 1)) _aiPreferredModel = '';
       // 免费额度的分钟级限流通常按账号计算，换路由前同样要先退避，否则唯一的重试也会被限流。
       if (response?.retryAfterMs != null) {
         await sleep(Math.max(0, Math.min(response.retryAfterMs, _aiDeadline - Date.now())));
@@ -1539,7 +1565,8 @@ async function callModelsAPI(messages, {
     if (Array.isArray(rows) && rows.length > 0) {
       _aiConsecutiveFailures = 0;
       // 固定模型成功时保留请求所用的 ID；响应可能报告不带 :free 的规范名，不能因此丢失固定。
-      if (canPin) setAIPreferredModel(pinned || response.model);
+      // 固定模型仅因 429 限流改走路由时，路由随机选中的模型不能顶替已知可用的固定模型。
+      if (canPin && (pinned || !_aiPreferredModel)) setAIPreferredModel(pinned || response.model);
       console.log(`  [AI] 使用 OpenRouter: ${response.model}${pinned ? '（沿用上次成功模型）' : ''}`);
       return rows;
     }
@@ -1908,8 +1935,44 @@ async function aiScoreShows(shows) {
   return results;
 }
 
-async function aiEvaluateDiscovery(discovered) {
-  if (!hasAnyAIProvider() || !discovered.length) return discovered;
+// 被收录门明确拒绝的新韩剧会暂缓一段时间，避免每轮重复富化、占用核验队列和免费 AI 请求。
+// 规则拒绝依赖播放量/评分等会增长的数据，因此冷却期更短；AI 未返回结果不算拒绝。
+const DISCOVERY_REJECTION_TTL_MS = Object.freeze({ rules: 3 * DAY_MS, ai: 10 * DAY_MS });
+const DISCOVERY_REJECTION_MAX = 300;
+
+function normalizeDiscoveryRejections(raw, now = Date.now()) {
+  const result = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return result;
+  const entries = Object.entries(raw)
+    .filter(([key, entry]) => safeText(key, 400) === key && key && entry && typeof entry === 'object' &&
+      Object.hasOwn(DISCOVERY_REJECTION_TTL_MS, entry.reason))
+    .map(([key, entry]) => [key, entry, Date.parse(entry.rejectedAt || '')])
+    .filter(([, entry, at]) => Number.isFinite(at) && at <= now && now - at < DISCOVERY_REJECTION_TTL_MS[entry.reason])
+    .sort((a, b) => b[2] - a[2])
+    .slice(0, DISCOVERY_REJECTION_MAX);
+  for (const [key, entry] of entries) {
+    result[key] = { title: safeText(entry.title, 200), reason: entry.reason, rejectedAt: entry.rejectedAt };
+  }
+  return result;
+}
+
+function isRecentlyRejectedDiscovery(rejections, show) {
+  return Object.hasOwn(rejections, discoveryRecordIdentityKey(show));
+}
+
+function recordDiscoveryRejection(rejections, show, reason, now = Date.now()) {
+  rejections[discoveryRecordIdentityKey(show)] = {
+    title: safeText(show.title, 200), reason, rejectedAt: new Date(now).toISOString(),
+  };
+}
+
+async function aiEvaluateDiscovery(discovered, { onDecision } = {}) {
+  if (!discovered.length) return discovered;
+  if (!hasAnyAIProvider()) {
+    // 未配置 AI 时不能绕过新剧的内容门禁；候选暂缓收录，下次有 AI 时再筛选。
+    console.warn(`  [AI] 未配置 AI，${discovered.length} 部新发现韩剧暂缓收录`);
+    return [];
+  }
 
   console.log(`  [AI] 筛选 ${discovered.length} 部新发现韩剧...`);
   const results = new Map();
@@ -1959,6 +2022,7 @@ async function aiEvaluateDiscovery(discovered) {
   // 新发现节目必须拿到结构完整且明确通过的 AI 决策；空响应/格式错误不能绕过内容门禁。
   const accepted = discovered.filter(s => {
     const decision = results.get(String(s.id));
+    if (decision && onDecision) onDecision(s, decision);
     return decision?.ok === true && decision.score >= 40;
   });
   console.log(`  [AI] 筛选结果: ${accepted.length}/${discovered.length} 部通过`);
@@ -2265,24 +2329,17 @@ async function main() {
   // ── 3. 构建综艺列表 ──
   const varietyMap = new Map();
   for (const s of liveShows.values()) {
-    if (s.regional === '大陆' && s.mediaType === '综艺') {
-      const vsc = scoreVariety(s);
-      if (vsc >= 0) {
-        s.recommendScore = vsc;
-        s.category = 'variety';
-        attachLinkFields(s, s.yfspUrl || s.url);
-        varietyMap.set(s.id, s);
-      }
-    }
-    // 韩国综艺也算
-    if (s.regional === '韩国' && s.mediaType === '综艺') {
-      const vsc = scoreVariety(s);
-      if (vsc >= 0) {
-        s.recommendScore = vsc;
-        s.category = 'variety';
-        attachLinkFields(s, s.yfspUrl || s.url);
-        varietyMap.set(s.id, s);
-      }
+    // 与发现阶段使用同一地区范围，否则已收录的港台综艺之后只能从旧快照恢复，播放量和状态不再更新。
+    // 港台综艺首次出现时仍须经过发现阶段的评分/播放量门槛，这里只接收已收录节目的实时观测。
+    if (s.mediaType !== '综艺' || !VARIETY_REGIONS.includes(s.regional)) continue;
+    if (!CORE_VARIETY_REGIONS.includes(s.regional) &&
+        !prevShows.chineseVariety.some(previous => sameShowIdentity(s, previous))) continue;
+    const vsc = scoreVariety(s);
+    if (vsc >= 0) {
+      s.recommendScore = vsc;
+      s.category = 'variety';
+      attachLinkFields(s, s.yfspUrl || s.url);
+      varietyMap.set(s.id, s);
     }
   }
   for (const s of SEED_VARIETY) {
@@ -2325,21 +2382,26 @@ async function main() {
   const knownKdramasBeforeRun = new Map([...kdramaMap].filter(([, show]) =>
     show.seedId || prevShows.koreanDramas.some(previous => sameShowIdentity(show, previous))));
   const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap, knownKdramasBeforeRun);
-  for (const s of discoveredShows) {
-    kdramaMap.set(s.id, s);
-  }
+  addDiscoveredShows(kdramaMap, discoveredShows);
 
   // ── 5.2. 新综艺监控扫描 (发现并自动收录轻松搞笑综艺) ──
   const knownVarietyBeforeRun = new Map([...varietyMap].filter(([, show]) =>
     show.seedId || prevShows.chineseVariety.some(previous => sameShowIdentity(show, previous))));
   const discoveredVariety = await discoverNewVariety(liveShows, varietyMap, knownVarietyBeforeRun);
-  for (const s of discoveredVariety) {
-    varietyMap.set(s.id, s);
-  }
+  addDiscoveredShows(varietyMap, discoveredVariety);
   // 首页新出现的韩剧与搜索发现项走同一收录门，避免首页路径绕过内容偏好筛选。
   const newKdramaCandidateIds = new Set([...kdramaMap.values()]
     .filter(show => !show.seedId && !prevShows.koreanDramas.some(previous => sameShowIdentity(show, previous)))
     .map(show => show.id));
+  const discoveryRejections = normalizeDiscoveryRejections(prevShows.discoveryRejections);
+  let deferredCandidates = 0;
+  for (const id of [...newKdramaCandidateIds]) {
+    if (!isRecentlyRejectedDiscovery(discoveryRejections, kdramaMap.get(id))) continue;
+    kdramaMap.delete(id);
+    newKdramaCandidateIds.delete(id);
+    deferredCandidates++;
+  }
+  if (deferredCandidates) console.log(`  跳过 ${deferredCandidates} 部近期已被收录门拒绝的新韩剧`);
 
   // ── 5.5. AI 智能评分增强 ──
   // 先加载上次的 AI 评分并注入到 show 对象(让缓存过滤器识别,避免重复调用 API)
@@ -2389,11 +2451,18 @@ async function main() {
   // 新发现韩剧在拿到剧情后再筛选，避免首轮空描述绕过恐怖/血腥等负面条件。
   const discoveryCandidates = [...kdramaMap.values()].filter(show => newKdramaCandidateIds.has(show.id));
   for (const show of discoveryCandidates) {
-    if (!isEligibleKDrama(show) || !passesKDramaDiscoveryThreshold(show)) kdramaMap.delete(show.id);
+    if (!isEligibleKDrama(show) || !passesKDramaDiscoveryThreshold(show)) {
+      kdramaMap.delete(show.id);
+      recordDiscoveryRejection(discoveryRejections, show, 'rules');
+    }
   }
   const ruleAcceptedCandidates = discoveryCandidates.filter(show => kdramaMap.has(show.id));
   if (ruleAcceptedCandidates.length) {
-    const accepted = await aiEvaluateDiscovery(ruleAcceptedCandidates);
+    const accepted = await aiEvaluateDiscovery(ruleAcceptedCandidates, {
+      onDecision: (show, decision) => {
+        if (!(decision.ok === true && decision.score >= 40)) recordDiscoveryRejection(discoveryRejections, show, 'ai');
+      },
+    });
     const acceptedIds = new Set(accepted.map(show => show.id));
     for (const show of ruleAcceptedCandidates) {
       if (!acceptedIds.has(show.id)) kdramaMap.delete(show.id);
@@ -2406,7 +2475,17 @@ async function main() {
   if (removedBeforeAI) console.log(`  按最终内容规则移除 ${removedBeforeAI} 部不符合偏好的韩剧`);
   allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   for (const show of kdramaMap.values()) show.recommendScore = scoreKDrama(show);
-  for (const show of varietyMap.values()) show.recommendScore = scoreVariety(show);
+  let excludedVariety = 0;
+  for (const [id, show] of varietyMap) {
+    show.recommendScore = scoreVariety(show);
+    // 与离线重算一致：最终规则排除的综艺不能再靠 AI 分或钳制回到 0 分而发布。
+    if (show.recommendScore < 0) {
+      varietyMap.delete(id);
+      excludedVariety++;
+    }
+  }
+  if (excludedVariety) console.log(`  按最终综艺规则移除 ${excludedVariety} 个节目`);
+  allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
 
   // 只恢复提示词版本和输入哈希均匹配的缓存；旧的韩剧向综艺分会自动失效。
   let restoredAIScores = 0;
@@ -2440,7 +2519,8 @@ async function main() {
   if (aiScores.size) console.log(`  [AI] 已为 ${aiScores.size} 个节目更新推荐分`);
 
   // AI 文案只用于展示，评分/内容门禁只读取来源简介；风险词在文案生成入口拒绝。
-  await aiEnhanceDescriptions(allShowsList);
+  // otherDramas 不进入公开数据，不为它们消耗免费 AI 请求。
+  await aiEnhanceDescriptions(allForAI);
   allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
   // 所有 URL 富化完成后统一重算链接优先级
   for (const show of allShowsList) normalizeOutputShow(show);
@@ -2497,6 +2577,8 @@ async function main() {
     sourceSearchTargets: searchSnapshot.targetCount,
     // 私有运行状态：下一轮优先复用该免费模型；公开数据投影不包含此字段。
     ...(_aiPreferredModel ? { aiPreferredModel: _aiPreferredModel } : {}),
+    // 私有收录冷却记录：近期被明确拒绝的新韩剧暂不重复富化和送审。
+    ...(Object.keys(discoveryRejections).length ? { discoveryRejections: normalizeDiscoveryRejections(discoveryRejections) } : {}),
     stats: {
       koreanDramas: koreanDramas.length,
       chineseVariety: chineseVariety.length,
@@ -2515,6 +2597,16 @@ async function main() {
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
   writeFileSyncAtomic(SHOWS_FILE, JSON.stringify(output, null, 2), 'utf-8');
   saveHistory(output);
+  // 包含本轮未发布(不可渲染、去重、冷却)和上一版的卡片，避免暂时下线即丢失已验证的封面/身份证据。
+  const keepCacheIds = [
+    ...kdramaMap.values(), ...varietyMap.values(), ...otherDramas, ...SEED_KDRAMAS, ...SEED_VARIETY,
+    ...prevShows.koreanDramas, ...prevShows.chineseVariety, ...prevShows.otherDramas,
+  ].flatMap(show => [show?.id, show?.seedId]);
+  const prunedCache = pruneImageCache(loadImageCache(), keepCacheIds);
+  if (prunedCache) {
+    saveImageCache(loadImageCache());
+    console.log(`  清理 ${prunedCache} 条长期未引用的封面缓存`);
+  }
 
   console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${renderableOtherDramas.length}`);
 }
@@ -2898,8 +2990,11 @@ async function enrichMissingYfspLinks(shows) {
     console.log(`  移除 ${invalid} 个确定无效链接,${unknown} 个临时错误链接已保留`);
   }
 
+  // 首页回退阶段刚按标题搜索过的节目已拿到最新集数，不再重复搜索。
+  const recentSearchCutoff = Date.now() - YFSP_REFRESH_RECENT_SEARCH_MS;
   const refreshTargets = shows
-    .filter(s => s.yfspUrl && s.title && !s.isComplete && !verifiedThisRun.has(s.id))
+    .filter(s => s.yfspUrl && s.title && !s.isComplete && !verifiedThisRun.has(s.id) &&
+      !(comparableTimestamp(s.sourceSearchCheckedAt) > recentSearchCutoff))
     .sort(oldestCheckedFirst('yfspRefreshCheckedAt'))
     .slice(0, YFSP_REFRESH_QUOTA);
   if (refreshTargets.length) {
@@ -3270,6 +3365,32 @@ function recordDiscoveryHistory(discovered) {
   writeFileSyncAtomic(DISCOVERY_FILE, JSON.stringify(history, null, 2), 'utf-8');
 }
 
+// 关键词发现的搜索主机故障时，不能逐个等满 15 秒超时；连续失败或超出预算即停止本阶段。
+const DISCOVERY_SEARCH_BUDGET_MS = 90 * 1000;
+const DISCOVERY_SEARCH_MAX_CONSECUTIVE_FAILURES = 3;
+
+function createDiscoverySearchGuard(label, now = () => Date.now()) {
+  const deadline = now() + DISCOVERY_SEARCH_BUDGET_MS;
+  let consecutiveFailures = 0;
+  let stopped = false;
+  return {
+    shouldStop() {
+      if (stopped) return true;
+      if (consecutiveFailures >= DISCOVERY_SEARCH_MAX_CONSECUTIVE_FAILURES) {
+        console.warn(`  [WARN] ${label}搜索连续 ${consecutiveFailures} 次失败，跳过剩余关键词`);
+        stopped = true;
+      } else if (now() >= deadline) {
+        console.warn(`  [WARN] ${label}搜索超出 ${DISCOVERY_SEARCH_BUDGET_MS / 1000}s 预算，跳过剩余关键词`);
+        stopped = true;
+      }
+      return stopped;
+    },
+    timeout() { return Math.max(1, Math.min(15000, deadline - now())); },
+    succeeded() { consecutiveFailures = 0; },
+    failed() { consecutiveFailures++; },
+  };
+}
+
 async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaMap) {
   console.log('\n  ── 新韩剧监控扫描 ──');
   const discovered = new Map();
@@ -3285,10 +3406,13 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
   }
 
   // 2. 用关键词搜索 YFSP 发现更多新韩剧
+  const searchGuard = createDiscoverySearchGuard('新韩剧');
   for (const kw of DISCOVERY_KEYWORDS) {
+    if (searchGuard.shouldStop()) break;
     const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`;
     try {
-      const data = await fetchJSON(url);
+      const data = await fetchWithTimeout(url, { timeout: searchGuard.timeout() });
+      searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
       const results = Array.isArray(rawResults) ? rawResults.filter(r => r && typeof r === 'object') : [];
       for (const r of results) {
@@ -3326,6 +3450,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
         }
       }
     } catch (e) {
+      searchGuard.failed();
       console.warn(`  [WARN] discovery search failed for "${kw}": ${e.message}`);
     }
     await sleep(YFSP_PAGE_DELAY);
@@ -3384,7 +3509,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
 
   // 1. 扫描 API 已抓取的数据中未收录的大陆/韩国综艺
   for (const s of liveShows.values()) {
-    if (s.mediaType === '综艺' && ['大陆', '韩国', '台湾', '香港'].includes(s.regional)) {
+    if (s.mediaType === '综艺' && VARIETY_REGIONS.includes(s.regional)) {
       const norm = discoveryRecordIdentityKey(s);
       // 排除黑名单
       if (VarietyExclude.some(kw => s.title.includes(kw))) continue;
@@ -3395,15 +3520,18 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
   }
 
   // 2. 用关键词搜索 YFSP 发现更多新综艺
+  const searchGuard = createDiscoverySearchGuard('新综艺');
   for (const kw of VARIETY_DISCOVERY_KEYWORDS) {
+    if (searchGuard.shouldStop()) break;
     const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`;
     try {
-      const data = await fetchJSON(url);
+      const data = await fetchWithTimeout(url, { timeout: searchGuard.timeout() });
+      searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
       const results = Array.isArray(rawResults) ? rawResults.filter(r => r && typeof r === 'object') : [];
       for (const r of results) {
         if (r.atypeName !== '综艺') continue;
-        if (!['大陆', '韩国', '台湾', '香港'].includes(r.regional)) continue;
+        if (!VARIETY_REGIONS.includes(r.regional)) continue;
         const title = safeText(r.title, 200);
         if (!title || VarietyExclude.some(kw => title.includes(kw))) continue;
         const cleanTitle = cleanShowTitle(title);
@@ -3439,6 +3567,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
         }
       }
     } catch (e) {
+      searchGuard.failed();
       console.warn(`  [WARN] variety discovery search failed for "${kw}": ${e.message}`);
     }
     await sleep(YFSP_PAGE_DELAY);
@@ -3524,6 +3653,23 @@ function loadImageCache() {
     }
   }
   return (_imageCacheMemo = cache);
+}
+
+// 不再被本轮/上一版卡片或种子引用、且抓取时间超过 90 天的缓存条目只会拖慢按标题复用的全量扫描。
+// 退休卡片的条目至少保留一轮；之后按原抓取时间老化，需要时可重新查询。
+const IMAGE_CACHE_UNREFERENCED_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+
+function pruneImageCache(cache, keepIds, now = Date.now()) {
+  const keep = new Set(keepIds.filter(Boolean).map(String));
+  let removed = 0;
+  for (const [id, entry] of Object.entries(cache)) {
+    if (keep.has(id)) continue;
+    const cachedAt = Date.parse(entry?.cachedAt || '');
+    if (Number.isFinite(cachedAt) && now - cachedAt <= IMAGE_CACHE_UNREFERENCED_TTL_MS) continue;
+    delete cache[id];
+    removed++;
+  }
+  return removed;
 }
 
 function saveImageCache(cache) {
@@ -4539,7 +4685,8 @@ async function enrichCoversFromTMDB(shows) {
   // 2. 没有可靠 TMDB 高清图缓存的节目都重新查。YFSP 兜底图不能阻止后续刷新。
   //    负缓存对 .gif 兜底图同样生效：查询条件不变时每轮重查不可能成功，只会消耗请求。
   const NOT_FOUND_RETRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 天
-  const TMDB_PENDING_RETRY_MS = 12 * 60 * 60 * 1000; // 对齐每天两次的定时任务
+  // 略短于每天两次的定时间隔：cachedAt 写在运行中途，12 小时会因调度抖动变成隔轮才重试。
+  const TMDB_PENDING_RETRY_MS = 11 * 60 * 60 * 1000;
   const toFetch = shows.filter(s => {
     const cached = findTMDBCacheEntry(cache, s);
     if (isReusableTMDBCoverCache(cached, s)) return false;

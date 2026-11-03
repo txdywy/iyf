@@ -47,6 +47,7 @@ function loadHelpers({
         saveHistory, recordDiscoveryHistory,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
+        applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
       };
     `;
   vm.createContext(context);
@@ -59,6 +60,22 @@ function response(json, { status = 200, html = '' } = {}) {
     ok: status >= 200 && status < 300, status,
     json: async () => json, text: async () => html,
     body: { cancel: async () => {} },
+  };
+}
+
+// 新发现韩剧必须通过 AI 收录门；关注其他行为的端到端用例用这个桩批准所有候选。
+// 其余 AI 请求（评分、文案）按不可用处理，保持与旧的无 key 运行相同的输出。
+const DISCOVERY_AI_ENV = { OPENROUTER_API_KEY: 'test-key' };
+function approvingDiscoveryAI(fetchImpl) {
+  return async (url, options) => {
+    if (!String(url).includes('openrouter.ai')) return fetchImpl(url, options);
+    const schema = JSON.parse(options.body).response_format?.json_schema?.schema;
+    const itemSchema = schema?.properties?.results?.items;
+    if (!itemSchema?.properties?.ok) return response(null, { status: 503 });
+    const results = itemSchema.properties.id.enum.map(id => ({
+      id, ok: true, recommendationScore100: 80, recommendationLevel: 'strong', r: '测试通过',
+    }));
+    return response({ model: 'vendor/test:free', choices: [{ message: { content: JSON.stringify({ results }) } }] });
   };
 }
 
@@ -1002,12 +1019,12 @@ test('first-seen dates follow show identity and expire after their own first obs
   const { helpers, files, setNow } = loadHelpers({
     date: observedAt,
     initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
-    fetchImpl: async url => {
+    env: DISCOVERY_AI_ENV, fetchImpl: approvingDiscoveryAI(async url => {
       if (url.includes('api.yfsp.tv/api/list/index') && ++homepageCalls === 1) {
         return response({ data: { list: [{ name: '电视剧', list: current }] } });
       }
       return response(null, { status: 503 });
-    },
+    }),
   });
   await helpers.main();
   const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
@@ -1261,12 +1278,12 @@ test('malformed numeric homepage fields cannot abort publication or replace prev
   let pages = 0;
   const { helpers, files } = loadHelpers({
     date: '2026-10-13T04:00:00.000Z', initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
-    fetchImpl: async url => {
+    env: DISCOVERY_AI_ENV, fetchImpl: approvingDiscoveryAI(async url => {
       if (url.includes('api.yfsp.tv/api/list/index') && ++pages === 1) {
         return response({ data: { list: [{ name: '电视剧', list: current }] } });
       }
       return response(null, { status: 503 });
-    },
+    }),
   });
   await helpers.main();
   const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
@@ -2203,10 +2220,10 @@ test('homepage discoveries persist by category, retain rejected observations, an
   ];
   const { helpers, files } = loadHelpers({
     initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
-    fetchImpl: async url => {
+    env: DISCOVERY_AI_ENV, fetchImpl: approvingDiscoveryAI(async url => {
       if (url.includes('api.yfsp.tv/api/list/index')) return response({ data: { list: [{ name: '电视剧', list: current }] } });
       return response(null, { status: 503 });
-    },
+    }),
   });
   const today = () => JSON.parse(files.get(join(dataDir, 'discovery.json')))['2026-09-30'];
   await helpers.main();
@@ -2796,4 +2813,140 @@ test('an unparseable discovery date cannot supply the current year or its lower 
   assert.equal(discovered.some(show => show.id === row.contxt), false);
   const history = JSON.parse(files.get(join(dataDir, 'discovery.json')));
   assert.equal(history['2026-09-30'].totalFound, 0);
+});
+
+test('Korean-drama AI adjustment never ranks a worse AI verdict above a better one', () => {
+  const { helpers } = loadHelpers();
+  let previous = -Infinity;
+  for (let ai = 0; ai <= 100; ai++) {
+    const adjusted = helpers.applyAIRecommendationAdjustment({ category: 'korean_drama', recommendScore: 100, aiScore: ai });
+    assert.ok(adjusted >= previous, `AI ${ai} adjusted to ${adjusted}, below ${previous}`);
+    previous = adjusted;
+  }
+});
+
+test('a discovered season sharing a source ID cannot replace the admitted card', () => {
+  const { helpers } = loadHelpers();
+  const existing = { id: 'shared', title: '季冲突测试剧第1季', mediaType: '电视剧', regional: '韩国' };
+  const map = new Map([['shared', existing]]);
+  const added = helpers.addDiscoveredShows(map, [
+    { id: 'shared', title: '季冲突测试剧第2季', mediaType: '电视剧', regional: '韩国' },
+    { id: 'fresh', title: '全新测试剧', mediaType: '电视剧', regional: '韩国' },
+  ]);
+  assert.equal(added, 1);
+  assert.equal(map.get('shared'), existing);
+  assert.ok(map.has('fresh'));
+});
+
+test('image cache pruning keeps referenced and recent entries only', () => {
+  const { helpers } = loadHelpers();
+  const now = Date.parse('2026-11-01T00:00:00Z');
+  const cache = {
+    referenced: { cachedAt: '2025-01-01T00:00:00Z' },
+    recent: { cachedAt: '2026-10-01T00:00:00Z' },
+    stale: { cachedAt: '2026-07-01T00:00:00Z' },
+    undated: { notFound: true },
+  };
+  assert.equal(helpers.pruneImageCache(cache, ['referenced', undefined], now), 2);
+  assert.deepEqual(Object.keys(cache).sort(), ['recent', 'referenced']);
+});
+
+test('discovery rejections expire by reason and drop malformed records', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-01T00:00:00Z' });
+  const at = days => new Date(Date.parse('2026-11-01T00:00:00Z') - days * 86400000).toISOString();
+  const kept = helpers.normalizeDiscoveryRejections({
+    'a': { title: 'A', reason: 'rules', rejectedAt: at(2) },
+    'b': { title: 'B', reason: 'rules', rejectedAt: at(4) },
+    'c': { title: 'C', reason: 'ai', rejectedAt: at(9) },
+    'd': { title: 'D', reason: 'ai', rejectedAt: at(11) },
+    'e': { title: 'E', reason: 'other', rejectedAt: at(1) },
+    'f': { title: 'F', reason: 'ai', rejectedAt: 'invalid' },
+  });
+  assert.deepEqual(Object.keys(kept).sort(), ['a', 'c']);
+});
+
+test('keyword discovery stops after consecutive search failures', async () => {
+  let searches = 0;
+  const { helpers } = loadHelpers({
+    fetchImpl: async url => {
+      if (url.includes('briefsearch')) searches++;
+      throw new Error('offline');
+    },
+  });
+  await helpers.discoverNewKDramas(new Map(), new Map());
+  assert.equal(searches, 3, 'an unreachable search host must not consume the full keyword list');
+});
+
+test('rejected homepage discoveries cool down instead of being re-sent to AI every run', async () => {
+  const previous = { lastUpdated: '2026-10-12T04:00:00.000Z', stats: { totalScraped: 1 }, koreanDramas: [], chineseVariety: [], otherDramas: [] };
+  const current = [{
+    mediaKey: 'rejected-new', title: '收录门拒绝测试剧', mediaType: '电视剧', regional: '韩国', publishTime: '2026-10-12',
+    score: 8, playCount: 100000, coverImgUrl: 'https://static.yfsp.tv/rejected.jpg',
+  }];
+  let discoveryRequests = 0;
+  const fetchImpl = async (url, options) => {
+    if (String(url).includes('openrouter.ai')) {
+      const itemSchema = JSON.parse(options.body).response_format?.json_schema?.schema?.properties?.results?.items;
+      if (!itemSchema?.properties?.ok) return response(null, { status: 503 });
+      discoveryRequests++;
+      const results = itemSchema.properties.id.enum.map(id => ({
+        id, ok: false, recommendationScore100: 20, recommendationLevel: 'weak', r: '不符合偏好',
+      }));
+      return response({ model: 'vendor/test:free', choices: [{ message: { content: JSON.stringify({ results }) } }] });
+    }
+    if (url.includes('api.yfsp.tv/api/list/index')) return response({ data: { list: [{ name: '电视剧', list: current }] } });
+    return response(null, { status: 503 });
+  };
+  const run = async (date, snapshot) => {
+    // 每轮使用新的模块实例，与真实运行一致（AI 预算等运行状态不会跨进程保留）。
+    const { helpers, files } = loadHelpers({
+      date, env: DISCOVERY_AI_ENV, fetchImpl,
+      initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(snapshot) },
+    });
+    await helpers.main();
+    return JSON.parse(files.get(join(dataDir, 'shows.json')));
+  };
+  const first = await run('2026-10-13T04:00:00.000Z', previous);
+  assert.equal(discoveryRequests, 1);
+  assert.equal(first.koreanDramas.some(show => show.id === 'rejected-new'), false);
+  assert.equal(Object.values(first.discoveryRejections || {})[0]?.reason, 'ai');
+
+  const second = await run('2026-10-13T16:00:00.000Z', first);
+  assert.equal(discoveryRequests, 1, 'a recent explicit rejection must not spend another AI request');
+  assert.ok(second.discoveryRejections, 'the cooldown record survives until it expires');
+
+  await run('2026-10-24T04:00:00.000Z', second);
+  assert.equal(discoveryRequests, 2, 'an expired cooldown lets the candidate be evaluated again');
+});
+
+test('Hong Kong and Taiwan variety shows receive live homepage observations', async () => {
+  const previous = {
+    lastUpdated: '2026-10-12T04:00:00.000Z', stats: { totalScraped: 1 }, koreanDramas: [], otherDramas: [],
+    chineseVariety: [{
+      id: 'hk-variety', title: '港台综艺测试', mediaType: '综艺', category: 'variety', regional: '香港', year: 2026,
+      score: 8, playCount: 1000, scrapedAt: '2026-10-01T04:00:00.000Z', firstSeenAt: '2026-10-01T04:00:00.000Z',
+      coverImg: 'https://image.tmdb.org/t/p/original/hk.jpg', primaryUrl: 'https://www.yfsp.tv/play/hk-variety',
+      yfspUrl: 'https://www.yfsp.tv/play/hk-variety',
+    }],
+  };
+  const current = [{
+    mediaKey: 'hk-variety', title: '港台综艺测试', mediaType: '综艺', regional: '香港', publishTime: '2026-10-01',
+    score: 8, playCount: 500000, coverImgUrl: 'https://static.yfsp.tv/hk.jpg',
+  }, {
+    mediaKey: 'tw-obscure', title: '冷门台湾节目测试', mediaType: '综艺', regional: '台湾', publishTime: '2026-10-01',
+    score: 0, playCount: 300, coverImgUrl: 'https://static.yfsp.tv/tw.jpg',
+  }];
+  const { helpers, files } = loadHelpers({
+    date: '2026-10-13T04:00:00.000Z', initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (url.includes('api.yfsp.tv/api/list/index')) return response({ data: { list: [{ name: '综艺', list: current }] } });
+      return response(null, { status: 503 });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  const show = published.chineseVariety.find(item => item.id === 'hk-variety');
+  assert.equal(show?.playCount, 500000, 'the live play count must replace the stale snapshot value');
+  assert.equal(published.chineseVariety.some(item => item.id === 'tw-obscure'), false,
+    'a new Taiwan/Hong Kong homepage show must still pass the discovery thresholds');
 });

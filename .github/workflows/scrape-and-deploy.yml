@@ -6,10 +6,10 @@ on:
     # GitHub 在整点负载最高，整点计划曾持续延迟 3–6 小时，因此避开整点。
     - cron: '23 0,12 * * *'
   workflow_dispatch:
+  # push 只用已提交数据构建部署，不抓取，避免代码合并消耗每日免费 AI 配额。
+  # 机器人用 github.token 提交的数据不会触发新运行；人工的纯数据提交需要部署，因此不忽略 data/**。
   push:
     branches: [main]
-    paths-ignore:
-      - 'data/**'
 
 permissions: {}
 
@@ -31,8 +31,9 @@ jobs:
       publish: ${{ steps.commit.outputs.publish }}
       sha: ${{ steps.commit.outputs.sha }}
     env:
-      # 抓取任务必须拒绝发布超过 7 天的数据；PR 和 Cloudflare 重建只给出警告。
-      IYF_REQUIRE_FRESH_DATA: '1'
+      SCRAPE: ${{ github.event_name != 'push' }}
+      # 抓取运行必须确认抓取器确实写出了本次数据(generatedAt)；推荐快照时间过旧只警告。
+      IYF_REQUIRE_FRESH_DATA: ${{ github.event_name != 'push' && '1' || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -50,6 +51,7 @@ jobs:
         run: node --test
 
       - name: Validate TMDB_TOKEN
+        if: env.SCRAPE == 'true'
         run: |
           if [ -z "$TMDB_TOKEN" ]; then
             echo "::warning::TMDB_TOKEN 未配置! 抓取将无法获取 TMDB 高清封面,新节目只能使用低质量源站图片。"
@@ -61,6 +63,7 @@ jobs:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
 
       - name: Run Scraper
+        if: env.SCRAPE == 'true'
         run: node scripts/scrape.mjs
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -81,8 +84,9 @@ jobs:
           base_sha="$GITHUB_SHA"
 
           skip_stale() {
-            # 抓取期间 main 已前进：新 push 已在同一并发组排队，会用新代码完整重跑并部署。
-            echo "::notice::main advanced from $base_sha to $1 while scraping; skipping this publish in favor of the queued run."
+            # 构建期间 main 已前进：人工 push 会在同一并发组排队，用新代码和已提交数据部署；
+            # 本次抓取结果被丢弃，下一次定时抓取会重新生成。
+            echo "::notice::main advanced from $base_sha to $1 during this run; skipping this publish. The push run for the newer commit deploys it, and the next scheduled scrape refreshes data."
             echo "publish=false" >> "$GITHUB_OUTPUT"
             exit 0
           }
