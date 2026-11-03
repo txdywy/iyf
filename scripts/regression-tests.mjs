@@ -788,6 +788,12 @@ for (const tab of ['korean', 'tvmaze']) {
 }
 
 {
+  const { helpers } = loadScrapeHelpers({ env: {} });
+  const accepted = await helpers.aiEvaluateDiscovery([{ id: 'unvetted', title: '未筛选' }]);
+  assert.equal(accepted.length, 0, 'without an AI provider, new dramas must be deferred rather than admitted unvetted');
+}
+
+{
   let scoredPrompt = '';
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'test' },
@@ -1969,7 +1975,7 @@ for (const hasStaleCache of [false, true]) {
 {
   const requested = [];
   const delays = [];
-  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free'];
+  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free', 'vendor/good:free'];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     setTimeoutImpl: (fn, delay) => { delays.push(delay); fn(); return 0; },
@@ -1991,6 +1997,32 @@ for (const hasStaleCache of [false, true]) {
   assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'vendor/good:free', 'openrouter/free'],
     'a pinned success reported under a canonical slug keeps the requested free model');
   assert.ok(delays.slice(delayCount).includes(20000), 'a rate-limited pinned model backs off before the router retry');
+  await helpers.aiScoreShows(Array.from({ length: 5 }, (_, index) => ({ id: `later-${index}`, title: `后续${index}`, year: 2026, recommendScore: 50 - index })));
+  assert.equal(requested.at(-1), 'vendor/good:free',
+    'an account-level 429 must not let a random router rescue replace the known-good pinned model');
+}
+
+{
+  const requested = [];
+  const answers = ['vendor/good:free', 429, 'vendor/rescue:free', 429, 'vendor/second:free', 'vendor/second:free'];
+  const { helpers } = loadScrapeHelpers({
+    env: { OPENROUTER_API_KEY: 'or-test-key' },
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requested.push(body.model);
+      const answer = answers.shift();
+      if (answer === 429) return mockResponse({ status: 429, text: '{"error":{"message":"temporarily rate-limited upstream"}}' });
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      return mockResponse({ json: { model: answer, choices: [{ message: { content: JSON.stringify({
+        results: ids.map(id => ({ id, recommendationScore100: 75, recommendationLevel: 'strong', r: '规范名' })),
+      }) } }] } });
+    },
+  });
+  for (let batch = 0; batch < 4; batch++) {
+    await helpers.aiScoreShows([{ id: `upstream-${batch}`, title: `上游限流${batch}`, year: 2026, recommendScore: 50 }]);
+  }
+  assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/second:free'],
+    'a pinned model rate-limited twice in one run is replaced instead of costing every batch an extra request');
 }
 
 {
@@ -2846,7 +2878,9 @@ assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, '
 const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: (\d+)/)?.[1]);
 assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
-assert.match(workflow, /paths-ignore:\n\s+- 'data\/\*\*'/, 'data-only bot commits should not retrigger the scraper workflow');
+assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
+assert.match(workflow, /SCRAPE: \$\{\{ github\.event_name != 'push' \}\}/, 'push runs must deploy committed data without spending the scrape/AI quota');
+assert.match(workflow, /- name: Run Scraper\n\s+if: env\.SCRAPE == 'true'/, 'the scraper must run only on schedule or manual dispatch');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
 assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
 assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');

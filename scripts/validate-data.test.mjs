@@ -229,16 +229,23 @@ test('validator rejects structured URL values and blank required cover/link fiel
   assert.match(result.stderr, /missing renderable cover\/link/);
 });
 
-test('stale data blocks only the scrape job while code-only builds warn', () => {
+test('stale recommendation snapshots only warn while the scrape job requires a fresh generatedAt', () => {
   const data = dataFixture({ koreanDramas: 1, chineseVariety: 1, otherDramas: 0 });
   data.lastUpdated = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  data.generatedAt = new Date().toISOString();
   data.sourceStatus = 'degraded';
   const relaxed = runValidation(data);
   assert.equal(relaxed.status, 0, relaxed.stderr);
   assert.match(relaxed.stderr, /WARN data\/shows\.json: recommendation data is older than 7 days/u);
   assert.match(relaxed.stderr, /core source status is degraded/u);
   const strict = runValidation(data, { IYF_REQUIRE_FRESH_DATA: '1', GITHUB_ACTIONS: 'true' });
-  assert.equal(strict.status, 1, strict.stdout);
-  assert.match(strict.stderr, /::error::data\/shows\.json: recommendation data is older than 7 days/u);
+  assert.equal(strict.status, 0, strict.stderr);
+  assert.match(strict.stderr, /::warning::data\/shows\.json: recommendation data is older than 7 days/u);
   assert.match(strict.stderr, /::warning::data\/shows\.json: core source status is degraded/u);
+
+  data.generatedAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+  const unwritten = runValidation(data, { IYF_REQUIRE_FRESH_DATA: '1', GITHUB_ACTIONS: 'true' });
+  assert.equal(unwritten.status, 1, unwritten.stdout);
+  assert.match(unwritten.stderr, /::error::data\/shows\.json: generatedAt was not refreshed by this scrape run/u);
+  assert.equal(runValidation(data).status, 0, 'code-only builds do not require a fresh generatedAt');
 });
