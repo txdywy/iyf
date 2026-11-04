@@ -1663,7 +1663,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-03T06:59:45.848Z"
+    "externalMetadataCheckedAt": "2026-11-04T06:42:48.559Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -1999,21 +1999,6 @@
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-17T02:44:10.633Z"
-  },
-  "EMI2oPzt1FM": {
-    "title": "百年孤独第2季",
-    "url": "https://image.tmdb.org/t/p/original/w8p5MkntL1bTI94INGLya1pHmTP.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "百年孤独",
-    "matchedTitle": "百年孤独",
-    "tmdbId": 207333,
-    "tmdbUrl": "https://www.themoviedb.org/tv/207333",
-    "doubanUrl": "https://movie.douban.com/subject/30482958/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt9892936/",
-    "wikidataId": "Q124175370",
-    "cachedAt": "2026-08-06T02:07:22.025Z"
   },
   "wDwlu6lA9oB": {
     "title": "青春碎片",
@@ -2684,7 +2669,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:11.298Z"
+    "cachedAt": "2026-11-04T06:42:50.267Z"
   },
   "seed_kd_2026_04": {
     "title": "理事长和我的秘密关系",
@@ -2695,7 +2680,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:11.285Z"
+    "cachedAt": "2026-11-04T06:42:50.262Z"
   },
   "2dJ0cg4lxc1": {
     "title": "杀人者的购物中心2",
@@ -2767,7 +2752,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-03T06:59:46.022Z"
+    "externalMetadataCheckedAt": "2026-11-04T06:42:48.859Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -2965,7 +2950,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:11.874Z"
+    "cachedAt": "2026-11-04T06:42:49.668Z"
   },
   "seed_var_2026_08": {
     "title": "萌探探探案",
@@ -2976,7 +2961,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:11.887Z"
+    "cachedAt": "2026-11-04T06:42:50.312Z"
   },
   "seed_var_2026_04": {
     "title": "哈哈哈哈哈",
@@ -2987,7 +2972,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:11.893Z"
+    "cachedAt": "2026-11-04T06:42:50.306Z"
   },
   "seed_var_2026_10": {
     "title": "现在就出发",
@@ -3008,7 +2993,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:12.484Z"
+    "cachedAt": "2026-11-04T06:42:50.947Z"
   },
   "seed_var_2026_14": {
     "title": "闪亮的日子",
@@ -3019,7 +3004,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:13.085Z"
+    "cachedAt": "2026-11-04T06:42:50.964Z"
   },
   "seed_var_2026_11": {
     "title": "五十公里桃花坞",
@@ -3030,7 +3015,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:13.098Z"
+    "cachedAt": "2026-11-04T06:42:51.553Z"
   },
   "seed_var_2026_12": {
     "title": "种地吧",
@@ -3041,7 +3026,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:13.112Z"
+    "cachedAt": "2026-11-04T06:42:51.533Z"
   },
   "seed_var_2026_19": {
     "title": "喜剧大会",
@@ -3052,7 +3037,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:13.708Z"
+    "cachedAt": "2026-11-04T06:42:52.199Z"
   },
   "seed_var_2026_15": {
     "title": "快乐再出发",
@@ -3063,7 +3048,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:13.696Z"
+    "cachedAt": "2026-11-04T06:42:52.216Z"
   },
   "seed_var_2026_16": {
     "title": "你好生活",
@@ -3074,7 +3059,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:14.292Z"
+    "cachedAt": "2026-11-04T06:42:52.337Z"
   },
   "seed_var_2026_18": {
     "title": "向往的生活",
@@ -3085,7 +3070,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:14.302Z"
+    "cachedAt": "2026-11-04T06:42:52.852Z"
   },
   "seed_var_2026_20": {
     "title": "脱口秀和TA的朋友们",
@@ -3110,7 +3095,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:14.318Z"
+    "cachedAt": "2026-11-04T06:42:52.906Z"
   },
   "seed_var_2026_21": {
     "title": "喜人奇妙夜",
@@ -3121,7 +3106,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:14.880Z"
+    "cachedAt": "2026-11-04T06:42:53.578Z"
   },
   "seed_var_2026_25": {
     "title": "声生不息",
@@ -3132,7 +3117,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:15.509Z"
+    "cachedAt": "2026-11-04T06:42:53.660Z"
   },
   "seed_var_2026_24": {
     "title": "披荆斩棘的哥哥",
@@ -3154,7 +3139,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:15.549Z"
+    "cachedAt": "2026-11-04T06:42:54.181Z"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -3175,7 +3160,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:15.498Z"
+    "cachedAt": "2026-11-04T06:42:54.178Z"
   },
   "seed_var_2026_29": {
     "title": "中餐厅",
@@ -3186,7 +3171,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:16.052Z"
+    "cachedAt": "2026-11-04T06:42:54.847Z"
   },
   "seed_var_2026_31": {
     "title": "天赐的声音",
@@ -3197,7 +3182,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:16.672Z"
+    "cachedAt": "2026-11-04T06:42:54.926Z"
   },
   "seed_var_2026_35": {
     "title": "无限超越班",
@@ -3208,7 +3193,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:16.163Z"
+    "cachedAt": "2026-11-04T06:42:54.831Z"
   },
   "seed_var_2026_32": {
     "title": "奋斗吧人生",
@@ -3219,7 +3204,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:16.708Z"
+    "cachedAt": "2026-11-04T06:42:55.476Z"
   },
   "seed_var_c02": {
     "title": "极限挑战第一季",
@@ -3471,7 +3456,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:18.443Z"
+    "cachedAt": "2026-11-04T06:42:57.416Z"
   },
   "XCASHj1Bpx3": {
     "title": "脱口秀大会第5季",
@@ -3752,7 +3737,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:17.372Z"
+    "cachedAt": "2026-11-04T06:42:56.798Z"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -3852,7 +3837,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:10.700Z"
+    "cachedAt": "2026-11-04T06:42:55.546Z"
   },
   "Oq4Z8GUXr47": {
     "title": "金色",
@@ -4004,7 +3989,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-01T06:27:10.705Z"
+    "cachedAt": "2026-11-04T06:42:55.472Z"
   },
   "wkooR40Eji0": {
     "title": "鼠惑",
