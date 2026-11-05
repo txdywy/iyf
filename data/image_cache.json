@@ -7496,15 +7496,24 @@
     "title": "青之花器之森",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "日本",
+    "url": "https://image.tmdb.org/t/p/original/h8kywiFjSwtUARs6ayPRzioRqmD.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-10-29T17:56:28.247Z",
+    "query": "青之花器之森",
+    "matchedTitle": "青之花 器之森",
+    "tmdbId": 334810,
+    "tmdbUrl": "https://www.themoviedb.org/tv/334810",
     "doubanUrl": "https://movie.douban.com/subject/38529496/",
     "doubanId": "38529496",
     "doubanMatchedTitle": "青之花 器之森",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt50490258/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-05T20:07:23.908Z",
+    "cachedAt": "2026-11-05T20:07:23.911Z"
   },
   "COU8WoEeVf9": {
     "title": "尚公主",
@@ -7561,12 +7570,9 @@
     "source": "tmdb",
     "version": 16,
     "negativeLookupVersion": 2,
+    "regional": "欧美",
     "notFound": true,
-    "cachedAt": "2026-10-29T17:56:28.807Z",
-    "doubanUrl": "https://movie.douban.com/subject/37841629/",
-    "doubanId": "37841629",
-    "doubanMatchedTitle": "合理怀疑 第四季",
-    "doubanMatchedSeasonNumber": 4
+    "cachedAt": "2026-11-05T20:07:25.084Z"
   },
   "yR9Hzn0mkYa": {
     "title": "美食告白记第2季",
