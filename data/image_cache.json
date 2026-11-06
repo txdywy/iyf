@@ -1663,7 +1663,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-05T07:02:02.367Z"
+    "externalMetadataCheckedAt": "2026-11-06T07:00:34.421Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -2035,38 +2035,6 @@
     "imdbUrl": "https://www.imdb.com/title/tt30413181/",
     "wikidataId": "Q121879488",
     "cachedAt": "2026-08-24T00:00:00.000Z"
-  },
-  "0VlHJhlX7O1": {
-    "title": "斯特林角",
-    "url": "https://image.tmdb.org/t/p/original/hYTurZ5ecVMEx5LPLSsLLPwutBV.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "斯特林角",
-    "matchedTitle": "斯特林角",
-    "tmdbId": 283297,
-    "tmdbUrl": "https://www.themoviedb.org/tv/283297",
-    "doubanUrl": "https://movie.douban.com/subject/37218815/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt35618070/",
-    "wikidataId": "Q137917795",
-    "cachedAt": "2026-08-08T01:16:36.367Z",
-    "doubanId": "37218815",
-    "doubanMatchedTitle": "斯特林角"
-  },
-  "rilrengGylU": {
-    "title": "我与沃尔特家男孩的生活第3季",
-    "url": "https://image.tmdb.org/t/p/original/q5aIN2C2AJgp8eYY61pWXmHp0bK.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "我与沃尔特家男孩的生活",
-    "matchedTitle": "我与沃尔特家男孩的生活",
-    "tmdbId": 199001,
-    "tmdbUrl": "https://www.themoviedb.org/tv/199001",
-    "doubanUrl": "https://movie.douban.com/subject/35876701/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt8323628/",
-    "wikidataId": "Q113570499",
-    "cachedAt": "2026-08-08T01:16:38.172Z"
   },
   "kzzTOdxO2jq": {
     "title": "一旦被发现就完了",
@@ -2735,7 +2703,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-05T07:02:02.652Z"
+    "externalMetadataCheckedAt": "2026-11-06T07:00:34.700Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -3111,7 +3079,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-02T21:49:29.659Z"
+    "cachedAt": "2026-11-06T07:00:36.872Z"
   },
   "seed_var_2026_26": {
     "title": "我们的歌",
