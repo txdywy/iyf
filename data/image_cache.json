@@ -2053,23 +2053,6 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:21.202Z"
   },
-  "UbpdpVN2rzI": {
-    "title": "度假季",
-    "url": "https://image.tmdb.org/t/p/original/hKWXo8ZI5REOkTegsxPBMV1IZwL.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "度假季",
-    "matchedTitle": "度假季",
-    "tmdbId": 321623,
-    "tmdbUrl": "https://www.themoviedb.org/tv/321623",
-    "doubanUrl": "https://movie.douban.com/subject/37283718/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt36237567/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-09T12:41:32.312Z",
-    "doubanId": "37283718",
-    "doubanMatchedTitle": "度假季"
-  },
   "NjvfTz4MVG6": {
     "title": "披荆斩棘",
     "year": 2026,
@@ -2588,7 +2571,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.267Z"
+    "cachedAt": "2026-11-07T12:39:17.042Z"
   },
   "seed_kd_2026_04": {
     "title": "理事长和我的秘密关系",
@@ -2599,7 +2582,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.262Z"
+    "cachedAt": "2026-11-07T12:39:17.006Z"
   },
   "2dJ0cg4lxc1": {
     "title": "杀人者的购物中心2",
@@ -2869,7 +2852,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:49.668Z"
+    "cachedAt": "2026-11-07T12:39:16.469Z"
   },
   "seed_var_2026_08": {
     "title": "萌探探探案",
@@ -2880,7 +2863,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.312Z"
+    "cachedAt": "2026-11-07T12:39:17.059Z"
   },
   "seed_var_2026_04": {
     "title": "哈哈哈哈哈",
@@ -2891,7 +2874,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.306Z"
+    "cachedAt": "2026-11-07T12:39:17.056Z"
   },
   "seed_var_2026_10": {
     "title": "现在就出发",
@@ -2912,7 +2895,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.947Z"
+    "cachedAt": "2026-11-07T12:39:17.670Z"
   },
   "seed_var_2026_14": {
     "title": "闪亮的日子",
@@ -2923,7 +2906,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:50.964Z"
+    "cachedAt": "2026-11-07T12:39:17.664Z"
   },
   "seed_var_2026_11": {
     "title": "五十公里桃花坞",
@@ -2934,7 +2917,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:51.553Z"
+    "cachedAt": "2026-11-07T12:39:18.183Z"
   },
   "seed_var_2026_12": {
     "title": "种地吧",
@@ -2945,7 +2928,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:51.533Z"
+    "cachedAt": "2026-11-07T12:39:18.236Z"
   },
   "seed_var_2026_19": {
     "title": "喜剧大会",
@@ -2956,7 +2939,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:52.199Z"
+    "cachedAt": "2026-11-07T12:39:18.866Z"
   },
   "seed_var_2026_15": {
     "title": "快乐再出发",
@@ -2967,7 +2950,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:52.216Z"
+    "cachedAt": "2026-11-07T12:39:18.870Z"
   },
   "seed_var_2026_16": {
     "title": "你好生活",
@@ -2978,7 +2961,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:52.337Z"
+    "cachedAt": "2026-11-07T12:39:18.868Z"
   },
   "seed_var_2026_18": {
     "title": "向往的生活",
@@ -2989,7 +2972,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:52.852Z"
+    "cachedAt": "2026-11-07T12:39:19.359Z"
   },
   "seed_var_2026_20": {
     "title": "脱口秀和TA的朋友们",
@@ -3014,7 +2997,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:52.906Z"
+    "cachedAt": "2026-11-07T12:39:19.460Z"
   },
   "seed_var_2026_21": {
     "title": "喜人奇妙夜",
@@ -3025,7 +3008,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:53.578Z"
+    "cachedAt": "2026-11-07T12:39:20.040Z"
   },
   "seed_var_2026_25": {
     "title": "声生不息",
@@ -3036,7 +3019,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:53.660Z"
+    "cachedAt": "2026-11-07T12:39:20.125Z"
   },
   "seed_var_2026_24": {
     "title": "披荆斩棘的哥哥",
@@ -3058,7 +3041,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:54.181Z"
+    "cachedAt": "2026-11-07T12:39:20.550Z"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -3079,7 +3062,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:54.178Z"
+    "cachedAt": "2026-11-07T12:39:20.712Z"
   },
   "seed_var_2026_29": {
     "title": "中餐厅",
@@ -3090,7 +3073,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:54.847Z"
+    "cachedAt": "2026-11-07T12:39:21.214Z"
   },
   "seed_var_2026_31": {
     "title": "天赐的声音",
@@ -3101,7 +3084,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:54.926Z"
+    "cachedAt": "2026-11-07T12:39:21.317Z"
   },
   "seed_var_2026_35": {
     "title": "无限超越班",
@@ -3112,7 +3095,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:54.831Z"
+    "cachedAt": "2026-11-07T12:39:21.291Z"
   },
   "seed_var_2026_32": {
     "title": "奋斗吧人生",
@@ -3123,7 +3106,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:55.476Z"
+    "cachedAt": "2026-11-07T12:39:21.756Z"
   },
   "seed_var_c02": {
     "title": "极限挑战第一季",
@@ -3375,7 +3358,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:57.416Z"
+    "cachedAt": "2026-11-07T12:39:23.594Z"
   },
   "XCASHj1Bpx3": {
     "title": "脱口秀大会第5季",
@@ -3656,7 +3639,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:56.798Z"
+    "cachedAt": "2026-11-07T12:39:22.982Z"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -3756,7 +3739,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:55.546Z"
+    "cachedAt": "2026-11-07T12:39:21.900Z"
   },
   "Oq4Z8GUXr47": {
     "title": "金色",
@@ -3908,7 +3891,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-04T06:42:55.472Z"
+    "cachedAt": "2026-11-07T12:39:21.859Z"
   },
   "wkooR40Eji0": {
     "title": "鼠惑",
@@ -7547,5 +7530,184 @@
     "regional": "韩国",
     "notFound": true,
     "cachedAt": "2026-11-04T19:54:27.885Z"
+  },
+  "tmdb_tv_279246": {
+    "title": "再婚皇后",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/nWuOUzOHrn4VB7zRrrcZQHcB5Vx.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:279246",
+    "matchedTitle": "再婚皇后",
+    "tmdbId": 279246,
+    "tmdbUrl": "https://www.themoviedb.org/tv/279246",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_289517": {
+    "title": "末路兼职",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/34Z1vlsow72njbGBNYCaxqFFGjP.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:289517",
+    "matchedTitle": "末路兼职",
+    "tmdbId": 289517,
+    "tmdbUrl": "https://www.themoviedb.org/tv/289517",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "https://movie.douban.com/subject/37210712/",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37210712",
+    "doubanMatchedTitle": "末路兼职",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "tmdb_tv_307478": {
+    "title": "谎言",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/ixROi1nI3FRahoXe8L4PDOB86uI.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:307478",
+    "matchedTitle": "谎言",
+    "tmdbId": 307478,
+    "tmdbUrl": "https://www.themoviedb.org/tv/307478",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_291496": {
+    "title": "我的荒糖恋爱",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/bDOQXrsfomnrAiPrjvN6cKBItKx.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:291496",
+    "matchedTitle": "我的荒糖恋爱",
+    "tmdbId": 291496,
+    "tmdbUrl": "https://www.themoviedb.org/tv/291496",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "https://movie.douban.com/subject/37233536/",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37233536",
+    "doubanMatchedTitle": "我的荒糖恋爱",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "tmdb_tv_307106": {
+    "title": "恋爱博士",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/cULF9qSjPFEgXndSjrLVqR3Ns5B.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:307106",
+    "matchedTitle": "恋爱博士",
+    "tmdbId": 307106,
+    "tmdbUrl": "https://www.themoviedb.org/tv/307106",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "https://movie.douban.com/subject/37746098/",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37746098",
+    "doubanMatchedTitle": "恋爱博士",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "tmdb_tv_316702": {
+    "title": "最后的餐桌",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/wUmX9siOEJEHGUFD80xaQdYzHqC.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:316702",
+    "matchedTitle": "最后的餐桌",
+    "tmdbId": 316702,
+    "tmdbUrl": "https://www.themoviedb.org/tv/316702",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_318634": {
+    "title": "扭曲的领带",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/8jPd1iDRc7J3zKbSlE1x8IRrk50.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:318634",
+    "matchedTitle": "扭曲的领带",
+    "tmdbId": 318634,
+    "tmdbUrl": "https://www.themoviedb.org/tv/318634",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_298610": {
+    "title": "毛骨悚然的恋爱",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/k4Hwekr1WC2jqZq71jnZmGF6G6Y.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:298610",
+    "matchedTitle": "毛骨悚然的恋爱",
+    "tmdbId": 298610,
+    "tmdbUrl": "https://www.themoviedb.org/tv/298610",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_276470": {
+    "title": "好，我们离婚吧",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/guFtiHLkcI0Z2DWAy8FyAQiyTBy.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:276470",
+    "matchedTitle": "好，我们离婚吧",
+    "tmdbId": 276470,
+    "tmdbUrl": "https://www.themoviedb.org/tv/276470",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_339293": {
+    "title": "被解雇的IT天才吞并大公司",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/vFIfakMegir26uWrQLTcvpCCfQw.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:339293",
+    "matchedTitle": "被解雇的IT天才吞并大公司",
+    "tmdbId": 339293,
+    "tmdbUrl": "https://www.themoviedb.org/tv/339293",
+    "cachedAt": "2026-11-07T12:39:10.160Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
   }
 }
