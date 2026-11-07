@@ -1514,6 +1514,8 @@ const OPENROUTER_API = 'https://openrouter.ai/api/v1/chat/completions';
 // OpenRouter 官方免费路由会从当前可用的 :free 模型中动态选择，避免静态模型 ID 退役后整轮 404。
 const OPENROUTER_FREE_MODEL = 'openrouter/free';
 const AI_BATCH_SIZE = 10;
+// 收录审核需额外判断 ok，推理型免费模型常在 10 部一批时把输出额度耗在思考上；减半后总请求数仍不超过原先“审核 + 评分”两次。
+const AI_DISCOVERY_BATCH_SIZE = 5;
 const AI_SCORE_CACHE_VERSION = 4;
 const AI_TOTAL_BUDGET_MS = 8 * 60 * 1000;
 // 推理型免费模型会把思考过程计入输出上限；2000 时常在 JSON 写完前被截断。
@@ -1987,8 +1989,8 @@ async function aiEvaluateDiscovery(discovered, { onDecision } = {}) {
   console.log(`  [AI] 筛选 ${discovered.length} 部新发现韩剧...`);
   const results = new Map();
 
-  for (let i = 0; i < discovered.length; i += AI_BATCH_SIZE) {
-    const batch = discovered.slice(i, i + AI_BATCH_SIZE);
+  for (let i = 0; i < discovered.length; i += AI_DISCOVERY_BATCH_SIZE) {
+    const batch = discovered.slice(i, i + AI_DISCOVERY_BATCH_SIZE);
     const items = batch.map(s => ({
       id: safeText(s.id, 200), title: safeText(s.title, 200), year: safeNumber(s.year),
       genre: safeText(s.contentType, 300), desc: sourceDescriptionForScoring(s, 500),
@@ -2015,7 +2017,7 @@ async function aiEvaluateDiscovery(discovered, { onDecision } = {}) {
     for (const item of rows) {
       results.set(item.id, { ok: item.ok, score: item.s, reason: item.r });
     }
-    if (i + AI_BATCH_SIZE < discovered.length) await sleep(AI_BATCH_DELAY);
+    if (i + AI_DISCOVERY_BATCH_SIZE < discovered.length) await sleep(AI_BATCH_DELAY);
   }
 
   for (const s of discovered) {
@@ -2499,12 +2501,21 @@ async function main() {
   }
   const ruleAcceptedCandidates = discoveryCandidates.filter(show => kdramaMap.has(show.id));
   if (ruleAcceptedCandidates.length) {
+    const decidedIds = new Set();
     const accepted = await aiEvaluateDiscovery(ruleAcceptedCandidates, {
       onDecision: (show, decision) => {
+        decidedIds.add(show.id);
         if (!(decision.ok === true && decision.score >= 40)) recordDiscoveryRejection(discoveryRejections, show, 'ai');
       },
     });
     const acceptedIds = new Set(accepted.map(show => show.id));
+    // AI 未给出结论（未配置、额度用尽或输出无效）时，TMDB 高分新剧按保守规则收录；AI 明确拒绝的不在此列。
+    for (const show of ruleAcceptedCandidates) {
+      if (acceptedIds.has(show.id) || decidedIds.has(show.id) || !passesTMDBRuleAdmission(show)) continue;
+      acceptedIds.add(show.id);
+      show.admissionSource = 'tmdb_rules';
+      console.log(`  [规则] AI 未给出结论，按 TMDB 评分 ${show.tmdbRating}/热度 ${show.tmdbPopularity} 收录「${show.title}」`);
+    }
     for (const show of ruleAcceptedCandidates) {
       if (!acceptedIds.has(show.id)) kdramaMap.delete(show.id);
     }
@@ -3576,6 +3587,16 @@ const TMDB_TV_GENRE_NAMES = Object.freeze({
   10759: '动作', 35: '喜剧', 80: '犯罪', 18: '剧情', 10751: '家庭', 9648: '悬疑',
   10765: '奇幻', 10766: '肥皂剧', 10768: '战争', 37: '西部',
 });
+
+// AI 不可用时的保底收录：只接受投票数足够（≥20，见 tmdbRatingOf）的高分、确有热度的 TMDB 新剧，并且仍须通过硬性内容排除。
+const TMDB_RULE_ADMISSION_MIN_RATING = 7.5;
+const TMDB_RULE_ADMISSION_MIN_POPULARITY = 20;
+
+function passesTMDBRuleAdmission(show) {
+  return show?.source === 'tmdb_discover' && isEligibleKDrama(show) &&
+    boundedScore(show.tmdbRating) >= TMDB_RULE_ADMISSION_MIN_RATING &&
+    safeNumber(show.tmdbPopularity) >= TMDB_RULE_ADMISSION_MIN_POPULARITY;
+}
 
 function tmdbDiscoveryId(tmdbId) {
   return `tmdb_tv_${tmdbId}`;

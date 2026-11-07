@@ -3119,3 +3119,49 @@ test('AI discovery uses the scoring profile, keeps reasons short and records the
   assert.equal(scored.size, 0);
   assert.equal(requests.length, 1, 'an admitted show is not scored again in the same run');
 });
+
+for (const aiMode of ['unavailable', 'rejects']) {
+  test(`TMDB rule admission ${aiMode === 'unavailable' ? 'covers dramas the AI could not judge' : 'never overrides an explicit AI rejection'}`, async () => {
+    const previous = { lastUpdated: '2026-10-29T00:00:00Z', stats: { totalScraped: 30 }, koreanDramas: [], chineseVariety: [], otherDramas: [] };
+    const row = (id, extra) => ({ id, name: `规则剧${id}`, original_name: `원제${id}`, origin_country: ['KR'], original_language: 'ko',
+      first_air_date: '2026-09-20', popularity: 60, vote_average: 8.0, vote_count: 50, genre_ids: [35], poster_path: `/r${id}.jpg`,
+      overview: '一部轻松温馨的职场爱情喜剧。', ...extra });
+    const { helpers, files } = loadHelpers({
+      date: '2026-09-30T04:00:00Z',
+      env: { TMDB_TOKEN: 'test', OPENROUTER_API_KEY: 'test' },
+      initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+      fetchImpl: async (url, options) => {
+        const parsed = new URL(url);
+        if (parsed.hostname === 'api.themoviedb.org') {
+          const path = parsed.pathname.replace('/3/', '');
+          if (path === 'discover/tv') return response({ total_pages: 1, results: [row(501), row(502, { vote_average: 7.0 })] });
+          const details = path.match(/^tv\/(50[12])$/u);
+          if (details) return response({ id: Number(details[1]), status: 'Ended', number_of_episodes: 12 });
+          return response(null, { status: 404 });
+        }
+        if (parsed.hostname === 'openrouter.ai') {
+          const body = JSON.parse(options.body);
+          const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+          if (aiMode === 'unavailable') {
+            return response({ model: 'test/model:free', choices: [{ message: { content: '' }, finish_reason: 'length' }] });
+          }
+          const results = ids.map(id => ({ id, ok: false, recommendationScore100: 20, recommendationLevel: 'weak', r: '不符合偏好' }));
+          return response({ model: 'test/model:free', choices: [{ message: { content: JSON.stringify({ results }) }, finish_reason: 'stop' }] });
+        }
+        return response(null, { status: 403 });
+      },
+    });
+    await helpers.main();
+    const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+    const ids = published.koreanDramas.map(show => show.id);
+    if (aiMode === 'unavailable') {
+      assert.ok(ids.includes('tmdb_tv_501'), 'a well-rated popular TMDB drama is admitted when the AI gives no answer');
+      assert.equal(published.koreanDramas.find(show => show.id === 'tmdb_tv_501').admissionSource, 'tmdb_rules');
+      assert.ok(!ids.includes('tmdb_tv_502'), 'a rating below the rule threshold still waits for the AI');
+      assert.ok(!published.discoveryRejections, 'an unanswered review is not recorded as a rejection');
+    } else {
+      assert.ok(!ids.some(id => id.startsWith('tmdb_tv_')), 'an explicit AI rejection is never overridden by the rules');
+      assert.equal(Object.keys(published.discoveryRejections).length, 2);
+    }
+  });
+}
