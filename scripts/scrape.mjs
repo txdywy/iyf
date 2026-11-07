@@ -83,6 +83,7 @@ const YFSP_REFRESH_DELAY = 250;
 const DOUBAN_SEARCH_DELAY = 900;
 const TMDB_SEARCH_DELAY = 250;
 const WIKI_REQUEST_DELAY = 300;
+const WIKIPEDIA_ZH_VARIANT = 'zh-cn';
 const AI_BATCH_DELAY = 1000;
 const YFSP_HOMEPAGE_FAILFAST_PAGES = 4;
 const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 * 60 * 1000;
@@ -1315,8 +1316,15 @@ const YFSP_HOTNESS = Object.freeze({
 });
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// rankv21 搜索只知道年份时返回“当年 1 月 1 日零点”；按真实首播日期计算会把秋季新剧算成播了大半年。
+const YEAR_PLACEHOLDER_PUBLISH_TIME = /^\d{4}-01-01(?:[T ]00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)?)?$/u;
+
+function isYearPlaceholderPublishTime(value) {
+  return typeof value === 'string' && YEAR_PLACEHOLDER_PUBLISH_TIME.test(value.trim());
+}
+
 function getYfspReleaseInfo(show, now = Date.now()) {
-  const publishTime = typeof show.publishTime === 'string' ? show.publishTime : '';
+  const publishTime = typeof show.publishTime === 'string' && !isYearPlaceholderPublishTime(show.publishTime) ? show.publishTime : '';
   const publishedMs = /\d{4}-\d{2}/u.test(publishTime) ? Date.parse(publishTime) : NaN;
   if (Number.isFinite(publishedMs)) {
     // A future premiere is not an imprecise year-only release. Returning here
@@ -1327,7 +1335,7 @@ function getYfspReleaseInfo(show, now = Date.now()) {
       : { timestamp: 0, source: 'future' };
   }
 
-  const year = Number(show.year);
+  const year = Number(show.year) || (isYearPlaceholderPublishTime(show.publishTime) ? Number(show.publishTime.trim().slice(0, 4)) : 0);
   if (Number.isInteger(year) && year >= 1900 && year <= CURRENT_YEAR) {
     return { timestamp: Date.UTC(year, 0, 1), source: 'year' };
   }
@@ -1377,19 +1385,34 @@ function applyYfspHotness(show, now = Date.now()) {
   return metrics.hotnessScore;
 }
 
+// 爱壹帆评分优先；新剧只有 TMDB 来源时，用投票数足够的 TMDB 均分作为质量事实。
+function effectiveRating(show) {
+  const score = boundedScore(show?.score);
+  return score > 0 ? score : boundedScore(show?.tmdbRating);
+}
+
+// 没有爱壹帆播放量时，用 TMDB 热度给出打折的人气分；有播放量时以爱壹帆为准。
+function tmdbPopularityHotness(show) {
+  const popularity = Math.max(0, safeNumber(show?.tmdbPopularity));
+  if (!popularity) return 0;
+  return Math.min(YFSP_HOTNESS.max, Math.round(Math.log10(popularity + 1) / 3 * YFSP_HOTNESS.max * 0.75));
+}
+
 function scoreKDrama(s, now = Date.now()) {
+  const rating = effectiveRating(s);
   let sc = 0;
   const t = `${s.cidMapper} ${s.contentType} ${sourceDescriptionForScoring(s)} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(KDramaGenreBoost)) if (t.includes(g)) sc += b;
   for (const kw of KDramaNegative) if (t.includes(kw)) sc -= 40;
   // 评分权重提高,让实际质量更有话语权(之前 ×5 太弱,类型加分容易掩盖质量差异)
-  if (s.score > 0) sc += s.score * 8;
+  if (rating > 0) sc += rating * 8;
   // 低分剧惩罚: 评分<7 的剧大幅降分,避免类型匹配好但质量差的剧排到前面
-  if (s.score > 0 && s.score < 7) sc -= 40;
-  else if (s.score > 0 && s.score < 7.5) sc -= 20;
-  sc += applyYfspHotness(s, now);
+  if (rating > 0 && rating < 7) sc -= 40;
+  else if (rating > 0 && rating < 7.5) sc -= 20;
+  const yfspHotness = applyYfspHotness(s, now);
+  sc += boundedPlayCount(s.playCount) > 0 ? yfspHotness : Math.max(yfspHotness, tmdbPopularityHotness(s));
   if (s.year >= CURRENT_YEAR) sc += 25; else if (s.year >= CURRENT_YEAR - 1) sc += 15; else if (s.year >= CURRENT_YEAR - 2) sc += 8;
-  if (s.score >= 8.5 && s.year >= 2015) sc += 25;
+  if (rating >= 8.5 && s.year >= 2015) sc += 25;
   if (s.isComplete) sc += 10;
   return Math.max(0, Math.round(sc));
 }
@@ -1639,7 +1662,7 @@ const AI_RECOMMENDATION_PROPERTIES = {
 const AI_RECOMMENDATION_REQUIRED = ['recommendationScore100', 'recommendationLevel', 'r'];
 
 function sourceRatingForAI(show) {
-  const rating = boundedScore(show?.score);
+  const rating = effectiveRating(show);
   return rating > 0 ? rating : null;
 }
 
@@ -1835,7 +1858,7 @@ function aiScoreInputHash(show) {
     safeNumber(show?.year),
     safeText(show?.contentType, 300),
     sourceDescription,
-    Math.round(safeNumber(show?.score) * 2) / 2,
+    Math.round(effectiveRating(show) * 2) / 2,
     playMagnitude,
     safeText(show?.actor, 200),
   ]);
@@ -2403,6 +2426,8 @@ async function main() {
     show.seedId || prevShows.koreanDramas.some(previous => sameShowIdentity(show, previous))));
   const discoveredShows = await discoverNewKDramas(liveShows, kdramaMap, knownKdramasBeforeRun);
   addDiscoveredShows(kdramaMap, discoveredShows);
+  // 爱壹帆不可用时仍能覆盖近期首播新剧；同 TMDB 实体的已收录卡片只更新首播日期与热度。
+  addDiscoveredShows(kdramaMap, await discoverKDramasFromTMDB(kdramaMap, knownKdramasBeforeRun));
 
   // ── 5.2. 新综艺监控扫描 (发现并自动收录轻松搞笑综艺) ──
   const knownVarietyBeforeRun = new Map([...varietyMap].filter(([, show]) =>
@@ -2850,6 +2875,12 @@ function normalizeOutputShow(show) {
   }
   syncTMDBCoverStatus(show);
   if (Object.hasOwn(show, 'score')) show.score = boundedScore(show.score);
+  if (Object.hasOwn(show, 'tmdbRating')) {
+    const rating = Math.round(boundedScore(show.tmdbRating) * 10) / 10;
+    if (rating > 0) show.tmdbRating = rating;
+    else delete show.tmdbRating;
+  }
+  if (Object.hasOwn(show, 'tmdbPopularity')) show.tmdbPopularity = Math.max(0, Math.min(1e6, safeNumber(show.tmdbPopularity)));
   if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
   if (Object.hasOwn(show, 'recommendScore')) show.recommendScore = Math.max(0, Math.min(1000, safeNumber(show.recommendScore)));
   if (Object.hasOwn(show, 'playCount')) show.playCount = boundedPlayCount(show.playCount);
@@ -3249,6 +3280,7 @@ async function enrichDescriptions(shows) {
         if (!needsSeasonDescriptionMigration(show, target)) rememberSourcedHardExclusion(show);
         show.description = overview;
         show.descriptionSource = 'tmdb';
+        delete show.descriptionWikipediaVariant;
         if (target.seasonNumber) show.descriptionTmdbSeasonUrl = target.tmdbUrl;
         enriched++;
         console.log(`    ✓ ${show.title} (${overview.length}字)`);
@@ -3268,7 +3300,11 @@ async function enrichDescriptions(shows) {
 
   // 补充 Wikipedia 描述 (优先中文,其次英文)
   // 系列 Wikipedia 条目不能证明某一季的剧情；缺少对应季简介时保留已有文案。
-  const wikiTargets = shows.filter(s => !seasonNumberFromTitle(s.title) && s.wikipediaUrl && (s.descriptionSource === 'ai' || !s.description || s.description.length < 80));
+  // 中文维基正文常为繁体；旧版未指定变体时保存的繁体简介需要按简体重取一次。
+  const needsWikipediaVariant = s => s.descriptionSource === 'wikipedia' && /^https:\/\/zh\.wikipedia\.org\//u.test(s.wikipediaUrl || '') &&
+    !s.descriptionWikipediaVariant;
+  const wikiTargets = shows.filter(s => !seasonNumberFromTitle(s.title) && s.wikipediaUrl &&
+    (s.descriptionSource === 'ai' || !s.description || s.description.length < 80 || needsWikipediaVariant(s)));
   for (const show of wikiTargets) {
     if (!hasOptionalEnrichmentBudget()) break;
     try {
@@ -3280,7 +3316,11 @@ async function enrichDescriptions(shows) {
       const timeout = setTimeout(() => ctrl.abort(), getOptionalEnrichmentTimeout(8000));
       try {
         const resp = await fetch(apiUrl, {
-          headers: { 'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'] },
+          headers: {
+            'Accept': 'application/json', 'User-Agent': HEADERS['User-Agent'],
+            // 中文维基按请求语言做简繁转换；本站是简体界面。
+            ...(lang === 'zh' ? { 'Accept-Language': WIKIPEDIA_ZH_VARIANT } : {}),
+          },
           signal: ctrl.signal,
         });
         if (!hasOptionalEnrichmentBudget()) {
@@ -3291,12 +3331,19 @@ async function enrichDescriptions(shows) {
           const data = await resp.json();
           if (!hasOptionalEnrichmentBudget()) break;
           const extract = typeof data?.extract === 'string' ? safeText(data.extract, 2000) : '';
-          if (extract && (show.descriptionSource === 'ai' || extract.length > (show.description || '').length)) {
+          // 服务端用 Content-Language 声明实际转换的变体；只记录一次尝试，避免未转换时每轮重取。
+          const variant = lang === 'zh' ? safeText(resp.headers?.get?.('content-language'), 20).toLowerCase() || 'unknown' : '';
+          const migratingVariant = needsWikipediaVariant(show);
+          if (extract && (show.descriptionSource === 'ai' || migratingVariant || extract.length > (show.description || '').length)) {
             rememberSourcedHardExclusion(show);
             show.description = extract;
             show.descriptionSource = 'wikipedia';
+            if (variant) show.descriptionWikipediaVariant = variant;
+            else delete show.descriptionWikipediaVariant;
             enriched++;
-            console.log(`    ✓ ${show.title} (Wikipedia ${extract.length}字)`);
+            console.log(`    ✓ ${show.title} (Wikipedia ${extract.length}字${variant ? `，${variant}` : ''})`);
+          } else if (migratingVariant) {
+            show.descriptionWikipediaVariant = variant || 'unknown';
           }
         } else {
           await resp.body?.cancel?.().catch(() => {});
@@ -3325,7 +3372,8 @@ function passesKDramaDiscoveryThreshold(show) {
   const year = boundedYear(show?.year);
   const minScore = year >= CURRENT_YEAR ? DISCOVERY_CURRENT_MIN_SCORE : DISCOVERY_MIN_SCORE;
   const minPlays = year >= CURRENT_YEAR ? DISCOVERY_CURRENT_MIN_PLAYS : DISCOVERY_MIN_PLAYS;
-  return boundedScore(show?.score) >= minScore || boundedPlayCount(show?.playCount) >= minPlays;
+  return effectiveRating(show) >= minScore || boundedPlayCount(show?.playCount) >= minPlays ||
+    safeNumber(show?.tmdbPopularity) >= TMDB_DISCOVERY_MIN_POPULARITY;
 }
 
 function hasKnownDiscoveryIdentity(candidate, ...collections) {
@@ -3511,6 +3559,202 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
   }
 
   return promoted;
+}
+
+// ════════════════════════════════════════════════════════════════
+// TMDB 新韩剧发现 (独立于爱壹帆的第二发现源)
+// ════════════════════════════════════════════════════════════════
+
+// 爱壹帆首页/搜索在 GitHub Runner 上可能整段不可用；TMDB 的近期首播韩剧榜单补上新剧覆盖。
+// 候选与爱壹帆发现项走同一规则 + AI 收录门，不能绕过内容偏好筛选。
+const TMDB_DISCOVERY_WINDOW_DAYS = 120;
+const TMDB_DISCOVERY_PAGES = 2;
+const TMDB_DISCOVERY_MAX_NEW = 10;
+const TMDB_DISCOVERY_MIN_POPULARITY = 10;
+const TMDB_DISCOVERY_BUDGET_MS = 60 * 1000;
+// 投票过少的 TMDB 均分波动大，不作为评分事实。
+const TMDB_RATING_MIN_VOTES = 20;
+// 动画、纪录片、儿童、新闻、真人秀、脱口秀不是韩剧推荐范围。
+const TMDB_DISCOVERY_EXCLUDED_GENRES = [16, 99, 10762, 10763, 10764, 10767];
+const TMDB_TV_GENRE_NAMES = Object.freeze({
+  10759: '动作', 35: '喜剧', 80: '犯罪', 18: '剧情', 10751: '家庭', 9648: '悬疑',
+  10765: '奇幻', 10766: '肥皂剧', 10768: '战争', 37: '西部',
+});
+
+function tmdbDiscoveryId(tmdbId) {
+  return `tmdb_tv_${tmdbId}`;
+}
+
+function tmdbRatingOf(result) {
+  const average = Number(result?.vote_average);
+  const votes = Number(result?.vote_count);
+  return Number.isFinite(average) && average > 0 && Number.isFinite(votes) && votes >= TMDB_RATING_MIN_VOTES
+    ? Math.round(boundedScore(average) * 10) / 10 : 0;
+}
+
+function tmdbPopularityOf(result) {
+  const popularity = Number(result?.popularity);
+  return Number.isFinite(popularity) && popularity > 0 ? Math.round(Math.min(1e6, popularity) * 10) / 10 : 0;
+}
+
+function tmdbFirstAirDate(value) {
+  const text = safeText(value, 20);
+  return /^\d{4}-\d{2}-\d{2}$/u.test(text) && Number.isFinite(Date.parse(text)) ? text : '';
+}
+
+// 已收录卡片的 TMDB 剧集 ID（季条目不算剧集身份）。
+function knownTMDBSeriesId(show) {
+  if (extractTMDBSeasonNumber(show?.tmdbUrl)) return 0;
+  const id = Number(show?.tmdbId) || extractTMDBSeriesId(show?.tmdbUrl);
+  return Number.isSafeInteger(id) && id > 0 ? id : 0;
+}
+
+function tmdbStatusFields(details) {
+  const status = safeText(details?.status, 40);
+  const totalEpisodes = Number(details?.number_of_episodes);
+  const last = details?.last_episode_to_air;
+  const lastEpisode = last && typeof last === 'object' && Number(last.season_number) === 1 ? Number(last.episode_number) : 0;
+  const episodeCount = value => Number.isInteger(value) && value > 0 && value <= 999 ? value : 0;
+  if (['Ended', 'Canceled'].includes(status)) {
+    const total = episodeCount(totalEpisodes) || episodeCount(lastEpisode);
+    return { updateStatus: total ? `${total}集全` : '已完结', totalEpisodes: total, currentEpisode: total, isComplete: true, isSerial: false };
+  }
+  const current = episodeCount(lastEpisode);
+  const airing = details?.next_episode_to_air != null || (status === 'Returning Series' && details?.in_production === true);
+  return {
+    updateStatus: current ? `更新到${String(current).padStart(2, '0')}` : '',
+    totalEpisodes: episodeCount(totalEpisodes),
+    currentEpisode: current,
+    isComplete: false,
+    isSerial: airing && current > 0,
+  };
+}
+
+function isUsableTMDBChineseTitle(name, originalName) {
+  // zh-CN 无译名时 TMDB 回退韩文原名；中文站点不能发布韩文标题，也不在此处处理续季。
+  return !!name && /\p{Script=Han}/u.test(name) && !/\p{Script=Hangul}/u.test(name) &&
+    name !== originalName && !seasonKey(name);
+}
+
+function validTMDBDiscoverResult(result) {
+  if (!result || typeof result !== 'object' || Array.isArray(result) || !Number.isSafeInteger(result.id) || result.id <= 0) return false;
+  if ([result.name, result.original_name, result.overview, result.first_air_date, result.original_language]
+    .some(value => value != null && typeof value !== 'string')) return false;
+  if (result.origin_country != null && (!Array.isArray(result.origin_country) || result.origin_country.some(value => typeof value !== 'string'))) return false;
+  return result.genre_ids == null || (Array.isArray(result.genre_ids) && result.genre_ids.every(Number.isSafeInteger));
+}
+
+async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { now = Date.now() } = {}) {
+  if (!TMDB_TOKEN) return [];
+  console.log('\n  ── TMDB 新韩剧扫描 ──');
+  const deadline = Date.now() + TMDB_DISCOVERY_BUDGET_MS;
+  const day = value => new Date(value).toISOString().slice(0, 10);
+  const from = day(now - TMDB_DISCOVERY_WINDOW_DAYS * DAY_MS);
+  const to = day(now + 3 * DAY_MS);
+  const results = new Map();
+  for (let page = 1; page <= TMDB_DISCOVERY_PAGES && Date.now() < deadline; page++) {
+    try {
+      const data = await fetchTMDBJSON(`discover/tv?language=zh-CN&sort_by=popularity.desc&with_origin_country=KR&with_original_language=ko` +
+        `&first_air_date.gte=${from}&first_air_date.lte=${to}&without_genres=${TMDB_DISCOVERY_EXCLUDED_GENRES.join(',')}` +
+        `&include_null_first_air_dates=false&page=${page}`, { deadline });
+      if (!data) break;
+      if (!Array.isArray(data.results)) throw new Error('TMDB discover returned invalid data');
+      for (const result of data.results) {
+        if (validTMDBDiscoverResult(result) && !results.has(result.id)) results.set(result.id, result);
+      }
+      if (!Number.isInteger(data.total_pages) || page >= data.total_pages) break;
+    } catch (error) {
+      console.warn(`  [WARN] TMDB 新韩剧扫描失败: ${error.message}`);
+      break;
+    }
+    await sleep(TMDB_SEARCH_DELAY);
+  }
+
+  const byTMDBId = new Map();
+  for (const show of kdramaMap.values()) {
+    const id = knownTMDBSeriesId(show);
+    if (id && !byTMDBId.has(id)) byTMDBId.set(id, show);
+  }
+  const candidates = [];
+  let refreshed = 0;
+  for (const result of results.values()) {
+    if (Array.isArray(result.origin_country) && result.origin_country.length && !result.origin_country.includes('KR')) continue;
+    const firstAirDate = tmdbFirstAirDate(result.first_air_date);
+    if (!firstAirDate) continue;
+    const existing = byTMDBId.get(result.id);
+    if (existing) {
+      // 同一 TMDB 实体：补上准确首播日期（替换搜索年份占位）和热度，供热度与新鲜度计算。
+      existing.tmdbPopularity = tmdbPopularityOf(result);
+      const rating = tmdbRatingOf(result);
+      if (rating) existing.tmdbRating = rating;
+      if (!existing.publishTime || isYearPlaceholderPublishTime(existing.publishTime)) existing.publishTime = firstAirDate;
+      if (existing.id === tmdbDiscoveryId(result.id)) existing.scrapedAt = new Date(now).toISOString();
+      refreshed++;
+      continue;
+    }
+    const name = safeText(result.name, 200);
+    if (!isUsableTMDBChineseTitle(name, safeText(result.original_name, 200))) continue;
+    let posterPath;
+    try { posterPath = tmdbPosterPath(result.poster_path); } catch { continue; }
+    if (!posterPath || tmdbPopularityOf(result) < TMDB_DISCOVERY_MIN_POPULARITY) continue;
+    const year = boundedYear(extractYear(firstAirDate));
+    const candidate = { id: tmdbDiscoveryId(result.id), title: name, year, mediaType: '电视剧', regional: '韩国' };
+    // 标题已对应已知卡片（可能来自爱壹帆的另一译名 ID）时不重复建卡。
+    if (hasKnownDiscoveryIdentity(candidate, knownBeforeRun, kdramaMap)) continue;
+    candidates.push({ result, candidate, firstAirDate, posterPath });
+  }
+  candidates.sort((a, b) => tmdbPopularityOf(b.result) - tmdbPopularityOf(a.result));
+
+  const discovered = [];
+  const cache = loadImageCache();
+  const scrapedAt = new Date(now).toISOString();
+  for (const { result, candidate, firstAirDate, posterPath } of candidates.slice(0, TMDB_DISCOVERY_MAX_NEW)) {
+    if (Date.now() >= deadline) break;
+    let details;
+    try {
+      details = await fetchTMDBJSON(`tv/${result.id}?language=zh-CN`, { deadline });
+      if (!details) continue;
+      if (typeof details !== 'object' || details.id !== result.id) throw new Error('TMDB details returned invalid entity');
+    } catch (error) {
+      console.warn(`  [WARN] TMDB 详情获取失败 "${candidate.title}": ${error.message}`);
+      continue;
+    }
+    const genres = (result.genre_ids || []).map(id => TMDB_TV_GENRE_NAMES[id]).filter(Boolean);
+    const coverImg = `${TMDB_IMG_BASE}${posterPath}`;
+    const tmdbUrl = `${TMDB_WEB_BASE}/tv/${result.id}`;
+    const description = safeText(result.overview, 2000);
+    const show = {
+      ...candidate, type: 4,
+      score: 0, playCount: 0,
+      tmdbRating: tmdbRatingOf(result), tmdbPopularity: tmdbPopularityOf(result),
+      actor: '', lang: '韩语', contentType: genres.join('·'), cidMapper: '',
+      description, ...(description ? { descriptionSource: 'tmdb' } : {}),
+      coverImg, coverSource: 'tmdb', tmdbUrl, tmdbId: result.id,
+      ...tmdbStatusFields(details),
+      updateMsg: '', publishTime: firstAirDate,
+      yfspUrl: '', doubanUrl: '',
+      scrapedAt, isLive: false, source: 'tmdb_discover', isAutoDiscovered: true,
+      category: 'korean_drama',
+    };
+    if (!show.tmdbRating) delete show.tmdbRating;
+    // 预置当前版本封面缓存，后续富化直接复用这张已验证海报，并按常规周期补 Wikidata 外链。
+    cache[show.id] ||= {
+      title: show.title, year: show.year, mediaType: show.mediaType, regional: show.regional,
+      url: coverImg, source: 'tmdb', version: COVER_CACHE_VERSION, query: `discover:${result.id}`,
+      matchedTitle: show.title, tmdbId: result.id, tmdbUrl, cachedAt: scrapedAt,
+    };
+    reconcileShowStatus(show);
+    show.recommendScore = scoreKDrama(show);
+    attachLinkFields(show, '', '');
+    discovered.push(show);
+    await sleep(TMDB_SEARCH_DELAY);
+  }
+  recordDiscoveryHistory(discovered);
+  console.log(`  TMDB 近 ${TMDB_DISCOVERY_WINDOW_DAYS} 天首播韩剧 ${results.size} 部，更新已收录 ${refreshed} 部，候选收录 ${discovered.length} 部`);
+  for (const show of discovered) {
+    console.log(`    ▸ ${show.title} [${show.publishTime} · 热度${show.tmdbPopularity}${show.tmdbRating ? ` · TMDB ${show.tmdbRating}` : ''}]`);
+  }
+  return discovered;
 }
 
 // ════════════════════════════════════════════════════════════════

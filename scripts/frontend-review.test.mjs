@@ -1087,3 +1087,25 @@ test('scalar helpers reject structured JSON values without invoking coercion met
   assert.equal(helpers.safeExternalUrl(' https://www.tvmaze.com/shows/1/normal '), 'https://www.tvmaze.com/shows/1/normal');
   assert.equal(helpers.escapeHtml('<正常>'), '&lt;正常&gt;');
 });
+
+test('a TMDB rating stands in for a missing source score in badges, score filters, sorting and statistics', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(3);
+  Object.assign(data.koreanDramas[0], { score: 0, tmdbRating: 8.4, recommendScore: 10 });
+  Object.assign(data.koreanDramas[1], { score: 7.2, tmdbRating: 9.5, recommendScore: 20 });
+  Object.assign(data.koreanDramas[2], { score: 0, recommendScore: 30 });
+  elements.filterScore.value = '8';
+  elements.sortBy.value = 'score';
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false, rememberSort: false });
+  elements.sortBy.value = 'score';
+  helpers.applyFilters();
+  const markup = elements.showGrid.innerHTML;
+  assert.match(markup, /title="TMDB 用户评分，满分10分">TMDB 8\.4</u);
+  assert.doesNotMatch(markup, /剧目1|剧目2/u, 'an existing source score keeps precedence and an unrated show stays unrated');
+  assert.equal(elements.statHighScore.textContent, 1);
+  elements.filterScore.value = '0';
+  helpers.applyFilters();
+  assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
+  assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分">⭐ 7\.2</u);
+});

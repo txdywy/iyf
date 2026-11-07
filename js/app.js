@@ -687,7 +687,7 @@
     const minScore = parseFloat(document.getElementById('filterScore').value);
     if (minScore > 0) {
       shows = shows.filter(s => {
-        const score = s.score ?? s.rating?.average ?? s.mdlRating ?? 0;
+        const score = getShowNumber(s, 'score');
         return score >= minScore;
       });
     }
@@ -818,7 +818,9 @@
     const aiScore = normalizeAIScore(show.aiScore);
     const score = toFiniteNumber(show.score, NaN);
     if (Number.isFinite(aiScore)) badges.push(`<span class="badge badge-ai" title="AI口味匹配度，非观众评分">🤖 ${escapeHtml(String(aiScore))}/100</span>`);
+    const tmdbRating = toFiniteNumber(show.tmdbRating, NaN);
     if (Number.isFinite(score) && score > 0) badges.push(`<span class="badge badge-score" title="爱壹帆来源评分，满分10分">⭐ ${escapeHtml(String(show.score))}</span>`);
+    else if (Number.isFinite(tmdbRating) && tmdbRating > 0) badges.push(`<span class="badge badge-score" title="TMDB 用户评分，满分10分">TMDB ${escapeHtml(String(tmdbRating))}</span>`);
     if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
     if (show.isAutoDiscovered) badges.push('<span class="badge badge-discovered">新发现</span>');
     if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
@@ -1000,7 +1002,7 @@
       return complete;
     }).length;
     const highScore = shows.filter(s => {
-      const score = s.score ?? s.rating?.average ?? s.mdlRating ?? 0;
+      const score = getShowNumber(s, 'score');
       return score >= 8;
     }).length;
 
@@ -1135,7 +1137,8 @@
     const candidates = kind === 'recommend'
       ? [show?.recommendScore, show?.mdlRating, show?.rating?.average]
       : kind === 'score'
-        ? [show?.score, show?.rating?.average, show?.mdlRating]
+        // 爱壹帆未评分（0）的新剧回退到 TMDB 评分，筛选、排序和统计口径一致。
+        ? [toFiniteNumber(show?.score) > 0 ? show.score : null, show?.tmdbRating, show?.rating?.average, show?.mdlRating, show?.score]
         : [show?.playCount, show?.watchers];
     for (const value of candidates) {
       const number = toFiniteNumber(value, NaN);
@@ -1166,7 +1169,7 @@
       ![value.generatedAt, value.sourceStatus].every(optionalText)) return false;
     if (value.stats != null && (!isRecord(value.stats) ||
       ![value.stats.koreanDramas, value.stats.chineseVariety].every(optionalNumber))) return false;
-    const numericFields = ['year', 'score', 'playCount', 'recommendScore', 'aiScore', 'currentEpisode', 'totalEpisodes', 'mdlRating', 'watchers'];
+    const numericFields = ['year', 'score', 'tmdbRating', 'playCount', 'recommendScore', 'aiScore', 'currentEpisode', 'totalEpisodes', 'mdlRating', 'watchers'];
     const booleanFields = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
     const textFields = [
       'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor', 'description', 'descriptionSource',
