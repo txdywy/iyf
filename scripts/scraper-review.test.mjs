@@ -2887,15 +2887,18 @@ test('image cache pruning keeps referenced and recent entries only', () => {
 test('discovery rejections expire by reason and drop malformed records', () => {
   const { helpers } = loadHelpers({ date: '2026-11-01T00:00:00Z' });
   const at = days => new Date(Date.parse('2026-11-01T00:00:00Z') - days * 86400000).toISOString();
+  const version = 2;
   const kept = helpers.normalizeDiscoveryRejections({
-    'a': { title: 'A', reason: 'rules', rejectedAt: at(2) },
-    'b': { title: 'B', reason: 'rules', rejectedAt: at(4) },
-    'c': { title: 'C', reason: 'ai', rejectedAt: at(9) },
-    'd': { title: 'D', reason: 'ai', rejectedAt: at(11) },
-    'e': { title: 'E', reason: 'other', rejectedAt: at(1) },
-    'f': { title: 'F', reason: 'ai', rejectedAt: 'invalid' },
+    'a': { title: 'A', reason: 'rules', rejectedAt: at(2), version },
+    'b': { title: 'B', reason: 'rules', rejectedAt: at(4), version },
+    'c': { title: 'C', reason: 'ai', rejectedAt: at(9), version, detail: '题材偏恐怖' },
+    'd': { title: 'D', reason: 'ai', rejectedAt: at(11), version },
+    'e': { title: 'E', reason: 'other', rejectedAt: at(1), version },
+    'f': { title: 'F', reason: 'ai', rejectedAt: 'invalid', version },
+    'g': { title: 'G', reason: 'ai', rejectedAt: at(1) },
   });
-  assert.deepEqual(Object.keys(kept).sort(), ['a', 'c']);
+  assert.deepEqual(Object.keys(kept).sort(), ['a', 'c'], 'records from an older admission rule version are reviewed again');
+  assert.equal(kept.c.detail, '题材偏恐怖', 'the AI reason is kept for diagnosis');
 });
 
 test('keyword discovery stops after consecutive search failures', async () => {
@@ -3120,11 +3123,16 @@ test('AI discovery uses the scoring profile, keeps reasons short and records the
   assert.equal(requests.length, 1, 'an admitted show is not scored again in the same run');
 });
 
-for (const aiMode of ['unavailable', 'rejects']) {
-  test(`TMDB rule admission ${aiMode === 'unavailable' ? 'covers dramas the AI could not judge' : 'never overrides an explicit AI rejection'}`, async () => {
+for (const aiMode of ['unavailable', 'rejects', 'rejectsHot']) {
+  const names = {
+    unavailable: 'covers dramas the AI could not judge',
+    rejects: 'never overrides an explicit AI rejection of a non-trending drama',
+    rejectsHot: 'keeps a trending drama the AI rejects, ranked by its low AI score',
+  };
+  test(`TMDB rule admission ${names[aiMode]}`, async () => {
     const previous = { lastUpdated: '2026-10-29T00:00:00Z', stats: { totalScraped: 30 }, koreanDramas: [], chineseVariety: [], otherDramas: [] };
     const row = (id, extra) => ({ id, name: `规则剧${id}`, original_name: `원제${id}`, origin_country: ['KR'], original_language: 'ko',
-      first_air_date: '2026-09-20', popularity: 60, vote_average: 8.0, vote_count: 50, genre_ids: [35], poster_path: `/r${id}.jpg`,
+      first_air_date: '2026-09-20', popularity: aiMode === 'rejectsHot' ? 120 : 30, vote_average: 8.0, vote_count: 50, genre_ids: [35], poster_path: `/r${id}.jpg`,
       overview: '一部轻松温馨的职场爱情喜剧。', ...extra });
     const { helpers, files } = loadHelpers({
       date: '2026-09-30T04:00:00Z',
@@ -3159,9 +3167,16 @@ for (const aiMode of ['unavailable', 'rejects']) {
       assert.equal(published.koreanDramas.find(show => show.id === 'tmdb_tv_501').admissionSource, 'tmdb_rules');
       assert.ok(!ids.includes('tmdb_tv_502'), 'a rating below the rule threshold still waits for the AI');
       assert.ok(!published.discoveryRejections, 'an unanswered review is not recorded as a rejection');
-    } else {
+    } else if (aiMode === 'rejects') {
       assert.ok(!ids.some(id => id.startsWith('tmdb_tv_')), 'an explicit AI rejection is never overridden by the rules');
-      assert.equal(Object.keys(published.discoveryRejections).length, 2);
+      const rejections = Object.values(published.discoveryRejections);
+      assert.equal(rejections.length, 2);
+      assert.ok(rejections.every(entry => entry.detail === '不符合偏好' && entry.version === 2), 'rejections keep the AI reason and rule version');
+    } else {
+      const hot = published.koreanDramas.find(show => show.id === 'tmdb_tv_501');
+      assert.equal(hot?.admissionSource, 'tmdb_hot');
+      assert.equal(hot.aiScore, 20, 'the low AI score is kept so the trending drama ranks lower');
+      assert.ok(!published.discoveryRejections, 'a kept trending drama is not recorded as rejected');
     }
   });
 }

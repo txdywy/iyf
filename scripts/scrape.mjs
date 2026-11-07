@@ -1743,8 +1743,10 @@ ${AI_RECOMMENDATION_CONTRACT}
 const AI_DISCOVERY_SYSTEM = `${AI_KDRAMA_SCORE_SYSTEM.replace(/\n返回 JSON 对象:[^\n]*$/u, '')}
 
 收录判断(这些是新发现、尚未收录的韩剧，额外输出 ok):
-- 必须是电视剧(非电影/综艺)；类型匹配只是基本门槛，关键看口碑和制作质量
-- 同类型剧如果口碑差、制作粗糙，或属于恐怖血腥/沉重悲剧 → ok=false
+- 必须是电视剧(非电影/综艺)
+- 新剧刚开播时普遍没有评分和口碑，sourceRating10 为 null 不是拒绝理由；按类型、简介和演员判断匹配度
+- 只有题材明显不符(恐怖/丧尸/血腥/极端暴力/过于沉重的悲剧)，或输入中已有明确差评(如低来源评分)时 ok=false
+- trendingPopularity 是 TMDB 当前热度(越高越热门，50 以上属于热播)，热播只是参考，不能抵消题材不符
 - ok=true 时 recommendationScore100 必须 >= 40
 
 返回 JSON 对象: {"results":[{"id":"剧ID","ok":true,"recommendationScore100":80,"recommendationLevel":"strong","r":"一句话理由"}]}`;
@@ -1951,19 +1953,24 @@ async function aiScoreShows(shows) {
 // 规则拒绝依赖播放量/评分等会增长的数据，因此冷却期更短；AI 未返回结果不算拒绝。
 const DISCOVERY_REJECTION_TTL_MS = Object.freeze({ rules: 3 * DAY_MS, ai: 10 * DAY_MS });
 const DISCOVERY_REJECTION_MAX = 300;
+// 收录规则或审核提示词变化时递增，旧规则下的拒绝记录随之失效、重新审核。
+const DISCOVERY_REJECTION_VERSION = 2;
 
 function normalizeDiscoveryRejections(raw, now = Date.now()) {
   const result = {};
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return result;
   const entries = Object.entries(raw)
     .filter(([key, entry]) => safeText(key, 400) === key && key && entry && typeof entry === 'object' &&
-      Object.hasOwn(DISCOVERY_REJECTION_TTL_MS, entry.reason))
+      Object.hasOwn(DISCOVERY_REJECTION_TTL_MS, entry.reason) && entry.version === DISCOVERY_REJECTION_VERSION)
     .map(([key, entry]) => [key, entry, Date.parse(entry.rejectedAt || '')])
     .filter(([, entry, at]) => Number.isFinite(at) && at <= now && now - at < DISCOVERY_REJECTION_TTL_MS[entry.reason])
     .sort((a, b) => b[2] - a[2])
     .slice(0, DISCOVERY_REJECTION_MAX);
   for (const [key, entry] of entries) {
-    result[key] = { title: safeText(entry.title, 200), reason: entry.reason, rejectedAt: entry.rejectedAt };
+    result[key] = {
+      title: safeText(entry.title, 200), reason: entry.reason, rejectedAt: entry.rejectedAt, version: DISCOVERY_REJECTION_VERSION,
+      ...(safeText(entry.detail, AI_REASON_MAX_LENGTH) ? { detail: safeText(entry.detail, AI_REASON_MAX_LENGTH) } : {}),
+    };
   }
   return result;
 }
@@ -1972,9 +1979,11 @@ function isRecentlyRejectedDiscovery(rejections, show) {
   return Object.hasOwn(rejections, discoveryRecordIdentityKey(show));
 }
 
-function recordDiscoveryRejection(rejections, show, reason, now = Date.now()) {
+function recordDiscoveryRejection(rejections, show, reason, now = Date.now(), detail = '') {
+  const text = safeText(detail, AI_REASON_MAX_LENGTH);
   rejections[discoveryRecordIdentityKey(show)] = {
-    title: safeText(show.title, 200), reason, rejectedAt: new Date(now).toISOString(),
+    title: safeText(show.title, 200), reason, rejectedAt: new Date(now).toISOString(), version: DISCOVERY_REJECTION_VERSION,
+    ...(text ? { detail: text } : {}),
   };
 }
 
@@ -1996,6 +2005,8 @@ async function aiEvaluateDiscovery(discovered, { onDecision } = {}) {
       genre: safeText(s.contentType, 300), desc: sourceDescriptionForScoring(s, 500),
       sourceRating10: sourceRatingForAI(s),
       plays: Math.max(0, safeNumber(s.playCount)), actor: safeText(s.actor, 100),
+      trendingPopularity: safeNumber(s.tmdbPopularity) > 0 ? Math.round(safeNumber(s.tmdbPopularity)) : null,
+      premiere: safeText(s.publishTime, 10) || null,
     }));
 
     const prompt = `筛选以下 ${batch.length} 部新发现韩剧:\n${JSON.stringify(items)}`;
@@ -2502,13 +2513,31 @@ async function main() {
   const ruleAcceptedCandidates = discoveryCandidates.filter(show => kdramaMap.has(show.id));
   if (ruleAcceptedCandidates.length) {
     const decidedIds = new Set();
+    const hotOverrides = [];
     const accepted = await aiEvaluateDiscovery(ruleAcceptedCandidates, {
       onDecision: (show, decision) => {
         decidedIds.add(show.id);
-        if (!(decision.ok === true && decision.score >= 40)) recordDiscoveryRejection(discoveryRejections, show, 'ai');
+        if (decision.ok === true && decision.score >= 40) return;
+        if (passesTMDBHotOverride(show)) {
+          hotOverrides.push({ show, decision });
+          return;
+        }
+        console.log(`  [AI] 拒绝「${show.title}」: ${decision.reason || '无理由'}`);
+        recordDiscoveryRejection(discoveryRejections, show, 'ai', Date.now(), decision.reason);
       },
     });
     const acceptedIds = new Set(accepted.map(show => show.id));
+    // 正在热播的新剧是覆盖面的一部分：AI 口味判断不通过时仍收录，但保留其低推荐分让排名靠后；硬性内容排除照常生效。
+    for (const { show, decision } of hotOverrides) {
+      acceptedIds.add(show.id);
+      show.admissionSource = 'tmdb_hot';
+      Object.assign(show, {
+        aiScore: decision.score, aiReason: decision.reason, aiScoredAt: new Date().toISOString(),
+        aiScoreVersion: AI_SCORE_CACHE_VERSION,
+      });
+      show.aiScoreInputHash = aiScoreInputHash(show);
+      console.log(`  [热播] AI 推荐分 ${decision.score}，按 TMDB 热度 ${show.tmdbPopularity} 保留「${show.title}」: ${decision.reason || '无理由'}`);
+    }
     // AI 未给出结论（未配置、额度用尽或输出无效）时，TMDB 高分新剧按保守规则收录；AI 明确拒绝的不在此列。
     for (const show of ruleAcceptedCandidates) {
       if (acceptedIds.has(show.id) || decidedIds.has(show.id) || !passesTMDBRuleAdmission(show)) continue;
@@ -3591,6 +3620,14 @@ const TMDB_TV_GENRE_NAMES = Object.freeze({
 // AI 不可用时的保底收录：只接受投票数足够（≥20，见 tmdbRatingOf）的高分、确有热度的 TMDB 新剧，并且仍须通过硬性内容排除。
 const TMDB_RULE_ADMISSION_MIN_RATING = 7.5;
 const TMDB_RULE_ADMISSION_MIN_POPULARITY = 20;
+
+// 热度达到此值的 TMDB 新剧属于当前热播，AI 口味判断只影响排名，不影响是否出现。
+const TMDB_HOT_OVERRIDE_POPULARITY = 50;
+
+function passesTMDBHotOverride(show) {
+  return show?.source === 'tmdb_discover' && isEligibleKDrama(show) &&
+    safeNumber(show.tmdbPopularity) >= TMDB_HOT_OVERRIDE_POPULARITY;
+}
 
 function passesTMDBRuleAdmission(show) {
   return show?.source === 'tmdb_discover' && isEligibleKDrama(show) &&
