@@ -296,9 +296,18 @@
     const freshness = getDataFreshness(allData.lastUpdated);
     const kr = allData.stats?.koreanDramas ?? (allData.koreanDramas || []).length;
     const vr = allData.stats?.chineseVariety ?? (allData.chineseVariety || []).length;
-    const sourceNotice = allData.sourceStatus === 'degraded' ? ' · 数据源暂不可用，展示上一快照' : '';
+    const degraded = allData.sourceStatus === 'degraded';
+    // 播放源降级时 lastUpdated 停在最近一次健康快照；新剧与 TMDB 资料仍按 generatedAt 刷新，分开说明以免误判整站停更。
+    const generated = new Date(allData.generatedAt || 0);
+    const refreshedSince = degraded && Number.isFinite(generated.getTime()) && generated.getTime() > time.getTime()
+      ? getDataFreshness(allData.generatedAt) : null;
+    const generatedStr = refreshedSince
+      ? generated.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+    const sourceNotice = !degraded ? ''
+      : refreshedSince ? ` · 爱壹帆播放源暂不可用，播放数据停在上述时间；新剧与资料更新于 ${generatedStr}`
+        : ' · 数据源暂不可用，展示上一快照';
     const freshnessNotice = freshness.label ? ` · ${freshness.label}` : '';
-    const staleNotice = freshness.stale ? ' · 数据可能过期' : '';
+    const staleNotice = freshness.stale && !(refreshedSince && !refreshedSince.stale) ? ' · 数据可能过期' : '';
     const text = `最后更新: ${timeStr}${freshnessNotice} · 共 ${kr} 部韩剧 · ${vr} 档综艺${sourceNotice}${staleNotice}${notice}`;
     // role=status 会朗读每次写入；内容未变时不重复播报。
     if (el.textContent !== text) el.textContent = text;

@@ -1398,6 +1398,30 @@ function tmdbPopularityHotness(show) {
   return Math.min(YFSP_HOTNESS.max, Math.round(Math.log10(popularity + 1) / 3 * YFSP_HOTNESS.max * 0.75));
 }
 
+// 年份加分无法区分年初播完的剧和本周刚开播的剧；只有准确首播日期才计入近期首播加分，
+// 年份占位和未来待播不算。连载中的韩剧与综艺一样获得追更加分。
+const KDRAMA_RECENT_PREMIERE_BONUS = Object.freeze([{ days: 30, bonus: 15 }, { days: 90, bonus: 8 }]);
+const KDRAMA_ONGOING_BONUS = 8;
+// 相当于 7.0 分（不触发低分惩罚）的 60%。
+const UNRATED_NEW_KDRAMA_PRIOR = Math.round(7.0 * 8 * 0.6);
+
+function kdramaAiringBonus(show, now = Date.now()) {
+  let bonus = show?.isSerial === true && show?.isComplete !== true ? KDRAMA_ONGOING_BONUS : 0;
+  const release = getYfspReleaseInfo(show, now);
+  if (release.source === 'publishTime') {
+    const ageDays = (now - release.timestamp) / DAY_MS;
+    bonus += KDRAMA_RECENT_PREMIERE_BONUS.find(tier => ageDays <= tier.days)?.bonus || 0;
+  }
+  return bonus;
+}
+
+const YFSP_OBSERVATION_FRESH_MS = 14 * DAY_MS;
+
+function hasRecentYfspObservation(show, now = Date.now()) {
+  const observedAt = Math.max(comparableTimestamp(show?.lastLiveAt), comparableTimestamp(show?.scrapedAt));
+  return observedAt > 0 && observedAt <= now && now - observedAt < YFSP_OBSERVATION_FRESH_MS;
+}
+
 function scoreKDrama(s, now = Date.now()) {
   const rating = effectiveRating(s);
   let sc = 0;
@@ -1406,12 +1430,17 @@ function scoreKDrama(s, now = Date.now()) {
   for (const kw of KDramaNegative) if (t.includes(kw)) sc -= 40;
   // 评分权重提高,让实际质量更有话语权(之前 ×5 太弱,类型加分容易掩盖质量差异)
   if (rating > 0) sc += rating * 8;
+  // 刚开播的本年度新剧还没有评分：“未知质量”按中性先验计分，不能等同于零分；拿到真实评分后自动被替换。
+  else if (boundedYear(s.year) >= CURRENT_YEAR) sc += UNRATED_NEW_KDRAMA_PRIOR;
   // 低分剧惩罚: 评分<7 的剧大幅降分,避免类型匹配好但质量差的剧排到前面
   if (rating > 0 && rating < 7) sc -= 40;
   else if (rating > 0 && rating < 7.5) sc -= 20;
   const yfspHotness = applyYfspHotness(s, now);
-  sc += boundedPlayCount(s.playCount) > 0 ? yfspHotness : Math.max(yfspHotness, tmdbPopularityHotness(s));
+  const tmdbHotness = tmdbPopularityHotness(s);
+  // 爱壹帆播放量长期没有新观测时已是冻结值，改用 TMDB 当前热度反映眼下的人气。
+  sc += boundedPlayCount(s.playCount) > 0 && (hasRecentYfspObservation(s, now) || !tmdbHotness) ? yfspHotness : tmdbHotness || yfspHotness;
   if (s.year >= CURRENT_YEAR) sc += 25; else if (s.year >= CURRENT_YEAR - 1) sc += 15; else if (s.year >= CURRENT_YEAR - 2) sc += 8;
+  sc += kdramaAiringBonus(s, now);
   if (rating >= 8.5 && s.year >= 2015) sc += 25;
   if (s.isComplete) sc += 10;
   return Math.max(0, Math.round(sc));
@@ -2437,6 +2466,7 @@ async function main() {
   addDiscoveredShows(kdramaMap, discoveredShows);
   // 爱壹帆不可用时仍能覆盖近期首播新剧；同 TMDB 实体的已收录卡片只更新首播日期与热度。
   addDiscoveredShows(kdramaMap, await discoverKDramasFromTMDB(kdramaMap, knownKdramasBeforeRun));
+  await refreshKDramaTMDBStats(kdramaMap);
 
   // ── 5.2. 新综艺监控扫描 (发现并自动收录轻松搞笑综艺) ──
   const knownVarietyBeforeRun = new Map([...varietyMap].filter(([, show]) =>
@@ -3698,6 +3728,40 @@ function validTMDBDiscoverResult(result) {
   return result.genre_ids == null || (Array.isArray(result.genre_ids) && result.genre_ids.every(Number.isSafeInteger));
 }
 
+// 已收录韩剧（含种子）的 TMDB 评分与热度按最久未刷新优先轮换更新；爱壹帆不可达时这是唯一会变化的人气信号。
+const TMDB_STATS_REFRESH_QUOTA = 20;
+const TMDB_STATS_REFRESH_CONCURRENCY = 4;
+const TMDB_STATS_REFRESH_TTL_MS = 3 * DAY_MS;
+const TMDB_STATS_REFRESH_BUDGET_MS = 45 * 1000;
+
+async function refreshKDramaTMDBStats(kdramaMap, { now = Date.now() } = {}) {
+  if (!TMDB_TOKEN) return 0;
+  const due = [...kdramaMap.values()]
+    .filter(show => knownTMDBSeriesId(show) && !(now - comparableTimestamp(show.tmdbStatsCheckedAt) < TMDB_STATS_REFRESH_TTL_MS))
+    .sort((a, b) => comparableTimestamp(a.tmdbStatsCheckedAt) - comparableTimestamp(b.tmdbStatsCheckedAt) ||
+      safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
+    .slice(0, TMDB_STATS_REFRESH_QUOTA);
+  if (!due.length) return 0;
+  const deadline = Date.now() + TMDB_STATS_REFRESH_BUDGET_MS;
+  let refreshed = 0;
+  await mapPool(due, TMDB_STATS_REFRESH_CONCURRENCY, async show => {
+    if (Date.now() >= deadline) return;
+    const id = knownTMDBSeriesId(show);
+    const details = await fetchTMDBJSON(`tv/${id}?language=zh-CN`, { deadline });
+    // 404 与畸形响应不改动已有数据；只有实体 ID 一致的成功响应才写入。
+    if (!details || details.id !== id) return;
+    const popularity = tmdbPopularityOf(details);
+    if (popularity) show.tmdbPopularity = popularity;
+    const rating = tmdbRatingOf(details);
+    if (rating) show.tmdbRating = rating;
+    else delete show.tmdbRating;
+    show.tmdbStatsCheckedAt = new Date(now).toISOString();
+    refreshed++;
+  });
+  console.log(`  刷新 ${refreshed}/${due.length} 部已收录韩剧的 TMDB 评分与热度`);
+  return refreshed;
+}
+
 async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { now = Date.now() } = {}) {
   if (!TMDB_TOKEN) return [];
   console.log('\n  ── TMDB 新韩剧扫描 ──');
@@ -3741,6 +3805,7 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
       existing.tmdbPopularity = tmdbPopularityOf(result);
       const rating = tmdbRatingOf(result);
       if (rating) existing.tmdbRating = rating;
+      existing.tmdbStatsCheckedAt = new Date(now).toISOString();
       if (!existing.publishTime || isYearPlaceholderPublishTime(existing.publishTime)) existing.publishTime = firstAirDate;
       if (existing.id === tmdbDiscoveryId(result.id)) existing.scrapedAt = new Date(now).toISOString();
       refreshed++;
@@ -3780,7 +3845,7 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
     const show = {
       ...candidate, type: 4,
       score: 0, playCount: 0,
-      tmdbRating: tmdbRatingOf(result), tmdbPopularity: tmdbPopularityOf(result),
+      tmdbRating: tmdbRatingOf(result), tmdbPopularity: tmdbPopularityOf(result), tmdbStatsCheckedAt: scrapedAt,
       actor: '', lang: '韩语', contentType: genres.join('·'), cidMapper: '',
       description, ...(description ? { descriptionSource: 'tmdb' } : {}),
       coverImg, coverSource: 'tmdb', tmdbUrl, tmdbId: result.id,
