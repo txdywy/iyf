@@ -7544,9 +7544,12 @@
     "tmdbId": 279246,
     "tmdbUrl": "https://www.themoviedb.org/tv/279246",
     "cachedAt": "2026-11-07T12:39:10.160Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37071110/",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37071110",
+    "doubanMatchedTitle": "再婚皇后",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_289517": {
     "title": "末路兼职",
@@ -7581,9 +7584,12 @@
     "tmdbId": 307478,
     "tmdbUrl": "https://www.themoviedb.org/tv/307478",
     "cachedAt": "2026-11-07T12:39:10.160Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37421514/",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37421514",
+    "doubanMatchedTitle": "谎言",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_291496": {
     "title": "我的荒糖恋爱",
