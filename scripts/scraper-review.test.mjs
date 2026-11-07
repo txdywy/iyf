@@ -47,6 +47,7 @@ function loadHelpers({
         saveHistory, recordDiscoveryHistory,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
+        discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
       };
@@ -2980,4 +2981,107 @@ test('Hong Kong and Taiwan variety shows receive live homepage observations', as
   assert.equal(show?.playCount, 500000, 'the live play count must replace the stale snapshot value');
   assert.equal(published.chineseVariety.some(item => item.id === 'tw-obscure'), false,
     'a new Taiwan/Hong Kong homepage show must still pass the discovery thresholds');
+});
+
+test('TMDB discovery proposes recent Korean dramas independently of YFSP and refreshes matching cards', async () => {
+  const requests = [];
+  const row = (id, extra) => ({
+    id, name: `新剧${id}`, original_name: `원제${id}`, origin_country: ['KR'], original_language: 'ko',
+    first_air_date: '2026-09-12', popularity: 80, vote_average: 8.2, vote_count: 50, genre_ids: [35, 18],
+    poster_path: `/p${id}.jpg`, overview: `第${id}部新剧的剧情简介`, ...extra,
+  });
+  const results = [
+    row(1001),
+    row(1002, { name: '已收录译名', first_air_date: '2026-09-10', popularity: 120 }),
+    row(1003, { name: '원제1003' }),
+    row(1004, { popularity: 3 }),
+    row(1005, { name: '同名旧卡', first_air_date: '2026-08-01' }),
+    row(1006, { name: '新剧1006第2季' }),
+    row(1007, { poster_path: null }),
+    { id: 'broken' },
+  ];
+  const { helpers } = loadHelpers({
+    env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/discover/tv?')) return response({ results, total_pages: 1 });
+      if (url.includes('/tv/1001?')) {
+        return response({ id: 1001, status: 'Returning Series', in_production: true, number_of_episodes: 12,
+          last_episode_to_air: { season_number: 1, episode_number: 4 }, next_episode_to_air: { season_number: 1, episode_number: 5 } });
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    },
+  });
+  const matched = { id: 'yfsp-key', title: '不同的中文名', year: 2026, mediaType: '电视剧', regional: '韩国', tmdbId: 1002,
+    tmdbUrl: 'https://www.themoviedb.org/tv/1002', publishTime: '2026-01-01T00:00:00', playCount: 1000 };
+  const sameTitle = { id: 'old-card', title: '同名旧卡', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const known = new Map([[matched.id, matched], [sameTitle.id, sameTitle]]);
+  const discovered = await helpers.discoverKDramasFromTMDB(known, known);
+
+  const discover = requests.find(url => url.includes('/discover/tv?'));
+  assert.match(discover, /with_origin_country=KR/u);
+  assert.match(discover, /first_air_date\.gte=2026-06-02/u, 'the window covers the last 120 days');
+  assert.match(discover, /without_genres=16,99,10762,10763,10764,10767/u, 'animation, reality and talk shows are excluded');
+  assert.deepEqual(Array.from(discovered, show => show.id), ['tmdb_tv_1001'],
+    'Hangul-only, unpopular, already-known, season and posterless rows are not proposed');
+  const show = discovered[0];
+  assert.equal(show.title, '新剧1001');
+  assert.equal(show.publishTime, '2026-09-12');
+  assert.equal(show.year, 2026);
+  assert.equal(show.tmdbRating, 8.2);
+  assert.equal(show.score, 0, 'a TMDB rating is not presented as the YFSP source score');
+  assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/p1001.jpg');
+  assert.equal(show.primaryUrl, 'https://www.themoviedb.org/tv/1001');
+  assert.equal(show.contentType, '喜剧·剧情');
+  assert.equal(show.descriptionSource, 'tmdb');
+  assert.equal(show.updateStatus, '更新到04');
+  assert.equal(show.currentEpisode, 4);
+  assert.equal(show.isSerial, true);
+  assert.equal(show.isAutoDiscovered, true);
+  assert.equal(helpers.passesKDramaDiscoveryThreshold(show), true);
+  assert.ok(show.recommendScore > 0);
+  const cached = helpers.loadImageCache()[show.id];
+  assert.ok(helpers.isReusableTMDBCoverCache(cached, show), 'later cover enrichment reuses the verified discover poster');
+
+  assert.equal(matched.publishTime, '2026-09-10', 'an exact TMDB premiere replaces the search year placeholder');
+  assert.equal(matched.tmdbPopularity, 120);
+  assert.equal(known.size, 2, 'matching cards are refreshed in place rather than duplicated');
+});
+
+test('TMDB discovery is skipped without a token and tolerates a failed listing', async () => {
+  const none = loadHelpers();
+  assert.equal((await none.helpers.discoverKDramasFromTMDB(new Map())).length, 0);
+  const failing = loadHelpers({ env: { TMDB_TOKEN: 'test' }, fetchImpl: async () => response(null, { status: 503 }) });
+  assert.equal((await failing.helpers.discoverKDramasFromTMDB(new Map())).length, 0);
+});
+
+test('a search year placeholder is treated as a year-only release date', () => {
+  const { helpers } = loadHelpers();
+  const base = { playCount: 300000, year: 2026 };
+  assert.equal(helpers.calculateYfspHotness({ ...base, publishTime: '2026-01-01T00:00:00' }).releaseDateSource, 'year');
+  assert.equal(helpers.calculateYfspHotness({ ...base, year: 0, publishTime: '2026-01-01T00:00:00' }).releaseDateSource, 'year');
+  assert.equal(helpers.calculateYfspHotness({ ...base, publishTime: '2026-09-01' }).releaseDateSource, 'publishTime');
+});
+
+test('Chinese Wikipedia summaries are requested in Simplified Chinese and legacy variants migrate once', async () => {
+  const SIMPLIFIED = '《泪之女王》是韩国tvN于2024年3月9日起播出的周末连续剧，由《来自星星的你》《蓝色大海的传说》的编剧朴智恩执笔，讲述财阀家族第三代女继承人与超市王子之间的婚姻危机。';
+  const requests = [];
+  const { helpers } = loadHelpers({
+    fetchImpl: async (url, options) => {
+      requests.push({ url, language: options?.headers?.['Accept-Language'] });
+      return { ...response({ extract: SIMPLIFIED }),
+        headers: { get: name => name.toLowerCase() === 'content-language' ? 'zh-cn' : null } };
+    },
+  });
+  const show = { id: 'tears', title: '泪之女王', year: 2024, mediaType: '电视剧', regional: '韩国',
+    wikipediaUrl: 'https://zh.wikipedia.org/wiki/%E6%B7%9A%E4%B9%8B%E5%A5%B3%E7%8E%8B',
+    description: '《淚之女王》，是韓國tvN於2024年3月9日起播出的週末連續劇，由《來自星星的你》、《藍色海洋的傳說》的編劇朴智恩執筆，講述財閥家族第三代女繼承人與超市王子的婚姻危機故事。',
+    descriptionSource: 'wikipedia' };
+  await helpers.enrichDescriptions([show]);
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].language, 'zh-cn');
+  assert.equal(show.description, SIMPLIFIED, 'the Simplified summary replaces legacy Traditional text of similar length');
+  assert.equal(show.descriptionWikipediaVariant, 'zh-cn');
+  await helpers.enrichDescriptions([show]);
+  assert.equal(requests.length, 1, 'a migrated description is not fetched again');
 });

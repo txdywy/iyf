@@ -154,6 +154,9 @@ function validateShows(data) {
         if (!Number.isFinite(show[field])) errors.push(`${label}.${field}: must be finite`);
       }
       if (show.score < 0 || show.score > 10) errors.push(`${label}.score: must be from 0 to 10`);
+      if (show.tmdbRating != null && (!Number.isFinite(show.tmdbRating) || show.tmdbRating <= 0 || show.tmdbRating > 10)) {
+        errors.push(`${label}.tmdbRating: must be above 0 and at most 10`);
+      }
       if (show.aiScore != null && (!Number.isFinite(show.aiScore) || show.aiScore < 0 || show.aiScore > 100)) errors.push(`${label}.aiScore: must be from 0 to 100`);
       // YFSP 搜索结果有时没有可验证的发布日期，0 表示“年份未知”，不能让这类推荐在校验阶段被误杀。
       if (!Number.isInteger(show.year) || (show.year !== 0 && (show.year < 1900 || show.year > new Date().getFullYear() + 1))) {
