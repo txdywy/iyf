@@ -7698,9 +7698,12 @@
     "tmdbId": 276470,
     "tmdbUrl": "https://www.themoviedb.org/tv/276470",
     "cachedAt": "2026-11-07T12:39:10.160Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37040714/",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37040714",
+    "doubanMatchedTitle": "好，我们离婚吧",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_339293": {
     "title": "被解雇的IT天才吞并大公司",
@@ -7732,9 +7735,12 @@
     "tmdbId": 294095,
     "tmdbUrl": "https://www.themoviedb.org/tv/294095",
     "cachedAt": "2026-11-07T13:25:04.852Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37401968/",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-07T13:25:04.852Z"
+    "externalMetadataCheckedAt": "2026-11-07T13:25:04.852Z",
+    "doubanId": "37401968",
+    "doubanMatchedTitle": "杀手妈咪",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_332269": {
     "title": "隔壁座位，弗兰西斯卡",
