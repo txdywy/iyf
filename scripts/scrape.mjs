@@ -2241,6 +2241,23 @@ const SEED_VARIETY = [
 // 主流程
 // ════════════════════════════════════════════════════════════════
 
+function getHomepageCategoryCoverage(shows) {
+  const coverage = { koreanDramas: 0, chineseVariety: 0 };
+  for (const show of shows.values()) {
+    if (show.mediaType === '电视剧' && show.regional === '韩国') coverage.koreanDramas++;
+    if (show.mediaType === '综艺' && VARIETY_REGIONS.includes(show.regional)) coverage.chineseVariety++;
+  }
+  return coverage;
+}
+
+function isHomepageHealthy({ shows, successfulPages, meaningfulPages, minimumPages, minimumItems }) {
+  if (successfulPages < minimumPages || meaningfulPages < Math.ceil(minimumPages / 2) || shows.size < minimumItems) {
+    return false;
+  }
+  const categoryCounts = getHomepageCategoryCoverage(shows);
+  return categoryCounts.koreanDramas >= 3 && categoryCounts.chineseVariety >= 3;
+}
+
 async function main() {
   console.log(`[SCRAPER] 开始抓取 ${new Date().toISOString()}`);
   _optionalEnrichmentDeadline = 0;
@@ -2290,9 +2307,11 @@ async function main() {
   const previousScraped = Math.max(0, safeNumber(prevShows.stats?.totalScraped));
   const minimumHealthyItems = Math.max(30, Math.floor(previousScraped * 0.5));
   const homepageItemCount = liveShows.size;
-  const homepageHealthy = successfulPages >= minimumHealthyPages &&
-    meaningfulPages >= Math.ceil(minimumHealthyPages / 2) &&
-    liveShows.size >= minimumHealthyItems;
+  const homepageCategoryCounts = getHomepageCategoryCoverage(liveShows);
+  const homepageHealthy = isHomepageHealthy({
+    shows: liveShows, successfulPages, meaningfulPages,
+    minimumPages: minimumHealthyPages, minimumItems: minimumHealthyItems,
+  });
   const searchSnapshot = homepageHealthy
     ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, categoryCoverage: [] }
     : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
@@ -2302,7 +2321,7 @@ async function main() {
     const fallbackCoverage = searchSnapshot.categoryCoverage
       .map(group => `${group.category === 'koreanDramas' ? '韩剧' : '综艺'} ${group.matched}/${group.targetCount}（需 ${group.required}）`)
       .join('，') || '未执行';
-    console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，首页 ${homepageItemCount}/${minimumHealthyItems} 条，搜索回退 ${searchSnapshot.shows.size}/${searchSnapshot.requiredItems} 条；${fallbackCoverage}），将保留上一版快照时间和缺失分类`);
+    console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，首页 ${homepageItemCount}/${minimumHealthyItems} 条，韩剧 ${homepageCategoryCounts.koreanDramas}/3，综艺 ${homepageCategoryCounts.chineseVariety}/3，搜索回退 ${searchSnapshot.shows.size}/${searchSnapshot.requiredItems} 条；${fallbackCoverage}），将保留上一版快照时间和缺失分类`);
   }
 
   // ── 2. 构建韩剧列表 (合并 API + 种子) ──

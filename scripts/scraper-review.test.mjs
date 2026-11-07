@@ -48,6 +48,7 @@ function loadHelpers({
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
+        getHomepageCategoryCoverage, isHomepageHealthy,
       };
     `;
   vm.createContext(context);
@@ -78,6 +79,26 @@ function approvingDiscoveryAI(fetchImpl) {
     return response({ model: 'vendor/test:free', choices: [{ message: { content: JSON.stringify({ results }) } }] });
   };
 }
+
+test('homepage health requires live coverage in both recommendation categories', () => {
+  const { helpers } = loadHelpers();
+  const shows = new Map(Array.from({ length: 30 }, (_, index) => [String(index), {
+    mediaType: '综艺', regional: '大陆',
+  }]));
+  const baseline = {
+    shows, successfulPages: 18, meaningfulPages: 9, minimumPages: 18, minimumItems: 30,
+  };
+
+  const coverage = helpers.getHomepageCategoryCoverage(shows);
+  assert.equal(coverage.koreanDramas, 0);
+  assert.equal(coverage.chineseVariety, 30);
+  assert.equal(helpers.isHomepageHealthy(baseline), false, 'one well-populated category cannot hide a missing category');
+
+  shows.set('k1', { mediaType: '电视剧', regional: '韩国' });
+  shows.set('k2', { mediaType: '电视剧', regional: '韩国' });
+  shows.set('k3', { mediaType: '电视剧', regional: '韩国' });
+  assert.equal(helpers.isHomepageHealthy(baseline), true, 'three observations from each category satisfy the category floor');
+});
 
 test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', () => {
   const { helpers } = loadHelpers();
@@ -708,6 +729,16 @@ function homepageFixture(id = 'mirror-show') {
   }] }] } };
 }
 
+function healthyHomepageFixture(id) {
+  const data = homepageFixture(id);
+  data.data.list.push({ name: '综艺', list: [{
+    mediaKey: `${id}-variety`, title: '备用源测试综艺', mediaType: '综艺', regional: '大陆',
+    score: 8, playCount: 100000, publishTime: '2026-10-29T00:00:00Z',
+    contentType: '真人秀·喜剧', coverImgUrl: 'https://static.yfsp.tv/mirror-variety.jpg',
+  }] });
+  return data;
+}
+
 test('homepage scraping switches from a blocked API to the official mirror and reuses it', async () => {
   const requests = [];
   const { helpers } = loadHelpers({ fetchImpl: async (url, options) => {
@@ -786,7 +817,7 @@ test('a blocked primary with a healthy mirror produces fresh data while total fa
         const parsed = new URL(url);
         if (mirrorHealthy && parsed.hostname === 'api.iyf.tv') {
           mirrorCalls++;
-          return response(homepageFixture(`mirror-${parsed.searchParams.get('isn')}-${parsed.searchParams.get('page')}`));
+          return response(healthyHomepageFixture(`mirror-${parsed.searchParams.get('isn')}-${parsed.searchParams.get('page')}`));
         }
         return response(null, { status: 403 });
       },

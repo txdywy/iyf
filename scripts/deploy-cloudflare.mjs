@@ -1,9 +1,12 @@
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
+const runGit = promisify(execFile);
 const pagesOrigin = 'https://iyf-5l7.pages.dev';
 const productionOrigins = [pagesOrigin, 'https://iyf.hackx64.eu.org'];
 const TRANSPORT_ERROR_CODES = new Set([
@@ -27,6 +30,15 @@ function validateHook(value) {
     throw new Error('CLOUDFLARE_DEPLOY_HOOK must be a Cloudflare Pages deploy hook');
   }
   return url.href;
+}
+
+const isCommitSha = value => typeof value === 'string' && /^[a-f0-9]{40}$/u.test(value);
+
+async function readOriginMainSha() {
+  const { stdout } = await runGit('git', ['ls-remote', '--exit-code', 'origin', 'refs/heads/main'], {
+    timeout: 10_000,
+  });
+  return /^([a-f0-9]{40})\trefs\/heads\/main$/u.exec(stdout.trimEnd())?.[1];
 }
 
 // HTTP 列表里的 quoted-string 可含逗号和转义引号，扩展参数不能伪造其他指令。
@@ -89,10 +101,11 @@ function preventsFraming(value) {
 }
 
 export async function deployCloudflare({
-  hookUrl, outputRoot = 'site', fetchImpl = fetch,
+  hookUrl, outputRoot = 'site', fetchImpl = fetch, artifactSha, readMainSha = readOriginMainSha,
   delay = ms => new Promise(resolveDelay => setTimeout(resolveDelay, ms)),
   now = Date.now, timeoutMs = 600_000, pollIntervalMs = 10_000, log = console.log,
 } = {}) {
+  if (artifactSha !== undefined && !isCommitSha(artifactSha)) throw new Error('ARTIFACT_SHA must be a full commit SHA');
   const hook = validateHook(hookUrl);
   const read = file => readFileSync(resolve(outputRoot, file));
   const index = read('index.html').toString('utf8');
@@ -118,6 +131,22 @@ export async function deployCloudflare({
     status: file === '404.html' ? 404 : 200,
   }));
   const lastUpdated = JSON.parse(read('data/shows.json').toString('utf8')).lastUpdated;
+
+  const readSupersedingMainSha = async () => {
+    if (artifactSha === undefined) return null;
+    let mainSha;
+    try { mainSha = await readMainSha(); } catch {}
+    if (!isCommitSha(mainSha)) throw new Error('Could not confirm the current origin/main commit');
+    return mainSha === artifactSha ? null : mainSha;
+  };
+  const reportSuperseded = (mainSha, phase) => {
+    log(`::notice::Cloudflare artifact ${artifactSha} was superseded by main at ${mainSha} ${phase}.`);
+    return { superseded: true, artifactSha, mainSha };
+  };
+  // 钩子按分支读取提交。尽量在触发前确认产物对应的提交仍在 main 顶端。
+  const supersedingBeforeTrigger = await readSupersedingMainSha();
+  if (supersedingBeforeTrigger) return reportSuperseded(supersedingBeforeTrigger, 'before the build was requested');
+
   let trigger;
   try { trigger = await fetchImpl(hook, { method: 'POST', signal: AbortSignal.timeout(25_000) }); }
   catch { throw new Error('Cloudflare deployment trigger could not be reached'); }
@@ -129,8 +158,10 @@ export async function deployCloudflare({
   const deadline = now() + timeoutMs;
   let lastFailures = ['verification deadline expired before a complete polling round'];
   let previousFailureSummary = '';
+  let onlyDigestMismatches = false;
   while (now() < deadline) {
     const readyOrigins = new Set();
+    let digestMismatches = 0;
     const check = async (origin, item) => {
       const label = `${origin} ${item.file}`;
       let signal;
@@ -145,8 +176,7 @@ export async function deployCloudflare({
           return `${label}: HTTP ${response.status} (expected ${item.status})`;
         }
         const digest = hash(Buffer.from(await response.arrayBuffer()));
-        if (digest !== item.digest) return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
-        if (item.file === 'index.html') readyOrigins.add(origin);
+        if (item.file === 'index.html' && digest === item.digest) readyOrigins.add(origin);
         const failedHeaders = [];
         const contentType = response.headers.get('content-type')?.split(';', 1)[0].replace(/^[\t\n\r ]+|[\t\n\r ]+$/gu, '').toLowerCase();
         const cacheDirectives = parseCacheControl(response.headers.get('cache-control'));
@@ -167,7 +197,12 @@ export async function deployCloudflare({
             failedHeaders.push('cache-control');
           }
         }
-        return failedHeaders.length ? `${label}: missing or invalid headers (${failedHeaders.join(', ')})` : null;
+        if (failedHeaders.length) return `${label}: missing or invalid headers (${failedHeaders.join(', ')})`;
+        if (digest !== item.digest) {
+          digestMismatches++;
+          return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
+        }
+        return null;
       } catch (error) { return `${label}: ${requestFailure(error, signal)}`; }
     };
     // 先确认两个域名的首页都已切到本次版本，避免在旧部署上提前请求未来的资源地址。
@@ -178,6 +213,7 @@ export async function deployCloudflare({
       ...await Promise.all(productionOrigins.flatMap(origin => expected.filter(item => item !== homepage).map(item => check(origin, item)))),
     ];
     lastFailures = checks.filter(Boolean);
+    onlyDigestMismatches = digestMismatches > 0 && digestMismatches === lastFailures.length;
     if (now() >= deadline) {
       if (!lastFailures.length) lastFailures = ['matching files arrived after the verification deadline'];
       break;
@@ -194,11 +230,16 @@ export async function deployCloudflare({
     }
     await delay(Math.min(pollIntervalMs, Math.max(0, deadline - now())));
   }
+  // 只在确认 main 已推进且最后一轮只有内容差异时，将旧产物标记为已被取代。
+  if (onlyDigestMismatches) {
+    const supersedingAfterTrigger = await readSupersedingMainSha().catch(() => null);
+    if (supersedingAfterTrigger) return reportSuperseded(supersedingAfterTrigger, 'during verification');
+  }
   throw new Error(`Cloudflare production did not match the validated artifact before the deployment timeout (${productionOrigins.join(', ')}). Last verification differences: ${lastFailures.join('; ')}`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  deployCloudflare({ hookUrl: process.env.CLOUDFLARE_DEPLOY_HOOK }).catch(error => {
+  deployCloudflare({ hookUrl: process.env.CLOUDFLARE_DEPLOY_HOOK, artifactSha: process.env.ARTIFACT_SHA }).catch(error => {
     console.error(error.message);
     process.exitCode = 1;
   });

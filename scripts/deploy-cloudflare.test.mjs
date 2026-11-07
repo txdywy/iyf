@@ -11,6 +11,8 @@ const PAGES_ORIGIN = 'https://iyf-5l7.pages.dev';
 const CANONICAL_ORIGIN = 'https://iyf.hackx64.eu.org';
 const VERIFIED_ORIGINS = [PAGES_ORIGIN, CANONICAL_ORIGIN];
 const LAST_UPDATED = '2026-09-30T03:46:36.204Z';
+const ARTIFACT_SHA = 'a'.repeat(40);
+const NEWER_MAIN_SHA = 'b'.repeat(40);
 const digest = body => createHash('sha256').update(body).digest('hex').slice(0, 12);
 const CONTENT_TYPES = {
   'index.html': 'text/html',
@@ -265,6 +267,54 @@ test('Cloudflare deployment rejects query-only versions and filename/content mis
   assert.equal(h.calls.length, 0);
 });
 
+test('Cloudflare skips an artifact that main superseded before the hook request', async t => {
+  const h = createHarness(t);
+  const result = await h.run({ artifactSha: ARTIFACT_SHA, readMainSha: async () => NEWER_MAIN_SHA });
+  assert.deepEqual(result, { superseded: true, artifactSha: ARTIFACT_SHA, mainSha: NEWER_MAIN_SHA });
+  assert.equal(h.calls.length, 0);
+  assert.match(h.logs.at(-1), /superseded.*before the build was requested/);
+});
+
+test('Cloudflare refuses to trigger the hook if the origin main commit cannot be confirmed', async t => {
+  const h = createHarness(t);
+  await assert.rejects(h.run({ artifactSha: '', readMainSha: async () => ARTIFACT_SHA }), /ARTIFACT_SHA must be a full commit SHA/);
+  await assert.rejects(h.run({
+    artifactSha: ARTIFACT_SHA,
+    readMainSha: async () => { throw new Error(HOOK_URL); },
+  }), { message: 'Could not confirm the current origin/main commit' });
+  assert.equal(h.calls.length, 0);
+  assert.deepEqual(h.logs, []);
+});
+
+test('Cloudflare reports a superseded artifact after a content mismatch when main moved during the build', async t => {
+  const h = createHarness(t, { publicReply: ({ file }) => file === 'data/shows.json' ? { body: '{}' } : {} });
+  let mainReads = 0;
+  const result = await h.run({
+    artifactSha: ARTIFACT_SHA,
+    readMainSha: async () => ++mainReads === 1 ? ARTIFACT_SHA : NEWER_MAIN_SHA,
+  });
+  assert.deepEqual(result, { superseded: true, artifactSha: ARTIFACT_SHA, mainSha: NEWER_MAIN_SHA });
+  assert.equal(mainReads, 2);
+  assert.equal(h.calls.filter(call => call.options.method === 'POST').length, 1);
+  assert.deepEqual(h.waits, [10, 10, 5]);
+  assert.match(h.logs.at(-1), /superseded.*during verification/);
+  assert.ok(h.logs.every(message => !message.includes('production matches')));
+});
+
+test('Cloudflare reports bad headers even when the response bytes differ and main advances', async t => {
+  const h = createHarness(t, { publicReply: ({ origin, file, headers }) => {
+    if (file !== 'data/shows.json') return {};
+    return { body: '{}', headers: origin === CANONICAL_ORIGIN ? { ...headers, 'content-type': 'text/plain' } : headers };
+  } });
+  let mainReads = 0;
+  await assert.rejects(h.run({
+    artifactSha: ARTIFACT_SHA,
+    readMainSha: async () => ++mainReads === 1 ? ARTIFACT_SHA : NEWER_MAIN_SHA,
+  }), /iyf\.hackx64\.eu\.org data\/shows\.json: missing or invalid headers \(content-type\)/);
+  assert.equal(mainReads, 1);
+  assert.ok(h.logs.every(message => !message.includes('superseded')));
+});
+
 test('Cloudflare deployment never requests future assets while either homepage still serves the old build', async t => {
   let prematureAssetRequest = false;
   const h = createHarness(t, {
@@ -417,7 +467,7 @@ test('Cloudflare immutable verification keeps quoted extension contents opaque',
 
 test('Cloudflare deployment times out with stale files and bounds the final polling delay', async t => {
   const h = createHarness(t, { publicReply: ({ file }) => file === 'data/shows.json' ? { body: '{}' } : {} });
-  await assert.rejects(h.run(), /did not match.*deployment timeout/);
+  await assert.rejects(h.run({ artifactSha: ARTIFACT_SHA, readMainSha: async () => ARTIFACT_SHA }), /did not match.*deployment timeout/);
   assert.deepEqual(h.waits, [10, 10, 5]);
   assert.equal(h.calls.length, 1 + 3 * 12);
   assert.ok(h.logs.every(message => !message.includes('production matches')));
