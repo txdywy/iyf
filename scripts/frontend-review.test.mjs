@@ -1123,3 +1123,19 @@ test('a degraded playback source says when new-drama data was last refreshed ins
   await stale.helpers.loadData();
   assert.match(stale.elements.updateInfo.textContent, /数据源暂不可用，展示上一快照.*数据可能过期|数据可能过期.*数据源暂不可用/u);
 });
+
+test('cards repeat their badges in an inline row that narrow screens show instead of covering the poster', async () => {
+  const data = snapshot();
+  Object.assign(data.koreanDramas[0], { score: 8.6, isNew: true, isSerial: true });
+  const client = createApp(async () => ({ ok: true, json: async () => data }));
+  await client.helpers.loadData();
+  const markup = client.elements.showGrid.innerHTML;
+  const inline = markup.match(/<div class="card-badges-inline">([\s\S]*?)<\/div>/u)?.[1] || '';
+  assert.match(inline, /badge-new-flag">NEW</u, 'the NEW corner tag moves into the inline row');
+  assert.match(inline, /⭐ 8\.6/u);
+  assert.match(inline, /连载/u);
+  const css = readFileSync(new URL('../css/style.css', import.meta.url), 'utf8');
+  const narrow = css.slice(css.indexOf('@media (max-width: 480px)'));
+  assert.match(narrow, /\.card-badges,\s*\.card-new-badge \{ display: none; \}/u, 'narrow screens hide the poster overlay');
+  assert.match(narrow, /\.card-badges-inline \{ display: flex;/u);
+});
