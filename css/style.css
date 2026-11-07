@@ -511,6 +511,9 @@ a:visited { color: #8e86d1; }
   background: rgba(108,92,231,0.08);
   border-radius: 6px;
   border-left: 3px solid var(--accent);
+  /* 上下留白用透明边框而非 padding：overflow 在 padding 边界裁剪，padding 会露出被截断的第三行。 */
+  padding-block: 0;
+  border-block: 6px solid transparent;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -811,6 +814,16 @@ a:visited { color: #8e86d1; }
   font-size: 0.75rem;
 }
 
+/* 窄屏卡片在正文里显示的标签行；宽屏海报足够大，标签仍叠在海报上。 */
+.card-badges-inline {
+  display: none;
+}
+
+.badge-new-flag {
+  background: linear-gradient(135deg, #b52d42, #a83257);
+  color: #fff;
+}
+
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
   .container { padding: 0 14px; }
@@ -845,6 +858,11 @@ a:visited { color: #8e86d1; }
   .card-poster .placeholder { font-size: 2.4rem; }
   .card-body { padding: 12px; min-width: 0; }
   .card-title { font-size: 1rem; }
+  /* 112px 宽的海报叠 4–6 个标签会遮住近一半画面；窄屏改为标题下的紧凑标签行。 */
+  .card-badges,
+  .card-new-badge { display: none; }
+  .card-badges-inline { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .card-badges-inline .badge { padding: 2px 6px; font-size: 0.68rem; letter-spacing: 0; line-height: 1.5; }
   .card-meta { gap: 4px; }
   .meta-tag { padding: 3px 7px; font-size: 0.72rem; }
   .card-actors { font-size: 0.8rem; }

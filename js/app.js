@@ -886,6 +886,7 @@
         <div class="card-body">
           <div class="recommend-bar" style="width:${recommendWidth}%" role="img" aria-label="相对推荐度 ${recommendWidth}%"></div>
           <h3 class="card-title">${escapeHtml(show.title)}</h3>
+          ${badges.length || show.isNew ? `<div class="card-badges-inline">${show.isNew ? '<span class="badge badge-new-flag">NEW</span>' : ''}${badges.join('')}</div>` : ''}
           <div class="card-meta">${tags.join('')}</div>
           ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
           ${actors ? `<div class="card-actors">🎭 ${escapeHtml(actors)}</div>` : ''}
