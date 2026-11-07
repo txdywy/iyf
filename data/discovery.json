@@ -635,8 +635,8 @@
     "shows": []
   },
   "2026-11-07": {
-    "timestamp": "2026-11-07T13:04:27.088Z",
-    "totalFound": 10,
+    "timestamp": "2026-11-07T13:25:08.703Z",
+    "totalFound": 12,
     "shows": [
       {
         "title": "再婚皇后",
@@ -755,6 +755,30 @@
         "source": "tmdb_discover",
         "updateStatus": "更新到01",
         "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "杀手妈咪",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "14集全",
+        "contentType": "剧情·动作·悬疑·犯罪",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "隔壁座位，弗兰西斯卡",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到02",
+        "contentType": "剧情·喜剧·奇幻",
         "mediaType": "电视剧",
         "regional": "韩国"
       }

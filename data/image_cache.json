@@ -7718,5 +7718,39 @@
     "doubanUrl": "",
     "externalMetadataState": "unknown",
     "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+  },
+  "tmdb_tv_294095": {
+    "title": "杀手妈咪",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/jdaHI1jIbJgPXdlDi2quuWw6fKB.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:294095",
+    "matchedTitle": "杀手妈咪",
+    "tmdbId": 294095,
+    "tmdbUrl": "https://www.themoviedb.org/tv/294095",
+    "cachedAt": "2026-11-07T13:25:04.852Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T13:25:04.852Z"
+  },
+  "tmdb_tv_332269": {
+    "title": "隔壁座位，弗兰西斯卡",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/sAds5i0s8SUTWb0uoL7zWOTvEc2.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:332269",
+    "matchedTitle": "隔壁座位，弗兰西斯卡",
+    "tmdbId": 332269,
+    "tmdbUrl": "https://www.themoviedb.org/tv/332269",
+    "cachedAt": "2026-11-07T13:25:04.852Z",
+    "doubanUrl": "",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-07T13:25:04.852Z"
   }
 }
