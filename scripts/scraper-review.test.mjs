@@ -48,6 +48,7 @@ function loadHelpers({
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
         discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
+        aiEvaluateDiscovery, aiScoreShows,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
       };
@@ -3084,4 +3085,37 @@ test('Chinese Wikipedia summaries are requested in Simplified Chinese and legacy
   assert.equal(show.descriptionWikipediaVariant, 'zh-cn');
   await helpers.enrichDescriptions([show]);
   assert.equal(requests.length, 1, 'a migrated description is not fetched again');
+});
+
+test('AI discovery uses the scoring profile, keeps reasons short and records the admitted score once', async () => {
+  const requests = [];
+  const { helpers } = loadHelpers({
+    env: { OPENROUTER_API_KEY: 'test' },
+    fetchImpl: async (url, options) => {
+      const body = JSON.parse(options.body);
+      requests.push(body);
+      const ids = body.response_format.json_schema.schema.properties.results.items.properties.id.enum;
+      const results = ids.map(id => ({ id, ok: id === 'good', recommendationScore100: id === 'good' ? 86 : 20,
+        recommendationLevel: id === 'good' ? 'strong' : 'weak', r: '浪漫喜剧口碑好'.repeat(15) }));
+      return response({ model: 'test/model:free', choices: [{ message: { content: JSON.stringify({ results }) }, finish_reason: 'stop' }] });
+    },
+  });
+  const show = id => ({ id, title: `剧${id}`, year: 2026, mediaType: '电视剧', regional: '韩国', category: 'korean_drama',
+    contentType: '喜剧·爱情', description: '一部轻松的浪漫喜剧。', score: 0, tmdbRating: 8.1, playCount: 0 });
+  const good = show('good');
+  const accepted = await helpers.aiEvaluateDiscovery([good, show('weak')]);
+  assert.deepEqual(Array.from(accepted, item => item.id), ['good']);
+  const [request] = requests;
+  assert.match(request.messages[0].content, /观众画像/u, 'admission uses the detailed K-drama scoring profile');
+  assert.match(request.messages[0].content, /收录判断/u);
+  assert.equal((request.messages[0].content.match(/返回 JSON 对象/gu) || []).length, 1, 'only one output format is specified');
+  assert.equal(request.response_format.json_schema.schema.properties.results.items.properties.r.maxLength, 60);
+  assert.match(request.messages[1].content, /"desc":"一部轻松的浪漫喜剧。"/u, 'inputs use the scoring field names');
+  assert.match(request.messages[1].content, /"sourceRating10":8\.1/u, 'a TMDB rating is the source rating when YFSP has none');
+  assert.equal(good.aiScore, 86);
+  assert.equal([...good.aiReason].length, 60, 'reasons are clipped to the display length');
+  assert.ok(helpers.isFreshAIScore(good), 'the admission score is a current-version AI score');
+  const scored = await helpers.aiScoreShows([good]);
+  assert.equal(scored.size, 0);
+  assert.equal(requests.length, 1, 'an admitted show is not scored again in the same run');
 });
