@@ -2254,6 +2254,7 @@ function isHomepageHealthy({ shows, successfulPages, meaningfulPages, minimumPag
   if (successfulPages < minimumPages || meaningfulPages < Math.ceil(minimumPages / 2) || shows.size < minimumItems) {
     return false;
   }
+  // 总量达标时仍可能漏抓一个推荐分类。两类的覆盖都取自本轮首页观测，随后才合并种子和历史数据。
   const categoryCounts = getHomepageCategoryCoverage(shows);
   return categoryCounts.koreanDramas >= 3 && categoryCounts.chineseVariety >= 3;
 }

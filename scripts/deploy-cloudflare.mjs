@@ -143,7 +143,7 @@ export async function deployCloudflare({
     log(`::notice::Cloudflare artifact ${artifactSha} was superseded by main at ${mainSha} ${phase}.`);
     return { superseded: true, artifactSha, mainSha };
   };
-  // 钩子按分支读取提交。尽量在触发前确认产物对应的提交仍在 main 顶端。
+  // Cloudflare Hook 自行读取 main，Actions 产物仅用于比对。触发前核对产物提交与远端 main。
   const supersedingBeforeTrigger = await readSupersedingMainSha();
   if (supersedingBeforeTrigger) return reportSuperseded(supersedingBeforeTrigger, 'before the build was requested');
 
@@ -197,6 +197,7 @@ export async function deployCloudflare({
             failedHeaders.push('cache-control');
           }
         }
+        // 内容不同的响应也必须先判定响应头，避免将响应头故障归为单纯的版本差异。
         if (failedHeaders.length) return `${label}: missing or invalid headers (${failedHeaders.join(', ')})`;
         if (digest !== item.digest) {
           digestMismatches++;
@@ -230,7 +231,7 @@ export async function deployCloudflare({
     }
     await delay(Math.min(pollIntervalMs, Math.max(0, deadline - now())));
   }
-  // 只在确认 main 已推进且最后一轮只有内容差异时，将旧产物标记为已被取代。
+  // 只在确认 main 已推进且最后一轮只有内容差异时，返回已被取代的结果。产物匹配才算验收通过。
   if (onlyDigestMismatches) {
     const supersedingAfterTrigger = await readSupersedingMainSha().catch(() => null);
     if (supersedingAfterTrigger) return reportSuperseded(supersedingAfterTrigger, 'during verification');

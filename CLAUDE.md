@@ -4,10 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-剧荒救星 — Korean drama & Chinese variety show recommendation static site. Scrapes YFSP (爱壹帆), enriches with TMDB/Wikidata/Douban/Wikipedia metadata, applies multi-factor recommendation scoring, deploys the same validated artifact to Cloudflare Pages and GitHub Pages.
+剧荒救星 — Korean drama & Chinese variety show recommendation static site. Scrapes YFSP (爱壹帆), enriches with TMDB/Wikidata/Douban/Wikipedia metadata and applies multi-factor recommendation scoring. GitHub Pages publishes the validated build. Cloudflare Pages rebuilds from Git and its output is checked against that build.
 
 No package.json or third-party runtime dependencies. The site is pure vanilla JS;
 small dependency-free Node scripts validate and project the deployment payload.
+
+Before editing workflows, deployment verification or scraper freshness rules, read the [production release contract](README.md#生产发布约定). Keep the existing main Deploy Hook and artifact verification together. Treat hosting and credential changes as an explicit migration.
 
 ## Commands
 

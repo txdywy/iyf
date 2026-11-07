@@ -89,3 +89,10 @@ GitHub Pages 发布后同样核对备用地址的首页、CSS、JS、公开数�
 正式域名 `iyf.hackx64.eu.org` 的 CNAME 指向 `iyf-5l7.pages.dev`。HTML 和 JSON 使用重新验证缓存，CSS/JS 实际文件名包含内容摘要，并使用一年有效期的 `immutable` 缓存；新代码通过新摘要地址更新（参见 [Pages 缓存建议](https://developers.cloudflare.com/pages/configuration/serving-pages/#caching-and-performance)）。Cloudflare 通过 `_headers` 额外设置安全响应头。详情见 [Cloudflare Pages 部署钩子文档](https://developers.cloudflare.com/pages/configuration/deploy-hooks/)。
 
 交付策略改变而资源内容未变时，旧摘要地址可能仍命中带旧响应头的缓存。此时同步更新对应资源的交付版本注释，让完整文件字节生成新摘要地址；文件名仍须与内容哈希一致，并通过两个域名的实际响应验收。
+
+### 生产发布约定
+
+- **保留现有发布方式。** Cloudflare Pages 通过已配置的 `CLOUDFLARE_DEPLOY_HOOK` 从 `main` 重新构建。Actions 的 `cloudflare-pages` 产物用于线上比对。以近期成功运行的触发和验收步骤判断 Hook 是否可用。更换发布方式、Secret、生产分支或域名属于发布迁移，需先确认平台配置、凭据权限和回退步骤。
+- **让产物与提交对应。** `ARTIFACT_SHA` 来自构建前的最终提交，定时抓取可能在工作流启动后提交新数据。保留共用的 `pages` 并发组，避免发布流程重叠。触发前发现 `main` 已前进则跳过旧产物。触发后只有超时时仅剩内容摘要差异且 `main` 已前进，才将旧产物记为被取代。Hook、网络、HTTP、文件类型、缓存或安全响应头异常仍须报错。
+- **区分发布与抓取。** 推送到 `main` 时用已提交数据构建。只有定时或手动抓取才要求本轮 `generatedAt` 更新。`lastUpdated` 记录最近一次健康快照。首页来源判为健康时，韩剧和综艺须在本轮首页抓取结果中各有至少 3 条。来源降级时保留原快照时间并发出告警。
+- **按线上证据验收。** 修改发布链路后，用 Node.js 22 运行 `node --test` 和 `node scripts/build-site.mjs`，再核对生产工作流中 Cloudflare 双域名与 GitHub Pages 备用站都记录了产物匹配。被取代的运行没有验收该产物。已验收的参考提交为 `1b58bbe`。[发布记录 #533](https://github.com/txdywy/iyf/actions/runs/42363599726)

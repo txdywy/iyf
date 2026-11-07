@@ -13,6 +13,7 @@ on:
 
 permissions: {}
 
+# 生产发布约定见 README.md。所有发布共用此并发组，进行中的运行保留到验收结束。
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -247,5 +248,7 @@ jobs:
       - name: Trigger build and verify published files
         run: node scripts/deploy-cloudflare.mjs
         env:
+          # 抓取运行可能已提交新数据，必须使用构建产物对应的最终提交。
           ARTIFACT_SHA: ${{ needs.scrape.outputs.sha }}
+          # 生产 Pages 通过现有 main Hook 从 Git 构建，下载的产物仅用于线上验收。
           CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
