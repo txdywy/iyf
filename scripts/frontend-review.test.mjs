@@ -1109,3 +1109,17 @@ test('a TMDB rating stands in for a missing source score in badges, score filter
   assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
   assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分">⭐ 7\.2</u);
 });
+
+test('a degraded playback source says when new-drama data was last refreshed instead of calling the site stale', async () => {
+  const data = snapshot();
+  Object.assign(data, { lastUpdated: new Date(Date.now() - 5 * 86400000).toISOString(), generatedAt: new Date().toISOString(), sourceStatus: 'degraded' });
+  const client = createApp(async () => ({ ok: true, json: async () => data }));
+  await client.helpers.loadData();
+  const text = client.elements.updateInfo.textContent;
+  assert.match(text, /爱壹帆播放源暂不可用，播放数据停在上述时间；新剧与资料更新于 /u);
+  assert.doesNotMatch(text, /数据可能过期/u, 'fresh TMDB data is not reported as stale');
+  data.generatedAt = data.lastUpdated;
+  const stale = createApp(async () => ({ ok: true, json: async () => data }));
+  await stale.helpers.loadData();
+  assert.match(stale.elements.updateInfo.textContent, /数据源暂不可用，展示上一快照.*数据可能过期|数据可能过期.*数据源暂不可用/u);
+});

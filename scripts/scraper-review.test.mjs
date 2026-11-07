@@ -49,6 +49,7 @@ function loadHelpers({
         titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
         discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
         aiEvaluateDiscovery, aiScoreShows,
+        refreshKDramaTMDBStats, kdramaAiringBonus,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
       };
@@ -3180,3 +3181,67 @@ for (const aiMode of ['unavailable', 'rejects', 'rejectsHot']) {
     }
   });
 }
+
+test('recently premiered and ongoing K-dramas get an airing bonus only from exact premiere dates', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-07T00:00:00Z' });
+  const now = Date.parse('2026-11-07T00:00:00Z');
+  const base = { title: '热播剧', year: 2026, score: 8, playCount: 100000, contentType: '爱情', isSerial: true, isComplete: false };
+  assert.equal(helpers.kdramaAiringBonus({ ...base, publishTime: '2026-10-25' }, now), 8 + 15, 'within 30 days and ongoing');
+  assert.equal(helpers.kdramaAiringBonus({ ...base, publishTime: '2026-09-01' }, now), 8 + 8, 'within 90 days');
+  assert.equal(helpers.kdramaAiringBonus({ ...base, publishTime: '2026-01-01T00:00:00' }, now), 8, 'a year placeholder is not a premiere date');
+  assert.equal(helpers.kdramaAiringBonus({ ...base, publishTime: '2026-12-01' }, now), 8, 'an upcoming premiere gets no recency bonus');
+  assert.equal(helpers.kdramaAiringBonus({ ...base, isSerial: false, isComplete: true, publishTime: '2026-03-01' }, now), 0);
+  assert.equal(helpers.scoreKDrama({ ...base, publishTime: '2026-10-25' }, now) - helpers.scoreKDrama({ ...base, publishTime: '' }, now) >= 15, true);
+});
+
+test('stale YFSP play counts give way to current TMDB popularity in K-drama hotness', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-07T00:00:00Z' });
+  const now = Date.parse('2026-11-07T00:00:00Z');
+  const seed = { title: '旧种子', year: 2024, score: 8.5, playCount: 2000000, contentType: '剧情' };
+  const frozen = helpers.scoreKDrama({ ...seed, scrapedAt: '' }, now);
+  const withTMDB = helpers.scoreKDrama({ ...seed, scrapedAt: '', tmdbPopularity: 5 }, now);
+  assert.ok(withTMDB < frozen, 'a frozen seed play count no longer outranks its current low TMDB popularity');
+  const live = helpers.scoreKDrama({ ...seed, scrapedAt: '2026-11-06T00:00:00Z', tmdbPopularity: 5 }, now);
+  assert.equal(live, frozen, 'a recent YFSP observation keeps the YFSP play-count hotness');
+});
+
+test('existing K-drama cards refresh TMDB rating and popularity oldest-first within a quota', async () => {
+  const requested = [];
+  const { helpers } = loadHelpers({
+    date: '2026-11-07T00:00:00Z', env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => {
+      const id = Number(new URL(url).pathname.match(/tv\/(\d+)$/u)?.[1]);
+      requested.push(id);
+      if (id === 3) return response({ id: 999, popularity: 80, vote_average: 9, vote_count: 99 });
+      return response({ id, popularity: 40 + id, vote_average: 7.5, vote_count: id === 2 ? 5 : 60 });
+    },
+  });
+  const card = (id, checkedAt, extra = {}) => ({ id: `card-${id}`, title: `卡片${id}`, tmdbId: id, tmdbUrl: `https://www.themoviedb.org/tv/${id}`,
+    ...(checkedAt ? { tmdbStatsCheckedAt: checkedAt } : {}), ...extra });
+  const shows = [
+    card(1, ''), card(2, '2026-10-01T00:00:00Z', { tmdbRating: 8 }), card(3, '2026-10-02T00:00:00Z'),
+    card(4, '2026-11-06T00:00:00Z'),
+    { id: 'season', title: '续季第2季', tmdbId: 5, tmdbUrl: 'https://www.themoviedb.org/tv/5/season/2' },
+    ...Array.from({ length: 25 }, (_, index) => card(100 + index, `2026-10-${String(3 + (index % 9)).padStart(2, '0')}T00:00:00Z`)),
+  ];
+  await helpers.refreshKDramaTMDBStats(new Map(shows.map(show => [show.id, show])));
+  assert.equal(requested.length, 20, 'the refresh is bounded per run');
+  assert.ok(!requested.includes(4), 'a card refreshed within three days is skipped');
+  assert.ok(!requested.includes(5), 'a season card has no series stats to refresh');
+  assert.deepEqual(requested.slice(0, 3).sort(), [1, 2, 3], 'never-checked and oldest cards go first');
+  assert.equal(shows[0].tmdbPopularity, 41);
+  assert.equal(shows[0].tmdbRating, 7.5);
+  assert.equal(shows[1].tmdbRating, undefined, 'a rating with too few votes is dropped');
+  assert.equal(shows[2].tmdbPopularity, undefined, 'a response for another entity is ignored');
+  assert.equal(shows[2].tmdbStatsCheckedAt, '2026-10-02T00:00:00Z');
+});
+
+test('an unrated current-year K-drama gets a neutral quality prior instead of zero', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-07T00:00:00Z' });
+  const now = Date.parse('2026-11-07T00:00:00Z');
+  const show = { title: '新剧', contentType: '剧情', playCount: 0, score: 0 };
+  assert.equal(helpers.scoreKDrama({ ...show, year: 2026 }, now) - helpers.scoreKDrama({ ...show, year: 2026, score: 7 }, now), 34 - (56 - 20),
+    'the prior equals 60% of a 7.0 rating without the low-score penalty');
+  assert.equal(helpers.scoreKDrama({ ...show, year: 2024 }, now) - helpers.scoreKDrama({ ...show, year: 2024, tmdbRating: 0 }, now), 0,
+    'an old show without a rating gets no prior');
+});
