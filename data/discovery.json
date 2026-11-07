@@ -635,8 +635,129 @@
     "shows": []
   },
   "2026-11-07": {
-    "timestamp": "2026-11-07T06:14:37.906Z",
-    "totalFound": 0,
-    "shows": []
+    "timestamp": "2026-11-07T12:39:15.611Z",
+    "totalFound": 10,
+    "shows": [
+      {
+        "title": "再婚皇后",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到04",
+        "contentType": "剧情·奇幻",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "末路兼职",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "8集全",
+        "contentType": "悬疑·剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "谎言",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到03",
+        "contentType": "剧情·犯罪·悬疑",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "我的荒糖恋爱",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "12集全",
+        "contentType": "剧情·喜剧",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "恋爱博士",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到10",
+        "contentType": "剧情·喜剧",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "最后的餐桌",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到04",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "扭曲的领带",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "6集全",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "毛骨悚然的恋爱",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "12集全",
+        "contentType": "喜剧·奇幻·剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "好，我们离婚吧",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "12集全",
+        "contentType": "剧情·喜剧·家庭",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "被解雇的IT天才吞并大公司",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到01",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      }
+    ]
   }
 }
