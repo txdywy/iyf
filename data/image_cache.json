@@ -7678,9 +7678,12 @@
     "tmdbId": 298610,
     "tmdbUrl": "https://www.themoviedb.org/tv/298610",
     "cachedAt": "2026-11-07T12:39:10.160Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37530010/",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z"
+    "externalMetadataCheckedAt": "2026-11-07T12:39:10.160Z",
+    "doubanId": "37530010",
+    "doubanMatchedTitle": "毛骨悚然的恋爱",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_276470": {
     "title": "好，我们离婚吧",
