@@ -103,11 +103,66 @@ function getOptionalEnrichmentTimeout(defaultTimeout, deadline = Infinity) {
 // API 抓取
 // ════════════════════════════════════════════════════════════════
 
+// ── 爱壹帆连通性熔断 ──
+// 爱壹帆整段屏蔽 Runner 时，各阶段逐个请求只会制造上百条相同的网络失败。连续多次网络层失败后，
+// 本轮跳过其余爱壹帆请求；收到任何 HTTP 响应（包括 403）都说明主机可达，计数清零。
+const YFSP_CIRCUIT_THRESHOLD = 6;
+let _yfspNetworkFailures = 0;
+let _yfspCircuitReason = '';
+
+function isYfspUrl(url) {
+  try {
+    return /(?:^|\.)(?:yfsp|iyf)\.tv$/u.test(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
+function yfspCircuitOpen() {
+  return _yfspNetworkFailures >= YFSP_CIRCUIT_THRESHOLD;
+}
+
+// 只记录受控的错误分类：底层错误码（如 ENOTFOUND/ECONNRESET）或错误名，不记录原始异常。
+function networkErrorCode(error) {
+  const code = safeText(error?.cause?.code || error?.code || '', 40);
+  return /^[A-Z][A-Z0-9_]{2,39}$/u.test(code) ? code : safeText(error?.name, 40) || 'Error';
+}
+
+function recordYfspReachable() {
+  _yfspNetworkFailures = 0;
+}
+
+function recordYfspNetworkFailure(error) {
+  // 本地预算触发的中止不说明主机不可达。
+  if (error?.name === 'AbortError') return;
+  _yfspNetworkFailures++;
+  if (_yfspNetworkFailures === YFSP_CIRCUIT_THRESHOLD) {
+    _yfspCircuitReason = networkErrorCode(error);
+    console.warn(`  [WARN] 爱壹帆连续 ${YFSP_CIRCUIT_THRESHOLD} 次网络失败（${_yfspCircuitReason}），本轮跳过其余爱壹帆请求`);
+  }
+}
+
+function yfspCircuitError() {
+  const error = new Error(`爱壹帆不可达，已跳过（${_yfspCircuitReason || '网络失败'}）`);
+  error.code = 'YFSP_CIRCUIT_OPEN';
+  return error;
+}
+
 async function fetchWithTimeout(url, { timeout = 15000, asText = false, headers = HEADERS } = {}) {
+  const yfsp = isYfspUrl(url);
+  if (yfsp && yfspCircuitOpen()) throw yfspCircuitError();
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(url, { headers, signal: ctrl.signal });
+    let r;
+    try {
+      r = await fetch(url, { headers, signal: ctrl.signal });
+    } catch (error) {
+      if (yfsp) recordYfspNetworkFailure(error);
+      if (error?.name === 'AbortError') throw error;
+      throw new Error(`fetch failed (${networkErrorCode(error)})`);
+    }
+    if (yfsp) recordYfspReachable();
     if (!r.ok) {
       await r.body?.cancel?.().catch(() => {});
       throw new Error(`HTTP ${r.status}`);
@@ -994,7 +1049,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
   const requestDeadline = Math.min(deadline, _optionalEnrichmentDeadline || Infinity);
   for (const query of titleCandidates(show.title)) {
     const remaining = requestDeadline - Date.now();
-    if (remaining <= 0) return { lookupState: 'unknown' };
+    if (remaining <= 0 || yfspCircuitOpen()) return { lookupState: 'unknown' };
     try {
       const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
       const data = await fetchWithTimeout(url, { timeout: Math.min(15000, remaining) });
@@ -1051,6 +1106,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
       }
     } catch (e) {
       hadError = true;
+      if (e?.code === 'YFSP_CIRCUIT_OPEN') return { lookupState: 'unknown' };
       console.warn(`  [WARN] yfsp search failed for "${query}": ${e.message}`);
     }
     await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, requestDeadline - Date.now())));
@@ -1091,7 +1147,8 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
   const targets = groups.flatMap(group => group.targets.map(show => ({ show, group })));
   console.log(`  首页不可用，按已验证标题搜索回退 (${targets.length} 部，90 秒预算)...`);
   await mapPool(targets, 3, async ({ show, group }) => {
-    if (Date.now() >= deadline) return;
+    // 熔断后不再标记尝试时间，避免把未真正检索的目标排到轮换队尾。
+    if (Date.now() >= deadline || yfspCircuitOpen()) return;
     show.sourceSearchCheckedAt = new Date().toISOString();
     const found = await searchYfspTitle(show, { deadline });
     if (Date.now() >= deadline || !found?.url || found.mediaType !== show.mediaType || found.regional !== show.regional) return;
@@ -1175,15 +1232,24 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
 
   const requestDeadline = Math.min(deadline, _optionalEnrichmentDeadline || Infinity);
   const remaining = requestDeadline - Date.now();
-  if (remaining <= 0) return YFSP_VERIFY_STATUS.UNKNOWN;
+  if (remaining <= 0 || yfspCircuitOpen()) return YFSP_VERIFY_STATUS.UNKNOWN;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), Math.min(12000, remaining));
   try {
-    const response = await fetch(parsedUrl.href, {
-      headers: HEADERS,
-      signal: controller.signal,
-      redirect: 'error',
-    });
+    let response;
+    try {
+      response = await fetch(parsedUrl.href, {
+        headers: HEADERS,
+        signal: controller.signal,
+        redirect: 'error',
+      });
+    } catch (error) {
+      // 拒绝跟随重定向时服务器其实已应答，不算网络不可达。
+      if (/redirect/iu.test(String(error?.cause?.message || ''))) recordYfspReachable();
+      else recordYfspNetworkFailure(error);
+      throw error;
+    }
+    recordYfspReachable();
     if (Date.now() >= requestDeadline) {
       await response.body?.cancel?.().catch(() => {});
       return YFSP_VERIFY_STATUS.UNKNOWN;
@@ -1194,6 +1260,7 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
     }
     if (!response.ok) {
       await response.body?.cancel?.().catch(() => {});
+      console.warn(`  [WARN] yfsp verify HTTP ${response.status} for "${show.title}"`);
       return YFSP_VERIFY_STATUS.UNKNOWN;
     }
     const html = await response.text();
@@ -1211,7 +1278,7 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
       ? YFSP_VERIFY_STATUS.VALID
       : YFSP_VERIFY_STATUS.INVALID;
   } catch (e) {
-    console.warn(`  [WARN] yfsp verify failed for "${show.title}": ${e.message}`);
+    if (!yfspCircuitOpen()) console.warn(`  [WARN] yfsp verify failed for "${show.title}": ${networkErrorCode(e)}`);
     return YFSP_VERIFY_STATUS.UNKNOWN;
   } finally {
     clearTimeout(timeout);
@@ -1418,6 +1485,8 @@ function kdramaAiringBonus(show, now = Date.now()) {
 const YFSP_OBSERVATION_FRESH_MS = 14 * DAY_MS;
 
 function hasRecentYfspObservation(show, now = Date.now()) {
+  // TMDB 发现的卡片用 scrapedAt 记录 TMDB 观测，不代表爱壹帆数据是新的。
+  if (show?.source === 'tmdb_discover') return false;
   const observedAt = Math.max(comparableTimestamp(show?.lastLiveAt), comparableTimestamp(show?.scrapedAt));
   return observedAt > 0 && observedAt <= now && now - observedAt < YFSP_OBSERVATION_FRESH_MS;
 }
@@ -1446,17 +1515,24 @@ function scoreKDrama(s, now = Date.now()) {
   return Math.max(0, Math.round(sc));
 }
 
+// 相当于 7.0 分（综艺评分系数 5）的 60%。
+const UNRATED_NEW_VARIETY_PRIOR = Math.round(7.0 * 5 * 0.6);
+
 function scoreVariety(s, now = Date.now()) {
   let sc = 0;
   const t = `${s.cidMapper} ${s.contentType} ${sourceDescriptionForScoring(s)} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(VarietyBoost)) if (t.includes(g)) sc += b;
   for (const kw of VarietyExclude) if (s.title.includes(kw)) return -1;
 
-  // 评分加成
-  if (s.score > 0) sc += s.score * 5;
+  // 评分加成：爱壹帆未评分时用投票数足够的 TMDB 评分；尚无评分的本年度新节目按中性先验计分。
+  const rating = effectiveRating(s);
+  if (rating > 0) sc += rating * 5;
+  else if (boundedYear(s.year) >= CURRENT_YEAR) sc += UNRATED_NEW_VARIETY_PRIOR;
 
-  // 爱壹帆累计播放量 + 上线后日均播放速度
-  sc += applyYfspHotness(s, now);
+  // 爱壹帆累计播放量 + 上线后日均播放速度；TMDB 新发现的节目没有播放量，改用打折后的 TMDB 热度。
+  // 综艺多为按季条目、常缺少 TMDB 剧集热度，有播放量的卡片仍统一按爱壹帆计分，避免两种口径混排。
+  const yfspHotness = applyYfspHotness(s, now);
+  sc += boundedPlayCount(s.playCount) > 0 ? yfspHotness : Math.max(yfspHotness, tmdbPopularityHotness(s));
 
   // 年份新鲜度加成（综艺更强调新）
   if (s.year >= CURRENT_YEAR) sc += 30;
@@ -2323,6 +2399,8 @@ function isHomepageHealthy({ shows, successfulPages, meaningfulPages, minimumPag
 async function main() {
   console.log(`[SCRAPER] 开始抓取 ${new Date().toISOString()}`);
   _optionalEnrichmentDeadline = 0;
+  _yfspNetworkFailures = 0;
+  _yfspCircuitReason = '';
 
   // ── 0. 检查 TMDB_TOKEN ──
   if (!TMDB_TOKEN) {
@@ -2473,6 +2551,8 @@ async function main() {
     show.seedId || prevShows.chineseVariety.some(previous => sameShowIdentity(show, previous))));
   const discoveredVariety = await discoverNewVariety(liveShows, varietyMap, knownVarietyBeforeRun);
   addDiscoveredShows(varietyMap, discoveredVariety);
+  addDiscoveredShows(varietyMap, await discoverVarietyFromTMDB(varietyMap, knownVarietyBeforeRun));
+  await refreshTMDBStats(varietyMap, { label: '综艺' });
   // 首页新出现的韩剧与搜索发现项走同一收录门，避免首页路径绕过内容偏好筛选。
   const newKdramaCandidateIds = new Set([...kdramaMap.values()]
     .filter(show => !show.seedId && !prevShows.koreanDramas.some(previous => sameShowIdentity(show, previous)))
@@ -2696,7 +2776,8 @@ async function main() {
       otherDramas: renderableOtherDramas.length,
       // A degraded partial response must not lower the next run's health
       // baseline and then declare the same outage healthy one run later.
-      totalScraped: sourceHealthy ? liveShows.size : Math.max(previousScraped, liveShows.size),
+      // 搜索回退只覆盖已收录节目的一小部分，不能拉低下一轮首页健康判断所依据的规模基线。
+      totalScraped: homepageHealthy ? liveShows.size : Math.max(previousScraped, liveShows.size),
     },
     koreanDramas,
     chineseVariety,
@@ -2762,13 +2843,21 @@ function assertOutputContinuity(output, previous) {
     ['chineseVariety', '综艺'],
     ['otherDramas', '其他电视剧'],
   ];
+  const warnings = [];
   for (const [field, label] of checks) {
+    // 其他电视剧不公开发布：异常只告警，不能连带阻止韩剧和综艺推荐的发布。
+    const fail = message => {
+      if (field !== 'otherDramas') throw new Error(`[DATA_GUARD] ${message},拒绝覆盖上一版推荐数据`);
+      warnings.push(message);
+      console.warn(`${process.env.GITHUB_ACTIONS === 'true' ? '::warning::' : '  [WARN] '}${message}（未公开分类，仅告警）`);
+    };
     const previousCount = Array.isArray(previous?.[field]) ? previous[field].length : 0;
     const currentCount = Array.isArray(output?.[field]) ? output[field].length : 0;
     if (previousCount < 10) continue;
     const minimum = Math.max(5, Math.floor(previousCount * 0.5));
     if (currentCount < minimum) {
-      throw new Error(`[DATA_GUARD] ${label}数量从 ${previousCount} 部骤降到 ${currentCount} 部,拒绝覆盖上一版推荐数据`);
+      fail(`${label}数量从 ${previousCount} 部骤降到 ${currentCount} 部`);
+      continue;
     }
     const comparablePrevious = previous[field].filter(show => show && (show.id || show.title));
     const comparableCurrent = output[field].filter(show => show && (show.id || show.title));
@@ -2776,7 +2865,8 @@ function assertOutputContinuity(output, previous) {
     const overlap = countIdentityOverlap(comparableCurrent, comparablePrevious);
     const minOverlap = Math.max(3, Math.ceil(Math.min(comparablePrevious.length, comparableCurrent.length) * 0.15));
     if (overlap < minOverlap) {
-      throw new Error(`[DATA_GUARD] ${label}与上一版身份重合度异常: ${overlap}/${comparablePrevious.length},拒绝覆盖上一版推荐数据`);
+      fail(`${label}与上一版身份重合度异常: ${overlap}/${comparablePrevious.length}`);
+      continue;
     }
     // 其他电视剧按首页分页顺序输出，没有推荐排名；换页顺序不代表头部推荐流失。
     if (field === 'otherDramas') continue;
@@ -2784,9 +2874,10 @@ function assertOutputContinuity(output, previous) {
     const currentTop = comparableCurrent.slice(0, Math.min(10, comparableCurrent.length));
     const topOverlap = countIdentityOverlap(currentTop, previousTop);
     if (topOverlap < Math.min(2, previousTop.length)) {
-      throw new Error(`[DATA_GUARD] ${label}头部推荐与上一版重合度异常: ${topOverlap}/${previousTop.length},拒绝覆盖上一版推荐数据`);
+      fail(`${label}头部推荐与上一版重合度异常: ${topOverlap}/${previousTop.length}`);
     }
   }
+  return warnings;
 }
 
 function countIdentityOverlap(current, previous) {
@@ -3077,6 +3168,10 @@ async function enrichMissingYfspLinks(shows) {
       attachLinkFields(show, '', show.doubanUrl);
     }
   }
+  if (yfspCircuitOpen()) {
+    console.log('  爱壹帆本轮不可达，跳过具体页验证、集数刷新和链接查询');
+    return;
+  }
   const existing = shows
     .filter(s => s.yfspUrl && s.title && !hasFreshYfspLookup(s))
     .sort(oldestCheckedFirst('yfspLookupCheckedAt'))
@@ -3087,7 +3182,7 @@ async function enrichMissingYfspLinks(shows) {
     let unknown = 0;
     const stageDeadline = Math.min(globalDeadline, Date.now() + YFSP_STAGE_BUDGET_MS);
     await mapPool(existing, YFSP_LOOKUP_CONCURRENCY, async show => {
-      if (Date.now() >= stageDeadline) return;
+      if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
       const status = await verifyYfspUrl(show, show.yfspUrl, { deadline: stageDeadline });
       markYfspLookup(show, status, show.yfspUrl);
       verifiedThisRun.add(show.id);
@@ -3119,7 +3214,7 @@ async function enrichMissingYfspLinks(shows) {
     let refreshed = 0;
     const stageDeadline = Math.min(globalDeadline, Date.now() + YFSP_STAGE_BUDGET_MS);
     await mapPool(refreshTargets, YFSP_LOOKUP_CONCURRENCY, async show => {
-      if (Date.now() >= stageDeadline) return;
+      if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
       const found = await searchYfspTitle(show, { deadline: stageDeadline });
       show.yfspRefreshCheckedAt = new Date().toISOString();
       if (found?.url) {
@@ -3142,9 +3237,9 @@ async function enrichMissingYfspLinks(shows) {
   let matched = 0;
   const stageDeadline = Math.min(globalDeadline, Date.now() + YFSP_STAGE_BUDGET_MS);
   await mapPool(targets, YFSP_LOOKUP_CONCURRENCY, async show => {
-    if (Date.now() >= stageDeadline) return;
+    if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
     const found = await searchYfspTitle(show, { deadline: stageDeadline });
-    if (Date.now() >= stageDeadline) return;
+    if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
     const verified = found?.url
       ? await verifyYfspUrl(show, found.url, { deadline: stageDeadline })
       : found?.lookupState || 'unknown';
@@ -3185,12 +3280,18 @@ function isDoubanFallbackAllowed(show, match) {
   return !isSeasonSpecificTitle(show.title) && !isSeasonSpecificTitle(match.doubanTitle);
 }
 
-async function searchDoubanSubject(show) {
+async function searchDoubanSubject(show, outcome = {}) {
+  // outcome.completed 只在每个候选查询都成功返回且确无匹配时为 true，供负缓存区分“查无”和“请求失败”。
+  let hadError = false;
+  outcome.completed = false;
   for (const query of titleCandidates(show.title)) {
     if (!hasOptionalEnrichmentBudget()) return null;
     try {
       const results = await fetchDoubanSuggest(query);
-      if (!Array.isArray(results)) continue;
+      if (!Array.isArray(results)) {
+        hadError = true;
+        continue;
+      }
       let exact = null;
       let compatible = null;
       let fallback = null;
@@ -3222,10 +3323,12 @@ async function searchDoubanSubject(show) {
       if (compatible) return compatible;
       if (fallback) return fallback;
     } catch (e) {
+      hadError = true;
       console.warn(`  [WARN] douban search failed for "${query}": ${e.message}`);
     }
     await sleep(Math.max(0, Math.min(DOUBAN_SEARCH_DELAY, (_optionalEnrichmentDeadline || Infinity) - Date.now())));
   }
+  outcome.completed = !hadError && hasOptionalEnrichmentBudget();
   return null;
 }
 
@@ -3252,8 +3355,16 @@ async function fetchDoubanSuggest(query) {
   } finally { clearTimeout(t); }
 }
 
+// 确认查无豆瓣条目的标题 7 天内不再重查；标题变化（如更名、换季）时立即重查。
+const LOOKUP_MISS_RETRY_MS = 7 * DAY_MS;
+
+function hasRecentLookupMiss(checkedAt, checkedKey, key, now = Date.now()) {
+  const at = comparableTimestamp(checkedAt);
+  return !!at && checkedKey === key && at <= now && now - at < LOOKUP_MISS_RETRY_MS;
+}
+
 async function enrichDoubanLinks(shows) {
-  const targets = shows.filter(s => !s.doubanUrl && s.title);
+  const targets = shows.filter(s => !s.doubanUrl && s.title && !hasRecentLookupMiss(s.doubanMissCheckedAt, s.doubanMissTitle, s.title));
   if (!targets.length) return;
 
   console.log(`  为 ${targets.length} 个节目补充豆瓣具体页...`);
@@ -3261,8 +3372,11 @@ async function enrichDoubanLinks(shows) {
   let matched = 0;
   await mapPool(targets, 3, async (show) => {
     if (!hasOptionalEnrichmentBudget()) return;
-    const found = await searchDoubanSubject(show);
+    const outcome = {};
+    const found = await searchDoubanSubject(show, outcome);
     if (found?.doubanUrl) {
+      delete show.doubanMissCheckedAt;
+      delete show.doubanMissTitle;
       show.doubanUrl = found.doubanUrl;
       show.doubanId = found.doubanId;
       show.doubanMatchedTitle = found.doubanTitle;
@@ -3276,7 +3390,11 @@ async function enrichDoubanLinks(shows) {
       matched++;
       console.log(`    ✓ ${show.title} → ${found.doubanTitle}`);
     } else {
-      console.log(`    ✗ ${show.title}`);
+      if (outcome.completed) {
+        show.doubanMissCheckedAt = new Date().toISOString();
+        show.doubanMissTitle = show.title;
+      }
+      console.log(`    ✗ ${show.title}${outcome.completed ? '' : '（请求未完成，下轮重试）'}`);
     }
     await sleep(Math.max(0, Math.min(DOUBAN_SEARCH_DELAY, (_optionalEnrichmentDeadline || Infinity) - Date.now())));
   });
@@ -3315,6 +3433,8 @@ async function enrichDescriptions(shows) {
     if (hasSeasonDescriptionEvidence(s, target)) return false;
     if (needsSeasonDescriptionMigration(s, target)) return true;
     if (s.descriptionSource !== 'ai' && s.description && s.description.length > 80) return false;
+    // 同一 TMDB 条目最近已确认没有更好的中文简介时，7 天内不再重复请求。
+    if (target && hasRecentLookupMiss(s.descriptionTmdbCheckedAt, s.descriptionTmdbCheckedPath, target.path)) return false;
     return target;
   });
 
@@ -3357,6 +3477,9 @@ async function enrichDescriptions(shows) {
         if (fallback?.descriptionSource) show.descriptionSource = fallback.descriptionSource;
         else delete show.descriptionSource;
         delete show.descriptionTmdbSeasonUrl;
+      } else {
+        show.descriptionTmdbCheckedAt = new Date().toISOString();
+        show.descriptionTmdbCheckedPath = target.path;
       }
     } catch (e) {
       console.warn(`  [WARN] description fetch failed for "${show.title}": ${e.message}`);
@@ -3510,6 +3633,11 @@ function createDiscoverySearchGuard(label, now = () => Date.now()) {
   return {
     shouldStop() {
       if (stopped) return true;
+      if (yfspCircuitOpen()) {
+        console.warn(`  [WARN] 爱壹帆不可达，跳过${label}关键词搜索`);
+        stopped = true;
+        return true;
+      }
       if (consecutiveFailures >= DISCOVERY_SEARCH_MAX_CONSECUTIVE_FAILURES) {
         console.warn(`  [WARN] ${label}搜索连续 ${consecutiveFailures} 次失败，跳过剩余关键词`);
         stopped = true;
@@ -3644,7 +3772,7 @@ const TMDB_RATING_MIN_VOTES = 20;
 const TMDB_DISCOVERY_EXCLUDED_GENRES = [16, 99, 10762, 10763, 10764, 10767];
 const TMDB_TV_GENRE_NAMES = Object.freeze({
   10759: '动作', 35: '喜剧', 80: '犯罪', 18: '剧情', 10751: '家庭', 9648: '悬疑',
-  10765: '奇幻', 10766: '肥皂剧', 10768: '战争', 37: '西部',
+  10765: '奇幻', 10766: '肥皂剧', 10768: '战争', 37: '西部', 10764: '真人秀', 10767: '脱口秀',
 });
 
 // AI 不可用时的保底收录：只接受投票数足够（≥20，见 tmdbRatingOf）的高分、确有热度的 TMDB 新剧，并且仍须通过硬性内容排除。
@@ -3714,10 +3842,10 @@ function tmdbStatusFields(details) {
   };
 }
 
-function isUsableTMDBChineseTitle(name, originalName) {
-  // zh-CN 无译名时 TMDB 回退韩文原名；中文站点不能发布韩文标题，也不在此处处理续季。
-  return !!name && /\p{Script=Han}/u.test(name) && !/\p{Script=Hangul}/u.test(name) &&
-    name !== originalName && !seasonKey(name);
+function isUsableTMDBChineseTitle(name) {
+  // zh-CN 无译名时 TMDB 回退韩文原名（含谚文）；中文站点不能发布韩文标题，也不在此处处理续季。
+  // 国产综艺的原名本身就是中文，不能要求译名与原名不同。
+  return !!name && /\p{Script=Han}/u.test(name) && !/\p{Script=Hangul}/u.test(name) && !seasonKey(name);
 }
 
 function validTMDBDiscoverResult(result) {
@@ -3732,18 +3860,36 @@ function validTMDBDiscoverResult(result) {
 const TMDB_STATS_REFRESH_QUOTA = 20;
 const TMDB_STATS_REFRESH_CONCURRENCY = 4;
 const TMDB_STATS_REFRESH_TTL_MS = 3 * DAY_MS;
+// 连载中的节目每周更新集数，缩短刷新间隔以免集数长期停留。
+const TMDB_STATS_ONGOING_TTL_MS = DAY_MS;
 const TMDB_STATS_REFRESH_BUDGET_MS = 45 * 1000;
 
-async function refreshKDramaTMDBStats(kdramaMap, { now = Date.now() } = {}) {
+function tmdbStatsRefreshTTL(show) {
+  return show?.isSerial === true && show?.isComplete !== true ? TMDB_STATS_ONGOING_TTL_MS : TMDB_STATS_REFRESH_TTL_MS;
+}
+
+// 爱壹帆长期没有新观测的单季节目，用 TMDB 详情更新集数和完结状态；
+// 多季或季标题的卡片无法从剧集级详情得到本季集数，保持原状。
+function applyTMDBStatus(show, details, now = Date.now()) {
+  if (hasRecentYfspObservation(show, now) || seasonKey(show.title) || Number(details?.number_of_seasons) !== 1) return false;
+  const status = tmdbStatusFields(details);
+  if (!status.isComplete && !status.currentEpisode) return false;
+  Object.assign(show, status);
+  reconcileShowStatus(show);
+  return true;
+}
+
+async function refreshTMDBStats(targetMap, { now = Date.now(), label = '韩剧' } = {}) {
   if (!TMDB_TOKEN) return 0;
-  const due = [...kdramaMap.values()]
-    .filter(show => knownTMDBSeriesId(show) && !(now - comparableTimestamp(show.tmdbStatsCheckedAt) < TMDB_STATS_REFRESH_TTL_MS))
+  const due = [...targetMap.values()]
+    .filter(show => knownTMDBSeriesId(show) && !(now - comparableTimestamp(show.tmdbStatsCheckedAt) < tmdbStatsRefreshTTL(show)))
     .sort((a, b) => comparableTimestamp(a.tmdbStatsCheckedAt) - comparableTimestamp(b.tmdbStatsCheckedAt) ||
       safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
     .slice(0, TMDB_STATS_REFRESH_QUOTA);
   if (!due.length) return 0;
   const deadline = Date.now() + TMDB_STATS_REFRESH_BUDGET_MS;
   let refreshed = 0;
+  let statusUpdated = 0;
   await mapPool(due, TMDB_STATS_REFRESH_CONCURRENCY, async show => {
     if (Date.now() >= deadline) return;
     const id = knownTMDBSeriesId(show);
@@ -3755,16 +3901,21 @@ async function refreshKDramaTMDBStats(kdramaMap, { now = Date.now() } = {}) {
     const rating = tmdbRatingOf(details);
     if (rating) show.tmdbRating = rating;
     else delete show.tmdbRating;
+    if (applyTMDBStatus(show, details, now)) statusUpdated++;
     show.tmdbStatsCheckedAt = new Date(now).toISOString();
     refreshed++;
   });
-  console.log(`  刷新 ${refreshed}/${due.length} 部已收录韩剧的 TMDB 评分与热度`);
+  console.log(`  刷新 ${refreshed}/${due.length} 部已收录${label}的 TMDB 评分与热度（更新 ${statusUpdated} 部集数状态）`);
   return refreshed;
 }
 
-async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { now = Date.now() } = {}) {
+function refreshKDramaTMDBStats(kdramaMap, options = {}) {
+  return refreshTMDBStats(kdramaMap, { ...options, label: '韩剧' });
+}
+
+async function discoverFromTMDB(targetMap, knownBeforeRun, profile, { now = Date.now() } = {}) {
   if (!TMDB_TOKEN) return [];
-  console.log('\n  ── TMDB 新韩剧扫描 ──');
+  console.log(`\n  ── TMDB 新${profile.label}扫描 ──`);
   const deadline = Date.now() + TMDB_DISCOVERY_BUDGET_MS;
   const day = value => new Date(value).toISOString().slice(0, 10);
   const from = day(now - TMDB_DISCOVERY_WINDOW_DAYS * DAY_MS);
@@ -3772,9 +3923,8 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
   const results = new Map();
   for (let page = 1; page <= TMDB_DISCOVERY_PAGES && Date.now() < deadline; page++) {
     try {
-      const data = await fetchTMDBJSON(`discover/tv?language=zh-CN&sort_by=popularity.desc&with_origin_country=KR&with_original_language=ko` +
-        `&first_air_date.gte=${from}&first_air_date.lte=${to}&without_genres=${TMDB_DISCOVERY_EXCLUDED_GENRES.join(',')}` +
-        `&include_null_first_air_dates=false&page=${page}`, { deadline });
+      const data = await fetchTMDBJSON(`discover/tv?language=zh-CN&sort_by=popularity.desc&${profile.query}` +
+        `&first_air_date.gte=${from}&first_air_date.lte=${to}&include_null_first_air_dates=false&page=${page}`, { deadline });
       if (!data) break;
       if (!Array.isArray(data.results)) throw new Error('TMDB discover returned invalid data');
       for (const result of data.results) {
@@ -3782,21 +3932,24 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
       }
       if (!Number.isInteger(data.total_pages) || page >= data.total_pages) break;
     } catch (error) {
-      console.warn(`  [WARN] TMDB 新韩剧扫描失败: ${error.message}`);
+      console.warn(`  [WARN] TMDB 新${profile.label}扫描失败: ${error.message}`);
       break;
     }
     await sleep(TMDB_SEARCH_DELAY);
   }
 
   const byTMDBId = new Map();
-  for (const show of kdramaMap.values()) {
+  for (const show of targetMap.values()) {
     const id = knownTMDBSeriesId(show);
     if (id && !byTMDBId.has(id)) byTMDBId.set(id, show);
   }
   const candidates = [];
   let refreshed = 0;
   for (const result of results.values()) {
-    if (Array.isArray(result.origin_country) && result.origin_country.length && !result.origin_country.includes('KR')) continue;
+    const countries = Array.isArray(result.origin_country) ? result.origin_country : [];
+    if (countries.length && !countries.some(country => profile.countries.includes(country))) continue;
+    // 服务端已按类型筛选；这里再校验一次，保证同一 TMDB 实体不会同时成为韩剧和综艺。
+    if (!profile.genreOk(result.genre_ids || [])) continue;
     const firstAirDate = tmdbFirstAirDate(result.first_air_date);
     if (!firstAirDate) continue;
     const existing = byTMDBId.get(result.id);
@@ -3812,14 +3965,15 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
       continue;
     }
     const name = safeText(result.name, 200);
-    if (!isUsableTMDBChineseTitle(name, safeText(result.original_name, 200))) continue;
+    if (!isUsableTMDBChineseTitle(name)) continue;
     let posterPath;
     try { posterPath = tmdbPosterPath(result.poster_path); } catch { continue; }
-    if (!posterPath || tmdbPopularityOf(result) < TMDB_DISCOVERY_MIN_POPULARITY) continue;
+    if (!posterPath || tmdbPopularityOf(result) < profile.minPopularity) continue;
     const year = boundedYear(extractYear(firstAirDate));
-    const candidate = { id: tmdbDiscoveryId(result.id), title: name, year, mediaType: '电视剧', regional: '韩国' };
+    const regional = profile.regionalOf(countries);
+    const candidate = { id: tmdbDiscoveryId(result.id), title: name, year, mediaType: profile.mediaType, regional };
     // 标题已对应已知卡片（可能来自爱壹帆的另一译名 ID）时不重复建卡。
-    if (hasKnownDiscoveryIdentity(candidate, knownBeforeRun, kdramaMap)) continue;
+    if (hasKnownDiscoveryIdentity(candidate, knownBeforeRun, targetMap)) continue;
     candidates.push({ result, candidate, firstAirDate, posterPath });
   }
   candidates.sort((a, b) => tmdbPopularityOf(b.result) - tmdbPopularityOf(a.result));
@@ -3827,7 +3981,8 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
   const discovered = [];
   const cache = loadImageCache();
   const scrapedAt = new Date(now).toISOString();
-  for (const { result, candidate, firstAirDate, posterPath } of candidates.slice(0, TMDB_DISCOVERY_MAX_NEW)) {
+  for (const { result, candidate, firstAirDate, posterPath } of candidates) {
+    if (discovered.length >= profile.maxNew) break;
     if (Date.now() >= deadline) break;
     let details;
     try {
@@ -3843,17 +3998,17 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
     const tmdbUrl = `${TMDB_WEB_BASE}/tv/${result.id}`;
     const description = safeText(result.overview, 2000);
     const show = {
-      ...candidate, type: 4,
+      ...candidate, type: profile.type,
       score: 0, playCount: 0,
       tmdbRating: tmdbRatingOf(result), tmdbPopularity: tmdbPopularityOf(result), tmdbStatsCheckedAt: scrapedAt,
-      actor: '', lang: '韩语', contentType: genres.join('·'), cidMapper: '',
+      actor: '', lang: profile.langOf(candidate.regional), contentType: genres.join('·'), cidMapper: '',
       description, ...(description ? { descriptionSource: 'tmdb' } : {}),
       coverImg, coverSource: 'tmdb', tmdbUrl, tmdbId: result.id,
       ...tmdbStatusFields(details),
       updateMsg: '', publishTime: firstAirDate,
       yfspUrl: '', doubanUrl: '',
       scrapedAt, isLive: false, source: 'tmdb_discover', isAutoDiscovered: true,
-      category: 'korean_drama',
+      category: profile.category,
     };
     if (!show.tmdbRating) delete show.tmdbRating;
     // 预置当前版本封面缓存，后续富化直接复用这张已验证海报，并按常规周期补 Wikidata 外链。
@@ -3863,17 +4018,51 @@ async function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, { 
       matchedTitle: show.title, tmdbId: result.id, tmdbUrl, cachedAt: scrapedAt,
     };
     reconcileShowStatus(show);
-    show.recommendScore = scoreKDrama(show);
+    if (!profile.accept(show)) continue;
+    show.recommendScore = profile.score(show);
     attachLinkFields(show, '', '');
     discovered.push(show);
     await sleep(TMDB_SEARCH_DELAY);
   }
   recordDiscoveryHistory(discovered);
-  console.log(`  TMDB 近 ${TMDB_DISCOVERY_WINDOW_DAYS} 天首播韩剧 ${results.size} 部，更新已收录 ${refreshed} 部，候选收录 ${discovered.length} 部`);
+  console.log(`  TMDB 近 ${TMDB_DISCOVERY_WINDOW_DAYS} 天首播${profile.label} ${results.size} 部，更新已收录 ${refreshed} 部，候选收录 ${discovered.length} 部`);
   for (const show of discovered) {
     console.log(`    ▸ ${show.title} [${show.publishTime} · 热度${show.tmdbPopularity}${show.tmdbRating ? ` · TMDB ${show.tmdbRating}` : ''}]`);
   }
   return discovered;
+}
+
+const TMDB_KDRAMA_DISCOVERY = Object.freeze({
+  label: '韩剧', mediaType: '电视剧', type: 4, category: 'korean_drama', countries: ['KR'],
+  query: `with_origin_country=KR&with_original_language=ko&without_genres=${TMDB_DISCOVERY_EXCLUDED_GENRES.join(',')}`,
+  regionalOf: () => '韩国', langOf: () => '韩语',
+  genreOk: genres => !genres.some(genre => TMDB_DISCOVERY_EXCLUDED_GENRES.includes(genre)),
+  minPopularity: TMDB_DISCOVERY_MIN_POPULARITY, maxNew: TMDB_DISCOVERY_MAX_NEW,
+  accept: () => true, score: show => scoreKDrama(show),
+});
+
+// TMDB 收录国产综艺的热度普遍偏低，门槛相应放低；综艺没有 AI 收录门，因此只收轻松向或高分的新节目。
+const TMDB_VARIETY_DISCOVERY = Object.freeze({
+  label: '综艺', mediaType: '综艺', type: 5, category: 'variety', countries: ['CN', 'KR'],
+  query: 'with_origin_country=CN%7CKR&with_genres=10764%7C10767',
+  regionalOf: countries => countries.includes('CN') ? '大陆' : '韩国',
+  langOf: regional => regional === '大陆' ? '国语' : '韩语',
+  genreOk: genres => genres.includes(10764) || genres.includes(10767),
+  minPopularity: 3, maxNew: 5,
+  accept: show => {
+    if (VarietyExclude.some(keyword => show.title.includes(keyword)) || scoreVariety(show) < 0) return false;
+    const text = `${show.contentType} ${show.title} ${sourceDescriptionForScoring(show)}`;
+    return VarietyFunnyKeywords.some(keyword => text.includes(keyword)) || boundedScore(show.tmdbRating) >= 7;
+  },
+  score: show => scoreVariety(show),
+});
+
+function discoverKDramasFromTMDB(kdramaMap, knownBeforeRun = kdramaMap, options = {}) {
+  return discoverFromTMDB(kdramaMap, knownBeforeRun, TMDB_KDRAMA_DISCOVERY, options);
+}
+
+function discoverVarietyFromTMDB(varietyMap, knownBeforeRun = varietyMap, options = {}) {
+  return discoverFromTMDB(varietyMap, knownBeforeRun, TMDB_VARIETY_DISCOVERY, options);
 }
 
 // ════════════════════════════════════════════════════════════════
