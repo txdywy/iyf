@@ -20,6 +20,7 @@
   <link rel="preload" href="data/shows.json" as="fetch" crossorigin="anonymous">
   <link rel="preconnect" href="https://image.tmdb.org">
   <link rel="stylesheet" href="css/style.css">
+  <noscript><style>.show-grid .skeleton-card { display: none; }</style></noscript>
 </head>
 <body>
   <div id="app">
@@ -27,7 +28,7 @@
     <!-- 头部 -->
     <header class="header">
       <div class="container">
-        <h1 class="logo">🎬 剧荒救星</h1>
+        <h1 class="logo"><span class="logo-icon" aria-hidden="true">🎬</span> 剧荒救星</h1>
         <p class="subtitle">精选韩剧与轻松搞笑综艺，帮你快速找到下一部想看的内容</p>
         <div class="update-info" id="updateInfo" role="status" aria-live="polite">加载中…</div>
       </div>
@@ -36,13 +37,13 @@
     <!-- 导航标签 -->
     <nav class="tabs" aria-label="内容分类">
       <div class="container" role="tablist">
-        <button id="tab-korean" class="tab active" data-tab="korean" role="tab" aria-controls="showGrid" aria-selected="true" tabindex="0">🇰🇷 韩剧推荐</button>
-        <button id="tab-year" class="tab" data-tab="year" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🔥 <span id="yearTabLabel">新剧</span></button>
-        <button id="tab-varietyYear" class="tab" data-tab="varietyYear" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">😂 <span id="varietyYearTabLabel">新综艺</span></button>
-        <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🎬 全部综艺</button>
-        <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🆕 新近加入</button>
-        <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">🏆 经典必看</button>
-        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1">📡 韩国电视剧时间表</button>
+        <button id="tab-korean" class="tab active" data-tab="korean" role="tab" aria-controls="showGrid" aria-selected="true" tabindex="0"><span aria-hidden="true">🇰🇷</span> 韩剧推荐</button>
+        <button id="tab-year" class="tab" data-tab="year" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🔥</span> <span class="tab-year-label" id="yearTabLabel">今年新剧</span></button>
+        <button id="tab-varietyYear" class="tab" data-tab="varietyYear" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">😂</span> <span class="tab-year-label tab-year-label-variety" id="varietyYearTabLabel">今年新综艺</span></button>
+        <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🎬</span> 全部综艺</button>
+        <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🆕</span> 新近加入</button>
+        <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🏆</span> 经典必看</button>
+        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">📡</span> 韩国电视剧时间表</button>
       </div>
       <p class="tabs-hint" id="tabsHint">左右滑动查看更多分类</p>
     </nav>
@@ -79,6 +80,10 @@
                 <option value="popular">最多播放</option>
               </select>
             </div>
+            <div class="filter-group filter-check" id="playableFilterGroup">
+              <input type="checkbox" id="filterPlayable">
+              <label for="filterPlayable">只看可播放</label>
+            </div>
           </div>
           <div class="search-box">
             <input type="search" id="searchInput" placeholder="搜索当前分类中的剧名/演员…" aria-label="搜索当前分类中的剧名或演员" autocomplete="off">
@@ -112,6 +117,7 @@
           <span class="stat-num" id="statHighScore">0</span>
           <span class="stat-label">高分佳作</span>
         </div>
+        <p class="badge-legend"><span class="badge badge-ai">AI 推荐</span> 口味匹配度≥70（满分100，非观众评分） · <span class="badge badge-playable">可播放</span> 有播放源</p>
       </div>
     </section>
 
@@ -121,14 +127,68 @@
         <h2 class="sr-only" id="contentHeading">推荐内容</h2>
         <noscript><p>请启用 JavaScript，以查看和筛选推荐内容。</p></noscript>
         <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-describedby="resultSummary" aria-busy="true">
-          <!-- JS 动态渲染 -->
+          <!-- 静态骨架与脚本首屏骨架一致，数据到达前预留网格高度，避免页脚和加载提示跳动。 -->
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-poster skeleton-shimmer"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-shimmer"></div>
+              <div class="skeleton-line skeleton-line-medium skeleton-shimmer"></div>
+            </div>
+          </article>
         </div>
         <div class="load-more" id="loadMore" hidden>
           <span id="loadMoreStatus" role="status" aria-live="polite" aria-atomic="true">继续下滑自动加载更多</span>
           <button id="loadMoreButton" type="button">加载更多</button>
         </div>
         <div class="loading" id="loading" role="status" aria-live="polite">
-          <div class="spinner"></div>
+          <div class="spinner" aria-hidden="true"></div>
           <p>正在加载推荐数据...</p>
         </div>
         <div class="empty" id="empty" role="status" aria-live="polite" style="display:none">
