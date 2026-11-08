@@ -2,9 +2,12 @@ name: Scrape & Deploy
 
 on:
   schedule:
-    # 每天 2 次: 00:23/12:23 UTC (北京时间 08:23/20:23)。
+    # 主计划每天 2 次: 00:23/12:23 UTC (北京时间 08:23/20:23)。
     # GitHub 在整点负载最高，整点计划曾持续延迟 3–6 小时，因此避开整点。
     - cron: '23 0,12 * * *'
+    # 补偿计划 04:47/16:47 UTC：主计划仍可能延迟 2.5–9 小时或被丢弃。
+    # 已提交数据的 generatedAt 不足 8 小时时，定时运行不抓取，只按推送方式构建部署。
+    - cron: '47 4,16 * * *'
   workflow_dispatch:
   # push 只用已提交数据构建部署，不抓取，避免代码合并消耗每日免费 AI 配额。
   # 机器人用 github.token 提交的数据不会触发新运行；人工的纯数据提交需要部署，因此不忽略 data/**。
@@ -29,12 +32,9 @@ jobs:
     permissions:
       contents: write
     outputs:
+      scrape: ${{ steps.mode.outputs.scrape }}
       publish: ${{ steps.commit.outputs.publish }}
       sha: ${{ steps.commit.outputs.sha }}
-    env:
-      SCRAPE: ${{ github.event_name != 'push' }}
-      # 抓取运行必须确认抓取器确实写出了本次数据(generatedAt)；推荐快照时间过旧只警告。
-      IYF_REQUIRE_FRESH_DATA: ${{ github.event_name != 'push' && '1' || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,23 +48,62 @@ jobs:
           node-version-file: '.node-version'
           package-manager-cache: false
 
-      - name: Run regression tests
-        run: node --test
-
-      - name: Validate TMDB_TOKEN
-        if: env.SCRAPE == 'true'
+      - name: Decide scrape mode
+        id: mode
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
+          # push 只构建部署已提交数据；定时与手动运行才抓取。
+          scrape=false
+          if [ "$EVENT_NAME" != "push" ]; then scrape=true; fi
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            # 补偿计划与延迟的主计划可能紧挨着运行；已提交数据足够新时不重复消耗 AI 配额。
+            age_hours="$(node -e '
+              try {
+                const data = JSON.parse(require("node:fs").readFileSync("data/shows.json", "utf8"));
+                const generated = typeof data.generatedAt === "string" ? Date.parse(data.generatedAt) : NaN;
+                const age = (Date.now() - generated) / 3600000;
+                if (Number.isFinite(age) && age >= 0) process.stdout.write(age.toFixed(1));
+              } catch {}
+            ')"
+            if [ -n "$age_hours" ] && node -e 'process.exit(Number(process.argv[1]) < 8 ? 0 : 1)' "$age_hours"; then
+              scrape=false
+              echo "::notice::Committed data was generated ${age_hours}h ago (< 8h); this scheduled run deploys committed data without scraping."
+            fi
+          fi
+          echo "scrape=$scrape" >> "$GITHUB_OUTPUT"
+          echo "Scrape this run: $scrape"
+
+      - name: Run regression tests
+        run: node --test --test-reporter=dot
+
+      - name: Check secrets
+        if: steps.mode.outputs.scrape == 'true'
+        run: |
+          # 只检查是否配置，绝不输出取值；缺失时告警而不阻断抓取。
           if [ -z "$TMDB_TOKEN" ]; then
             echo "::warning::TMDB_TOKEN 未配置! 抓取将无法获取 TMDB 高清封面,新节目只能使用低质量源站图片。"
             echo "请在 Settings → Secrets → Actions 中添加 TMDB_TOKEN (TMDB API v4 Read Access Token)。"
           else
             echo "✓ TMDB_TOKEN 已配置"
           fi
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::warning::OPENROUTER_API_KEY 未配置! 本次不会进行 AI 评分与新剧 AI 准入审核。"
+          else
+            echo "✓ OPENROUTER_API_KEY 已配置"
+          fi
+          if [ -z "$CLOUDFLARE_DEPLOY_HOOK" ]; then
+            echo "::warning::CLOUDFLARE_DEPLOY_HOOK 未配置! Cloudflare Pages 发布任务将失败，仅 GitHub Pages 备用站会更新。"
+          else
+            echo "✓ CLOUDFLARE_DEPLOY_HOOK 已配置"
+          fi
         env:
           TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
 
       - name: Run Scraper
-        if: env.SCRAPE == 'true'
+        if: steps.mode.outputs.scrape == 'true'
         run: node scripts/scrape.mjs
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -73,6 +112,9 @@ jobs:
 
       - name: Validate scraped data
         run: node scripts/validate-data.mjs
+        env:
+          # 抓取运行必须确认抓取器确实写出了本次数据(generatedAt)；推荐快照时间过旧只警告。
+          IYF_REQUIRE_FRESH_DATA: ${{ steps.mode.outputs.scrape == 'true' && '1' || '' }}
 
       - name: Commit updated data
         id: commit
@@ -81,8 +123,22 @@ jobs:
         run: |
           basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
           echo "::add-mask::$basic"
-          git_auth() { git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" "$@"; }
+          # 持有写令牌期间禁用仓库钩子，避免检出内容在 commit/push 时执行任意代码。
+          git_auth() { git -c core.hooksPath=/dev/null -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" "$@"; }
           base_sha="$GITHUB_SHA"
+
+          fetch_main() {
+            # GitHub 偶发网络抖动不应直接让发布失败：最多尝试 3 次。
+            for attempt in 1 2 3; do
+              if git_auth fetch --no-tags origin main; then
+                return 0
+              fi
+              echo "Fetch attempt $attempt failed"
+              if [ "$attempt" -lt 3 ]; then sleep 5; fi
+            done
+            echo "::error::Failed to fetch origin/main after 3 attempts."
+            return 1
+          }
 
           skip_stale() {
             # 构建期间 main 已前进：人工 push 会在同一并发组排队，用新代码和已提交数据部署；
@@ -95,7 +151,7 @@ jobs:
           if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json data/history.json; then
             # 抓取和校验耗时较长。若期间 main 已前进，不能把旧抓取器生成的数据
             # rebase 到新 schema 上。
-            git_auth fetch --no-tags origin main
+            fetch_main
             remote_sha="$(git rev-parse origin/main)"
             if [ "$remote_sha" != "$base_sha" ]; then
               skip_stale "$remote_sha"
@@ -103,9 +159,8 @@ jobs:
 
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add data/shows.json data/image_cache.json data/discovery.json
-            git add -f data/history.json
-            git commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
+            git add data/shows.json data/image_cache.json data/discovery.json data/history.json
+            git -c core.hooksPath=/dev/null commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
 
             pushed=false
             local_sha="$(git rev-parse HEAD)"
@@ -115,7 +170,7 @@ jobs:
                 break
               fi
 
-              git_auth fetch --no-tags origin main
+              fetch_main
               remote_sha="$(git rev-parse origin/main)"
               if [ "$remote_sha" = "$local_sha" ]; then
                 # The server accepted the push but the client lost the response.
@@ -135,7 +190,7 @@ jobs:
             fi
           else
             # 数据未变时也要确认 main 仍是本次构建的代码，否则 Cloudflare 会构建更新的 main 并与产物不一致。
-            git_auth fetch --no-tags origin main
+            fetch_main
             remote_sha="$(git rev-parse origin/main)"
             if [ "$remote_sha" != "$base_sha" ]; then
               skip_stale "$remote_sha"
@@ -252,3 +307,31 @@ jobs:
           ARTIFACT_SHA: ${{ needs.scrape.outputs.sha }}
           # 生产 Pages 通过现有 main Hook 从 Git 构建，下载的产物仅用于线上验收。
           CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+
+  health:
+    name: 数据健康检查
+    # 发布完成后才检查，失败只把运行标红提醒，不会阻断或回滚已完成的发布。
+    needs: [scrape, deploy, deploy-cloudflare]
+    if: >-
+      always() && github.ref == 'refs/heads/main' && github.event_name != 'push'
+      && needs.scrape.outputs.scrape == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout published data
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # 优先检查本次发布的提交；被跳过时检查当前 main 上的已提交数据。
+          ref: ${{ needs.scrape.outputs.sha || 'main' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.node-version'
+          package-manager-cache: false
+
+      - name: Check data health
+        run: node scripts/check-health.mjs

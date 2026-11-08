@@ -64,10 +64,14 @@ export async function verifyGitHubPages({
       }
     };
     const failures = (await Promise.all(items.map(check))).filter(Boolean);
-    if (now() >= deadline) { lastFailures = ['verification deadline expired']; break; }
+    if (now() >= deadline) {
+      // 保留最后一轮的真实差异，便于定位；只有全部匹配但已超时才报告迟到。
+      lastFailures = failures.length ? failures : ['matching files arrived after the verification deadline'];
+      break;
+    }
     if (!failures.length) {
       log(`GitHub Pages backup matches the validated artifact (lastUpdated: ${lastUpdated}).`);
-      return { lastUpdated, files: 6, url: new URL('index.html', BASE_URL).href };
+      return { lastUpdated, files: items.length, url: new URL('index.html', BASE_URL).href };
     }
     lastFailures = failures;
     const summary = failures.join('; ');

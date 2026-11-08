@@ -65,7 +65,8 @@ function createHarness(t, { publicReply, timeoutMs = 25, pollIntervalMs = 10 } =
 
 test('GitHub Pages backup verifies independent homepage, assets, data and 404 routes', async t => {
   const h = createHarness(t);
-  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: 6, url: `${BASE}index.html` });
+  assert.deepEqual(await h.run(), { lastUpdated: LAST_UPDATED, files: h.routes.size, url: `${BASE}index.html` });
+  assert.equal(h.routes.size, 7, 'the reported file count must match every checked public route');
   assert.deepEqual(h.calls.sort(), [...h.routes.keys()].map(path => `https://txdywy.github.io${path}`).sort());
   assert.deepEqual(h.waits, []);
 });
@@ -122,6 +123,23 @@ test('GitHub Pages backup cannot report success after the polling deadline', asy
   const h = createHarness(t, { publicReply: ({ file }) => file === 'index.html' ? { advance: 30 } : {} });
   await assert.rejects(h.run(), /verification deadline/u);
   assert.deepEqual(h.waits, []);
+});
+
+test('GitHub Pages backup reports matching files that arrived after the deadline', async t => {
+  // 最后一个请求才越过截止时间：此前所有文件都已匹配。
+  const h = createHarness(t, { publicReply: ({ file }) => file === 'missing' ? { advance: 30 } : {} });
+  await assert.rejects(h.run(), /Last differences: matching files arrived after the verification deadline$/u);
+  assert.deepEqual(h.waits, []);
+});
+
+test('GitHub Pages backup keeps the last real differences when the deadline expires', async t => {
+  const h = createHarness(t, { publicReply: ({ file }) => file === 'missing' ? { advance: 30 }
+    : file === 'data/shows.json' ? { body: '{}' } : {} });
+  await assert.rejects(h.run(), error => {
+    assert.match(error.message, /Last differences: data\/shows\.json: content hash mismatch/u);
+    assert.doesNotMatch(error.message, /arrived after/u);
+    return true;
+  });
 });
 
 test('GitHub Pages backup rejects invalid versioned asset references before making requests', async t => {

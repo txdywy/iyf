@@ -4,3 +4,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # 新版本发布 7 天后再提议，避开被撤回或遭篡改的刚发布版本。
+    cooldown:
+      default-days: 7
+    # 所有 Action 更新合并为一个 PR，减少发布链路的重复运行与审查。
+    groups:
+      github-actions:
+        patterns:
+          - '*'

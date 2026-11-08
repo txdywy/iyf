@@ -2854,9 +2854,8 @@ assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.co
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
 assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
 assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
-const committedData = JSON.parse(read('data/shows.json'));
-assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');
-assert.doesNotMatch(JSON.stringify(committedData), /黑暗荣耀第2季/u, 'the catalog should not retain the unsupported standalone Glory season card');
+// 已提交数据的内容规则（退役卡片、统计一致）由提交前运行的 validate-data.mjs 负责。
+assert.match(validateData, /RETIRED_TITLES = new Set\(\['黑暗荣耀第2季'\]\)/u, 'data validation should reject the unsupported standalone Glory season card');
 assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
 assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
 assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
@@ -2879,8 +2878,10 @@ const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站�
 assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
-assert.match(workflow, /SCRAPE: \$\{\{ github\.event_name != 'push' \}\}/, 'push runs must deploy committed data without spending the scrape/AI quota');
-assert.match(workflow, /- name: Run Scraper\n\s+if: env\.SCRAPE == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /scrape=false\n\s+if \[ "\$EVENT_NAME" != "push" \]; then scrape=true; fi/, 'push runs must deploy committed data without spending the scrape/AI quota');
+assert.match(workflow, /if \[ "\$EVENT_NAME" = "schedule" \]; then[\s\S]*?< 8 \? 0 : 1[\s\S]*?scrape=false/, 'scheduled runs must skip scraping when committed data is under eight hours old');
+assert.match(workflow, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /IYF_REQUIRE_FRESH_DATA: \$\{\{ steps\.mode\.outputs\.scrape == 'true' && '1' \|\| '' \}\}/, 'only real scrape runs may require a fresh generatedAt');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
 assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
 assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');
