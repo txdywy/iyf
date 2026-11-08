@@ -780,7 +780,7 @@
     ]
   },
   "2026-11-08": {
-    "timestamp": "2026-11-08T04:47:06.441Z",
+    "timestamp": "2026-11-08T17:59:49.107Z",
     "totalFound": 85,
     "shows": [
       {
@@ -798,7 +798,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21785,
+        "playCount": 21800,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -846,7 +846,7 @@
       {
         "title": "金特务：本色回归",
         "score": 8.2,
-        "playCount": 4504852,
+        "playCount": 4505853,
         "year": 2026,
         "actor": "苏志燮,崔大勋,尹敬浩,金成圭,孙娜恩",
         "source": "api_index",
@@ -858,7 +858,7 @@
       {
         "title": "我的王室死对头",
         "score": 8.4,
-        "playCount": 2322115,
+        "playCount": 2322646,
         "year": 2026,
         "actor": "林智妍,许南俊,张胜祖,李世熙,金玟锡",
         "source": "api_index",
@@ -882,7 +882,7 @@
       {
         "title": "新进职员姜会长",
         "score": 8.1,
-        "playCount": 1405051,
+        "playCount": 1405377,
         "year": 2026,
         "actor": "李濬荣,孙贤周,李周明,全慧珍,晋久",
         "source": "api_index",
@@ -906,7 +906,7 @@
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1136741,
+        "playCount": 1137439,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -918,7 +918,7 @@
       {
         "title": "现在不是出轨的问题",
         "score": 8.8,
-        "playCount": 1080047,
+        "playCount": 1081399,
         "year": 2026,
         "actor": "金惠秀,金志勋,赵汝贞,金宰澈",
         "source": "api_index",
@@ -930,7 +930,7 @@
       {
         "title": "检察官室的提案",
         "score": 8.7,
-        "playCount": 1016942,
+        "playCount": 1017601,
         "year": 2026,
         "actor": "尹道健,朴时宇",
         "source": "api_index",
@@ -942,7 +942,7 @@
       {
         "title": "隐秘的监察",
         "score": 8,
-        "playCount": 921967,
+        "playCount": 922194,
         "year": 2026,
         "actor": "申惠善,孔明,金材昱,洪华妍",
         "source": "api_index",
@@ -954,7 +954,7 @@
       {
         "title": "鬼谜东宫",
         "score": 7.9,
-        "playCount": 801902,
+        "playCount": 802231,
         "year": 2026,
         "actor": "南柱赫,卢允瑞,曹承佑",
         "source": "api_index",
@@ -1026,7 +1026,7 @@
       {
         "title": "明天也要上班！",
         "score": 7.6,
-        "playCount": 545415,
+        "playCount": 545559,
         "year": 2026,
         "actor": "徐仁国,朴智贤,姜美娜,崔京勋,元圭彬",
         "source": "api_index",
@@ -1062,7 +1062,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 449788,
+        "playCount": 449912,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -1086,7 +1086,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 369737,
+        "playCount": 369813,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -1098,7 +1098,7 @@
       {
         "title": "我的偶像总裁",
         "score": 7.2,
-        "playCount": 357943,
+        "playCount": 358303,
         "year": 2026,
         "actor": "姜勋,金慧埈,车禹闵",
         "source": "api_index",
@@ -1110,7 +1110,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339187,
+        "playCount": 339270,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -1122,7 +1122,7 @@
       {
         "title": "爱情来了",
         "score": 7.3,
-        "playCount": 331731,
+        "playCount": 333840,
         "year": 2026,
         "actor": "安喜延",
         "source": "api_index",
@@ -1146,7 +1146,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215221,
+        "playCount": 215271,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -1158,7 +1158,7 @@
       {
         "title": "依然闪亮",
         "score": 7.4,
-        "playCount": 214308,
+        "playCount": 214384,
         "year": 2026,
         "actor": "朴珍荣,金玟周",
         "source": "api_index",
@@ -1170,7 +1170,7 @@
       {
         "title": "最后一排的男孩",
         "score": 8,
-        "playCount": 174406,
+        "playCount": 174490,
         "year": 2026,
         "actor": "崔岷植,崔显旭,陈庆,许峻豪,金允珍",
         "source": "api_index",
@@ -1182,7 +1182,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167245,
+        "playCount": 167283,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -1206,7 +1206,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 149783,
+        "playCount": 150035,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -1230,7 +1230,7 @@
       {
         "title": "爱在连理里",
         "score": 6.4,
-        "playCount": 139104,
+        "playCount": 139123,
         "year": 2026,
         "actor": "朴成雄,李水京,李津宇",
         "source": "api_index",
@@ -1254,7 +1254,7 @@
       {
         "title": "爱上草莓的季节",
         "score": 7.6,
-        "playCount": 117997,
+        "playCount": 119143,
         "year": 2026,
         "actor": "池昌旭,今田美樱,南润寿,久间田琳加",
         "source": "api_index",
@@ -1266,7 +1266,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 110937,
+        "playCount": 110949,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -1278,11 +1278,11 @@
       {
         "title": "最后一桌",
         "score": 6.4,
-        "playCount": 84469,
+        "playCount": 88465,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
-        "updateStatus": "更新到05",
+        "updateStatus": "更新到06",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -1290,7 +1290,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 82321,
+        "playCount": 82749,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -1302,7 +1302,7 @@
       {
         "title": "总会再相见",
         "score": 7.3,
-        "playCount": 78584,
+        "playCount": 78609,
         "year": 2026,
         "actor": "申正祐,金明灿,敏度希,金炯民",
         "source": "api_index",
@@ -1314,7 +1314,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 70005,
+        "playCount": 70784,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -1326,7 +1326,7 @@
       {
         "title": "我们的排练",
         "score": 5.4,
-        "playCount": 68730,
+        "playCount": 68830,
         "year": 2026,
         "actor": "梁洪硕",
         "source": "api_index",
@@ -1337,8 +1337,8 @@
       },
       {
         "title": "解不开的我们",
-        "score": 6.5,
-        "playCount": 66239,
+        "score": 6.6,
+        "playCount": 67284,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -1350,11 +1350,11 @@
       {
         "title": "不着边际的你",
         "score": 6.8,
-        "playCount": 57395,
+        "playCount": 59178,
         "year": 2026,
         "actor": "郑容和,洪承希,李伊庚",
         "source": "api_index",
-        "updateStatus": "更新到05",
+        "updateStatus": "更新到06",
         "contentType": "爱情",
         "mediaType": "电视剧",
         "regional": "韩国"

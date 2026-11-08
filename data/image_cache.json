@@ -1717,8 +1717,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt43648067/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:14.175Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:14.175Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.557Z"
   },
   "qlJO5c9gXNA": {
     "title": "百花杀",
@@ -1791,8 +1791,8 @@
     "imdbUrl": "https://www.imdb.com/title/tt35051401/",
     "wikidataId": "Q137723110",
     "cachedAt": "2026-08-23T16:34:04.605Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:04.605Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.734Z"
   },
   "GjeTYXGCDU0": {
     "title": "毛骨悚然的恋爱",
@@ -1918,11 +1918,11 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/329635",
     "doubanUrl": "https://movie.douban.com/subject/38574784/",
     "wikipediaUrl": "",
-    "imdbUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt44631214/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:04.610Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:04.610Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.473Z"
   },
   "1mEIBBsVuy4": {
     "title": "谋杀俱乐部",
@@ -1940,8 +1940,8 @@
     "imdbUrl": "",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.326Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:16.326Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.690Z"
   },
   "by4YL00y8hq": {
     "title": "宇宙年糕店",
@@ -1956,11 +1956,11 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/327830",
     "doubanUrl": "https://movie.douban.com/subject/38461158/",
     "wikipediaUrl": "",
-    "imdbUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt44090256/",
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:14.266Z",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:14.266Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.639Z"
   },
   "MX7hym7GpfO": {
     "title": "一路向海的少年",
@@ -2044,8 +2044,8 @@
     "doubanId": "37233536",
     "doubanMatchedTitle": "我的荒糖恋爱",
     "doubanMatchedSeasonNumber": 0,
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-08-23T16:34:04.529Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:51.607Z"
   },
   "6oHwyySKEP2": {
     "title": "财阀X刑警第2季",
@@ -6070,7 +6070,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T04:47:08.161Z"
+    "cachedAt": "2026-11-08T17:59:52.614Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -6135,11 +6135,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T04:47:08.176Z",
-    "doubanUrl": "https://movie.douban.com/subject/38385205/",
-    "doubanId": "38385205",
-    "doubanMatchedTitle": "解不开的我们",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-11-08T17:59:52.628Z"
   },
   "fR2VM7FoNiB": {
     "title": "芝加哥烈焰第15季",
@@ -8513,11 +8509,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T04:47:08.180Z",
-    "doubanUrl": "https://movie.douban.com/subject/37469809/",
-    "doubanId": "37469809",
-    "doubanMatchedTitle": "最后一桌",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-11-08T17:59:52.659Z"
   },
   "yRzyBBP6XAu1": {
     "title": "爱情来了",
@@ -8728,7 +8720,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T04:47:09.561Z"
+    "cachedAt": "2026-11-08T17:59:53.328Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -8959,7 +8951,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T04:47:10.545Z"
+    "cachedAt": "2026-11-08T17:59:53.299Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -9477,5 +9469,84 @@
     "regional": "韩国",
     "notFound": true,
     "cachedAt": "2026-11-08T04:47:15.845Z"
+  },
+  "1b4kqKMYioC": {
+    "title": "校园接送恋曲",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/iKvLvUrwLo34FeNVH72y6ONGChS.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "校园接送恋曲",
+    "matchedTitle": "校园接送恋曲",
+    "tmdbId": 303044,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303044",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39943756/",
+    "wikidataId": "Q142067619",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:53.554Z",
+    "cachedAt": "2026-11-08T17:59:53.558Z"
+  },
+  "4alXklAeBT4": {
+    "title": "灵魂重生番外",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "泰国",
+    "notFound": true,
+    "cachedAt": "2026-11-08T17:59:54.009Z"
+  },
+  "B3aTjg72S7B": {
+    "title": "槲寄生谋杀案第3季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/8W9zyufl0IkIbOQchORIPqOPi69.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:261317:3",
+    "matchedTitle": "槲寄生谋杀案第 3 季",
+    "matchedSeriesTitle": "槲寄生谋杀案",
+    "tmdbId": 261317,
+    "tmdbUrl": "https://www.themoviedb.org/tv/261317/season/3",
+    "tmdbSeriesId": 261317,
+    "tmdbSeasonId": 544477,
+    "tmdbSeasonNumber": 3,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Mistletoe_Murders",
+    "imdbUrl": "https://www.imdb.com/title/tt32378211/",
+    "wikidataId": "Q134547100",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:54.027Z",
+    "cachedAt": "2026-11-08T17:59:54.029Z"
+  },
+  "hSzx7s6nBO8": {
+    "title": "失忆医生第3季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/1rTwDmGJAO5A9GJAP37uapnbCyy.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:255055:3",
+    "matchedTitle": "失忆医生第 3 季",
+    "matchedSeriesTitle": "失忆医生",
+    "tmdbId": 255055,
+    "tmdbUrl": "https://www.themoviedb.org/tv/255055/season/3",
+    "tmdbSeriesId": 255055,
+    "tmdbSeasonId": 529948,
+    "tmdbSeasonNumber": 3,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Doc_(2025_TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt26748321/",
+    "wikidataId": "Q129676773",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-08T17:59:54.098Z",
+    "cachedAt": "2026-11-08T17:59:54.101Z"
   }
 }
