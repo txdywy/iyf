@@ -46,7 +46,7 @@ function loadHelpers({
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         saveHistory, recordDiscoveryHistory,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
-        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot,
+        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot, yfspPlayKey, noteYfspKeySpace, migrateYfspPlayUrl, normalizeItem,
         discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
         aiEvaluateDiscovery, aiScoreShows,
         refreshKDramaTMDBStats, kdramaAiringBonus,
@@ -747,16 +747,17 @@ test('homepage scraping switches from a blocked API to the official mirror and r
   const requests = [];
   const { helpers } = loadHelpers({ fetchImpl: async (url, options) => {
     requests.push({ url: new URL(url), headers: options.headers });
-    return new URL(url).hostname === 'api.yfsp.tv'
+    return ['api.kubb.tv', 'api.yfsp.tv'].includes(new URL(url).hostname)
       ? response(null, { status: 403 }) : response(homepageFixture());
   } });
   assert.ok(await helpers.fetchPage(1, 0));
   assert.ok(await helpers.fetchPage(2, 1));
-  assert.deepEqual(requests.map(request => request.url.hostname), ['api.yfsp.tv', 'api.iyf.tv', 'api.iyf.tv']);
-  assert.equal(requests[1].headers.Referer, 'https://www.iyf.tv/');
-  assert.equal(requests[2].url.pathname, '/api/list/index');
-  assert.equal(requests[2].url.searchParams.get('page'), '2');
-  assert.equal(requests[2].url.searchParams.get('isn'), '1');
+  assert.deepEqual(requests.map(request => request.url.hostname), ['api.kubb.tv', 'api.yfsp.tv', 'api.iyf.tv', 'api.iyf.tv']);
+  assert.equal(requests[0].headers.Referer, 'https://www.kubb.tv/');
+  assert.equal(requests[2].headers.Referer, 'https://www.iyf.tv/');
+  assert.equal(requests[3].url.pathname, '/api/list/index');
+  assert.equal(requests[3].url.searchParams.get('page'), '2');
+  assert.equal(requests[3].url.searchParams.get('isn'), '1');
 });
 
 test('homepage scraping falls back on malformed responses and can return to a recovered primary', async () => {
@@ -772,7 +773,7 @@ test('homepage scraping falls back on malformed responses and can return to a re
     assert.ok(await helpers.fetchPage(1));
     assert.ok(await helpers.fetchPage(2));
     assert.ok(await helpers.fetchPage(3));
-    assert.deepEqual(requests, ['api.yfsp.tv', 'api.iyf.tv', 'api.iyf.tv', 'api.yfsp.tv', 'api.yfsp.tv']);
+    assert.deepEqual(requests, ['api.kubb.tv', 'api.yfsp.tv', 'api.yfsp.tv', 'api.kubb.tv', 'api.kubb.tv']);
   }
 });
 
@@ -848,7 +849,7 @@ test('homepage scraping stops after the first pages are rejected by both hosts',
     },
   });
   await helpers.main();
-  assert.equal(homepageCalls, 8, 'four blocked pages on both official hosts are enough evidence to skip the remaining 26 pages');
+  assert.equal(homepageCalls, 12, 'four blocked pages on every official host are enough evidence to skip the remaining 26 pages');
   assert.equal(JSON.parse(files.get(join(dataDir, 'shows.json'))).sourceStatus, 'degraded');
 });
 
@@ -1144,7 +1145,7 @@ test('YFSP search skips incomplete and malformed matching rows before ranking us
       { ...candidate, hot: 100000, contxt: 'valid-search-row' },
     ] }] } }) });
     const found = await helpers.searchYfspTitle(show);
-    assert.equal(found.url, 'https://www.yfsp.tv/play/valid-search-row', `invalid content key: ${typeof badKey}`);
+    assert.equal(found.url, 'https://www.kubb.tv/play/valid-search-row', `invalid content key: ${typeof badKey}`);
   }
 });
 
@@ -1572,7 +1573,7 @@ test('YFSP search skips an incompatible season before applying hotness ranking',
     wrong, { ...wrong, title: '欢乐喜剧人第四季', postTime: '2018-01-01', contxt: 'same', hot: 10000 },
   ] }] } }) });
   assert.equal(helpers.scoreYfspCandidate(show, wrong), -1);
-  assert.equal((await helpers.searchYfspTitle(show))?.url, 'https://www.yfsp.tv/play/same');
+  assert.equal((await helpers.searchYfspTitle(show))?.url, 'https://www.kubb.tv/play/same');
 });
 
 test('YFSP page verification rejects a different explicit season', async () => {
@@ -2917,7 +2918,7 @@ test('keyword discovery stops after consecutive search failures', async () => {
     },
   });
   await helpers.discoverNewKDramas(new Map(), new Map());
-  assert.equal(searches, 3, 'an unreachable search host must not consume the full keyword list');
+  assert.equal(searches, 5, 'an unreachable search host must not consume the full keyword list; failed mirrors are not retried per keyword');
 });
 
 test('rejected homepage discoveries cool down instead of being re-sent to AI every run', async () => {
@@ -3311,7 +3312,7 @@ test('YFSP responses, even 403s, keep the breaker closed', async () => {
   let requests = 0;
   const { helpers } = loadHelpers({ fetchImpl: async () => { requests++; return response(null, { status: 403 }); } });
   for (let index = 0; index < 10; index++) await helpers.searchYfspTitle({ title: `节目${index}号`, mediaType: '综艺' });
-  assert.equal(requests, 10, 'HTTP errors prove the host is reachable');
+  assert.equal(requests, 12, 'HTTP errors prove the host is reachable; failed mirrors are tried once per run');
 });
 
 test('TMDB variety discovery proposes light new CN/KR reality shows and keeps genres apart from dramas', async () => {
@@ -3408,4 +3409,45 @@ test('a TMDB synopsis lookup without a better result is not repeated for 7 days'
   await helpers.enrichDescriptions([show]);
   assert.equal(requests, 1, 'the empty TMDB synopsis is not requested again');
   assert.equal(show.description, '很短');
+});
+
+test('YFSP search fails over to the next site domain and mints play links on the confirmed domain', async () => {
+  const hosts = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    const host = new URL(url).hostname;
+    hosts.push(host);
+    if (host === 'rankv21.kubb.tv') throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } });
+    return response({ data: { info: [{ result: [{ title: '域名切换测试剧', atypeName: '电视剧', regional: '韩国', postTime: '2026-08-01', contxt: 'k1' }] }] } });
+  } });
+  const show = { title: '域名切换测试剧', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  assert.equal((await helpers.searchYfspTitle(show)).url, 'https://www.yfsp.tv/play/k1');
+  assert.equal((await helpers.searchYfspTitle(show)).url, 'https://www.yfsp.tv/play/k1');
+  assert.deepEqual(hosts, ['rankv21.kubb.tv', 'rankv21.yfsp.tv', 'rankv21.yfsp.tv'], 'the working mirror becomes preferred');
+});
+
+test('existing play links migrate to a new YFSP domain only after a shared media key is observed', async () => {
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(homepageFixture()) });
+  assert.equal(helpers.yfspPlayKey('https://www.yfsp.tv/play/abc'), 'abc');
+  assert.equal(helpers.yfspPlayKey('https://www.kubb.tv/play/abc'), 'abc');
+  assert.equal(helpers.yfspPlayKey('https://evil.example/play/abc'), '');
+  assert.equal(helpers.yfspPlayKey('https://static.kubb.tv/play/abc'), '');
+  await helpers.fetchPage(1);
+  const previous = { koreanDramas: [{ id: 'old', yfspUrl: 'https://www.yfsp.tv/play/old-only' }], chineseVariety: [] };
+  assert.equal(helpers.noteYfspKeySpace(previous), false, 'an unrelated key proves nothing');
+  assert.equal(helpers.migrateYfspPlayUrl('https://www.yfsp.tv/play/old-only'), 'https://www.yfsp.tv/play/old-only');
+  const observed = helpers.normalizeItem(homepageFixture().data.list[0].list[0]);
+  assert.match(observed.yfspUrl, /^https:\/\/www\.kubb\.tv\/play\//u);
+  previous.koreanDramas.push({ id: 'shared', yfspUrl: observed.yfspUrl.replace('www.kubb.tv', 'www.yfsp.tv') });
+  assert.equal(helpers.noteYfspKeySpace(previous), true);
+  assert.equal(helpers.migrateYfspPlayUrl('https://www.yfsp.tv/play/old-only'), 'https://www.kubb.tv/play/old-only');
+  assert.equal(helpers.migrateYfspPlayUrl('https://www.themoviedb.org/tv/1'), 'https://www.themoviedb.org/tv/1');
+});
+
+test('YFSP page verification accepts play pages on every known site domain', async () => {
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(null, { html: '<title>多域名验证剧-免费在线观看</title>' }) });
+  const show = { title: '多域名验证剧', mediaType: '电视剧', regional: '韩国', year: 2026 };
+  assert.equal(await helpers.verifyYfspUrl(show, 'https://www.kubb.tv/play/x'), 'valid');
+  assert.equal(await helpers.verifyYfspUrl(show, 'https://www.iyf.tv/play/x'), 'valid');
+  assert.equal(await helpers.verifyYfspUrl(show, 'https://api.kubb.tv/play/x'), 'invalid');
+  assert.equal(await helpers.verifyYfspUrl(show, 'https://www.kubb.tv.evil.example/play/x'), 'invalid');
 });

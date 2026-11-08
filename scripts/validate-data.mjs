@@ -23,6 +23,8 @@ const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 
 const ALLOWED_HOSTS = new Set([
   'image.tmdb.org', 'www.themoviedb.org', 'movie.douban.com', 'www.imdb.com',
   'www.yfsp.tv', 'static.yfsp.tv', 'rankv21.yfsp.tv',
+  'www.kubb.tv', 'static.kubb.tv', 'rankv21.kubb.tv',
+  'www.iyf.tv', 'static.iyf.tv', 'rankv21.iyf.tv',
   'zh.wikipedia.org', 'en.wikipedia.org', 'ko.wikipedia.org',
 ]);
 
