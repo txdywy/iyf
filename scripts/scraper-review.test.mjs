@@ -3451,3 +3451,42 @@ test('YFSP page verification accepts play pages on every known site domain', asy
   assert.equal(await helpers.verifyYfspUrl(show, 'https://api.kubb.tv/play/x'), 'invalid');
   assert.equal(await helpers.verifyYfspUrl(show, 'https://www.kubb.tv.evil.example/play/x'), 'invalid');
 });
+
+test('kubb.tv template play pages stay unknown instead of deleting valid links', async () => {
+  const html = '<meta name="title" content="酷播-海量高清视频免费在线观看" /><title>酷播-海量高清视频免费在线观看</title>';
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(null, { html }) });
+  const show = { title: '我的有罪之人', mediaType: '电视剧', regional: '韩国', year: 2026 };
+  assert.equal(await helpers.verifyYfspUrl(show, 'https://www.kubb.tv/play/vyuZhUcuRiM'), 'unknown');
+  const titled = loadHelpers({ fetchImpl: async () => response(null, { html: '<title>我的有罪之人-免费在线观看-酷播</title>' }) });
+  assert.equal(await titled.helpers.verifyYfspUrl(show, 'https://www.kubb.tv/play/vyuZhUcuRiM'), 'valid');
+});
+
+test('kubb.tv search matches fill missing links without fetching unverifiable play pages', async () => {
+  const urls = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    urls.push(url);
+    if (url.includes('briefsearch')) {
+      return response({ data: { info: [{ result: [{ title: '补链测试剧', atypeName: '电视剧', regional: '韩国', postTime: '2026-08-01', contxt: 'fill1' }] }] } });
+    }
+    return response(null, { html: '<title>酷播-海量高清视频免费在线观看</title>' });
+  } });
+  const missing = { id: 'm1', title: '补链测试剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '' };
+  const existing = { id: 'e1', title: '已有链接剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: 'https://www.kubb.tv/play/e1' };
+  await helpers.enrichMissingYfspLinks([missing, existing]);
+  assert.equal(missing.yfspUrl, 'https://www.kubb.tv/play/fill1');
+  assert.equal(missing.yfspLookupState, 'valid');
+  assert.equal(existing.yfspUrl, 'https://www.kubb.tv/play/e1', 'unverifiable pages keep their links');
+  assert.ok(urls.every(url => !url.includes('/play/')), 'no play-page requests are spent on kubb.tv');
+});
+
+test('invalid lookups recorded against unverifiable kubb.tv pages restore their links', async () => {
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(null, { status: 503 }) });
+  const show = { id: 'r1', title: '误删恢复剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '',
+    yfspLookupState: 'invalid', yfspLookupCheckedAt: new Date().toISOString(), yfspLookupUrl: 'https://www.kubb.tv/play/r1' };
+  const legacy = { id: 'r2', title: '旧域名无效剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '',
+    yfspLookupState: 'invalid', yfspLookupCheckedAt: new Date().toISOString(), yfspLookupUrl: 'https://www.yfsp.tv/play/r2' };
+  await helpers.enrichMissingYfspLinks([show, legacy]);
+  assert.equal(show.yfspUrl, 'https://www.kubb.tv/play/r1');
+  assert.equal(show.primaryUrl, 'https://www.kubb.tv/play/r1');
+  assert.equal(legacy.yfspUrl, '', 'verifiable domains keep their negative cache');
+});
