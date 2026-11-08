@@ -145,7 +145,8 @@ function migrateYfspPlayUrl(url) {
 function migrateShowYfspUrls(show) {
   if (!_yfspKeySpaceShared || !show) return;
   if (show.yfspUrl) show.yfspUrl = migrateYfspPlayUrl(show.yfspUrl);
-  if (show.yfspLookupUrl) show.yfspLookupUrl = migrateYfspPlayUrl(show.yfspLookupUrl);
+  // 无效结论只属于当时检查的域名；改写成不可验证的新域名后会在下一轮被当作误判而恢复。
+  if (show.yfspLookupUrl && show.yfspLookupState !== 'invalid') show.yfspLookupUrl = migrateYfspPlayUrl(show.yfspLookupUrl);
 }
 
 // 搜索接口按域名优先级失败转移；成功的域名成为本轮首选并确认为可用域名。
@@ -188,6 +189,9 @@ const WIKI_REQUEST_DELAY = 300;
 const WIKIPEDIA_ZH_VARIANT = 'zh-cn';
 const AI_BATCH_DELAY = 1000;
 const YFSP_HOMEPAGE_FAILFAST_PAGES = 4;
+const YFSP_HOMEPAGE_STALE_PAGES = 2;
+// 一页里新节目不足 20% 视为重复页（kubb.tv 每页约 25 条里只轮换 1–3 条）。
+const YFSP_HOMEPAGE_MIN_NEW_RATIO = 0.2;
 const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 * 60 * 1000;
 let _optionalEnrichmentDeadline = 0;
 
@@ -273,8 +277,6 @@ async function fetchWithTimeout(url, { timeout = 15000, asText = false, headers 
   } finally { clearTimeout(t); }
 }
 
-async function fetchJSON(url) { return fetchWithTimeout(url); }
-
 async function fetchPage(page, isn = 0) {
   const deadline = Date.now() + 15000;
   const bases = [_preferredYfspApiBase, ...API_BASES.filter(base => base !== _preferredYfspApiBase)];
@@ -302,6 +304,96 @@ async function fetchPage(page, isn = 0) {
     }
   }
   return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 分类筛选列表（主数据源）
+// ═══════════════════════════════════════════════════════════════
+// 首页 /api/list/index 自 2026 年 10 月起忽略分页参数（每页返回同样约 5 条/类）且不含韩剧，
+// 30 页只得到约 40 个节目。分类筛选接口真正分页，并能按地区和“最新上传”排序直接取推荐分类。
+// ids 依次为 排序,类型,地区,语言,年份,…；排序 0=最新上传，地区 1=大陆 2=香港 3=台湾 5=韩国。
+const YFSP_CATALOG_PATH = '/api/list/getconditionfilterdata';
+const YFSP_CATALOG_PAGE_SIZE = 36;
+const YFSP_CATALOG_BUDGET_MS = 45000;
+const YFSP_CATALOG_QUERIES = Object.freeze([
+  { titleid: 'drama', mediaType: '电视剧', regional: '韩国', regionId: 5, pages: 2 },
+  { titleid: 'variety', mediaType: '综艺', regional: '大陆', regionId: 1, pages: 1 },
+  { titleid: 'variety', mediaType: '综艺', regional: '韩国', regionId: 5, pages: 1 },
+  // 不取港台列表：其“最新上传”多为 2014 年前后的演唱会和旧访谈节目重新上架，
+  // 已收录的港台综艺仍由首页/搜索回退续期。
+].map(Object.freeze));
+// 分类列表的健康门槛：两类推荐都要有足够的实时观测，才能代替首页推进数据新鲜度。
+const YFSP_CATALOG_MIN_ITEMS = 30;
+const YFSP_CATALOG_MIN_PER_CATEGORY = 10;
+
+function yfspCatalogUrl(base, query, page) {
+  return `${base}${YFSP_CATALOG_PATH}?titleid=${query.titleid}&ids=0,,${query.regionId},,,` +
+    `&page=${page}&size=${YFSP_CATALOG_PAGE_SIZE}&cinema=1&isfree=-1`;
+}
+
+async function fetchCatalogPage(query, page, deadline) {
+  const bases = [_preferredYfspApiBase, ...API_BASES.filter(base => base !== _preferredYfspApiBase)];
+  for (const base of bases) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0 || yfspCircuitOpen()) return null;
+    try {
+      const d = await fetchWithTimeout(yfspCatalogUrl(base, query, page), {
+        timeout: Math.min(7500, remaining),
+        headers: { ...HEADERS, Referer: `${base.replace('api.', 'www.')}/` },
+      });
+      if (Date.now() >= deadline) return null;
+      if (!Array.isArray(d?.data?.list)) throw new Error('invalid catalog data');
+      if (base !== _preferredYfspApiBase) console.log(`  爱壹帆 API 切换到 ${new URL(base).hostname}`);
+      _preferredYfspApiBase = base;
+      confirmYfspDomain(base);
+      return d.data.list;
+    } catch (e) {
+      if (e?.code === 'YFSP_CIRCUIT_OPEN') return null;
+      console.warn(`  [WARN] ${new URL(base).hostname} ${query.regional}${query.mediaType}列表 page ${page}: ${e.message}`);
+    }
+  }
+  return null;
+}
+
+function normalizeCatalogRows(rows, query) {
+  const shows = [];
+  let mismatched = 0;
+  for (const row of rows) {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
+    let show;
+    try { show = normalizeItem(row); } catch { continue; }
+    if (!show.title) continue;
+    if (show.mediaType !== query.mediaType || show.regional !== query.regional) {
+      mismatched++;
+      continue;
+    }
+    shows.push(show);
+  }
+  // 筛选参数语义一旦变化（返回了其他地区/类型），整页弃用，不能把无关节目当作本分类的观测。
+  return mismatched > shows.length ? [] : shows;
+}
+
+async function fetchCatalogSnapshot({ deadline = Date.now() + YFSP_CATALOG_BUDGET_MS } = {}) {
+  const shows = new Map();
+  let pagesRequested = 0;
+  let pagesSucceeded = 0;
+  for (const query of YFSP_CATALOG_QUERIES) {
+    for (let page = 1; page <= query.pages; page++) {
+      if (Date.now() >= deadline || yfspCircuitOpen()) break;
+      pagesRequested++;
+      const rows = await fetchCatalogPage(query, page, deadline);
+      if (!rows) break;
+      const pageShows = normalizeCatalogRows(rows, query);
+      if (pageShows.length) pagesSucceeded++;
+      for (const show of pageShows) shows.set(show.id, mergeLiveSnapshots(shows.get(show.id), show));
+      if (rows.length < YFSP_CATALOG_PAGE_SIZE) break;
+      await sleep(YFSP_PAGE_DELAY);
+    }
+  }
+  const coverage = getHomepageCategoryCoverage(shows);
+  const healthy = shows.size >= YFSP_CATALOG_MIN_ITEMS &&
+    coverage.koreanDramas >= YFSP_CATALOG_MIN_PER_CATEGORY && coverage.chineseVariety >= YFSP_CATALOG_MIN_PER_CATEGORY;
+  return { shows, pagesRequested, pagesSucceeded, coverage, healthy };
 }
 
 function extractShows(raw) {
@@ -1753,11 +1845,30 @@ const AI_MAX_CONSECUTIVE_FAILURES = 4;
 let _aiDeadline = 0;
 let _aiConsecutiveFailures = 0;
 let _aiStopReason = '';
+// 写入 data/shows.json 的私有 aiRunStatus：stopReason 为受控分类，供 Actions 健康检查告警。
+let _aiStopCode = '';
+let _aiRequestCount = 0;
+let _aiSuccessfulBatches = 0;
 // 免费路由每次随机选择模型；记住最近产出有效批次的具体模型并优先复用，
 // 避免把每日免费请求额度浪费在输出被截断的随机模型上。
 let _aiPreferredModel = '';
 // 固定模型在本轮已遇到的 429 次数：首次按账号级分钟限流保留固定，再次 429 视为该模型上游持续限流而放弃。
 let _aiPinnedRateLimits = 0;
+
+function aiRunStatus() {
+  const budgetSpent = _aiDeadline > 0 && Date.now() >= _aiDeadline && !_aiStopCode;
+  return { stopReason: _aiStopCode || (budgetSpent ? 'budget' : ''), requested: _aiRequestCount, scored: _aiSuccessfulBatches };
+}
+
+function resetAIRunState() {
+  _aiDeadline = 0;
+  _aiConsecutiveFailures = 0;
+  _aiStopReason = '';
+  _aiStopCode = '';
+  _aiRequestCount = 0;
+  _aiSuccessfulBatches = 0;
+  _aiPinnedRateLimits = 0;
+}
 
 function setAIPreferredModel(model) {
   const id = safeText(model, 200);
@@ -1765,9 +1876,10 @@ function setAIPreferredModel(model) {
   _aiPreferredModel = /^[\w.-]+\/[\w.:-]+:free$/.test(id) ? id : '';
 }
 
-function stopAICalls(reason) {
+function stopAICalls(reason, code = '') {
   if (_aiStopReason) return;
   _aiStopReason = reason;
+  _aiStopCode = code;
   console.warn(`  [AI] ${reason},本轮停止后续 AI 调用`);
 }
 
@@ -1815,6 +1927,7 @@ async function callModelsAPI(messages, {
     const rows = validateRows(parseJSONArrayResponse(response.content));
     if (Array.isArray(rows) && rows.length > 0) {
       _aiConsecutiveFailures = 0;
+      _aiSuccessfulBatches++;
       // 固定模型成功时保留请求所用的 ID；响应可能报告不带 :free 的规范名，不能因此丢失固定。
       // 固定模型仅因 429 限流改走路由时，路由随机选中的模型不能顶替已知可用的固定模型。
       if (canPin && (pinned || !_aiPreferredModel)) setAIPreferredModel(pinned || response.model);
@@ -1826,7 +1939,7 @@ async function callModelsAPI(messages, {
   }
 
   if (!_aiStopReason && ++_aiConsecutiveFailures >= AI_MAX_CONSECUTIVE_FAILURES) {
-    stopAICalls(`连续 ${_aiConsecutiveFailures} 批未获得有效结果`);
+    stopAICalls(`连续 ${_aiConsecutiveFailures} 批未获得有效结果`, 'failures');
   }
   return [];
 }
@@ -1834,6 +1947,7 @@ async function callModelsAPI(messages, {
 async function _callEndpoint(url, model, token, messages, temperature, timeout, responseSchema) {
   const remaining = _aiDeadline - Date.now();
   if (remaining <= 0) return null;
+  _aiRequestCount++;
   const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
   const payload = { model, messages, temperature, max_tokens: AI_MAX_TOKENS };
   if (responseSchema) payload.response_format = { type: 'json_schema', json_schema: responseSchema };
@@ -1847,7 +1961,7 @@ async function _callEndpoint(url, model, token, messages, temperature, timeout, 
       // 只分类错误类型，不记录响应正文。
       const detail = typeof r.text === 'function' ? safeText(await r.text().catch(() => ''), 2000) : '';
       if (/per[-\s]?day|daily/i.test(detail)) {
-        stopAICalls('OpenRouter 今日免费请求额度已用尽 (HTTP 429)');
+        stopAICalls('OpenRouter 今日免费请求额度已用尽 (HTTP 429)', 'quota');
         return null;
       }
       console.warn(`  [AI] ${model}: HTTP 429 限流`);
@@ -1857,7 +1971,9 @@ async function _callEndpoint(url, model, token, messages, temperature, timeout, 
     if (!r.ok) {
       await r.body?.cancel?.().catch(() => {});
       console.warn(`  [AI] ${model}: HTTP ${r.status}`);
-      if (r.status === 401 || r.status === 402 || r.status === 403) stopAICalls(`OpenRouter 拒绝请求 (HTTP ${r.status})`);
+      if (r.status === 401 || r.status === 402 || r.status === 403) {
+        stopAICalls(`OpenRouter 拒绝请求 (HTTP ${r.status})`, r.status === 402 ? 'credit' : 'auth');
+      }
       return null;
     }
     const data = await r.json();
@@ -2522,6 +2638,7 @@ async function main() {
   _optionalEnrichmentDeadline = 0;
   _yfspNetworkFailures = 0;
   _yfspCircuitReason = '';
+  resetAIRunState();
 
   // ── 0. 检查 TMDB_TOKEN ──
   if (!TMDB_TOKEN) {
@@ -2529,48 +2646,64 @@ async function main() {
     console.error('     请在 GitHub Actions secrets 中配置 TMDB_TOKEN (TMDB API v4 Read Access Token)。');
   }
 
-  // ── 1. 从 API 抓取首页数据 (多页 × 多参数组合) ──
+  // ── 1. 分类筛选列表（主数据源），再抓首页补充其他地区电视剧 ──
   const liveShows = new Map();
+  const catalogSnapshot = await fetchCatalogSnapshot();
+  for (const [id, observed] of catalogSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
+  console.log(`  分类列表 ${catalogSnapshot.pagesSucceeded}/${catalogSnapshot.pagesRequested} 页，${catalogSnapshot.shows.size} 个节目` +
+    `（韩剧 ${catalogSnapshot.coverage.koreanDramas}，综艺 ${catalogSnapshot.coverage.chineseVariety}）${catalogSnapshot.healthy ? '' : '，覆盖不足'}`);
   let successfulPages = 0;
+  let attemptedPages = 0;
   let meaningfulPages = 0;
   const pages = Array.from({ length: 15 }, (_, i) => i + 1);
   const isnValues = [0, 1];
+  const homepageSeen = new Set();
 
   let failedPagesBeforeSuccess = 0;
   homepage: for (const isn of isnValues) {
+    let stalePages = 0;
     for (const page of pages) {
+      // 首页忽略分页时后续页面只是重复内容：连续两页几乎没有新节目就结束本组参数。
+      if (stalePages >= YFSP_HOMEPAGE_STALE_PAGES) break;
       // 两个官方域名连续拒绝前几页时通常是整段 IP 被拦截；剩余页面只会白耗时间，直接转入搜索回退。
       if (!successfulPages && failedPagesBeforeSuccess >= YFSP_HOMEPAGE_FAILFAST_PAGES) {
         console.warn(`  [WARN] 首页前 ${failedPagesBeforeSuccess} 页全部失败，跳过剩余页面`);
         break homepage;
       }
       console.log(`  抓取 isn=${isn} page=${page}...`);
+      attemptedPages++;
       const data = await fetchPage(page, isn);
       if (!data) failedPagesBeforeSuccess++;
       if (data) {
         successfulPages++;
         const pageShows = extractShows(data);
         if (pageShows.some(show => show.mediaType === '电视剧' || show.mediaType === '综艺')) meaningfulPages++;
+        let added = 0;
         for (const s of pageShows) {
           const key = s.id;
+          if (!homepageSeen.has(key)) added++;
+          homepageSeen.add(key);
           liveShows.set(key, mergeLiveSnapshots(liveShows.get(key), s));
         }
+        stalePages = page > 1 && added < pageShows.length * YFSP_HOMEPAGE_MIN_NEW_RATIO ? stalePages + 1 : 0;
       }
       await sleep(YFSP_PAGE_DELAY);
     }
   }
 
-  console.log(`  抓取到 ${liveShows.size} 个独立节目 (API)`);
+  console.log(`  抓取到 ${liveShows.size} 个独立节目 (分类列表 + 首页 ${homepageSeen.size} 个)`);
   const prevShows = loadPreviousShows();
   setAIPreferredModel(prevShows.aiPreferredModel);
-  const totalRequestedPages = pages.length * isnValues.length;
-  const minimumHealthyPages = Math.ceil(totalRequestedPages * 0.6);
+  // 提前停止的页面不算失败；健康度按实际请求页数衡量，覆盖门槛不变。
+  const totalRequestedPages = attemptedPages;
+  const minimumHealthyPages = Math.max(1, Math.ceil(totalRequestedPages * 0.6));
   const previousScraped = Math.max(0, safeNumber(prevShows.stats?.totalScraped));
   const minimumHealthyItems = Math.max(30, Math.floor(previousScraped * 0.5));
-  const homepageItemCount = liveShows.size;
-  const homepageCategoryCounts = getHomepageCategoryCoverage(liveShows);
+  const homepageShows = new Map([...liveShows].filter(([id]) => homepageSeen.has(id)));
+  const homepageItemCount = homepageShows.size;
+  const homepageCategoryCounts = getHomepageCategoryCoverage(homepageShows);
   const homepageHealthy = isHomepageHealthy({
-    shows: liveShows, successfulPages, meaningfulPages,
+    shows: homepageShows, successfulPages, meaningfulPages,
     minimumPages: minimumHealthyPages, minimumItems: minimumHealthyItems,
   });
   const searchSnapshot = homepageHealthy
@@ -2578,7 +2711,9 @@ async function main() {
     : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
   for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
   noteYfspKeySpace(prevShows);
-  const sourceHealthy = homepageHealthy || searchSnapshot.healthy;
+  // 首页或分类列表任一健康即为主来源健康；搜索回退仍照常为未出现在列表里的已收录卡片续期。
+  const primaryHealthy = homepageHealthy || catalogSnapshot.healthy;
+  const sourceHealthy = primaryHealthy || searchSnapshot.healthy;
   if (!sourceHealthy) {
     const fallbackCoverage = searchSnapshot.categoryCoverage
       .map(group => `${group.category === 'koreanDramas' ? '韩剧' : '综艺'} ${group.matched}/${group.targetCount}（需 ${group.required}）`)
@@ -2886,13 +3021,15 @@ async function main() {
     lastUpdated: sourceHealthy ? generatedAt : (prevShows.lastUpdated || generatedAt),
     generatedAt,
     sourceStatus: sourceHealthy ? 'healthy' : 'degraded',
-    sourceKind: homepageHealthy ? 'homepage' : searchSnapshot.healthy ? 'search' : 'degraded',
+    sourceKind: homepageHealthy ? 'homepage' : catalogSnapshot.healthy ? 'catalog' : searchSnapshot.healthy ? 'search' : 'degraded',
+    sourceCatalogPages: catalogSnapshot.pagesSucceeded,
     sourcePagesSucceeded: successfulPages,
     sourcePagesMeaningful: meaningfulPages,
     sourceSearchMatched: searchSnapshot.shows.size,
     sourceSearchTargets: searchSnapshot.targetCount,
     // 私有运行状态：下一轮优先复用该免费模型；公开数据投影不包含此字段。
     ...(_aiPreferredModel ? { aiPreferredModel: _aiPreferredModel } : {}),
+    aiRunStatus: aiRunStatus(),
     // 私有收录冷却记录：近期被明确拒绝的新韩剧暂不重复富化和送审。
     ...(Object.keys(discoveryRejections).length ? { discoveryRejections: normalizeDiscoveryRejections(discoveryRejections) } : {}),
     stats: {
@@ -2902,7 +3039,7 @@ async function main() {
       // A degraded partial response must not lower the next run's health
       // baseline and then declare the same outage healthy one run later.
       // 搜索回退只覆盖已收录节目的一小部分，不能拉低下一轮首页健康判断所依据的规模基线。
-      totalScraped: homepageHealthy ? liveShows.size : Math.max(previousScraped, liveShows.size),
+      totalScraped: primaryHealthy ? liveShows.size : Math.max(previousScraped, liveShows.size),
     },
     koreanDramas,
     chineseVariety,
@@ -3295,7 +3432,7 @@ async function enrichMissingYfspLinks(shows) {
   const verifiedThisRun = new Set();
   // 上一轮已确定无效且本轮又从来源回流的同一 URL 仍保持负缓存，不重新发布。
   for (const show of shows) {
-    migrateShowYfspUrls(show);
+    // 恢复判断必须看记录时的原始地址：先迁移会把旧域名上确认无效的 yfsp.tv 地址改写成不可验证的 kubb.tv 而被误恢复。
     // 无法验证的播放页（kubb.tv 对任何 ID 都返回 200 模板）不可能得出“无效”；旧版按模板标题误判的记录恢复原链接。
     if (show.yfspLookupState === 'invalid' && show.yfspLookupUrl && !isVerifiableYfspPlayUrl(show.yfspLookupUrl) &&
       yfspPlayKey(show.yfspLookupUrl)) {
@@ -3305,6 +3442,7 @@ async function enrichMissingYfspLinks(shows) {
       delete show.yfspLookupUrl;
       attachLinkFields(show, show.yfspUrl, show.doubanUrl);
     }
+    migrateShowYfspUrls(show);
     if (show.yfspUrl && show.yfspLookupState === 'invalid' && hasFreshYfspLookup(show)) {
       show.yfspUrl = '';
       attachLinkFields(show, '', show.doubanUrl);
