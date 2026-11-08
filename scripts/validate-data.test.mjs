@@ -249,3 +249,67 @@ test('stale recommendation snapshots only warn while the scrape job requires a f
   assert.match(unwritten.stderr, /::error::data\/shows\.json: generatedAt was not refreshed by this scrape run/u);
   assert.equal(runValidation(data).status, 0, 'code-only builds do not require a fresh generatedAt');
 });
+
+test('validator tolerates a missing private aiRunStatus and accepts every known stop reason', () => {
+  assert.equal(runValidation(dataFixture()).status, 0);
+  for (const stopReason of ['', 'quota', 'auth', 'credit', 'failures', 'budget']) {
+    const data = dataFixture();
+    data.sourceKind = 'catalog';
+    data.aiRunStatus = { stopReason, requested: 5, scored: 40 };
+    const result = runValidation(data);
+    assert.equal(result.status, 0, result.stderr);
+    assert.doesNotMatch(result.stderr, /aiRunStatus/u);
+  }
+});
+
+test('validator rejects malformed aiRunStatus types but only warns on a new stop reason', () => {
+  for (const value of [null, [], 'quota', { stopReason: 1, requested: 0, scored: 0 },
+    { stopReason: '', requested: -1, scored: 0 }, { stopReason: '', requested: 0, scored: 1.5 }, { stopReason: '' }]) {
+    const data = dataFixture();
+    data.aiRunStatus = value;
+    const result = runValidation(data);
+    assert.equal(result.status, 1, `${JSON.stringify(value)}: ${result.stdout}`);
+    assert.match(result.stderr, /data\/shows\.json\.aiRunStatus/u);
+  }
+  const data = dataFixture();
+  data.aiRunStatus = { stopReason: 'something-new', requested: 1, scored: 0 };
+  const result = runValidation(data);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /WARN data\/shows\.json\.aiRunStatus\.stopReason: unknown value/u);
+});
+
+test('validator rejects a non-string sourceKind', () => {
+  const data = dataFixture();
+  data.sourceKind = 3;
+  const result = runValidation(data);
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /data\/shows\.json\.sourceKind: must be a string or null/u);
+});
+
+test('validator rejects retired cards by title or alias in every category', () => {
+  for (const category of ['koreanDramas', 'chineseVariety', 'otherDramas']) {
+    for (const field of ['title', 'titleAliases']) {
+      const data = dataFixture();
+      data[category][0][field] = field === 'title' ? '黑暗荣耀第2季' : ['黑暗荣耀第2季'];
+      const result = runValidation(data);
+      assert.equal(result.status, 1, `${category}.${field}: ${result.stdout}`);
+      assert.ok(result.stderr.includes(`${category}[0]: retired card must not be published`), result.stderr);
+    }
+  }
+});
+
+test('validator requires published category statistics to match the catalog', () => {
+  for (const category of ['koreanDramas', 'chineseVariety']) {
+    const missing = dataFixture();
+    delete missing.stats[category];
+    const result = runValidation(missing);
+    assert.equal(result.status, 1, result.stdout);
+    assert.ok(result.stderr.includes(`stats.${category}: must be a finite count`), result.stderr);
+
+    const mismatch = dataFixture();
+    mismatch.stats[category] = 7;
+    const mismatched = runValidation(mismatch);
+    assert.equal(mismatched.status, 1, mismatched.stdout);
+    assert.ok(mismatched.stderr.includes(`stats.${category}: expected 1, got 7`), mismatched.stderr);
+  }
+});

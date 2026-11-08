@@ -2854,9 +2854,8 @@ assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.co
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
 assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
 assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
-const committedData = JSON.parse(read('data/shows.json'));
-assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');
-assert.doesNotMatch(JSON.stringify(committedData), /黑暗荣耀第2季/u, 'the catalog should not retain the unsupported standalone Glory season card');
+// 已提交数据的内容规则（退役卡片、统计一致）由提交前运行的 validate-data.mjs 负责。
+assert.match(validateData, /RETIRED_TITLES = new Set\(\['黑暗荣耀第2季'\]\)/u, 'data validation should reject the unsupported standalone Glory season card');
 assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
 assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
 assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
