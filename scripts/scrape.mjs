@@ -4,7 +4,7 @@
  * 每天 00:23/12:23 UTC 由 GitHub Actions 执行
  *
  * 数据采集:
- *   - 从 api.yfsp.tv 抓取首页数据 (isn=0 + isn=1, 共 30 页)
+ *   - 从 api.kubb.tv（失败转移 api.yfsp.tv / api.iyf.tv）抓取首页数据 (isn=0 + isn=1, 共 30 页)
  *   - 用关键词搜索 YFSP 发现更多新韩剧 (韩剧/最新韩剧/韩剧2026 等)
  *   - 与内置精选推荐库合并 (53 部韩剧 + 37 部综艺, 覆盖经典和近年新剧)
  *
@@ -61,17 +61,119 @@ function readAuxiliaryObject(path) {
   }
 }
 
-const API_BASE = 'https://api.yfsp.tv';
-// iyf.tv 是源站官方前端列出的同站域名；某个 API 域名被 runner 拒绝时切换。
-const API_BASES = [API_BASE, 'https://api.iyf.tv'];
-let _preferredYfspApiBase = API_BASE;
+// 爱壹帆站点域名按优先级尝试：kubb.tv 是 2026 年 11 月起的网页版新域名；yfsp.tv 已无法解析，iyf.tv 拒绝 Runner。
+// 各域名沿用同一套子域约定：api.（首页接口）、rankv21.（搜索）、www.（播放页）、static.（图片）。
+const YFSP_SITE_DOMAINS = Object.freeze(['kubb.tv', 'yfsp.tv', 'iyf.tv']);
+// 尚未确认任何域名可用时，新生成的播放页沿用历史链接所在域名，避免发布未经验证的新地址。
+const YFSP_LEGACY_DOMAIN = 'yfsp.tv';
+const API_BASES = YFSP_SITE_DOMAINS.map(domain => `https://api.${domain}`);
+const YFSP_RANK_BASES = YFSP_SITE_DOMAINS.map(domain => `https://rankv21.${domain}`);
+let _preferredYfspApiBase = API_BASES[0];
+let _preferredYfspRankBase = YFSP_RANK_BASES[0];
+// 本轮实际返回有效数据的域名；播放页链接按它生成。
+let _yfspActiveDomain = YFSP_LEGACY_DOMAIN;
+let _yfspActiveDomainConfirmed = false;
+// 本轮在已确认域名上观测到的节目 ID，用来证明新旧域名共用同一套 ID 后再迁移已有链接。
+const _yfspObservedKeys = new Set();
 const API_PATH = '/api/list/index';
-const YFSP_RANK_BASE = 'https://rankv21.yfsp.tv';
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Referer': 'https://www.yfsp.tv/',
+  'Referer': `https://www.${YFSP_SITE_DOMAINS[0]}/`,
   'Accept': 'application/json, text/plain, */*',
 };
+
+function yfspDomainOfHost(hostname = '') {
+  const host = String(hostname).toLowerCase();
+  return YFSP_SITE_DOMAINS.find(domain => host === domain || host.endsWith(`.${domain}`)) || '';
+}
+
+function confirmYfspDomain(base) {
+  const domain = yfspDomainOfHost(new URL(base).hostname);
+  if (!domain) return;
+  if (domain !== _yfspActiveDomain || !_yfspActiveDomainConfirmed) console.log(`  爱壹帆可用域名: ${domain}`);
+  _yfspActiveDomain = domain;
+  _yfspActiveDomainConfirmed = true;
+}
+
+function yfspPlayUrl(key) {
+  if (_yfspActiveDomainConfirmed) _yfspObservedKeys.add(key);
+  return `https://www.${_yfspActiveDomain}/play/${encodeURIComponent(key)}`;
+}
+
+// 已知站点任一域名下的播放页（www.<域名>/play/<ID>）；返回 ID，非播放页返回空。
+function yfspPlayKey(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' || !parsed.hostname.startsWith('www.') || !yfspDomainOfHost(parsed.hostname)) return '';
+    const match = parsed.pathname.match(/^\/play\/([^/?#]+)\/?$/u);
+    return match ? decodeURIComponent(match[1]) : '';
+  } catch {
+    return '';
+  }
+}
+
+let _yfspKeySpaceShared = false;
+// 本轮已失败的搜索域名不再在每个关键词上重复尝试（首选域名除外），避免失败转移把请求数放大数倍。
+const _failedYfspRankBases = new Set();
+
+// 只有新域名返回的节目 ID 与上一版卡片在其他域名上的播放页 ID 对上，才证明两边共用 ID，
+// 此后把已有播放页迁到本轮可用域名；否则保留原链接，避免发布指向别的节目的地址。
+function noteYfspKeySpace(previous = {}) {
+  if (!_yfspActiveDomainConfirmed || _yfspKeySpaceShared) return _yfspKeySpaceShared;
+  for (const category of ['koreanDramas', 'chineseVariety', 'otherDramas']) {
+    for (const show of previous[category] || []) {
+      const url = safeText(show?.yfspUrl, 1200);
+      const key = yfspPlayKey(url);
+      if (!key || !_yfspObservedKeys.has(key)) continue;
+      if (yfspDomainOfHost(new URL(url).hostname) === _yfspActiveDomain) continue;
+      _yfspKeySpaceShared = true;
+      console.log(`  爱壹帆 ${_yfspActiveDomain} 与旧域名节目 ID 一致，已有播放链接迁移到新域名`);
+      return true;
+    }
+  }
+  return false;
+}
+
+function migrateYfspPlayUrl(url) {
+  const text = safeText(url, 1200);
+  if (!_yfspKeySpaceShared) return text;
+  const key = yfspPlayKey(text);
+  if (!key || yfspDomainOfHost(new URL(text).hostname) === _yfspActiveDomain) return text;
+  return `https://www.${_yfspActiveDomain}/play/${encodeURIComponent(key)}`;
+}
+
+function migrateShowYfspUrls(show) {
+  if (!_yfspKeySpaceShared || !show) return;
+  if (show.yfspUrl) show.yfspUrl = migrateYfspPlayUrl(show.yfspUrl);
+  if (show.yfspLookupUrl) show.yfspLookupUrl = migrateYfspPlayUrl(show.yfspLookupUrl);
+}
+
+// 搜索接口按域名优先级失败转移；成功的域名成为本轮首选并确认为可用域名。
+// 所有域名的尝试共用调用方给出的同一个超时预算，失败转移不会延长搜索阶段。
+async function fetchYfspSearch(pathAndQuery, { timeout = 15000 } = {}) {
+  const deadline = Date.now() + timeout;
+  const bases = [_preferredYfspRankBase,
+    ...YFSP_RANK_BASES.filter(base => base !== _preferredYfspRankBase && !_failedYfspRankBases.has(base))];
+  let lastError;
+  for (const base of bases) {
+    const remaining = deadline - Date.now();
+    if (yfspCircuitOpen() || remaining <= 0) break;
+    try {
+      const data = await fetchWithTimeout(`${base}${pathAndQuery}`, {
+        timeout: remaining, headers: { ...HEADERS, Referer: `${base.replace('rankv21.', 'www.')}/` },
+      });
+      if (base !== _preferredYfspRankBase) console.log(`  搜索接口切换到 ${new URL(base).hostname}`);
+      _preferredYfspRankBase = base;
+      _failedYfspRankBases.delete(base);
+      confirmYfspDomain(base);
+      return data;
+    } catch (error) {
+      if (error?.name !== 'AbortError') _failedYfspRankBases.add(base);
+      lastError = error;
+    }
+  }
+  throw lastError || yfspCircuitError();
+}
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -112,7 +214,7 @@ let _yfspCircuitReason = '';
 
 function isYfspUrl(url) {
   try {
-    return /(?:^|\.)(?:yfsp|iyf)\.tv$/u.test(new URL(url).hostname);
+    return !!yfspDomainOfHost(new URL(url).hostname);
   } catch {
     return false;
   }
@@ -182,7 +284,7 @@ async function fetchPage(page, isn = 0) {
     const url = `${base}${API_PATH}?cinema=0&page=${page}&cid=0&size=10&isn=${isn}&isfree=-1`;
     try {
       const d = await fetchWithTimeout(url, {
-        // 为备用源留出时间；两个请求合计仍受原来的 15 秒页面预算限制。
+        // 为备用源留出时间；各域名请求合计仍受 15 秒页面预算限制。
         timeout: Math.min(7500, remaining),
         headers: { ...HEADERS, Referer: `${base.replace('api.', 'www.')}/` },
       });
@@ -193,6 +295,7 @@ async function fetchPage(page, isn = 0) {
       }
       if (base !== _preferredYfspApiBase) console.log(`  首页 API 切换到 ${new URL(base).hostname}`);
       _preferredYfspApiBase = base;
+      confirmYfspDomain(base);
       return d;
     } catch (e) {
       console.warn(`  [WARN] ${new URL(base).hostname} page ${page}: ${e.message}`);
@@ -277,7 +380,7 @@ function normalizeItem(it) {
   const hasExplicitSerial = typeof it.isSerial === 'boolean';
   const mediaKey = safeSourceIdentifier(it.mediaKey);
   const episodeKey = safeSourceIdentifier(it.episodeKey);
-  const url = mediaKey ? `https://www.yfsp.tv/play/${encodeURIComponent(mediaKey)}` : '';
+  const url = mediaKey ? yfspPlayUrl(mediaKey) : '';
   const rawTitle = safeText(it.title, 200);
   const title = it.mediaType === '综艺' ? cleanShowTitle(rawTitle) : rawTitle;
   const description = safeText(it.description, 2000) || safeText(it.introduce, 2000);
@@ -1051,8 +1154,8 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
     const remaining = requestDeadline - Date.now();
     if (remaining <= 0 || yfspCircuitOpen()) return { lookupState: 'unknown' };
     try {
-      const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`;
-      const data = await fetchWithTimeout(url, { timeout: Math.min(15000, remaining) });
+      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`,
+        { timeout: Math.min(15000, remaining) });
       if (Date.now() >= requestDeadline) return { lookupState: 'unknown' };
       const rawResults = data?.data?.info?.[0]?.result;
       if (!Array.isArray(rawResults)) throw new Error('YFSP search returned invalid data');
@@ -1069,7 +1172,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
             hadError = true;
             continue;
           }
-          const candidateUrl = `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}`;
+          const candidateUrl = yfspPlayUrl(contentKey);
           const score = scoreYfspCandidate(show, result);
           if (score >= 0) candidates.push({ result, score, url: candidateUrl });
         } catch {
@@ -1131,7 +1234,7 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
   const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
     category, matched: new Set(),
     targets: (previous[category] || [])
-      .filter(show => safeText(show?.title) && /^https:\/\/www\.yfsp\.tv\/play\/[^/?#]+(?:[/?#]|$)/u.test(safeOutputUrl(show.yfspUrl)))
+      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)))
       .sort((a, b) => searchFallbackDueAt(a) - searchFallbackDueAt(b) ||
         safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
       .slice(0, 30),
@@ -1223,7 +1326,8 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
   let parsedUrl;
   try {
     parsedUrl = new URL(url);
-    if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname !== 'www.yfsp.tv' || !parsedUrl.pathname.startsWith('/play/')) {
+    if (parsedUrl.protocol !== 'https:' || !parsedUrl.hostname.startsWith('www.') || !yfspDomainOfHost(parsedUrl.hostname) ||
+      !parsedUrl.pathname.startsWith('/play/')) {
       return YFSP_VERIFY_STATUS.INVALID;
     }
   } catch {
@@ -2456,6 +2560,7 @@ async function main() {
     ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, categoryCoverage: [] }
     : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
   for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
+  noteYfspKeySpace(prevShows);
   const sourceHealthy = homepageHealthy || searchSnapshot.healthy;
   if (!sourceHealthy) {
     const fallbackCoverage = searchSnapshot.categoryCoverage
@@ -2988,7 +3093,7 @@ function dedupByTitle(list) {
 
 const OUTPUT_URL_HOSTS = new Set([
   'image.tmdb.org', 'www.themoviedb.org', 'movie.douban.com', 'www.imdb.com',
-  'www.yfsp.tv', 'static.yfsp.tv', 'rankv21.yfsp.tv',
+  ...YFSP_SITE_DOMAINS.flatMap(domain => [`www.${domain}`, `static.${domain}`, `rankv21.${domain}`]),
   'zh.wikipedia.org', 'en.wikipedia.org', 'ko.wikipedia.org',
 ]);
 
@@ -3006,7 +3111,7 @@ function safeOutputUrl(value) {
 
 // rankv21 搜索返回的 imgPath 是缩略图（文件名在扩展名前多一个 s）。源站会清理旧缩略图，
 // 而同名原图仍然可用；输出时统一改用原图，避免搜索回退每轮把可用封面换回失效缩略图。
-const YFSP_THUMBNAIL_COVER = /^(https:\/\/static\.yfsp\.tv\/[^?#]*\/\d{12,})s(\.(?:gif|jpe?g|png|webp))$/i;
+const YFSP_THUMBNAIL_COVER = /^(https:\/\/static\.(?:kubb|yfsp|iyf)\.tv\/[^?#]*\/\d{12,})s(\.(?:gif|jpe?g|png|webp))$/i;
 
 function fullSizeYfspCover(url) {
   const text = safeText(url, 1200);
@@ -3027,6 +3132,7 @@ function normalizeOutputShow(show) {
   if (Array.isArray(show.titleAliases)) {
     show.titleAliases = show.titleAliases.map(value => safeText(value, 200)).filter(Boolean).slice(0, 20);
   }
+  migrateShowYfspUrls(show);
   for (const field of ['coverImg', 'yfspCoverImg', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl', 'descriptionTmdbSeasonUrl']) {
     if (Object.hasOwn(show, field)) show[field] = safeOutputUrl(field === 'coverImg' || field === 'yfspCoverImg' ? fullSizeYfspCover(show[field]) : show[field]);
   }
@@ -3163,6 +3269,7 @@ async function enrichMissingYfspLinks(shows) {
   const verifiedThisRun = new Set();
   // 上一轮已确定无效且本轮又从来源回流的同一 URL 仍保持负缓存，不重新发布。
   for (const show of shows) {
+    migrateShowYfspUrls(show);
     if (show.yfspUrl && show.yfspLookupState === 'invalid' && hasFreshYfspLookup(show)) {
       show.yfspUrl = '';
       attachLinkFields(show, '', show.doubanUrl);
@@ -3671,9 +3778,9 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
   const searchGuard = createDiscoverySearchGuard('新韩剧');
   for (const kw of DISCOVERY_KEYWORDS) {
     if (searchGuard.shouldStop()) break;
-    const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`;
     try {
-      const data = await fetchWithTimeout(url, { timeout: searchGuard.timeout() });
+      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
+        { timeout: searchGuard.timeout() });
       searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
       const results = Array.isArray(rawResults) ? rawResults.filter(r => r && typeof r === 'object') : [];
@@ -3705,7 +3812,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
             publishTime,
-            yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
+            yfspUrl: contentKey ? yfspPlayUrl(contentKey) : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
           });
@@ -4095,9 +4202,9 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
   const searchGuard = createDiscoverySearchGuard('新综艺');
   for (const kw of VARIETY_DISCOVERY_KEYWORDS) {
     if (searchGuard.shouldStop()) break;
-    const url = `${YFSP_RANK_BASE}/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`;
     try {
-      const data = await fetchWithTimeout(url, { timeout: searchGuard.timeout() });
+      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
+        { timeout: searchGuard.timeout() });
       searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
       const results = Array.isArray(rawResults) ? rawResults.filter(r => r && typeof r === 'object') : [];
@@ -4132,7 +4239,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
             publishTime,
-            yfspUrl: contentKey ? `https://www.yfsp.tv/play/${encodeURIComponent(contentKey)}` : '',
+            yfspUrl: contentKey ? yfspPlayUrl(contentKey) : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
           });
