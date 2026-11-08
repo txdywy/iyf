@@ -10,7 +10,7 @@ const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const optionalTextFields = [
   'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
   'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
-  'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
+  'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
 ];
 
 function showFixture(id) {
