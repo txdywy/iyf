@@ -43,8 +43,9 @@ body {
 }
 
 a { color: var(--accent-light); text-decoration: none; }
-a:hover { color: var(--pink); }
+/* LVHA 顺序：:visited 须在 :hover 之前，否则已访问链接悬停时不变色。 */
 a:visited { color: #8e86d1; }
+a:hover { color: var(--pink); }
 
 :where(a, button, input, select):focus-visible {
   outline: 3px solid var(--orange);
@@ -911,6 +912,8 @@ a:visited { color: #8e86d1; }
 .not-found { padding-top: 15vh; text-align: center; }
 .not-found p { margin: 24px 0; }
 .not-found .card-action { display: inline-flex; }
+.not-found .card-action.primary { padding: 10px 22px; background: var(--accent); color: #fff; }
+.not-found .card-action.primary:hover { background: var(--accent-light); color: #161525; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -946,6 +949,11 @@ a:visited { color: #8e86d1; }
   align-items: center;
   margin-bottom: 8px;
   font-size: 0.82rem;
+}
+
+.schedule-date {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .schedule-ep {

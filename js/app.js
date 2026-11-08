@@ -1250,7 +1250,8 @@
         const url500 = `${parsed.origin}${path500}${parsed.search}`;
         const url780 = `${parsed.origin}${path780}${parsed.search}`;
         // 使用宽度描述符后 src 不参与候选；桌面 374px 海报在 2x 屏上需要至少 748px。
-        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w, ${escapeHtml(url780)} 780w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), 374px"`;
+        // 769–915px 仍是两列（左右各 20px 留白、18px 间距），每列最宽约 429px，不能按 374px 低估。
+        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w, ${escapeHtml(url780)} 780w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), (max-width: 915px) calc((100vw - 58px) / 2), 374px"`;
       }
     } catch {}
 

@@ -50,6 +50,7 @@ function loadHelpers({
         discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
         aiEvaluateDiscovery, aiScoreShows,
         refreshKDramaTMDBStats, kdramaAiringBonus,
+        discoverVarietyFromTMDB, scoreVariety,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
       };
@@ -2360,15 +2361,20 @@ test('variety discovery cannot overwrite a current-year seed with the same media
   assert.deepEqual(Array.from(discovered, show => show.id), ['new-season']);
 });
 
-test('other-drama pagination reorder is allowed while count and identity loss remain guarded', () => {
+test('other-drama anomalies are reported without blocking published categories, which stay guarded', () => {
   const { helpers } = loadHelpers();
   const previous = Array.from({ length: 20 }, (_, index) => ({ id: `same-${index}`, title: `剧目 ${index}` }));
   const reordered = previous.slice(10).concat(previous.slice(0, 10));
   const dataset = (shows, category = 'otherDramas') => ({ koreanDramas: [], chineseVariety: [], otherDramas: [], [category]: shows });
-  assert.doesNotThrow(() => helpers.assertOutputContinuity(dataset(reordered), dataset(previous)));
-  assert.throws(() => helpers.assertOutputContinuity(dataset(previous.slice(0, 9)), dataset(previous)), /数量.*骤降/u);
+  assert.equal(helpers.assertOutputContinuity(dataset(reordered), dataset(previous)).length, 0);
+  // 未公开的其他电视剧骤降或换血只告警，不能阻止韩剧和综艺推荐发布。
+  assert.match(helpers.assertOutputContinuity(dataset(previous.slice(0, 9)), dataset(previous))[0], /数量.*骤降/u);
   const replacement = previous.map((show, index) => ({ id: `new-${index}`, title: `替换 ${index}` }));
-  assert.throws(() => helpers.assertOutputContinuity(dataset(replacement), dataset(previous)), /身份重合度异常/u);
+  assert.match(helpers.assertOutputContinuity(dataset(replacement), dataset(previous))[0], /身份重合度异常/u);
+  for (const category of ['koreanDramas', 'chineseVariety']) {
+    assert.throws(() => helpers.assertOutputContinuity(dataset(previous.slice(0, 9), category), dataset(previous, category)), /DATA_GUARD.*数量.*骤降/u);
+    assert.throws(() => helpers.assertOutputContinuity(dataset(replacement, category), dataset(previous, category)), /DATA_GUARD.*身份重合度异常/u);
+  }
   assert.throws(() => helpers.assertOutputContinuity(dataset(reordered, 'koreanDramas'), dataset(previous, 'koreanDramas')), /头部推荐.*重合度异常/u);
 });
 
@@ -3244,4 +3250,162 @@ test('an unrated current-year K-drama gets a neutral quality prior instead of ze
     'the prior equals 60% of a 7.0 rating without the low-score penalty');
   assert.equal(helpers.scoreKDrama({ ...show, year: 2024 }, now) - helpers.scoreKDrama({ ...show, year: 2024, tmdbRating: 0 }, now), 0,
     'an old show without a rating gets no prior');
+});
+
+test('TMDB stats refresh also updates episode status for single-season cards without live YFSP data', async () => {
+  const details = {
+    701: { id: 701, number_of_seasons: 1, status: 'Returning Series', in_production: true, number_of_episodes: 16,
+      last_episode_to_air: { season_number: 1, episode_number: 8 }, next_episode_to_air: { episode_number: 9 }, popularity: 150 },
+    702: { id: 702, number_of_seasons: 1, status: 'Ended', number_of_episodes: 12, popularity: 40 },
+    703: { id: 703, number_of_seasons: 2, status: 'Ended', number_of_episodes: 24, popularity: 30 },
+    704: { id: 704, number_of_seasons: 1, status: 'Ended', number_of_episodes: 10, popularity: 30 },
+  };
+  const { helpers } = loadHelpers({
+    date: '2026-11-08T00:00:00Z', env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => response(details[Number(new URL(url).pathname.match(/tv\/(\d+)$/u)[1])]),
+  });
+  const card = (id, extra) => ({ id: `c${id}`, title: `剧${id}`, tmdbId: id, tmdbUrl: `https://www.themoviedb.org/tv/${id}`, ...extra });
+  const ongoing = card(701, { source: 'tmdb_discover', scrapedAt: '2026-11-07T23:00:00Z', updateStatus: '更新到04', currentEpisode: 4, isSerial: true, isComplete: false,
+    tmdbStatsCheckedAt: '2026-11-06T20:00:00Z' });
+  const finished = card(702, { scrapedAt: '2026-09-01T00:00:00Z', updateStatus: '更新到06', currentEpisode: 6, isSerial: true, isComplete: false });
+  const multiSeason = card(703, { updateStatus: '12集全', totalEpisodes: 12, currentEpisode: 12, isComplete: true, isSerial: false });
+  const live = card(704, { scrapedAt: '2026-11-07T00:00:00Z', updateStatus: '更新到05', currentEpisode: 5, isSerial: true, isComplete: false });
+  await helpers.refreshKDramaTMDBStats(new Map([ongoing, finished, multiSeason, live].map(show => [show.id, show])));
+  assert.equal(ongoing.updateStatus, '更新到08', 'a TMDB-only card renewed by discovery still gets newer episodes (ongoing cards refresh daily)');
+  assert.equal(ongoing.currentEpisode, 8);
+  assert.equal(finished.isComplete, true, 'a stale YFSP card picks up the TMDB completion');
+  assert.equal(finished.updateStatus, '12集全');
+  assert.equal(multiSeason.totalEpisodes, 12, 'series-level totals never overwrite a multi-season card');
+  assert.equal(live.updateStatus, '更新到05', 'a recent YFSP observation keeps the source status');
+  assert.equal(live.tmdbPopularity, 30, 'popularity is still refreshed');
+});
+
+test('an unreachable YFSP host opens a circuit breaker instead of failing every lookup', async () => {
+  let yfspRequests = 0;
+  const { helpers } = loadHelpers({
+    date: '2026-11-08T00:00:00Z',
+    fetchImpl: async url => {
+      if (/yfsp\.tv|iyf\.tv/u.test(new URL(url).hostname)) {
+        yfspRequests++;
+        throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } });
+      }
+      throw new Error(`unexpected ${url}`);
+    },
+  });
+  const show = id => ({ id: `s${id}`, title: `节目${id}号`, mediaType: '综艺', regional: '大陆', year: 2026,
+    yfspUrl: `https://www.yfsp.tv/play/s${id}` });
+  const previous = { koreanDramas: [], chineseVariety: Array.from({ length: 30 }, (_, index) => show(index)) };
+  await helpers.fetchSearchSnapshot(previous);
+  assert.ok(yfspRequests <= 6 + 2, `the search fallback stops after the breaker opens (${yfspRequests} requests)`);
+  assert.equal(previous.chineseVariety.filter(item => item.sourceSearchCheckedAt).length <= 8, true,
+    'skipped targets keep their rotation position');
+  const before = yfspRequests;
+  assert.equal((await helpers.searchYfspTitle(show(99))).lookupState, 'unknown');
+  assert.equal(await helpers.verifyYfspUrl(show(99), 'https://www.yfsp.tv/play/s99'), 'unknown');
+  await helpers.enrichMissingYfspLinks(previous.chineseVariety);
+  assert.equal(yfspRequests, before, 'later stages send no requests while the breaker is open');
+  assert.ok(previous.chineseVariety.every(item => !item.yfspLookupCheckedAt), 'skipped lookups do not start a negative-cache window');
+});
+
+test('YFSP responses, even 403s, keep the breaker closed', async () => {
+  let requests = 0;
+  const { helpers } = loadHelpers({ fetchImpl: async () => { requests++; return response(null, { status: 403 }); } });
+  for (let index = 0; index < 10; index++) await helpers.searchYfspTitle({ title: `节目${index}号`, mediaType: '综艺' });
+  assert.equal(requests, 10, 'HTTP errors prove the host is reachable');
+});
+
+test('TMDB variety discovery proposes light new CN/KR reality shows and keeps genres apart from dramas', async () => {
+  const requests = [];
+  const row = (id, extra) => ({ id, name: `新综艺${id}号`, original_name: `新综艺${id}号`, origin_country: ['CN'], original_language: 'zh',
+    first_air_date: '2026-10-01', popularity: 12, vote_average: 0, vote_count: 0, genre_ids: [10764], poster_path: `/v${id}.jpg`,
+    overview: '明星嘉宾结伴旅行，一路搞笑不断。', ...extra });
+  const { helpers } = loadHelpers({
+    date: '2026-11-08T00:00:00Z', env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/discover/tv?')) {
+        return response({ total_pages: 1, results: [
+          row(801), row(802, { origin_country: ['KR'], name: '韩国新综艺', original_name: '새 예능', genre_ids: [10767] }),
+          row(803, { genre_ids: [18], overview: '一部轻松的家庭剧。' }), row(804, { name: '乘风2026' }),
+          row(805, { overview: '严肃的历史文化纪实访谈。', genre_ids: [10764] }), row(806, { popularity: 1 }),
+        ] });
+      }
+      const id = Number(new URL(url).pathname.match(/tv\/(\d+)$/u)?.[1]);
+      return response({ id, status: 'Returning Series', in_production: true, number_of_seasons: 1, number_of_episodes: 12,
+        last_episode_to_air: { season_number: 1, episode_number: 5 }, next_episode_to_air: { episode_number: 6 } });
+    },
+  });
+  const discovered = await helpers.discoverVarietyFromTMDB(new Map());
+  const discover = requests.find(url => url.includes('/discover/tv?'));
+  assert.match(discover, /with_origin_country=CN%7CKR/u);
+  assert.match(discover, /with_genres=10764%7C10767/u);
+  assert.deepEqual(Array.from(discovered, show => show.id).sort(), ['tmdb_tv_801', 'tmdb_tv_802'],
+    'drama genres, blacklisted titles, non-light shows without a rating and unpopular rows are skipped');
+  const [mainland] = discovered.filter(show => show.id === 'tmdb_tv_801');
+  assert.equal(mainland.mediaType, '综艺');
+  assert.equal(mainland.regional, '大陆');
+  assert.equal(mainland.lang, '国语');
+  assert.equal(mainland.category, 'variety');
+  assert.equal(mainland.contentType, '真人秀');
+  assert.equal(mainland.updateStatus, '更新到05');
+  assert.equal(discovered.find(show => show.id === 'tmdb_tv_802').regional, '韩国');
+  assert.ok(mainland.recommendScore > 0);
+});
+
+test('unrated new variety gets a neutral prior and TMDB ratings fill a missing source score', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-08T00:00:00Z' });
+  const now = Date.parse('2026-11-08T00:00:00Z');
+  const base = { title: '旅行综艺', contentType: '真人秀', playCount: 100000, score: 0 };
+  assert.equal(helpers.scoreVariety({ ...base, year: 2026 }, now) - helpers.scoreVariety({ ...base, year: 2026, score: 0.0001 }, now) > 15, true);
+  assert.equal(helpers.scoreVariety({ ...base, year: 2026, tmdbRating: 8 }, now), helpers.scoreVariety({ ...base, year: 2026, score: 8 }, now));
+  assert.equal(helpers.scoreVariety({ ...base, year: 2024 }, now), helpers.scoreVariety({ ...base, year: 2024, score: 0 }, now));
+});
+
+test('a completed Douban miss is not looked up again for 7 days, while request failures retry next run', async () => {
+  let requests = 0;
+  let fail = false;
+  const { helpers, setNow } = loadHelpers({
+    date: '2026-11-08T00:00:00Z',
+    fetchImpl: async () => { requests++; if (fail) throw new Error('offline'); return response([]); },
+  });
+  const miss = { id: 'miss', title: '查无此剧', year: 2026, mediaType: '电视剧' };
+  await helpers.enrichDoubanLinks([miss]);
+  assert.equal(miss.doubanMissTitle, '查无此剧');
+  const afterFirst = requests;
+  await helpers.enrichDoubanLinks([miss]);
+  assert.equal(requests, afterFirst, 'a confirmed miss is skipped');
+  miss.title = '查无此剧第2季';
+  await helpers.enrichDoubanLinks([miss]);
+  assert.ok(requests > afterFirst, 'a changed title is looked up again');
+  const failing = { id: 'fail', title: '网络失败剧', year: 2026, mediaType: '电视剧' };
+  fail = true;
+  await helpers.enrichDoubanLinks([failing]);
+  assert.equal(failing.doubanMissCheckedAt, undefined, 'a failed request is not recorded as a miss');
+  fail = false;
+  setNow('2026-11-16T00:00:00Z');
+  const beforeExpiry = requests;
+  miss.title = '查无此剧';
+  miss.doubanMissTitle = '查无此剧';
+  miss.doubanMissCheckedAt = '2026-11-08T00:00:00Z';
+  await helpers.enrichDoubanLinks([miss]);
+  assert.ok(requests > beforeExpiry, 'the miss expires after 7 days');
+});
+
+test('a TMDB synopsis lookup without a better result is not repeated for 7 days', async () => {
+  let requests = 0;
+  const { helpers } = loadHelpers({
+    date: '2026-11-08T00:00:00Z', env: { TMDB_TOKEN: 'test' },
+    initialFiles: { [join(dataDir, 'image_cache.json')]: JSON.stringify({ short: {
+      title: '短简介剧', year: 2026, mediaType: '电视剧', regional: '韩国', url: 'https://image.tmdb.org/t/p/original/s.jpg',
+      source: 'tmdb', version: 16, query: '短简介剧', matchedTitle: '短简介剧', tmdbId: 901, tmdbUrl: 'https://www.themoviedb.org/tv/901',
+    } }) },
+    fetchImpl: async () => { requests++; return response({ id: 901, overview: '' }); },
+  });
+  const show = { id: 'short', title: '短简介剧', year: 2026, mediaType: '电视剧', regional: '韩国', description: '很短', descriptionSource: 'yfsp' };
+  await helpers.enrichDescriptions([show]);
+  assert.equal(requests, 1);
+  assert.equal(show.descriptionTmdbCheckedPath, 'tv/901');
+  await helpers.enrichDescriptions([show]);
+  assert.equal(requests, 1, 'the empty TMDB synopsis is not requested again');
+  assert.equal(show.description, '很短');
 });
