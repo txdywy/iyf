@@ -2825,7 +2825,7 @@ assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded 
 assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
 assert.match(scrape, /timeout = 60000,/, 'individual free-router requests should allow a complete structured response');
 assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
-assert.match(scrape, /const refreshTargets = shows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
+assert.match(scrape, /const refreshTargets = publishedShows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
 assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
 {

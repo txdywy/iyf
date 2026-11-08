@@ -3490,3 +3490,54 @@ test('invalid lookups recorded against unverifiable kubb.tv pages restore their 
   assert.equal(show.primaryUrl, 'https://www.kubb.tv/play/r1');
   assert.equal(legacy.yfspUrl, '', 'verifiable domains keep their negative cache');
 });
+
+test('TMDB discovery refreshes title-matched cards, skips rejected candidates and leaves stats refresh due', async () => {
+  const requests = [];
+  const row = (id, extra) => ({
+    id, name: `新剧${id}`, origin_country: ['KR'], original_language: 'ko', first_air_date: '2026-09-12',
+    popularity: 80, vote_average: 8.2, vote_count: 50, genre_ids: [18], poster_path: `/p${id}.jpg`, ...extra,
+  });
+  const results = [row(2001, { popularity: 200 }), row(2002, { name: '标题命中卡', popularity: 66 }), row(2003)];
+  const { helpers } = loadHelpers({
+    env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/discover/tv?')) return response({ results, total_pages: 1 });
+      if (url.includes('/tv/2003?')) return response({ id: 2003, status: 'Returning Series', in_production: true });
+      throw new Error(`unexpected fetch ${url}`);
+    },
+  });
+  const byId = { id: 'yfsp-x', title: '另一个译名', year: 2026, mediaType: '电视剧', regional: '韩国', tmdbId: 2001,
+    tmdbUrl: 'https://www.themoviedb.org/tv/2001', tmdbStatsCheckedAt: '2026-01-01T00:00:00Z' };
+  const byTitle = { id: 'yfsp-y', title: '标题命中卡', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const known = new Map([[byId.id, byId], [byTitle.id, byTitle]]);
+  const discovered = await helpers.discoverKDramasFromTMDB(known, known, {
+    isRejected: show => show.title === '新剧2003',
+  });
+  assert.equal(discovered.length, 0, 'a recently rejected candidate is not proposed again');
+  assert.equal(requests.some(url => url.includes('/tv/2003?')), false, 'rejected candidates do not spend a details request');
+  assert.equal(byId.tmdbPopularity, 200);
+  assert.equal(byId.tmdbStatsCheckedAt, '2026-01-01T00:00:00Z',
+    'discovery rows lack episode status, so they must not postpone the TMDB details refresh');
+  assert.equal(byTitle.tmdbPopularity, 66, 'a title-identity match refreshes popularity like an ID match');
+  assert.equal(byTitle.tmdbId, undefined, 'a title match does not establish a TMDB entity');
+});
+
+test('YFSP transport failures do not negative-cache missing links and unpublished shows spend no lookups', async () => {
+  let fail = true;
+  const searched = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    if (fail) throw Object.assign(new Error('fetch failed'), { cause: { code: 'ECONNRESET' } });
+    searched.push(new URL(url).searchParams.get('tags'));
+    return response({ data: { info: [{ result: [{ title: '恢复补链剧', atypeName: '电视剧', regional: '韩国', postTime: '2026-08-01', contxt: 'rec1' }] }] } });
+  } });
+  const show = { id: 'n1', title: '恢复补链剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '', category: 'korean_drama' };
+  const other = { id: 'o1', title: '不发布的剧', year: 2026, mediaType: '电视剧', regional: '泰国', yfspUrl: '', category: 'other_drama' };
+  await helpers.enrichMissingYfspLinks([show, other]);
+  assert.equal(show.yfspLookupState, undefined, 'a lookup with no completed query cannot record a state');
+  assert.ok(show.yfspLookupAttemptAt, 'the attempt is still recorded for fair rotation');
+  fail = false;
+  await helpers.enrichMissingYfspLinks([show, other]);
+  assert.equal(show.yfspUrl, 'https://www.kubb.tv/play/rec1', 'the next run retries immediately once search recovers');
+  assert.deepEqual(searched.filter(query => query === '不发布的剧'), [], 'otherDramas never consume lookup quota');
+});
