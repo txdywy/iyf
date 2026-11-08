@@ -1321,6 +1321,20 @@ function decodeHtmlEntities(text = '') {
   });
 }
 
+// 前端渲染的播放页：有效与不存在的 ID 都返回同一个模板，HTML 无法证明节目存在。
+const YFSP_UNVERIFIABLE_PLAY_DOMAINS = new Set(['kubb.tv']);
+
+function isVerifiableYfspPlayUrl(url) {
+  try {
+    return !YFSP_UNVERIFIABLE_PLAY_DOMAINS.has(yfspDomainOfHost(new URL(url).hostname));
+  } catch {
+    return false;
+  }
+}
+
+// 站点首页/模板标题（爱壹帆国际版-海量…、酷播-海量高清视频…），不含节目名。
+const YFSP_TEMPLATE_TITLE = /(?:爱壹帆国际版|酷播)-海量|海量高清视频免费在线观看$/u;
+
 async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
   if (!url) return YFSP_VERIFY_STATUS.INVALID;
   let parsedUrl;
@@ -1373,10 +1387,11 @@ async function verifyYfspUrl(show, url, { deadline = Infinity } = {}) {
     // 属性值按其自身引号截取并解码实体；否则“&amp;”或标题内的单引号会让有效页被判为无效。
     const title = decodeHtmlEntities(meta?.[1] || meta?.[2] || html.match(/<title>([^<]+)/i)?.[1] || '').trim();
     // 200 页面缺少可识别标题可能是站点模板改版，不能据此删除已知链接。
-    if (!title || title.includes('爱壹帆国际版-海量')) return YFSP_VERIFY_STATUS.UNKNOWN;
+    // kubb.tv 播放页由前端渲染，有效与不存在的 ID 都返回同一个站点模板标题，只能视为无法验证。
+    if (!title || YFSP_TEMPLATE_TITLE.test(title)) return YFSP_VERIFY_STATUS.UNKNOWN;
     const cleanTitle = title
       .replace(/-免费在线观看.*$/u, '')
-      .replace(/-爱壹帆国际版.*$/u, '')
+      .replace(/-(?:爱壹帆国际版|酷播).*$/u, '')
       .trim();
     return titleMatches(show.title, cleanTitle) && haveCompatibleTitleSeasons(show.title, cleanTitle)
       ? YFSP_VERIFY_STATUS.VALID
@@ -3270,6 +3285,15 @@ async function enrichMissingYfspLinks(shows) {
   // 上一轮已确定无效且本轮又从来源回流的同一 URL 仍保持负缓存，不重新发布。
   for (const show of shows) {
     migrateShowYfspUrls(show);
+    // 无法验证的播放页（kubb.tv 对任何 ID 都返回 200 模板）不可能得出“无效”；旧版按模板标题误判的记录恢复原链接。
+    if (show.yfspLookupState === 'invalid' && show.yfspLookupUrl && !isVerifiableYfspPlayUrl(show.yfspLookupUrl) &&
+      yfspPlayKey(show.yfspLookupUrl)) {
+      show.yfspUrl = safeOutputUrl(show.yfspLookupUrl);
+      delete show.yfspLookupState;
+      delete show.yfspLookupCheckedAt;
+      delete show.yfspLookupUrl;
+      attachLinkFields(show, show.yfspUrl, show.doubanUrl);
+    }
     if (show.yfspUrl && show.yfspLookupState === 'invalid' && hasFreshYfspLookup(show)) {
       show.yfspUrl = '';
       attachLinkFields(show, '', show.doubanUrl);
@@ -3280,7 +3304,7 @@ async function enrichMissingYfspLinks(shows) {
     return;
   }
   const existing = shows
-    .filter(s => s.yfspUrl && s.title && !hasFreshYfspLookup(s))
+    .filter(s => s.yfspUrl && s.title && !hasFreshYfspLookup(s) && isVerifiableYfspPlayUrl(s.yfspUrl))
     .sort(oldestCheckedFirst('yfspLookupCheckedAt'))
     .slice(0, YFSP_VERIFY_QUOTA);
   if (existing.length) {
@@ -3347,9 +3371,10 @@ async function enrichMissingYfspLinks(shows) {
     if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
     const found = await searchYfspTitle(show, { deadline: stageDeadline });
     if (Date.now() >= stageDeadline || yfspCircuitOpen()) return;
-    const verified = found?.url
-      ? await verifyYfspUrl(show, found.url, { deadline: stageDeadline })
-      : found?.lookupState || 'unknown';
+    // 无法验证页面的域名上，严格匹配标题/季数/类型/地区的搜索结果本身就是来源观测。
+    const verified = !found?.url ? found?.lookupState || 'unknown'
+      : isVerifiableYfspPlayUrl(found.url) ? await verifyYfspUrl(show, found.url, { deadline: stageDeadline })
+        : YFSP_VERIFY_STATUS.VALID;
     markYfspLookup(show, verified, found?.url || '');
     if (verified === YFSP_VERIFY_STATUS.VALID) {
       show.yfspUrl = found.url;
