@@ -17,7 +17,7 @@ const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered
 const TEXT_FIELDS = [
   'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
   'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
-  'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
+  'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
 ];
 const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl'];
 const ALLOWED_HOSTS = new Set([

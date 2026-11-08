@@ -1418,3 +1418,34 @@ test('the static loading markup matches the first scripted skeleton so the grid 
   assert.equal(normalize(staticGrid), normalize(client.elements.showGrid.innerHTML));
   assert.equal(client.elements.showGrid.getAttribute('aria-busy'), 'true');
 });
+
+test('the public payload omits empty optional fields without changing what the frontend renders', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'iyf-public-trim-'));
+  try {
+    const output = join(directory, 'shows.json');
+    execFileSync(process.execPath, [fileURLToPath(new URL('./build-public-data.mjs', import.meta.url)), '--output', output]);
+    const published = JSON.parse(readFileSync(output, 'utf8'));
+    const source = JSON.parse(readFileSync(new URL('../data/shows.json', import.meta.url), 'utf8'));
+    const { helpers } = createApp();
+    assert.ok(helpers.isShowDataset(published));
+    const verbatim = new Set(['firstSeenAt', 'scrapedAt', 'updateMsg', 'descriptionSource']);
+    const referenceTime = Date.parse(published.generatedAt);
+    const withoutDelay = markup => markup.replace(/style="animation-delay:[^"]+"/u, '');
+    for (const category of ['koreanDramas', 'chineseVariety']) {
+      for (const [index, show] of published[category].entries()) {
+        const original = source[category][index];
+        for (const [field, value] of Object.entries(show)) {
+          if (verbatim.has(field)) continue;
+          assert.ok(value !== null && value !== '' && value !== false && !(Array.isArray(value) && !value.length), `${category}[${index}].${field} is empty`);
+        }
+        assert.equal(show.description, original.description, 'descriptions are never truncated');
+        assert.equal(show.lastLiveAt, original.lastLiveAt || undefined, 'live observation time is published for play-count freshness');
+        assert.equal(Object.hasOwn(show, 'isAutoDiscovered'), false, 'the internal discovery flag is no longer rendered');
+        assert.equal(withoutDelay(helpers.renderCard(show, 0, 2026, referenceTime)),
+          withoutDelay(helpers.renderCard(original, 0, 2026, referenceTime)), `${show.title} renders identically after trimming`);
+      }
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
