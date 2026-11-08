@@ -153,6 +153,24 @@ test('the real deployment build is repeatable and publishes only validated publi
   }
 });
 
+test('the public payload omits private source and AI run diagnostics', t => {
+  const temporary = mkdtempSync(join(tmpdir(), 'iyf-build-private-'));
+  t.after(() => rmSync(temporary, { recursive: true, force: true }));
+  const sourceData = JSON.parse(read(join(root, 'data/shows.json')));
+  const sourceRoot = createBuildFixture(join(temporary, 'source'), {
+    ...sourceData, sourceKind: 'catalog', sourcePagesSucceeded: 30, aiPreferredModel: 'example/private:free',
+    aiRunStatus: { stopReason: 'quota', requested: 12, scored: 30 },
+  });
+  const output = join(temporary, 'site');
+  const result = build(output, sourceRoot);
+  assert.equal(result.status, 0, result.stderr);
+  const published = JSON.parse(read(join(output, 'data/shows.json')));
+  for (const field of ['aiRunStatus', 'sourceKind', 'sourcePagesSucceeded', 'aiPreferredModel']) {
+    assert.equal(Object.hasOwn(published, field), false, `${field} must stay private`);
+  }
+  assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'lastUpdated', 'sourceStatus', 'stats']);
+});
+
 test('GitHub Pages 404 preparation uses the project prefix without changing other files', t => {
   const temporary = mkdtempSync(join(tmpdir(), 'iyf-github-pages-build-'));
   t.after(() => rmSync(temporary, { recursive: true, force: true }));

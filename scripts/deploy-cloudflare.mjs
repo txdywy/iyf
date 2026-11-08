@@ -34,11 +34,26 @@ function validateHook(value) {
 
 const isCommitSha = value => typeof value === 'string' && /^[a-f0-9]{40}$/u.test(value);
 
-async function readOriginMainSha() {
-  const { stdout } = await runGit('git', ['ls-remote', '--exit-code', 'origin', 'refs/heads/main'], {
-    timeout: 10_000,
-  });
-  return /^([a-f0-9]{40})\trefs\/heads\/main$/u.exec(stdout.trimEnd())?.[1];
+// GitHub 偶发的网络抖动不应让发布前后的 main 核对直接失败：最多尝试 3 次，间隔 2 秒，全部失败仍抛错。
+export async function readOriginMainSha({
+  run = runGit, attempts = 3, backoffMs = 2_000,
+  sleep = ms => new Promise(resolveSleep => setTimeout(resolveSleep, ms)),
+} = {}) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const { stdout } = await run('git', ['ls-remote', '--exit-code', 'origin', 'refs/heads/main'], {
+        timeout: 10_000,
+      });
+      const sha = /^([a-f0-9]{40})\trefs\/heads\/main$/u.exec(String(stdout).trimEnd())?.[1];
+      if (sha) return sha;
+      lastError = new Error('git ls-remote returned no origin/main commit');
+    } catch (error) {
+      lastError = error;
+    }
+    if (attempt < attempts) await sleep(backoffMs);
+  }
+  throw lastError;
 }
 
 // HTTP 列表里的 quoted-string 可含逗号和转义引号，扩展参数不能伪造其他指令。
@@ -101,7 +116,7 @@ function preventsFraming(value) {
 }
 
 export async function deployCloudflare({
-  hookUrl, outputRoot = 'site', fetchImpl = fetch, artifactSha, readMainSha = readOriginMainSha,
+  hookUrl, outputRoot = 'site', fetchImpl = fetch, artifactSha, readMainSha = () => readOriginMainSha(),
   delay = ms => new Promise(resolveDelay => setTimeout(resolveDelay, ms)),
   now = Date.now, timeoutMs = 600_000, pollIntervalMs = 10_000, log = console.log,
 } = {}) {

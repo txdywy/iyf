@@ -188,7 +188,6 @@ function loadAppHelpers({
       animateNum,
       loadData,
       isShowDataset,
-      renderCardActions,
       renderCard,
       fetchJSONWithTimeout,
       escapeHtml,
@@ -838,41 +837,43 @@ for (const tab of ['korean', 'tvmaze']) {
 }
 
 {
-  const { renderCardActions, renderCard, safeExternalUrl } = loadAppHelpers();
-  const yfspOnly = renderCardActions({
+  const { renderCard, safeExternalUrl } = loadAppHelpers();
+  const yfspOnly = renderCard({
+    title: '仅播放源',
     primaryUrl: 'https://www.yfsp.tv/play/rkNc61MMTE0',
     primaryUrlSource: 'yfsp',
     yfspUrl: 'https://www.yfsp.tv/play/rkNc61MMTE0',
-  });
+  }, 0);
   assert.match(yfspOnly, /href="https:\/\/www\.yfsp\.tv\/play\/rkNc61MMTE0"/, 'YFSP-only cards should render an actionable primary link');
-  assert.doesNotMatch(yfspOnly, /待匹配链接/, 'YFSP-only cards should not render the disabled fallback');
 
-  const metadataAndYfsp = renderCardActions({
+  const metadataAndYfsp = renderCard({
+    title: '资料与播放源',
     tmdbUrl: 'https://www.themoviedb.org/tv/1',
     doubanUrl: 'https://movie.douban.com/subject/1/',
     yfspUrl: 'https://www.yfsp.tv/play/live',
-  });
-  assert.match(metadataAndYfsp, /TMDB资料/, 'metadata links should still render when present');
+  }, 0);
+  assert.match(metadataAndYfsp, />TMDB</, 'metadata links should still render when present');
   assert.match(metadataAndYfsp, /href="https:\/\/www\.yfsp\.tv\/play\/live"/, 'cards with metadata should also expose the playable YFSP link');
-  assert.match(metadataAndYfsp, /观看\/详情/, 'YFSP action should keep the watch/detail label');
+  assert.match(metadataAndYfsp, /观看 \/ 详情/, 'YFSP action should keep the watch/detail label');
 
-  const metadataNoYfsp = renderCardActions({
+  const metadataNoYfsp = renderCard({
+    title: '仅资料',
     tmdbUrl: 'https://www.themoviedb.org/tv/1',
     doubanUrl: 'https://movie.douban.com/subject/1/',
     yfspUrl: '',
-  });
-  assert.match(metadataNoYfsp, /TMDB资料/, 'cards with metadata but no YFSP should still show metadata links');
-  assert.match(metadataNoYfsp, /暂无观看链接/, 'cards with metadata but no YFSP should show a disabled watch hint');
-  assert.doesNotMatch(metadataNoYfsp, /待匹配链接/, 'cards with metadata should not show the generic fallback');
+  }, 0);
+  assert.match(metadataNoYfsp, />豆瓣</, 'cards with metadata but no YFSP should still show metadata links');
+  assert.match(metadataNoYfsp, /暂无播放源 · 查看资料/, 'cards with metadata but no YFSP should say that no playback source exists');
 
-  const unsafeActions = renderCardActions({
+  const unsafeActions = renderCard({
+    title: '不安全链接',
     primaryUrl: 'javascript:alert(1)',
     primaryUrlSource: 'yfsp',
     yfspUrl: 'data:text/html,<script>alert(1)</script>',
     tmdbUrl: 'ftp://example.com/not-web',
-  });
+  }, 0);
   assert.doesNotMatch(unsafeActions, /javascript:|data:|ftp:/, 'non-http external URLs should not render into card actions');
-  assert.match(unsafeActions, /待匹配链接/, 'unsafe-only cards should fall back to the disabled action');
+  assert.doesNotMatch(unsafeActions, /<a /, 'unsafe-only cards should not render any link');
   assert.equal(safeExternalUrl(' https://example.com/path '), 'https://example.com/path', 'safe URL helper should trim valid web URLs');
   assert.equal(safeExternalUrl('javascript:alert(1)'), '', 'safe URL helper should reject javascript URLs');
   assert.equal(safeExternalUrl('https://evil.com/"onload=alert(1)'), '', 'safe URL helper should reject URLs containing quotes');
@@ -887,7 +888,8 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(safeExternalUrl("https://www.tvmaze.com/shows/demo's", new Set(['www.tvmaze.com'])), 'https://www.tvmaze.com/shows/demo%27s', 'allowed remote hosts should retain valid quoted paths');
 
   const zeroBadge = renderCard({ title: '零分测试', aiScore: 0, score: 0, coverImg: '', recommendScore: 0 }, 0);
-  assert.match(zeroBadge, /🤖 0\/100/, 'AI score badge should render valid score 0');
+  assert.doesNotMatch(zeroBadge, /badge-ai/, 'only high AI taste matches receive a badge');
+  assert.match(renderCard({ title: '高匹配', aiScore: 70, coverImg: '', recommendScore: 0 }, 0), /AI 推荐 70/, 'an AI score of 70 or more should render a labelled badge');
   const responsivePoster = renderCard({ title: '响应式海报', coverImg: 'https://image.tmdb.org/t/p/original/poster.jpg', recommendScore: 0 }, 0);
   assert.match(responsivePoster, /w185\/poster\.jpg 185w/, 'poster srcset should include a mobile-sized image candidate');
   assert.match(responsivePoster, /sizes="\(max-width: 480px\) 112px/, 'poster sizes should match the compact mobile card width');
@@ -1056,8 +1058,7 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.switchTab('korean');
   assert.match(elements.showGrid.innerHTML, /相对推荐度 100%/, 'the strongest recommendation should fill the relative recommendation bar');
   assert.match(elements.showGrid.innerHTML, /相对推荐度 50%/, 'relative recommendation bars should preserve differences between cards');
-  assert.match(elements.showGrid.innerHTML, /🤖 9\/100/, 'valid low AI scores must not be inflated by guessing their scale');
-  assert.match(elements.showGrid.innerHTML, /🤖 8.3\/100/, 'decimal AI scores must retain the declared 0-100 scale');
+  assert.doesNotMatch(elements.showGrid.innerHTML, /badge-ai/, 'valid low AI scores (9, 8.3 on the 0-100 scale) must not be inflated into a recommendation badge');
   assert.doesNotMatch(elements.showGrid.innerHTML, /card-score-float/, 'score should not be duplicated as a poster overlay');
 }
 
@@ -2825,7 +2826,7 @@ assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded 
 assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
 assert.match(scrape, /timeout = 60000,/, 'individual free-router requests should allow a complete structured response');
 assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
-assert.match(scrape, /const refreshTargets = shows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
+assert.match(scrape, /const refreshTargets = publishedShows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
 assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
 assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
 {
@@ -2854,9 +2855,8 @@ assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.co
 assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
 assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
 assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
-const committedData = JSON.parse(read('data/shows.json'));
-assert.equal(committedData.stats.koreanDramas, committedData.koreanDramas.length, 'the Korean drama statistic should match the post-cleanup catalog');
-assert.doesNotMatch(JSON.stringify(committedData), /黑暗荣耀第2季/u, 'the catalog should not retain the unsupported standalone Glory season card');
+// 已提交数据的内容规则（退役卡片、统计一致）由提交前运行的 validate-data.mjs 负责。
+assert.match(validateData, /RETIRED_TITLES = new Set\(\['黑暗荣耀第2季'\]\)/u, 'data validation should reject the unsupported standalone Glory season card');
 assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
 assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
 assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
@@ -2879,8 +2879,10 @@ const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站�
 assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
-assert.match(workflow, /SCRAPE: \$\{\{ github\.event_name != 'push' \}\}/, 'push runs must deploy committed data without spending the scrape/AI quota');
-assert.match(workflow, /- name: Run Scraper\n\s+if: env\.SCRAPE == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /scrape=false\n\s+if \[ "\$EVENT_NAME" != "push" \]; then scrape=true; fi/, 'push runs must deploy committed data without spending the scrape/AI quota');
+assert.match(workflow, /if \[ "\$EVENT_NAME" = "schedule" \]; then[\s\S]*?< 8 \? 0 : 1[\s\S]*?scrape=false/, 'scheduled runs must skip scraping when committed data is under eight hours old');
+assert.match(workflow, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /IYF_REQUIRE_FRESH_DATA: \$\{\{ steps\.mode\.outputs\.scrape == 'true' && '1' \|\| '' \}\}/, 'only real scrape runs may require a fresh generatedAt');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
 assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
 assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');

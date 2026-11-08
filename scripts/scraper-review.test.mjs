@@ -821,7 +821,7 @@ test('a blocked primary with a healthy mirror produces fresh data while total fa
       fetchImpl: async url => {
         const parsed = new URL(url);
         if (mirrorHealthy && parsed.hostname === 'api.iyf.tv') {
-          mirrorCalls++;
+          if (parsed.pathname.includes('/index')) mirrorCalls++;
           return response(healthyHomepageFixture(`mirror-${parsed.searchParams.get('isn')}-${parsed.searchParams.get('page')}`));
         }
         return response(null, { status: 403 });
@@ -3489,4 +3489,127 @@ test('invalid lookups recorded against unverifiable kubb.tv pages restore their 
   assert.equal(show.yfspUrl, 'https://www.kubb.tv/play/r1');
   assert.equal(show.primaryUrl, 'https://www.kubb.tv/play/r1');
   assert.equal(legacy.yfspUrl, '', 'verifiable domains keep their negative cache');
+});
+
+test('TMDB discovery refreshes title-matched cards, skips rejected candidates and leaves stats refresh due', async () => {
+  const requests = [];
+  const row = (id, extra) => ({
+    id, name: `新剧${id}`, origin_country: ['KR'], original_language: 'ko', first_air_date: '2026-09-12',
+    popularity: 80, vote_average: 8.2, vote_count: 50, genre_ids: [18], poster_path: `/p${id}.jpg`, ...extra,
+  });
+  const results = [row(2001, { popularity: 200 }), row(2002, { name: '标题命中卡', popularity: 66 }), row(2003)];
+  const { helpers } = loadHelpers({
+    env: { TMDB_TOKEN: 'test' },
+    fetchImpl: async url => {
+      requests.push(url);
+      if (url.includes('/discover/tv?')) return response({ results, total_pages: 1 });
+      if (url.includes('/tv/2003?')) return response({ id: 2003, status: 'Returning Series', in_production: true });
+      throw new Error(`unexpected fetch ${url}`);
+    },
+  });
+  const byId = { id: 'yfsp-x', title: '另一个译名', year: 2026, mediaType: '电视剧', regional: '韩国', tmdbId: 2001,
+    tmdbUrl: 'https://www.themoviedb.org/tv/2001', tmdbStatsCheckedAt: '2026-01-01T00:00:00Z' };
+  const byTitle = { id: 'yfsp-y', title: '标题命中卡', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const known = new Map([[byId.id, byId], [byTitle.id, byTitle]]);
+  const discovered = await helpers.discoverKDramasFromTMDB(known, known, {
+    isRejected: show => show.title === '新剧2003',
+  });
+  assert.equal(discovered.length, 0, 'a recently rejected candidate is not proposed again');
+  assert.equal(requests.some(url => url.includes('/tv/2003?')), false, 'rejected candidates do not spend a details request');
+  assert.equal(byId.tmdbPopularity, 200);
+  assert.equal(byId.tmdbStatsCheckedAt, '2026-01-01T00:00:00Z',
+    'discovery rows lack episode status, so they must not postpone the TMDB details refresh');
+  assert.equal(byTitle.tmdbPopularity, 66, 'a title-identity match refreshes popularity like an ID match');
+  assert.equal(byTitle.tmdbId, undefined, 'a title match does not establish a TMDB entity');
+});
+
+test('YFSP transport failures do not negative-cache missing links and unpublished shows spend no lookups', async () => {
+  let fail = true;
+  const searched = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    if (fail) throw Object.assign(new Error('fetch failed'), { cause: { code: 'ECONNRESET' } });
+    searched.push(new URL(url).searchParams.get('tags'));
+    return response({ data: { info: [{ result: [{ title: '恢复补链剧', atypeName: '电视剧', regional: '韩国', postTime: '2026-08-01', contxt: 'rec1' }] }] } });
+  } });
+  const show = { id: 'n1', title: '恢复补链剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '', category: 'korean_drama' };
+  const other = { id: 'o1', title: '不发布的剧', year: 2026, mediaType: '电视剧', regional: '泰国', yfspUrl: '', category: 'other_drama' };
+  await helpers.enrichMissingYfspLinks([show, other]);
+  assert.equal(show.yfspLookupState, undefined, 'a lookup with no completed query cannot record a state');
+  assert.ok(show.yfspLookupAttemptAt, 'the attempt is still recorded for fair rotation');
+  fail = false;
+  await helpers.enrichMissingYfspLinks([show, other]);
+  assert.equal(show.yfspUrl, 'https://www.kubb.tv/play/rec1', 'the next run retries immediately once search recovers');
+  assert.deepEqual(searched.filter(query => query === '不发布的剧'), [], 'otherDramas never consume lookup quota');
+});
+
+function catalogRow(key, title, mediaType, regional, extra = {}) {
+  return { mediaKey: key, title, mediaType, regional, score: '8.5', playCount: 200000,
+    publishTime: '2026-10-28T00:00:00Z', updateStatus: '更新到04', isSerial: true,
+    contentType: '爱情·喜剧', coverImgUrl: `https://static.kubb.tv/${key}.jpg`, ...extra };
+}
+
+test('the paginated catalog is the primary source, fills known cards and stops repeated homepage pages', async () => {
+  const previous = {
+    lastUpdated: '2026-10-21T00:00:00Z', stats: { totalScraped: 71 },
+    koreanDramas: [{ id: 'tmdb_tv_77', title: '目录补链剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+      category: 'korean_drama', score: 0, playCount: 0, tmdbRating: 8, coverImg: 'https://image.tmdb.org/t/p/original/x.jpg',
+      tmdbUrl: 'https://www.themoviedb.org/tv/77', primaryUrl: 'https://www.themoviedb.org/tv/77', yfspUrl: '',
+      publishTime: '2026-10-20', scrapedAt: '2026-10-20T00:00:00Z', lastLiveAt: '2026-10-20T00:00:00Z' }],
+    chineseVariety: [], otherDramas: [],
+  };
+  const requests = [];
+  const { helpers, files } = loadHelpers({
+    date: '2026-10-29T00:00:00.000Z',
+    initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      const parsed = new URL(url);
+      requests.push(parsed);
+      if (parsed.pathname.endsWith('/getconditionfilterdata')) {
+        const region = parsed.searchParams.get('ids').split(',')[2];
+        const drama = parsed.searchParams.get('titleid') === 'drama';
+        const page = parsed.searchParams.get('page');
+        if (drama && region === '5') {
+          const rows = Array.from({ length: 20 }, (_, i) => catalogRow(`kd${page}-${i}`, `目录韩剧${page}-${i}`, '电视剧', '韩国'));
+          if (page === '1') rows.push(catalogRow('fill77', '目录补链剧', '电视剧', '韩国'));
+          return response({ ret: 200, data: { list: rows } });
+        }
+        if (!drama && region === '1') {
+          return response({ ret: 200, data: { list: Array.from({ length: 20 }, (_, i) =>
+            catalogRow(`va${i}`, `目录综艺${i}`, '综艺', '大陆', { contentType: '真人秀·喜剧' })) } });
+        }
+        // 地区参数失效时返回其他地区：整页弃用。
+        return response({ ret: 200, data: { list: [catalogRow('wrong', '错误地区剧', '电视剧', '泰国')] } });
+      }
+      if (parsed.pathname.endsWith('/index')) return response(healthyHomepageFixture('same-every-page'));
+      return response(null, { status: 404 });
+    },
+  });
+  await helpers.main();
+  const published = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(published.sourceStatus, 'healthy');
+  assert.equal(published.sourceKind, 'catalog');
+  assert.equal(published.sourceCatalogPages, 2, 'only pages with matching-region rows count as catalog successes');
+  assert.deepEqual(published.aiRunStatus, { stopReason: '', requested: 0, scored: 0 }, 'AI run status is always recorded');
+  assert.equal(published.lastUpdated, '2026-10-29T00:00:00.000Z');
+  const filled = published.koreanDramas.find(show => show.title === '目录补链剧');
+  assert.equal(filled?.yfspUrl, 'https://www.kubb.tv/play/fill77', 'a catalog observation supplies the missing play link');
+  assert.equal(published.otherDramas.some(show => show.title === '错误地区剧'), false, 'a mismatched-region page is discarded');
+  const homepageRequests = requests.filter(url => url.pathname.endsWith('/index'));
+  assert.ok(homepageRequests.length <= 6, `repeated homepage pages stop early (made ${homepageRequests.length} requests)`);
+});
+
+test('a domain migration never turns a confirmed old-domain invalid lookup into a restored link', async () => {
+  const { helpers } = loadHelpers({ fetchImpl: async () => response(homepageFixture()) });
+  await helpers.fetchPage(1);
+  const observed = helpers.normalizeItem(homepageFixture().data.list[0].list[0]);
+  const previous = { koreanDramas: [{ id: 'shared', yfspUrl: observed.yfspUrl.replace('www.kubb.tv', 'www.yfsp.tv') }], chineseVariety: [] };
+  assert.equal(helpers.noteYfspKeySpace(previous), true);
+  const show = { id: 'bad', title: '旧域名确认无效剧', year: 2026, mediaType: '电视剧', regional: '韩国', yfspUrl: '',
+    category: 'korean_drama', yfspLookupState: 'invalid', yfspLookupCheckedAt: new Date().toISOString(),
+    yfspLookupUrl: 'https://www.yfsp.tv/play/bad' };
+  for (let run = 0; run < 2; run++) {
+    await helpers.enrichMissingYfspLinks([show]);
+    assert.equal(show.yfspUrl, '', `run ${run + 1} must keep the invalid link unpublished`);
+    assert.equal(show.yfspLookupUrl, 'https://www.yfsp.tv/play/bad', 'the invalid evidence keeps its original domain');
+  }
 });

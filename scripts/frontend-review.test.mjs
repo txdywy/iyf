@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import vm from 'node:vm';
 
@@ -100,7 +104,9 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     'showGrid', 'loading', 'empty', 'emptyMessage', 'emptyAction', 'loadMore', 'loadMoreButton',
     'loadMoreStatus', 'resetFilters', 'resultSummary', 'statTotal', 'statOngoing', 'statComplete',
     'statHighScore', 'updateInfo', 'yearTabLabel', 'varietyYearTabLabel', 'mainContent',
+    'filterToggle', 'playableFilterGroup',
   ]) elements.set(id, element(id));
+  elements.set('filterPlayable', Object.assign(element('filterPlayable'), { checked: false }));
   for (const [id, value] of [['filterStatus', 'all'], ['filterScore', '0'], ['sortBy', 'recommend'], ['searchInput', '']]) {
     elements.set(id, element(id, value));
   }
@@ -120,6 +126,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   const location = { href: 'https://example.test/#korean', search: '', hash: '#korean' };
   let savedData = cachedData;
   let savedAt = cacheTimestamp;
+  let cacheWrites = 0;
   const context = vm.createContext({
     console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
     setTimeout, clearTimeout, setInterval, clearInterval,
@@ -130,20 +137,24 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     } },
     localStorage: {
       getItem: () => savedData ? JSON.stringify({ version: 3, cachedAt: savedAt, data: savedData }) : null,
-      setItem(key, value) { ({ data: savedData, cachedAt: savedAt } = JSON.parse(value)); },
+      setItem(key, value) { cacheWrites++; ({ data: savedData, cachedAt: savedAt } = JSON.parse(value)); },
     },
   });
   vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
     globalThis.helpers = {
       loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
-      toFiniteNumber, safeExternalUrl, escapeHtml,
+      toFiniteNumber, safeExternalUrl, escapeHtml, formatVarietyStatus, renderCard, isShowDataset, handleUrlStateChange,
+      bindDescriptionToggles,
       setAllData: value => { allData = value; },
       setTVmazeCache: shows => {
         _tvmazeCache = shows; _tvmazeCachedAt = Date.now(); _tvmazeCacheDate = getScheduleDateKey();
       },
     };
   })();`), context, { timeout: 1000 });
-  return { helpers: context.helpers, elements: Object.fromEntries(elements), document, view, getSavedData: () => savedData };
+  return {
+    helpers: context.helpers, elements: Object.fromEntries(elements), document, view, location,
+    getSavedData: () => savedData, getCacheWrites: () => cacheWrites,
+  };
 }
 
 function snapshot(count = 1) {
@@ -1107,7 +1118,7 @@ test('a TMDB rating stands in for a missing source score in badges, score filter
   elements.filterScore.value = '0';
   helpers.applyFilters();
   assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
-  assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分">⭐ 7\.2</u);
+  assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐<\/span><span class="sr-only">爱壹帆评分<\/span> 7\.2</u);
 });
 
 test('a degraded playback source says when new-drama data was last refreshed instead of calling the site stale', async () => {
@@ -1126,16 +1137,315 @@ test('a degraded playback source says when new-drama data was last refreshed ins
 
 test('cards repeat their badges in an inline row that narrow screens show instead of covering the poster', async () => {
   const data = snapshot();
-  Object.assign(data.koreanDramas[0], { score: 8.6, isNew: true, isSerial: true });
+  Object.assign(data.koreanDramas[0], { score: 8.6, isNew: true, isSerial: true, year: new Date().getFullYear() });
   const client = createApp(async () => ({ ok: true, json: async () => data }));
   await client.helpers.loadData();
   const markup = client.elements.showGrid.innerHTML;
-  const inline = markup.match(/<div class="card-badges-inline">([\s\S]*?)<\/div>/u)?.[1] || '';
-  assert.match(inline, /badge-new-flag">NEW</u, 'the NEW corner tag moves into the inline row');
-  assert.match(inline, /⭐ 8\.6/u);
+  const inline = markup.match(/<div class="card-badges-inline">((?:<span[\s\S]*?<\/span>)+)<\/div>/u)?.[1] || '';
+  assert.match(inline, /badge-new">新加入</u, 'the single new-arrival badge is part of the inline row');
+  assert.doesNotMatch(markup, /card-new-badge|badge-new-flag|>NEW<|>新剧</u, 'a show carries only one new marker');
+  assert.match(inline, /8\.6/u);
   assert.match(inline, /连载/u);
   const css = readFileSync(new URL('../css/style.css', import.meta.url), 'utf8');
   const narrow = css.slice(css.indexOf('@media (max-width: 480px)'));
-  assert.match(narrow, /\.card-badges,\s*\.card-new-badge \{ display: none; \}/u, 'narrow screens hide the poster overlay');
+  assert.match(narrow, /\.card-badges \{ display: none; \}/u, 'narrow screens hide the poster overlay');
   assert.match(narrow, /\.card-badges-inline \{ display: flex;/u);
+});
+
+// ── 可播放、卡片信息密度与筛选体验 ──
+const DAY = 24 * 60 * 60 * 1000;
+const cardMarkup = elements => elements.showGrid.innerHTML.split('</article>').slice(0, -1);
+const renderedTitles = elements => [...elements.showGrid.innerHTML.matchAll(/id="card-\d+-title">([^<]+)</gu)].map(match => match[1]);
+
+test('playable cards carry a badge and a watch action while other cards offer a secondary info link', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(2);
+  Object.assign(data.koreanDramas[0], {
+    recommendScore: 2, yfspUrl: 'https://www.yfsp.tv/play/a',
+    primaryUrl: 'https://www.themoviedb.org/tv/1', tmdbUrl: 'https://www.themoviedb.org/tv/1',
+  });
+  Object.assign(data.koreanDramas[1], {
+    recommendScore: 1, primaryUrl: 'https://www.themoviedb.org/tv/2', tmdbUrl: 'https://www.themoviedb.org/tv/2',
+    doubanUrl: 'https://movie.douban.com/subject/2/', wikipediaUrl: '', imdbUrl: null,
+  });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const [playable, info] = cardMarkup(elements);
+  assert.match(playable, /badge-playable">可播放</u);
+  assert.match(playable, /class="card-action primary" href="https:\/\/www\.yfsp\.tv\/play\/a"[^>]*>观看 \/ 详情/u);
+  assert.match(playable, /class="card-link" href="https:\/\/www\.themoviedb\.org\/tv\/1"/u, 'metadata stays reachable in the compact link row');
+  assert.doesNotMatch(info, /badge-playable/u);
+  assert.match(info, /class="card-action primary is-info" href="https:\/\/www\.themoviedb\.org\/tv\/2"[^>]*>暂无播放源 · 查看资料/u);
+  assert.doesNotMatch(info, /class="card-link" href="https:\/\/www\.themoviedb\.org\/tv\/2"/u, 'the primary link is not repeated');
+  assert.deepEqual([...info.matchAll(/class="card-link"[^>]*>([^<]+)</gu)].map(match => match[1]), ['豆瓣'], 'empty source URLs render no link');
+});
+
+test('the playable-only filter persists in the URL, stays bookmark-compatible and ranks playable cards first among ties', () => {
+  const { helpers, elements, location } = createApp();
+  const data = snapshot(3);
+  data.koreanDramas.forEach(show => { show.recommendScore = 50; });
+  data.koreanDramas[0].recommendScore = 60;
+  data.koreanDramas[2].yfspUrl = 'https://www.yfsp.tv/play/c';
+  helpers.setAllData(data);
+  helpers.bindFilters();
+  helpers.switchTab('korean', { animate: false });
+  assert.deepEqual(renderedTitles(elements), ['剧目0', '剧目2', '剧目1'], 'a higher score still wins; equal scores put playable cards first');
+
+  elements.filterPlayable.checked = true;
+  elements.filterPlayable.dispatch('change');
+  assert.match(location.search, /playable=1/u);
+  assert.deepEqual(renderedTitles(elements), ['剧目2']);
+  assert.match(elements.resultSummary.textContent, /可播放/u);
+  assert.equal(elements.resetFilters.hidden, false);
+  assert.equal(elements.filterToggle.textContent, '筛选与排序（1）');
+
+  Object.assign(location, { search: '', hash: '#korean' });
+  helpers.handleUrlStateChange();
+  assert.equal(elements.filterPlayable.checked, false, 'old bookmarks without the parameter keep every card');
+  assert.equal(elements.showGrid.children.length, 3);
+  Object.assign(location, { search: '?playable=1', hash: '#korean' });
+  helpers.handleUrlStateChange();
+  assert.equal(elements.filterPlayable.checked, true);
+  assert.deepEqual(renderedTitles(elements), ['剧目2']);
+});
+
+test('an empty filtered result offers a clear-filters action that returns focus to the search box', () => {
+  const { helpers, elements, document, location } = createApp();
+  helpers.setAllData(snapshot(3));
+  helpers.bindFilters();
+  helpers.switchTab('korean', { animate: false });
+  elements.searchInput.value = '不存在的剧';
+  elements.filterScore.value = '9';
+  elements.filterScore.dispatch('change');
+  assert.equal(elements.empty.style.display, 'block');
+  assert.equal(elements.emptyAction.textContent, '清除筛选');
+  assert.equal(elements.emptyAction.hidden, false);
+  elements.emptyAction.focus();
+  elements.emptyAction.dispatch('click');
+  assert.equal(document.activeElement, elements.searchInput);
+  assert.equal(elements.searchInput.value, '');
+  assert.equal(elements.filterScore.value, '0');
+  assert.equal(elements.emptyAction.hidden, true);
+  assert.equal(elements.empty.style.display, 'none');
+  assert.equal(elements.showGrid.children.length, 3);
+  assert.doesNotMatch(location.search, /q=|score=/u);
+
+  const empty = snapshot();
+  empty.koreanDramas = [];
+  helpers.setAllData(empty);
+  helpers.switchTab('korean', { animate: false });
+  assert.equal(elements.empty.style.display, 'block');
+  assert.equal(elements.emptyAction.hidden, true, 'an empty category without filters has nothing to clear');
+});
+
+test('play counts are hidden until live-observed and labelled as historical after 14 days', () => {
+  const { helpers, elements } = createApp();
+  const now = Date.now();
+  const data = snapshot(4);
+  data.generatedAt = new Date(now).toISOString();
+  Object.assign(data.koreanDramas[0], { recommendScore: 4, playCount: 123456 });
+  Object.assign(data.koreanDramas[1], { recommendScore: 3, playCount: 50000, scrapedAt: '', lastLiveAt: new Date(now - 2 * DAY).toISOString() });
+  Object.assign(data.koreanDramas[2], { recommendScore: 2, playCount: 800, scrapedAt: new Date(now - 30 * DAY).toISOString() });
+  Object.assign(data.koreanDramas[3], { recommendScore: 1, playCount: 900, scrapedAt: new Date(now - 30 * DAY).toISOString(), lastLiveAt: new Date(now - DAY).toISOString() });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const cards = cardMarkup(elements);
+  assert.doesNotMatch(cards[0], /播放<|card-views/u, 'seed play counts that were never observed are not shown');
+  assert.match(cards[1], /5\.0万次播放/u);
+  assert.doesNotMatch(cards[1], /历史播放/u);
+  assert.match(cards[2], /历史播放 800次/u);
+  assert.match(cards[3], /900次播放/u, 'the newest observation of either timestamp decides freshness');
+  assert.doesNotMatch(cards[3], /历史播放/u);
+  assert.match(cards[1], /<div class="card-footer">\s*<span class="card-status[^>]*>[^<]*<\/span>\s*<span class="card-views">/u, 'status and play count share one footer line');
+});
+
+test('variety status codes become readable while unknown formats stay unchanged', () => {
+  const { helpers } = createApp();
+  const cases = {
+    '20261107(第1期纯享)': '更新至11月7日（第1期纯享）',
+    '更新到20261106(抢鲜版)': '更新至11月6日（抢鲜版）',
+    '20261103': '更新至11月3日',
+    '07': '更新至第7期',
+    '更新到29': '更新至第29期',
+    '周五': '每周五更新',
+    '20261399(坏日期)': '20261399(坏日期)',
+    '20210703-2集全': '20210703-2集全',
+    '第10期集全': '第10期集全',
+    '00': '00',
+    '': '',
+  };
+  for (const [raw, expected] of Object.entries(cases)) assert.equal(helpers.formatVarietyStatus(raw), expected, raw);
+  assert.equal(helpers.formatVarietyStatus({ toString: 'broken' }), '');
+  const card = helpers.renderCard({ id: 'v', title: '综艺', mediaType: '综艺', updateStatus: '', updateMsg: '周六' }, 0);
+  assert.match(card, /card-status ">每周六更新</u);
+});
+
+test('cards show one new marker, no internal discovery label and only high AI matches with visible wording', () => {
+  const { helpers, elements } = createApp();
+  const year = new Date().getFullYear();
+  const data = snapshot(4);
+  Object.assign(data.koreanDramas[0], { recommendScore: 4, year, isNew: true, isAutoDiscovered: true, aiScore: 88 });
+  Object.assign(data.koreanDramas[1], { recommendScore: 3, year, aiScore: 69 });
+  Object.assign(data.koreanDramas[2], { recommendScore: 2, year: year - 3, aiScore: 70 });
+  Object.assign(data.koreanDramas[3], { recommendScore: 1, year: year - 3, isNew: true });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  let cards = cardMarkup(elements);
+  assert.equal((cards[0].match(/badge-new">新加入</gu) || []).length, 2, 'one badge, repeated only in the overlay and inline row');
+  assert.doesNotMatch(cards[0], /新发现|>新剧</u);
+  assert.match(cards[0], /badge-ai"><span aria-hidden="true">🤖<\/span> AI 推荐 88<span class="sr-only">/u);
+  assert.match(cards[1], /badge-new">新剧</u);
+  assert.doesNotMatch(cards[1], /badge-ai/u, 'scores below 70 are not highlighted');
+  assert.match(cards[2], /AI 推荐 70/u);
+  assert.doesNotMatch(cards[2], /badge-new/u);
+  assert.match(cards[3], /badge-new">新加入</u, 'a recent arrival is marked regardless of release year');
+
+  helpers.switchTab('year', { animate: false });
+  cards = cardMarkup(elements);
+  assert.equal(cards.length, 2);
+  assert.match(cards[0], /新加入/u);
+  assert.doesNotMatch(cards[1], /badge-new/u, 'the year tab already implies the year-based marker');
+  helpers.switchTab('new', { animate: false });
+  assert.doesNotMatch(elements.showGrid.innerHTML, /badge-new/u, 'every card in the recent-arrivals tab is new');
+});
+
+test('cards are labelled by their titles and external links name the show and the new window', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(2);
+  Object.assign(data.koreanDramas[1], {
+    title: '<链接>剧', yfspUrl: 'https://www.yfsp.tv/play/x', tmdbUrl: 'https://www.themoviedb.org/tv/9',
+    doubanUrl: 'https://movie.douban.com/subject/9/', actor: '甲,乙', score: 8, isSerial: true,
+  });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const markup = elements.showGrid.innerHTML;
+  const labelled = [...markup.matchAll(/<article class="show-card" aria-labelledby="([^"]+)"/gu)].map(match => match[1]);
+  assert.deepEqual(labelled, ['card-0-title', 'card-1-title']);
+  for (const id of labelled) assert.equal((markup.match(new RegExp(`id="${id}"`, 'gu')) || []).length, 1);
+  const card = cardMarkup(elements).find(markup => markup.includes('&lt;链接&gt;剧'));
+  const links = card.match(/<a [\s\S]*?<\/a>/gu);
+  assert.equal(links.length, 3);
+  for (const link of links) assert.match(link, /<span class="sr-only">：&lt;链接&gt;剧（新窗口）<\/span><\/a>$/u);
+  for (const emoji of ['⭐', '🎭']) assert.match(card, new RegExp(`<span aria-hidden="true">${emoji}</span>`, 'u'));
+});
+
+test('long descriptions get an accessible expand toggle while short ones do not', () => {
+  const { helpers, elements, document } = createApp();
+  const data = snapshot(2);
+  data.koreanDramas[0].description = '很长的简介'.repeat(12);
+  data.koreanDramas[1].description = '一句话简介';
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  const [long, short] = cardMarkup(elements);
+  assert.match(long, /<p class="card-desc" id="card-0-desc">/u);
+  assert.match(long, /<button class="card-desc-toggle" type="button" aria-expanded="false" aria-controls="card-0-desc">展开简介<\/button>/u);
+  assert.doesNotMatch(short, /card-desc-toggle/u);
+  assert.match(helpers.renderCard({ id: 'm', title: '中等', description: '中'.repeat(30) }, 5), /card-desc-toggle narrow-only/u,
+    'a medium description only needs the toggle where it is clamped to two lines');
+
+  helpers.bindDescriptionToggles();
+  const attributes = new Map([['aria-expanded', 'false'], ['aria-controls', 'card-0-desc']]);
+  const button = {
+    textContent: '展开简介',
+    closest: selector => selector === '.card-desc-toggle' ? button : null,
+    getAttribute: name => attributes.get(name),
+    setAttribute: (name, value) => attributes.set(name, value),
+  };
+  const description = document.createElement();
+  const getElementById = document.getElementById;
+  document.getElementById = id => id === 'card-0-desc' ? description : getElementById(id);
+  elements.showGrid.dispatch('click', { target: button });
+  assert.equal(attributes.get('aria-expanded'), 'true');
+  assert.equal(button.textContent, '收起简介');
+  assert.equal(description.classList.contains('is-expanded'), true);
+  elements.showGrid.dispatch('click', { target: button });
+  assert.equal(attributes.get('aria-expanded'), 'false');
+  assert.equal(description.classList.contains('is-expanded'), false);
+  elements.showGrid.dispatch('click', { target: { closest: () => null } });
+  assert.equal(attributes.get('aria-expanded'), 'false', 'other clicks inside the grid are ignored');
+});
+
+test('the schedule tab hides recommendation-only sorts and filters and restores them afterwards', async () => {
+  const { helpers, elements } = createApp();
+  const options = {};
+  const option = (select, value) => (options[`${select}:${value}`] ||= { hidden: false });
+  elements.sortBy.querySelector = selector => option('sort', selector.match(/value="([^"]+)"/u)[1]);
+  elements.filterStatus.querySelector = selector => option('status', selector.match(/value="([^"]+)"/u)[1]);
+  const data = snapshot(2);
+  data.koreanDramas[0].yfspUrl = 'https://www.yfsp.tv/play/a';
+  helpers.setAllData(data);
+  helpers.setTVmazeCache([{ id: 1, name: '时间表节目', status: 'Ended' }]);
+  helpers.bindFilters();
+  helpers.switchTab('korean', { animate: false });
+  elements.filterPlayable.checked = true;
+  elements.filterStatus.value = 'complete';
+  elements.filterStatus.dispatch('change');
+  assert.equal(elements.filterToggle.textContent, '筛选与排序（2）');
+
+  await helpers.switchTab('tvmaze');
+  assert.equal(option('sort', 'popular').hidden, true);
+  assert.equal(option('status', 'complete').hidden, true);
+  assert.equal(elements.playableFilterGroup.hidden, true);
+  assert.equal(elements.filterStatus.value, 'all', 'a hidden selected option falls back to the visible default');
+  assert.match(elements.showGrid.innerHTML, /时间表节目/u, 'the hidden playable filter does not empty the schedule');
+  assert.equal(elements.filterToggle.textContent, '筛选与排序');
+
+  helpers.switchTab('korean', { animate: false });
+  assert.equal(option('sort', 'popular').hidden, false);
+  assert.equal(option('status', 'complete').hidden, false);
+  assert.equal(elements.playableFilterGroup.hidden, false);
+  assert.equal(elements.filterPlayable.checked, true);
+  assert.equal(elements.showGrid.children.length, 1, 'the playable filter applies again outside the schedule');
+});
+
+for (const [age, expectedWrites] of [[0, 0], [2 * DAY, 1]]) {
+  test(`an unchanged background response ${expectedWrites ? 'refreshes an old' : 'does not rewrite a recent'} local cache`, async () => {
+    const data = snapshot(3);
+    const client = createApp(async () => ({ ok: true, json: async () => structuredClone(data) }), data, Date.now() - age);
+    await client.helpers.loadData();
+    assert.equal(client.getCacheWrites(), expectedWrites);
+    assert.equal(client.elements.showGrid.children.length, 3);
+  });
+}
+
+test('the static loading markup matches the first scripted skeleton so the grid does not jump', () => {
+  const index = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const staticGrid = index.match(/<div class="show-grid" id="showGrid"[^>]*>([\s\S]*?)<\/div>\s*<div class="load-more"/u)?.[1] || '';
+  const client = createApp(() => new Promise(() => {}));
+  client.helpers.loadData();
+  const normalize = html => html.replace(/<!--[\s\S]*?-->/gu, '').replace(/\s+/gu, ' ').trim();
+  assert.ok(staticGrid.includes('skeleton-card'));
+  assert.equal(normalize(staticGrid), normalize(client.elements.showGrid.innerHTML));
+  assert.equal(client.elements.showGrid.getAttribute('aria-busy'), 'true');
+});
+
+test('the public payload omits empty optional fields without changing what the frontend renders', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'iyf-public-trim-'));
+  try {
+    const output = join(directory, 'shows.json');
+    execFileSync(process.execPath, [fileURLToPath(new URL('./build-public-data.mjs', import.meta.url)), '--output', output]);
+    const published = JSON.parse(readFileSync(output, 'utf8'));
+    const source = JSON.parse(readFileSync(new URL('../data/shows.json', import.meta.url), 'utf8'));
+    const { helpers } = createApp();
+    assert.ok(helpers.isShowDataset(published));
+    const verbatim = new Set(['firstSeenAt', 'scrapedAt', 'updateMsg', 'descriptionSource']);
+    const referenceTime = Date.parse(published.generatedAt);
+    const withoutDelay = markup => markup.replace(/style="animation-delay:[^"]+"/u, '');
+    for (const category of ['koreanDramas', 'chineseVariety']) {
+      for (const [index, show] of published[category].entries()) {
+        const original = source[category][index];
+        for (const [field, value] of Object.entries(show)) {
+          if (verbatim.has(field)) continue;
+          assert.ok(value !== null && value !== '' && value !== false && !(Array.isArray(value) && !value.length), `${category}[${index}].${field} is empty`);
+        }
+        assert.equal(show.description, original.description, 'descriptions are never truncated');
+        assert.equal(show.lastLiveAt, original.lastLiveAt || undefined, 'live observation time is published for play-count freshness');
+        assert.equal(Object.hasOwn(show, 'isAutoDiscovered'), false, 'the internal discovery flag is no longer rendered');
+        assert.equal(withoutDelay(helpers.renderCard(show, 0, 2026, referenceTime)),
+          withoutDelay(helpers.renderCard(original, 0, 2026, referenceTime)), `${show.title} renders identically after trimming`);
+      }
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });

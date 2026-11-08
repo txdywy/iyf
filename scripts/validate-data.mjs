@@ -17,7 +17,7 @@ const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered
 const TEXT_FIELDS = [
   'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
   'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
-  'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
+  'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
 ];
 const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl'];
 const ALLOWED_HOSTS = new Set([
@@ -27,6 +27,11 @@ const ALLOWED_HOSTS = new Set([
   'www.iyf.tv', 'static.iyf.tv', 'rankv21.iyf.tv',
   'zh.wikipedia.org', 'en.wikipedia.org', 'ko.wikipedia.org',
 ]);
+// 已确认不应发布的独立卡片（例如没有独立季的《黑暗荣耀》第 2 季）。规则放在提交前校验，
+// 而不是让单元测试依赖已提交数据的内容。
+const RETIRED_TITLES = new Set(['黑暗荣耀第2季']);
+// 私有的 AI 运行状态由抓取器写出，公开载荷不投影；缺失时兼容旧快照。
+const AI_STOP_REASONS = new Set(['', 'quota', 'auth', 'credit', 'failures', 'budget']);
 
 function readJSON(path) {
   try {
@@ -98,6 +103,21 @@ function tmdbSeasonNumber(value) {
   return match ? Number(match[1]) : 0;
 }
 
+function validateAiRunStatus(status) {
+  if (status === undefined) return;
+  const label = 'data/shows.json.aiRunStatus';
+  if (!status || typeof status !== 'object' || Array.isArray(status)) {
+    errors.push(`${label}: must be an object`);
+    return;
+  }
+  if (typeof status.stopReason !== 'string') errors.push(`${label}.stopReason: must be a string`);
+  // 新增的停止原因不应阻塞发布，只提示同步更新校验与健康检查。
+  else if (!AI_STOP_REASONS.has(status.stopReason)) warnings.push(`${label}.stopReason: unknown value ${JSON.stringify(status.stopReason.slice(0, 40))}`);
+  for (const field of ['requested', 'scored']) {
+    if (!Number.isInteger(status[field]) || status[field] < 0) errors.push(`${label}.${field}: must be a non-negative integer`);
+  }
+}
+
 function validateShows(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     errors.push('data/shows.json: root must be an object');
@@ -128,6 +148,9 @@ function validateShows(data) {
       }
       if (show.titleAliases != null && (!Array.isArray(show.titleAliases) || show.titleAliases.some(value => typeof value !== 'string'))) {
         errors.push(`${label}.titleAliases: must be an array of strings or null`);
+      }
+      if (RETIRED_TITLES.has(show.title) || (Array.isArray(show.titleAliases) && show.titleAliases.some(alias => RETIRED_TITLES.has(alias)))) {
+        errors.push(`${label}: retired card must not be published`);
       }
       const identity = show.id;
       if (seenIds.has(identity)) errors.push(`${label}: duplicate id ${show.id}`);
@@ -178,11 +201,13 @@ function validateShows(data) {
       }
     }
     const expected = data.stats?.[category];
-    if (Number.isFinite(expected) && expected !== shows.length) errors.push(`stats.${category}: expected ${shows.length}, got ${expected}`);
+    if (PUBLIC_CATEGORIES.has(category) && !Number.isFinite(expected)) errors.push(`stats.${category}: must be a finite count`);
+    else if (Number.isFinite(expected) && expected !== shows.length) errors.push(`stats.${category}: expected ${shows.length}, got ${expected}`);
   }
-  for (const field of ['generatedAt', 'sourceStatus']) {
+  for (const field of ['generatedAt', 'sourceStatus', 'sourceKind']) {
     if (data[field] != null && typeof data[field] !== 'string') errors.push(`data/shows.json.${field}: must be a string or null`);
   }
+  validateAiRunStatus(data.aiRunStatus);
   if (typeof data.sourceStatus === 'string' && data.sourceStatus !== 'healthy') {
     warnings.push(`data/shows.json: core source status is ${data.sourceStatus}; recommendations keep the previous snapshot time`);
   }

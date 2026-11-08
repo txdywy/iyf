@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
-import { deployCloudflare } from './deploy-cloudflare.mjs';
+import { deployCloudflare, readOriginMainSha } from './deploy-cloudflare.mjs';
 
 const HOOK_URL = 'https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/unit-test-secret-token';
 const PAGES_ORIGIN = 'https://iyf-5l7.pages.dev';
@@ -610,4 +610,33 @@ test('Cloudflare deployment compares exact bytes even when text decoding would h
   });
   await assert.rejects(h.run(), /css\/style\.css: content hash mismatch/);
   assert.ok(!h.logs.some(message => message.includes('production matches')));
+});
+
+test('origin/main lookup retries transient git ls-remote failures with a fixed backoff', async () => {
+  const sha = 'a'.repeat(40);
+  const sleeps = [];
+  let calls = 0;
+  const run = async (command, args) => {
+    assert.equal(command, 'git');
+    assert.deepEqual(args, ['ls-remote', '--exit-code', 'origin', 'refs/heads/main']);
+    if (++calls < 3) throw new Error('transient network failure');
+    return { stdout: `${sha}\trefs/heads/main\n` };
+  };
+  assert.equal(await readOriginMainSha({ run, sleep: async ms => { sleeps.push(ms); } }), sha);
+  assert.equal(calls, 3);
+  assert.deepEqual(sleeps, [2000, 2000]);
+});
+
+test('origin/main lookup still fails after three unsuccessful attempts', async () => {
+  const sleeps = [];
+  let calls = 0;
+  const run = async () => { calls++; throw new Error('remote unavailable'); };
+  await assert.rejects(readOriginMainSha({ run, sleep: async ms => { sleeps.push(ms); } }), /remote unavailable/);
+  assert.equal(calls, 3);
+  assert.deepEqual(sleeps, [2000, 2000]);
+
+  calls = 0;
+  const malformed = async () => { calls++; return { stdout: 'not a ref\n' }; };
+  await assert.rejects(readOriginMainSha({ run: malformed, sleep: async () => {} }), /no origin\/main commit/);
+  assert.equal(calls, 3);
 });
