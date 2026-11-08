@@ -2878,8 +2878,10 @@ const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站�
 assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
 assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
 assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
-assert.match(workflow, /SCRAPE: \$\{\{ github\.event_name != 'push' \}\}/, 'push runs must deploy committed data without spending the scrape/AI quota');
-assert.match(workflow, /- name: Run Scraper\n\s+if: env\.SCRAPE == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /scrape=false\n\s+if \[ "\$EVENT_NAME" != "push" \]; then scrape=true; fi/, 'push runs must deploy committed data without spending the scrape/AI quota');
+assert.match(workflow, /if \[ "\$EVENT_NAME" = "schedule" \]; then[\s\S]*?< 8 \? 0 : 1[\s\S]*?scrape=false/, 'scheduled runs must skip scraping when committed data is under eight hours old');
+assert.match(workflow, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+assert.match(workflow, /IYF_REQUIRE_FRESH_DATA: \$\{\{ steps\.mode\.outputs\.scrape == 'true' && '1' \|\| '' \}\}/, 'only real scrape runs may require a fresh generatedAt');
 assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
 assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
 assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');
