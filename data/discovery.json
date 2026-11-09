@@ -1801,13 +1801,13 @@
     ]
   },
   "2026-11-09": {
-    "timestamp": "2026-11-09T06:54:29.310Z",
-    "totalFound": 19,
+    "timestamp": "2026-11-09T22:32:18.240Z",
+    "totalFound": 21,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1137959,
+        "playCount": 1138723,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -1819,7 +1819,7 @@
       {
         "title": "隐秘的监察",
         "score": 8,
-        "playCount": 922363,
+        "playCount": 922558,
         "year": 2026,
         "actor": "申惠善,孔明,金材昱,洪华妍",
         "source": "api_index",
@@ -1831,7 +1831,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 449979,
+        "playCount": 450073,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -1843,7 +1843,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 369865,
+        "playCount": 369912,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -1855,7 +1855,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339319,
+        "playCount": 339386,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -1867,7 +1867,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215292,
+        "playCount": 215309,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -1879,7 +1879,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167305,
+        "playCount": 167319,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -1891,7 +1891,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 150238,
+        "playCount": 150611,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -1915,7 +1915,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 110968,
+        "playCount": 110986,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -1926,8 +1926,8 @@
       },
       {
         "title": "最后一桌",
-        "score": 6.4,
-        "playCount": 91874,
+        "score": 6.6,
+        "playCount": 94746,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -1939,7 +1939,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 83035,
+        "playCount": 83388,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -1951,7 +1951,7 @@
       {
         "title": "总会再相见",
         "score": 7.3,
-        "playCount": 78634,
+        "playCount": 78661,
         "year": 2026,
         "actor": "申正祐,金明灿,敏度希,金炯民",
         "source": "api_index",
@@ -1963,11 +1963,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 71386,
+        "playCount": 72397,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到30",
+        "updateStatus": "更新到31",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -1975,7 +1975,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 67822,
+        "playCount": 68640,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -1999,7 +1999,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21808,
+        "playCount": 21812,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -2011,7 +2011,7 @@
       {
         "title": "音乐同学会-好歌谣",
         "score": 0,
-        "playCount": 18180,
+        "playCount": 18181,
         "year": 2020,
         "actor": "李寿根,郑恩地,刘世允,金信英",
         "source": "search",
@@ -2023,7 +2023,7 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10842,
+        "playCount": 10843,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
@@ -2031,6 +2031,30 @@
         "contentType": "",
         "mediaType": "综艺",
         "regional": "韩国"
+      },
+      {
+        "title": "独一无二的浪漫",
+        "score": 0,
+        "playCount": 5441,
+        "year": 2026,
+        "actor": "金贤镇,朴秀荣",
+        "source": "api_index",
+        "updateStatus": "更新到02",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "瞬间喜剧挑战赛",
+        "score": 0,
+        "playCount": 2267,
+        "year": 2026,
+        "actor": "宋小宝,娄艺潇,松天硕,刘大锁,孙芮,王铁柱,史元庭,闫东",
+        "source": "api_index",
+        "updateStatus": "更新到20261106(主题精编版)",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
       }
     ]
   }
