@@ -1085,6 +1085,9 @@ function sameShowIdentity(a, b) {
   return true;
 }
 
+// 源站简介不超过这个长度时，富化阶段会尝试换成更完整的 TMDB/Wikipedia 文案。
+const DESCRIPTION_UPGRADE_MAX_LENGTH = 80;
+
 function mergePreviousShowState(current, previous) {
   if (!previous) return { ...current };
   const merged = { ...previous, ...current };
@@ -1112,7 +1115,27 @@ function mergePreviousShowState(current, previous) {
     current.description && current.descriptionSource !== 'seed';
   const hasPreviousSourceDescription = previous.description &&
     ['yfsp', 'tmdb', 'wikipedia'].includes(previous.descriptionSource);
-  if (hasCurrentSourceDescription) {
+  // 上一轮已把较短的源站简介升级为 TMDB/Wikipedia 来源文案时，本轮同一份短简介不能把它打回原形，
+  // 否则每轮都会为同一批节目重新请求简介。源站文案里的硬性内容排除证据仍然保留。
+  const keepsPreviousUpgrade = hasCurrentSourceDescription && current.descriptionSource === 'yfsp' &&
+    ['tmdb', 'wikipedia'].includes(previous.descriptionSource) && previous.description &&
+    (seasonNumberFromTitle(merged.title)
+      ? previous.descriptionSource === 'tmdb' && !!previous.descriptionTmdbSeasonUrl
+      : current.description.length <= DESCRIPTION_UPGRADE_MAX_LENGTH && previous.description.length > current.description.length);
+  if (keepsPreviousUpgrade) {
+    rememberSourcedHardExclusion(current);
+    merged.description = previous.description;
+    merged.descriptionSource = previous.descriptionSource;
+    if (current._sourcedHardExclusion === true) {
+      Object.defineProperty(merged, '_sourcedHardExclusion', { value: true, configurable: true });
+    }
+    if (seasonNumberFromTitle(merged.title)) {
+      Object.defineProperty(merged, '_seasonDescriptionFallback', {
+        value: { description: current.description, descriptionSource: current.descriptionSource },
+        configurable: true,
+      });
+    }
+  } else if (hasCurrentSourceDescription) {
     merged.description = current.description;
     merged.descriptionSource = current.descriptionSource || 'yfsp';
     delete merged.descriptionTmdbSeasonUrl;
@@ -1166,11 +1189,20 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
         if (prev[field]) merged[field] = prev[field];
       }
     }
+    // 种子本轮没有匹配到来源观测时，沿用上一轮已发布的来源 ID 和标题。否则卡片 ID（以及别名标题）
+    // 会随“本轮是否轮到搜索刷新”在种子 ID 和来源 ID 之间来回切换，前端按 ID 的焦点保留、
+    // 封面缓存和 AI 评分缓存都会跟着抖动。
+    const stableSeedFallback = !restoredSeedAlias && current.isLive === false && current.seedId &&
+      prev.seedId === current.seedId && prev.id && prev.id !== id && prev.id !== current.seedId && !targetMap.has(prev.id);
+    if (stableSeedFallback) {
+      merged.id = prev.id;
+      merged.title = prev.title;
+    }
     merged.category = category;
     merged.mediaType = merged.mediaType || mediaType;
     merged.recommendScore = scoreFn(merged);
     attachLinkFields(merged, merged.yfspUrl, merged.doubanUrl);
-    if (restoredSeedAlias && merged.id !== id) {
+    if ((restoredSeedAlias || stableSeedFallback) && merged.id !== id) {
       targetMap.delete(id);
       targetMap.set(merged.id, merged);
     } else {
@@ -1530,10 +1562,16 @@ function sourceDescriptionForScoring(show, maxLength = 2000) {
   return show?.descriptionSource === 'ai' ? '' : safeText(show?.description, maxLength);
 }
 
+// 简介是自由文本：这些固定搭配里的“恐怖”是修辞或时政用语，不代表恐怖题材。
+// 例：浪漫喜剧《隐秘的监察》的 TMDB 简介写“流传着一个恐怖传说”，曾因此被硬性排除。
+// 类型标签和标题里的关键词不做这种放宽。
+const KDRAMA_BENIGN_DESCRIPTION_PHRASES = /恐怖传说|恐怖传闻|恐怖分子|恐怖份子|恐怖袭击|恐怖攻击|恐怖主义|恐怖组织|恐怖活动|白色恐怖/gu;
+
 function hasHardKDramaExclusion(show) {
   if (show?._sourcedHardExclusion === true) return true;
-  const text = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''} ${sourceDescriptionForScoring(show)}`.toLowerCase();
-  return KDramaHardExclude.some(keyword => text.includes(keyword));
+  const structured = `${show?.title || ''} ${show?.cidMapper || ''} ${show?.contentType || ''}`.toLowerCase();
+  const description = sourceDescriptionForScoring(show).toLowerCase().replace(KDRAMA_BENIGN_DESCRIPTION_PHRASES, ' ');
+  return KDramaHardExclude.some(keyword => structured.includes(keyword) || description.includes(keyword));
 }
 
 function rememberSourcedHardExclusion(show) {
@@ -3725,7 +3763,7 @@ async function enrichDescriptions(shows) {
     const target = descriptionTarget(s);
     if (hasSeasonDescriptionEvidence(s, target)) return false;
     if (needsSeasonDescriptionMigration(s, target)) return true;
-    if (s.descriptionSource !== 'ai' && s.description && s.description.length > 80) return false;
+    if (s.descriptionSource !== 'ai' && s.description && s.description.length > DESCRIPTION_UPGRADE_MAX_LENGTH) return false;
     // 同一 TMDB 条目最近已确认没有更好的中文简介时，7 天内不再重复请求。
     if (target && hasRecentLookupMiss(s.descriptionTmdbCheckedAt, s.descriptionTmdbCheckedPath, target.path)) return false;
     return target;

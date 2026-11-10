@@ -1703,9 +1703,24 @@ test('seed fallbacks preserve sourced descriptions and dynamic facts until the s
     mediaKey: 'published-live', title: seed.title, mediaType: '电视剧', regional: '韩国',
     description: '本轮来源确认的新简介。',
   }));
-  const replaced = helpers.mergePreviousShowState(fresh, previous);
-  assert.equal(replaced.description, '本轮来源确认的新简介。');
+  const kept = helpers.mergePreviousShowState(fresh, previous);
+  assert.equal(kept.description, previous.description,
+    'a short source synopsis must not undo last run\'s longer TMDB upgrade, or it is refetched every run');
+  assert.equal(kept.descriptionSource, 'tmdb');
+
+  const longDescription = '本轮来源确认的完整新简介。'.repeat(8);
+  const full = helpers.applyLiveFields({ ...seed, seedId: seed.id }, helpers.normalizeItem({
+    mediaKey: 'published-live', title: seed.title, mediaType: '电视剧', regional: '韩国', description: longDescription,
+  }));
+  const replaced = helpers.mergePreviousShowState(full, previous);
+  assert.equal(replaced.description, longDescription, 'a complete source synopsis still replaces the previous one');
   assert.equal(replaced.descriptionSource, 'yfsp');
+
+  const excluded = helpers.mergePreviousShowState(helpers.normalizeItem({
+    mediaKey: 'published-live', title: seed.title, mediaType: '电视剧', regional: '韩国', description: '血腥复仇故事。',
+  }), { ...previous, description: '一段不含排除词但更长的上一轮来源简介文案。' });
+  assert.equal(excluded.descriptionSource, 'tmdb');
+  assert.equal(helpers.isEligibleKDrama(excluded), false, 'hard exclusion evidence in the source synopsis survives the kept upgrade');
 });
 
 test('a complete all-503 run preserves published source descriptions and dynamic facts', async () => {
@@ -3612,4 +3627,38 @@ test('a domain migration never turns a confirmed old-domain invalid lookup into 
     assert.equal(show.yfspUrl, '', `run ${run + 1} must keep the invalid link unpublished`);
     assert.equal(show.yfspLookupUrl, 'https://www.yfsp.tv/play/bad', 'the invalid evidence keeps its original domain');
   }
+});
+
+test('figurative horror wording in a synopsis does not hard-exclude a romantic comedy', () => {
+  const { helpers } = loadHelpers();
+  const romcom = { title: '隐秘的监察', contentType: '喜剧', cidMapper: '喜剧·爱情', descriptionSource: 'tmdb',
+    description: '在金碧辉煌的海雾集团里，流传着一个恐怖传说：只要被稽核室长盯上，你就死定了。这对欢喜冤家产生了秘恋关系。' };
+  assert.equal(helpers.isEligibleKDrama(romcom), true);
+  assert.equal(helpers.isEligibleKDrama({ ...romcom, description: '一部血腥的恐怖故事。' }), false, 'genuine horror wording still excludes');
+  assert.equal(helpers.isEligibleKDrama({ ...romcom, description: '恐怖分子袭击后，幸存者在废弃医院遭遇恐怖事件。' }), false,
+    'a benign phrase does not hide another real keyword');
+  assert.equal(helpers.isEligibleKDrama({ ...romcom, cidMapper: '恐怖·爱情' }), false, 'genre tags are never relaxed');
+  assert.equal(helpers.isEligibleKDrama({ ...romcom, title: '恐怖传说' }), false, 'titles are never relaxed');
+});
+
+test('a seed without a live match this run keeps its previously published source ID and title', () => {
+  const { helpers } = loadHelpers();
+  const seed = helpers.SEED_KDRAMAS.find(show => show.title === '善意的竞争');
+  const fallback = helpers.applyLiveFields({ ...seed, mediaType: '电视剧', seedId: seed.id, scrapedAt: '', isLive: false }, null);
+  const previous = { ...seed, id: 'live-key-1', seedId: seed.id, title: seed.title, mediaType: '电视剧', regional: '韩国',
+    yfspUrl: 'https://www.kubb.tv/play/live-key-1', playCount: 123456, score: 8.4,
+    scrapedAt: new Date().toISOString(), lastLiveAt: new Date().toISOString() };
+  const target = new Map([[seed.id, fallback]]);
+  helpers.restorePreviousCategory(target, [previous], 'korean_drama', '电视剧', () => 100, 'disc_kd');
+  assert.deepEqual([...target.keys()], ['live-key-1'], 'the card must not flip back to its seed ID between runs');
+  assert.equal(target.get('live-key-1').id, 'live-key-1');
+  assert.equal(target.get('live-key-1').yfspUrl, previous.yfspUrl);
+  assert.equal(target.get('live-key-1').playCount, 123456);
+
+  // 另一张卡已占用该来源 ID 时不抢占。
+  const occupied = new Map([[seed.id, helpers.applyLiveFields({ ...seed, mediaType: '电视剧', seedId: seed.id, scrapedAt: '', isLive: false }, null)],
+    ['live-key-1', { id: 'live-key-1', title: '另一部剧', mediaType: '电视剧', regional: '韩国' }]]);
+  helpers.restorePreviousCategory(occupied, [previous], 'korean_drama', '电视剧', () => 100, 'disc_kd');
+  assert.equal(occupied.get('live-key-1').title, '另一部剧');
+  assert.ok(occupied.has(seed.id));
 });
