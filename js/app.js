@@ -81,6 +81,7 @@
     bindPosterFallbacks();
     bindDescriptionToggles();
     bindContentNavigation();
+    bindBackToTop();
     window.addEventListener('popstate', handleUrlStateChange);
     window.addEventListener('hashchange', handleUrlStateChange);
     // 时间表是独立来源，不应等待推荐 JSON 成功后才允许打开。
@@ -422,7 +423,7 @@
     if (playableGroup) playableGroup.hidden = isSchedule;
   }
 
-  function syncUrlState() {
+  function syncUrlState({ push = false } = {}) {
     const currentUrl = typeof location.href === 'string' && location.href
       ? location.href
       : `http://localhost/${location.hash || ''}`;
@@ -442,7 +443,11 @@
     if (playable) url.searchParams.set('playable', '1');
     else url.searchParams.delete('playable');
     url.hash = activeTabName;
-    history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    // 用户主动切换分类时留下历史记录，手机上的返回手势回到上一个分类而不是离开网站；
+    // 筛选、搜索等连续输入只替换当前记录。
+    const target = `${url.pathname}${url.search}${url.hash}`;
+    if (push && typeof history.pushState === 'function' && url.hash !== location.hash) history.pushState(null, '', target);
+    else history.replaceState(null, '', target);
   }
 
   function handleUrlStateChange() {
@@ -512,7 +517,7 @@
   function selectTabByUser(tab) {
     const changed = normalizeTabName(tab) !== activeTabName;
     if (!changed) return;
-    switchTab(tab);
+    switchTab(tab, { pushHistory: true });
     const main = document.getElementById('mainContent');
     const top = main?.getBoundingClientRect?.().top;
     const offset = parseFloat(window.getComputedStyle?.(document.documentElement)?.getPropertyValue?.('--tabs-scroll-offset')) || 0;
@@ -532,7 +537,7 @@
     if (offset) container.scrollLeft += offset;
   }
 
-  function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true, preserveVisibleCount = false, scrollToTab = true } = {}) {
+  function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true, preserveVisibleCount = false, scrollToTab = true, pushHistory = false } = {}) {
     tab = normalizeTabName(tab);
     const requestVersion = cancelPendingTabRequest();
     const sortSelect = document.getElementById('sortBy');
@@ -540,7 +545,7 @@
     activeTabName = tab;
     if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
     updateTabSpecificControls();
-    if (syncUrl) syncUrlState();
+    if (syncUrl) syncUrlState({ push: pushHistory });
     let activeButton = null;
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === tab;
@@ -609,6 +614,44 @@
   }
 
   // ── 筛选 ──────────────────────────────────────────
+  const STAT_SHORTCUTS = {
+    ongoing: { control: 'filterStatus', value: 'ongoing', off: 'all' },
+    complete: { control: 'filterStatus', value: 'complete', off: 'all' },
+    highScore: { control: 'filterScore', value: '8', off: '0' },
+  };
+
+  function updateStatShortcuts() {
+    for (const button of document.querySelectorAll?.('[data-stat-filter]') || []) {
+      const shortcut = STAT_SHORTCUTS[button.dataset.statFilter];
+      const select = shortcut && document.getElementById(shortcut.control);
+      button.setAttribute('aria-pressed', select?.value === shortcut?.value ? 'true' : 'false');
+    }
+  }
+
+  // ── 回到顶部 ──────────────────────────────────────
+  function bindBackToTop() {
+    const button = document.getElementById('backToTop');
+    if (!button) return;
+    let scheduled = false;
+    const update = () => {
+      scheduled = false;
+      const show = (window.scrollY || 0) > (window.innerHeight || 0) * 1.5;
+      // 隐藏前先把焦点交给当前分类标签，避免焦点落在不可见按钮上。
+      if (!show && document.activeElement === button) document.querySelector('.tab.active')?.focus({ preventScroll: true });
+      button.hidden = !show;
+    };
+    window.addEventListener('scroll', () => {
+      if (scheduled) return;
+      scheduled = true;
+      (window.requestAnimationFrame || setTimeout)(update);
+    }, { passive: true });
+    button.addEventListener('click', () => {
+      const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      document.querySelector('.tab.active')?.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
+
   function bindFilters() {
     const applyAndSync = () => {
       syncUrlState();
@@ -618,6 +661,16 @@
     document.getElementById('filterScore').addEventListener('change', applyAndSync);
     document.getElementById('sortBy').addEventListener('change', applyAndSync);
     document.getElementById('filterPlayable')?.addEventListener('change', applyAndSync);
+    // 统计数字兼作快捷筛选：再点一次取消。
+    for (const button of document.querySelectorAll?.('[data-stat-filter]') || []) {
+      button.addEventListener('click', () => {
+        const shortcut = STAT_SHORTCUTS[button.dataset.statFilter];
+        const select = shortcut && document.getElementById(shortcut.control);
+        if (!select || select.querySelector?.(`option[value="${shortcut.value}"]`)?.hidden) return;
+        select.value = select.value === shortcut.value ? shortcut.off : shortcut.value;
+        applyAndSync();
+      });
+    }
     const searchInput = document.getElementById('searchInput');
     let isComposing = false;
     const debouncedSearch = debounce(() => {
@@ -957,6 +1010,7 @@
       <article class="show-card" aria-labelledby="${titleId}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
           ${posterContent}
+          ${primaryAction ? `<a class="card-poster-link" href="${escapeHtml(primaryAction.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"></a>` : ''}
           <div class="card-badges">${badges.join('')}</div>
         </div>
         <div class="card-body">
@@ -1143,6 +1197,7 @@
     updateNumber('statHighScore', highScore);
     updateResultSummary(total, Math.min(_visibleShowCount, total));
     updateResetVisibility();
+    updateStatShortcuts();
   }
 
   function resetStats() {
@@ -1156,6 +1211,7 @@
     });
     updateResultSummary(0);
     updateResetVisibility();
+    updateStatShortcuts();
   }
 
   const _numTimers = new Map();

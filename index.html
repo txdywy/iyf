@@ -105,18 +105,18 @@
           <span class="stat-num" id="statTotal">0</span>
           <span class="stat-label">当前结果</span>
         </div>
-        <div class="stat-item">
+        <button class="stat-item stat-shortcut" type="button" data-stat-filter="ongoing" aria-pressed="false">
           <span class="stat-num" id="statOngoing">0</span>
           <span class="stat-label">正在连载</span>
-        </div>
-        <div class="stat-item">
+        </button>
+        <button class="stat-item stat-shortcut" type="button" data-stat-filter="complete" aria-pressed="false">
           <span class="stat-num" id="statComplete">0</span>
           <span class="stat-label">已完结</span>
-        </div>
-        <div class="stat-item">
+        </button>
+        <button class="stat-item stat-shortcut" type="button" data-stat-filter="highScore" aria-pressed="false">
           <span class="stat-num" id="statHighScore">0</span>
           <span class="stat-label">高分佳作</span>
-        </div>
+        </button>
         <p class="badge-legend"><span class="badge badge-ai">AI 推荐</span> 口味匹配度≥70（满分100，非观众评分） · <span class="badge badge-playable">可播放</span> 有播放源</p>
       </div>
     </section>
@@ -199,6 +199,8 @@
     </main>
 
     <!-- 底部 -->
+    <button class="back-to-top" id="backToTop" type="button" hidden><span aria-hidden="true">↑</span> 回到顶部</button>
+
     <footer class="footer">
       <div class="container">
         <p>数据来源: 爱壹帆 · 按日抓取，更新时间以页面显示为准 · 仅供个人学习使用</p>
