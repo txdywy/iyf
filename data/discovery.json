@@ -2054,13 +2054,13 @@
     ]
   },
   "2026-11-10": {
-    "timestamp": "2026-11-10T07:30:53.535Z",
-    "totalFound": 18,
+    "timestamp": "2026-11-10T19:52:40.628Z",
+    "totalFound": 19,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1139117,
+        "playCount": 1139732,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -2072,7 +2072,7 @@
       {
         "title": "隐秘的监察",
         "score": 8,
-        "playCount": 922648,
+        "playCount": 922788,
         "year": 2026,
         "actor": "申惠善,孔明,金材昱,洪华妍",
         "source": "api_index",
@@ -2084,7 +2084,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 450167,
+        "playCount": 450250,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -2096,7 +2096,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 369938,
+        "playCount": 369986,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -2108,7 +2108,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339437,
+        "playCount": 339474,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -2120,7 +2120,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215329,
+        "playCount": 215348,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -2132,7 +2132,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167342,
+        "playCount": 167377,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -2144,7 +2144,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 150777,
+        "playCount": 151043,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -2156,7 +2156,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 111009,
+        "playCount": 111023,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -2168,7 +2168,7 @@
       {
         "title": "最后一桌",
         "score": 6.6,
-        "playCount": 95851,
+        "playCount": 97368,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -2180,7 +2180,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 83589,
+        "playCount": 83897,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -2192,7 +2192,7 @@
       {
         "title": "总会再相见",
         "score": 7.3,
-        "playCount": 78675,
+        "playCount": 78698,
         "year": 2026,
         "actor": "申正祐,金明灿,敏度希,金炯民",
         "source": "api_index",
@@ -2204,7 +2204,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 73720,
+        "playCount": 74816,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -2216,7 +2216,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 68984,
+        "playCount": 69773,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -2228,7 +2228,7 @@
       {
         "title": "独一无二的浪漫",
         "score": 0,
-        "playCount": 9138,
+        "playCount": 13366,
         "year": 2026,
         "actor": "金贤镇,朴秀荣",
         "source": "api_index",
@@ -2240,7 +2240,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21819,
+        "playCount": 21824,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -2270,6 +2270,18 @@
         "source": "search",
         "updateStatus": "02集全",
         "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "魔鬼的计谋：死亡重启",
+        "score": 0,
+        "playCount": 4091,
+        "year": 2026,
+        "actor": "张东民,洪榛浩,徐明元,申东熙,河锡辰",
+        "source": "api_index",
+        "updateStatus": "更新到05",
+        "contentType": "真人秀",
         "mediaType": "综艺",
         "regional": "韩国"
       }
