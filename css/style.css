@@ -382,6 +382,62 @@ a:hover { color: var(--pink); }
   color: var(--text-dim);
 }
 
+/* 统计数字兼作快捷筛选 */
+.stat-shortcut {
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.stat-shortcut:hover { border-color: var(--border); }
+
+.stat-shortcut[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: rgba(124, 92, 252, 0.16);
+}
+
+.stat-shortcut:focus-visible {
+  outline: 2px solid var(--accent-light);
+  outline-offset: 2px;
+}
+
+.back-to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--bg-card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+.back-to-top[hidden] { display: none; }
+
+.back-to-top:focus-visible {
+  outline: 2px solid var(--accent-light);
+  outline-offset: 2px;
+}
+
+/* 整张海报可点，行为与主按钮一致；徽标不拦截点击。 */
+.card-poster-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card-badges { pointer-events: none; }
+
 .badge-legend {
   flex: 1 1 100%;
   color: var(--text-dim);
@@ -929,8 +985,13 @@ a:hover { color: var(--pink); }
   .search-box { order: 1; flex: 1 1 100%; min-width: 0; }
   .search-box input { padding: 10px 14px; font-size: 0.95rem; }
   .tab { padding: 8px 14px; font-size: 0.82rem; }
-  .stats-bar .container { gap: 12px; }
-  .stat-num { font-size: 1.1rem; }
+  /* 窄屏把统计压成一行，让第一张卡片更早出现。 */
+  .stats-bar { padding: 6px 0; }
+  .stats-bar .container { gap: 2px 6px; align-items: center; }
+  .stat-item { display: flex; align-items: baseline; gap: 4px; padding: 6px 6px; }
+  .stat-num { display: inline; font-size: 1rem; }
+  .stat-label { font-size: 0.72rem; }
+  .badge-legend { font-size: 0.7rem; }
 }
 
 @media (max-width: 480px) {

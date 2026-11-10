@@ -1323,7 +1323,11 @@ test('cards are labelled by their titles and external links name the show and th
   assert.deepEqual(labelled, ['card-0-title', 'card-1-title']);
   for (const id of labelled) assert.equal((markup.match(new RegExp(`id="${id}"`, 'gu')) || []).length, 1);
   const card = cardMarkup(elements).find(markup => markup.includes('&lt;链接&gt;剧'));
-  const links = card.match(/<a [\s\S]*?<\/a>/gu);
+  const allLinks = card.match(/<a [\s\S]*?<\/a>/gu);
+  const posterLinks = allLinks.filter(link => link.includes('card-poster-link'));
+  assert.equal(posterLinks.length, 1, 'the poster is one extra pointer target for the primary action');
+  assert.match(posterLinks[0], /tabindex="-1" aria-hidden="true"/u, 'the poster link duplicates the button, so it stays out of the tab order and the accessibility tree');
+  const links = allLinks.filter(link => !link.includes('card-poster-link'));
   assert.equal(links.length, 3);
   for (const link of links) assert.match(link, /<span class="sr-only">：&lt;链接&gt;剧（新窗口）<\/span><\/a>$/u);
   for (const emoji of ['⭐', '🎭']) assert.match(card, new RegExp(`<span aria-hidden="true">${emoji}</span>`, 'u'));
