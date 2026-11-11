@@ -15,7 +15,7 @@
   const DATA_REQUEST_TIMEOUT_MS = 10000;
   const INITIAL_RENDER_COUNT = 24;
   const RENDER_BATCH_SIZE = 24;
-  const VALID_TABS = new Set(['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'tvmaze']);
+  const VALID_TABS = new Set(['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'mine', 'tvmaze']);
   const TAB_ALIASES = Object.freeze({
     year2026: 'year',
     variety2026: 'varietyYear',
@@ -48,6 +48,18 @@
     tvmazeImage: new Set(['static.tvmaze.com']),
   });
   const TVMAZE_TIME_ZONE = 'Asia/Seoul';
+  // “看过/想看”只存在本机浏览器；以片名+年份为键，来源 ID 变化后标记仍然有效。
+  const MARKS_KEY = 'iyf:marks:v1';
+  const MARKS_MAX_ENTRIES = 2000;
+  const MARK_KINDS = ['want', 'seen'];
+  const MARK_LABELS = { want: '想看', seen: '看过' };
+  // 快捷类型标签：至少 3 部、且不超过当前分类一半（“剧情”“真人秀”这类几乎全选的类型没有筛选意义）。
+  const QUICK_GENRE_MIN_COUNT = 3;
+  const QUICK_GENRE_MAX_SHARE = 0.5;
+  const QUICK_GENRE_LIMIT = 6;
+  const GENRE_MAX_LENGTH = 12;
+  const SEARCH_PLACEHOLDER = '搜索全部韩剧和综艺的剧名/演员…';
+  const SEARCH_PLACEHOLDER_SCHEDULE = '搜索时间表中的剧名…';
   let allData = null;
   let _dataLoadFailed = false;
   let _dataLoadNotice = '';
@@ -68,6 +80,11 @@
   let _loadMoreObserver = null;
   let _isLoadingMore = false;
   let _recommendationMaximum = 1;
+  let _genreFilter = '';
+  // 搜索跨全部分类时，来自当前标签之外的结果；卡片上标出所属分类。
+  let _outsideShows = new Set();
+  let _outsideResultCount = 0;
+  let _marks = loadMarks();
   const AUTO_LOAD_ROOT_MARGIN = '0px 0px 480px 0px';
 
 
@@ -79,7 +96,8 @@
     bindFilters();
     bindLoadMore();
     bindPosterFallbacks();
-    bindDescriptionToggles();
+    bindCardActions();
+    bindQuickFilters();
     bindContentNavigation();
     bindBackToTop();
     window.addEventListener('popstate', handleUrlStateChange);
@@ -358,6 +376,7 @@
       query: params.get('q') || '',
       // 旧书签没有该参数时保持不过滤。
       playable: params.get('playable') === '1',
+      genre: normalizeGenre(params.get('genre')),
     };
   }
 
@@ -385,6 +404,7 @@
     if (sort) sort.value = state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend';
     if (search) search.value = state.query;
     if (playable) playable.checked = state.playable === true;
+    _genreFilter = normalizeGenre(state.genre);
     updateTabSpecificControls();
     updateResetVisibility();
   }
@@ -397,11 +417,23 @@
       sort: document.getElementById('sortBy')?.value || 'recommend',
       query: document.getElementById('searchInput')?.value.trim() || '',
       playable: activeTabName !== 'tvmaze' && document.getElementById('filterPlayable')?.checked === true,
+      // 类型与“隐藏看过”只作用于推荐标签；时间表没有这些信息。
+      genre: activeTabName !== 'tvmaze' ? _genreFilter : '',
+      hideSeen: activeTabName !== 'tvmaze' && _marks.hideSeen === true,
     };
   }
 
   function hasActiveResultFilters(state = readFilterState()) {
-    return state.status !== 'all' || state.score !== '0' || !!state.query || state.playable;
+    return state.status !== 'all' || state.score !== '0' || !!state.query || state.playable || !!state.genre || state.hideSeen;
+  }
+
+  function normalizeGenre(value) {
+    const text = typeof value === 'string' ? value.trim() : '';
+    return Array.from(text).length <= GENRE_MAX_LENGTH && !/[<>"'&\u0000-\u001F]/u.test(text) ? text : '';
+  }
+
+  function getShowGenres(show) {
+    return toText(show?.contentType).split(/[·/]/u).map(genre => genre.trim()).filter(Boolean);
   }
 
   // 隐藏与当前标签无关的排序/筛选选项；已选中的隐藏项回到该标签的默认值。
@@ -421,6 +453,12 @@
     if (isSchedule && status && TVMAZE_HIDDEN_STATUS.has(status.value)) status.value = 'all';
     const playableGroup = document.getElementById('playableFilterGroup');
     if (playableGroup) playableGroup.hidden = isSchedule;
+    const search = document.getElementById('searchInput');
+    const placeholder = isSchedule ? SEARCH_PLACEHOLDER_SCHEDULE : SEARCH_PLACEHOLDER;
+    if (search && search.placeholder !== placeholder) {
+      search.placeholder = placeholder;
+      search.setAttribute?.('aria-label', placeholder.replace(/…$/u, ''));
+    }
   }
 
   function syncUrlState({ push = false } = {}) {
@@ -442,6 +480,8 @@
     else url.searchParams.delete('q');
     if (playable) url.searchParams.set('playable', '1');
     else url.searchParams.delete('playable');
+    if (_genreFilter) url.searchParams.set('genre', _genreFilter);
+    else url.searchParams.delete('genre');
     url.hash = activeTabName;
     // 用户主动切换分类时留下历史记录，手机上的返回手势回到上一个分类而不是离开网站；
     // 筛选、搜索等连续输入只替换当前记录。
@@ -605,6 +645,9 @@
           ...(allData.chineseVariety || [])
         ].filter(s => s.isClassic === true);
         break;
+      case 'mine':
+        shows = getAllRecommendationShows().filter(show => getShowMark(show));
+        break;
       case 'tvmaze':
         return fetchAndRenderTVmaze(requestVersion);
     }
@@ -709,6 +752,11 @@
     if (score) score.value = '0';
     if (sort) sort.value = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
     if (playable) playable.checked = false;
+    _genreFilter = '';
+    if (_marks.hideSeen) {
+      _marks.hideSeen = false;
+      saveMarks();
+    }
     if (search) {
       search.value = '';
       const focused = document.activeElement;
@@ -785,10 +833,16 @@
     }, true);
   }
 
+  // 卡片内按钮共用一个委托监听：“想看/看过”标记与简介展开。
   // 简介默认按行截断；按钮展开/收起同一段文字，读屏用户也能通过 aria-expanded 得知状态。
-  function bindDescriptionToggles() {
+  function bindCardActions() {
     const grid = document.getElementById('showGrid');
     grid?.addEventListener('click', event => {
+      const markButton = event?.target?.closest?.('.card-mark');
+      if (markButton) {
+        toggleCardMark(markButton);
+        return;
+      }
       const button = event?.target?.closest?.('.card-desc-toggle');
       if (!button) return;
       const expanded = button.getAttribute('aria-expanded') !== 'true';
@@ -812,55 +866,67 @@
       updateResetVisibility();
       return;
     }
-    let shows = [...currentShows];
     const filters = readFilterState();
-
-    // 状态筛选
-    if (filters.status === 'ongoing') shows = shows.filter(isShowOngoing);
-    else if (filters.status === 'complete') shows = shows.filter(isShowComplete);
-
-    // 评分筛选
     const minScore = parseFloat(filters.score);
-    if (minScore > 0) shows = shows.filter(s => getShowNumber(s, 'score') >= minScore);
-
-    // 只看可播放（时间表标签中不生效）
-    if (filters.playable) shows = shows.filter(isShowPlayable);
-
-    // 搜索
     const query = filters.query.toLowerCase();
-    if (query) {
-      shows = shows.filter(s => {
-        const titleMatches = toText(s.title).toLowerCase().includes(query);
-        if (titleMatches) return true;
-        return [
-          s.name,
-          s.actor,
-          s.contentType,
-          s.network?.name ?? s.network,
-          Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases,
-          s.genres,
-        ].some(value => toSearchText(value).toLowerCase().includes(query));
-      });
-    }
-
+    const isSchedule = activeTabName === 'tvmaze';
     // 排序：主排序键相同时可播放的卡片优先，其余保持原有相对顺序。
     const byKey = key => (a, b) => (key(b) - key(a)) || (isShowPlayable(b) - isShowPlayable(a));
-    switch (filters.sort) {
-      case 'recommend':
-        shows.sort(byKey(show => getShowNumber(show, 'recommend')));
-        break;
-      case 'score':
-        shows.sort(byKey(show => getShowNumber(show, 'score')));
-        break;
-      case 'newest':
-        shows = activeTabName === 'tvmaze'
-          ? sortTVmazeShows(shows)
-          : shows.sort(byKey(getNewestSortTime));
-        break;
-      case 'popular':
-        shows.sort(byKey(show => getShowNumber(show, 'popular')));
-        break;
+
+    const filterAndSort = source => {
+      let shows = [...source];
+      // 状态筛选
+      if (filters.status === 'ongoing') shows = shows.filter(isShowOngoing);
+      else if (filters.status === 'complete') shows = shows.filter(isShowComplete);
+      // 评分筛选
+      if (minScore > 0) shows = shows.filter(s => getShowNumber(s, 'score') >= minScore);
+      // 只看可播放（时间表标签中不生效）
+      if (filters.playable) shows = shows.filter(isShowPlayable);
+      if (filters.genre) shows = shows.filter(s => getShowGenres(s).includes(filters.genre));
+      if (filters.hideSeen) shows = shows.filter(s => getShowMark(s) !== 'seen');
+      // 搜索
+      if (query) {
+        shows = shows.filter(s => {
+          const titleMatches = toText(s.title).toLowerCase().includes(query);
+          if (titleMatches) return true;
+          return [
+            s.name,
+            s.actor,
+            s.contentType,
+            s.network?.name ?? s.network,
+            Array.isArray(s.titleAliases) ? s.titleAliases.join(' ') : s.titleAliases,
+            s.genres,
+          ].some(value => toSearchText(value).toLowerCase().includes(query));
+        });
+      }
+      switch (filters.sort) {
+        case 'recommend':
+          shows.sort(byKey(show => getShowNumber(show, 'recommend')));
+          break;
+        case 'score':
+          shows.sort(byKey(show => getShowNumber(show, 'score')));
+          break;
+        case 'newest':
+          shows = isSchedule ? sortTVmazeShows(shows) : shows.sort(byKey(getNewestSortTime));
+          break;
+        case 'popular':
+          shows.sort(byKey(show => getShowNumber(show, 'popular')));
+          break;
+      }
+      // 看过的沉到各自分组末尾，保持其余顺序。
+      return isSchedule ? shows : [...shows.filter(s => getShowMark(s) !== 'seen'), ...shows.filter(s => getShowMark(s) === 'seen')];
+    };
+
+    let shows = filterAndSort(currentShows);
+    // 搜索默认覆盖全部韩剧和综艺：当前分类的结果在前，其他分类的命中接在后面并标出分类。
+    let outside = [];
+    if (query && !isSchedule && allData) {
+      const inTab = new Set(currentShows);
+      outside = filterAndSort(getAllRecommendationShows().filter(show => !inTab.has(show)));
     }
+    _outsideShows = new Set(outside);
+    _outsideResultCount = outside.length;
+    if (outside.length) shows = [...shows, ...outside];
 
     renderShows(shows, animate, { preserveVisibleCount });
     updateStats(shows, animate);
@@ -895,6 +961,7 @@
       updateLoadMore(0, 0);
       // 由筛选造成的空结果直接提供清除操作，避免用户回到顶部寻找按钮。
       if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
+      else if (activeTabName === 'mine') setEmptyState('还没有标记节目。在任意卡片上点“想看”或“看过”，它们会出现在这里（只保存在这台设备的浏览器里）。');
       else setEmptyState('😢 暂无符合当前条件的推荐');
       return;
     }
@@ -985,6 +1052,7 @@
     const actors = toText(show.actor).split(',').filter(Boolean).slice(0, 3).join(' / ');
 
     const tags = [];
+    if (_outsideShows.has(show)) tags.push(`<span class="meta-tag category">${show.mediaType === '综艺' ? '综艺' : '韩剧'}</span>`);
     if (show.regional) tags.push(`<span class="meta-tag region">${escapeHtml(show.regional)}</span>`);
     if (toText(show.contentType)) {
       toText(show.contentType).split(/[·/]/).slice(0, 3).forEach(g => {
@@ -996,6 +1064,7 @@
     }
 
     const recommendWidth = getRecommendationWidth(show);
+    const mark = getShowMark(show);
 
     const primaryAction = renderPrimaryAction(show, playUrl);
     const sourceLinks = renderSourceLinks(show, primaryAction?.url || '');
@@ -1007,7 +1076,7 @@
       : '';
 
     return `
-      <article class="show-card" aria-labelledby="${titleId}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+      <article class="show-card${mark === 'seen' ? ' is-seen' : ''}" aria-labelledby="${titleId}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
           ${posterContent}
           ${primaryAction ? `<a class="card-poster-link" href="${escapeHtml(primaryAction.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"></a>` : ''}
@@ -1019,6 +1088,7 @@
           ${badges.length ? `<div class="card-badges-inline">${badges.join('')}</div>` : ''}
           <div class="card-meta">${tags.join('')}</div>
           ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
+          ${renderMarkButtons(show, mark)}
           ${actors ? `<div class="card-actors"><span aria-hidden="true">🎭</span> ${escapeHtml(actors)}</div>` : ''}
           <p class="card-desc" id="${descId}">${escapeHtml(description)}</p>
           ${descriptionToggle}
@@ -1156,6 +1226,7 @@
       const label = count ? `筛选与排序（${count}）` : '筛选与排序';
       if (toggle.textContent !== label) toggle.textContent = label;
     }
+    updateQuickFilters(state);
   }
 
   function updateResultSummary(total, visibleTotal = total) {
@@ -1166,12 +1237,15 @@
       return;
     }
     const activeFilters = [];
-    const { status, score, query, playable } = readFilterState();
+    const { status, score, query, playable, genre, hideSeen } = readFilterState();
     if (status === 'ongoing') activeFilters.push('连载中');
     if (status === 'complete') activeFilters.push('已完结');
     if (score && score !== '0') activeFilters.push(`${score}分以上`);
     if (playable) activeFilters.push('可播放');
+    if (genre) activeFilters.push(genre);
+    if (hideSeen) activeFilters.push('隐藏看过');
     if (query) activeFilters.push(`搜索“${query}”`);
+    if (query && _outsideResultCount) activeFilters.push(`含其他分类 ${_outsideResultCount} 个`);
     const suffix = activeFilters.length ? ` · ${activeFilters.join(' · ')}` : '';
     const noun = REMOTE_TAB_LABELS[activeTabName] ? '个节目' : '个推荐结果';
     const countText = visibleTotal < total ? `显示 ${visibleTotal} / ${total} ${noun}` : `显示 ${total} ${noun}`;
@@ -1271,6 +1345,167 @@
       }
     }, 30);
     _numTimers.set(id, timer);
+  }
+
+  // ── 看过 / 想看 ──────────────────────────────────────
+  function loadMarks() {
+    const marks = { want: Object.create(null), seen: Object.create(null), hideSeen: false };
+    try {
+      if (typeof localStorage === 'undefined') return marks;
+      const stored = JSON.parse(localStorage.getItem(MARKS_KEY) || 'null');
+      if (stored?.kind !== 'iyf-marks') return marks;
+      for (const kind of MARK_KINDS) {
+        const entries = stored[kind];
+        if (entries === null || typeof entries !== 'object' || Array.isArray(entries)) continue;
+        for (const [key, time] of Object.entries(entries).slice(0, MARKS_MAX_ENTRIES)) {
+          if (key && key.length <= 220 && Number.isFinite(time)) marks[kind][key] = time;
+        }
+      }
+      marks.hideSeen = stored.hideSeen === true;
+    } catch {
+      // 存储不可用或内容损坏时从空标记开始。
+    }
+    return marks;
+  }
+
+  function saveMarks() {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(MARKS_KEY, JSON.stringify({ kind: 'iyf-marks', want: _marks.want, seen: _marks.seen, hideSeen: _marks.hideSeen }));
+    } catch {
+      // 隐私模式下标记只在本次访问有效。
+    }
+  }
+
+  function getMarkKey(show) {
+    const title = toText(show?.title).trim();
+    return title ? `${title}|${toFiniteNumber(show?.year) || ''}` : '';
+  }
+
+  // 同一节目只有一个标记：'want'、'seen' 或空。
+  function getShowMark(show) {
+    const key = getMarkKey(show);
+    if (!key) return '';
+    return key in _marks.seen ? 'seen' : key in _marks.want ? 'want' : '';
+  }
+
+  function setMark(key, kind) {
+    if (!key) return '';
+    const next = key in _marks[kind] ? '' : kind;
+    for (const other of MARK_KINDS) delete _marks[other][key];
+    if (next) {
+      // 超出上限时淘汰最早的标记。
+      const keys = Object.keys(_marks[next]);
+      if (keys.length >= MARKS_MAX_ENTRIES) {
+        keys.sort((a, b) => _marks[next][a] - _marks[next][b]).slice(0, keys.length - MARKS_MAX_ENTRIES + 1)
+          .forEach(oldKey => delete _marks[next][oldKey]);
+      }
+      _marks[next][key] = Date.now();
+    }
+    saveMarks();
+    return next;
+  }
+
+  function renderMarkButtons(show, mark = getShowMark(show)) {
+    const key = getMarkKey(show);
+    if (!key) return '';
+    const buttons = MARK_KINDS.map(kind =>
+      `<button class="card-mark" type="button" data-mark="${kind}" aria-pressed="${mark === kind}">${MARK_LABELS[kind]}<span class="sr-only">：${escapeHtml(show.title)}</span></button>`);
+    return `<div class="card-marks" data-mark-key="${escapeHtml(key)}">${buttons.join('')}</div>`;
+  }
+
+  // 就地更新这张卡片：不立即重排，避免卡片从手指下消失；下一次筛选、排序或切换标签时看过的才沉底。
+  function toggleCardMark(button) {
+    const group = button.closest?.('.card-marks');
+    const kind = button.dataset?.mark;
+    const key = group?.dataset?.markKey;
+    if (!MARK_KINDS.includes(kind) || !key) return;
+    const mark = setMark(key, kind);
+    for (const other of group.querySelectorAll?.('.card-mark') || []) {
+      other.setAttribute('aria-pressed', String(other.dataset?.mark === mark));
+    }
+    button.closest?.('.show-card')?.classList.toggle('is-seen', mark === 'seen');
+    updateQuickFilters();
+  }
+
+  function getAllRecommendationShows() {
+    return [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || [])];
+  }
+
+  // ── 快捷筛选标签 ──────────────────────────────────────
+  function getQuickGenres() {
+    if (activeTabName === 'tvmaze' || !currentShows.length) return _genreFilter && activeTabName !== 'tvmaze' ? [_genreFilter] : [];
+    const counts = new Map();
+    for (const show of currentShows) {
+      for (const genre of new Set(getShowGenres(show))) counts.set(genre, (counts.get(genre) || 0) + 1);
+    }
+    const genres = [...counts].filter(([, count]) => count >= QUICK_GENRE_MIN_COUNT && count <= currentShows.length * QUICK_GENRE_MAX_SHARE)
+      .sort((a, b) => b[1] - a[1]).slice(0, QUICK_GENRE_LIMIT).map(([genre]) => genre);
+    // 已选类型即使不在当前分类的常见类型里也要显示，才能取消。
+    if (_genreFilter && !genres.includes(_genreFilter)) genres.unshift(_genreFilter);
+    return genres;
+  }
+
+  function updateQuickFilters(state = readFilterState()) {
+    const container = document.getElementById('quickFilters');
+    if (!container) return;
+    const isSchedule = activeTabName === 'tvmaze';
+    const chip = (name, label, pressed, extra = '') =>
+      `<button class="chip" type="button" data-chip="${name}"${extra} aria-pressed="${pressed}">${escapeHtml(label)}</button>`;
+    const chips = [];
+    if (!isSchedule) chips.push(chip('playable', '可播放', state.playable));
+    chips.push(chip('ongoing', '连载中', state.status === 'ongoing'));
+    if (!isSchedule) {
+      chips.push(chip('score8', '8 分以上', state.score === '8'));
+      if (state.hideSeen || Object.keys(_marks.seen).length) chips.push(chip('hideSeen', '隐藏看过', state.hideSeen));
+      for (const genre of getQuickGenres()) chips.push(chip('genre', genre, state.genre === genre, ` data-genre="${escapeHtml(genre)}"`));
+    }
+    const html = chips.join('');
+    if (container.innerHTML === html) return;
+    // 重写标签会丢失焦点；按标签身份恢复，键盘用户可以连续切换。
+    const focused = container.contains?.(document.activeElement) ? document.activeElement : null;
+    const focusedChip = focused?.dataset?.chip;
+    const focusedGenre = focused?.dataset?.genre;
+    container.innerHTML = html;
+    if (focusedChip) {
+      [...(container.querySelectorAll?.('.chip') || [])]
+        .find(button => button.dataset?.chip === focusedChip && button.dataset?.genre === focusedGenre)
+        ?.focus({ preventScroll: true });
+    }
+  }
+
+  function bindQuickFilters() {
+    document.getElementById('quickFilters')?.addEventListener('click', event => {
+      const button = event?.target?.closest?.('.chip');
+      if (!button) return;
+      const status = document.getElementById('filterStatus');
+      const score = document.getElementById('filterScore');
+      const playable = document.getElementById('filterPlayable');
+      switch (button.dataset?.chip) {
+        case 'playable':
+          if (playable) playable.checked = !playable.checked;
+          break;
+        case 'ongoing':
+          if (status) status.value = status.value === 'ongoing' ? 'all' : 'ongoing';
+          break;
+        case 'score8':
+          if (score) score.value = score.value === '8' ? '0' : '8';
+          break;
+        case 'hideSeen':
+          _marks.hideSeen = !_marks.hideSeen;
+          saveMarks();
+          break;
+        case 'genre': {
+          const genre = normalizeGenre(button.dataset.genre);
+          _genreFilter = _genreFilter === genre ? '' : genre;
+          break;
+        }
+        default:
+          return;
+      }
+      syncUrlState();
+      applyFilters();
+    });
   }
 
   // ── 工具函数 ──────────────────────────────────────
