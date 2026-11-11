@@ -5996,7 +5996,7 @@
     "regional": "韩国",
     "doubanLookupId": "37835653",
     "notFound": true,
-    "cachedAt": "2026-11-10T19:52:44.653Z"
+    "cachedAt": "2026-11-11T19:44:27.650Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -8674,7 +8674,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-10T19:52:42.538Z"
+    "cachedAt": "2026-11-11T19:44:26.626Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -10426,5 +10426,60 @@
     "tmdbId": 326901,
     "tmdbUrl": "https://www.themoviedb.org/tv/326901",
     "cachedAt": "2026-11-11T06:48:37.372Z"
+  },
+  "F56a9HuHFiF": {
+    "title": "午夜规则",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "泰国",
+    "url": "https://image.tmdb.org/t/p/original/hJF2csAuSuNRJIacTkQmfkd6GgL.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "午夜规则",
+    "matchedTitle": "午夜规则",
+    "tmdbId": 330613,
+    "tmdbUrl": "https://www.themoviedb.org/tv/330613",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt50252733/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-11T19:44:25.525Z",
+    "cachedAt": "2026-11-11T19:44:25.527Z"
+  },
+  "Em4yTTn4IcB": {
+    "title": "老板的露骨取向",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "韩国",
+    "notFound": true,
+    "cachedAt": "2026-11-11T19:44:26.024Z"
+  },
+  "MvjiznkhEzl": {
+    "title": "指环王：力量之戒第3季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/yiZGqFpiKOZkf5EZ6u2GoLxRIRa.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:84773:3",
+    "matchedTitle": "指环王：力量之戒第 3 季",
+    "matchedSeriesTitle": "指环王：力量之戒",
+    "tmdbId": 84773,
+    "tmdbUrl": "https://www.themoviedb.org/tv/84773/season/3",
+    "tmdbSeriesId": 84773,
+    "tmdbSeasonId": 467821,
+    "tmdbSeasonNumber": 3,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%AD%94%E6%88%92%EF%BC%9A%E5%8A%9B%E9%87%8F%E4%B9%8B%E6%88%92",
+    "imdbUrl": "https://www.imdb.com/title/tt7631058/",
+    "wikidataId": "Q59149852",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-11T19:44:26.542Z",
+    "cachedAt": "2026-11-11T19:44:26.545Z"
   }
 }

@@ -2283,13 +2283,13 @@
     ]
   },
   "2026-11-11": {
-    "timestamp": "2026-11-11T06:48:37.965Z",
-    "totalFound": 18,
+    "timestamp": "2026-11-11T19:44:24.271Z",
+    "totalFound": 19,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1140132,
+        "playCount": 1140731,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -2313,7 +2313,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 450326,
+        "playCount": 450412,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -2325,7 +2325,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 370014,
+        "playCount": 370058,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -2337,7 +2337,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339525,
+        "playCount": 339559,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -2349,7 +2349,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215368,
+        "playCount": 215398,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -2361,7 +2361,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167398,
+        "playCount": 167420,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -2373,7 +2373,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 151190,
+        "playCount": 151425,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -2385,7 +2385,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 111029,
+        "playCount": 111055,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -2397,7 +2397,7 @@
       {
         "title": "最后一桌",
         "score": 6.6,
-        "playCount": 98337,
+        "playCount": 99574,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -2409,7 +2409,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 84137,
+        "playCount": 84424,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -2433,11 +2433,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 76498,
+        "playCount": 77725,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到32",
+        "updateStatus": "更新到33",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -2445,7 +2445,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 70165,
+        "playCount": 70934,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -2457,7 +2457,7 @@
       {
         "title": "独一无二的浪漫",
         "score": 0,
-        "playCount": 15768,
+        "playCount": 18277,
         "year": 2026,
         "actor": "金贤镇,朴秀荣",
         "source": "api_index",
@@ -2469,7 +2469,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21829,
+        "playCount": 21833,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -2493,13 +2493,25 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10844,
+        "playCount": 10845,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
         "updateStatus": "02集全",
         "contentType": "",
         "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "老板的露骨取向",
+        "score": 0,
+        "playCount": 2991,
+        "year": 2026,
+        "actor": "成勋,吴世英,李正信,朴政学,金在仁",
+        "source": "api_index",
+        "updateStatus": "更新到01",
+        "contentType": "爱情",
+        "mediaType": "电视剧",
         "regional": "韩国"
       }
     ]
