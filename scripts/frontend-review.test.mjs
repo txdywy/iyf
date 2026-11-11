@@ -9,7 +9,7 @@ import vm from 'node:vm';
 
 const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
 
-function createApp(fetchImpl = async () => { throw new Error('unexpected fetch'); }, cachedData = null, cacheTimestamp = Date.now()) {
+function createApp(fetchImpl = async () => { throw new Error('unexpected fetch'); }, cachedData = null, cacheTimestamp = Date.now(), storage = {}) {
   const elements = new Map();
   const document = { activeElement: null };
   const view = {
@@ -104,7 +104,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     'showGrid', 'loading', 'empty', 'emptyMessage', 'emptyAction', 'loadMore', 'loadMoreButton',
     'loadMoreStatus', 'resetFilters', 'resultSummary', 'statTotal', 'statOngoing', 'statComplete',
     'statHighScore', 'updateInfo', 'yearTabLabel', 'varietyYearTabLabel', 'mainContent',
-    'filterToggle', 'playableFilterGroup',
+    'filterToggle', 'playableFilterGroup', 'quickFilters',
   ]) elements.set(id, element(id));
   elements.set('filterPlayable', Object.assign(element('filterPlayable'), { checked: false }));
   for (const [id, value] of [['filterStatus', 'all'], ['filterScore', '0'], ['sortBy', 'recommend'], ['searchInput', '']]) {
@@ -127,6 +127,8 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   let savedData = cachedData;
   let savedAt = cacheTimestamp;
   let cacheWrites = 0;
+  const DATA_CACHE_KEY = 'iyf:shows-cache:v3';
+  const otherStorage = new Map(Object.entries(storage));
   const context = vm.createContext({
     console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
     setTimeout, clearTimeout, setInterval, clearInterval,
@@ -136,15 +138,19 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
     } },
     localStorage: {
-      getItem: () => savedData ? JSON.stringify({ version: 3, cachedAt: savedAt, data: savedData }) : null,
-      setItem(key, value) { cacheWrites++; ({ data: savedData, cachedAt: savedAt } = JSON.parse(value)); },
+      getItem: key => key !== DATA_CACHE_KEY ? (otherStorage.get(key) ?? null)
+        : savedData ? JSON.stringify({ version: 3, cachedAt: savedAt, data: savedData }) : null,
+      setItem(key, value) {
+        if (key !== DATA_CACHE_KEY) { otherStorage.set(key, value); return; }
+        cacheWrites++; ({ data: savedData, cachedAt: savedAt } = JSON.parse(value));
+      },
     },
   });
   vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
     globalThis.helpers = {
       loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml, formatVarietyStatus, renderCard, isShowDataset, handleUrlStateChange,
-      bindDescriptionToggles,
+      bindCardActions, bindQuickFilters, updateQuickFilters, getShowMark, setMark, getMarkKey,
       setAllData: value => { allData = value; },
       setTVmazeCache: shows => {
         _tvmazeCache = shows; _tvmazeCachedAt = Date.now(); _tvmazeCacheDate = getScheduleDateKey();
@@ -153,7 +159,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   })();`), context, { timeout: 1000 });
   return {
     helpers: context.helpers, elements: Object.fromEntries(elements), document, view, location,
-    getSavedData: () => savedData, getCacheWrites: () => cacheWrites,
+    getSavedData: () => savedData, getCacheWrites: () => cacheWrites, otherStorage,
   };
 }
 
@@ -1117,7 +1123,7 @@ test('a TMDB rating stands in for a missing source score in badges, score filter
   assert.equal(elements.statHighScore.textContent, 1);
   elements.filterScore.value = '0';
   helpers.applyFilters();
-  assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
+  assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
   assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐<\/span><span class="sr-only">爱壹帆评分<\/span> 7\.2</u);
 });
 
@@ -1347,7 +1353,7 @@ test('long descriptions get an accessible expand toggle while short ones do not'
   assert.match(helpers.renderCard({ id: 'm', title: '中等', description: '中'.repeat(30) }, 5), /card-desc-toggle narrow-only/u,
     'a medium description only needs the toggle where it is clamped to two lines');
 
-  helpers.bindDescriptionToggles();
+  helpers.bindCardActions();
   const attributes = new Map([['aria-expanded', 'false'], ['aria-controls', 'card-0-desc']]);
   const button = {
     textContent: '展开简介',
@@ -1452,4 +1458,129 @@ test('the public payload omits empty optional fields without changing what the f
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+});
+
+function markedSnapshot(count = 4) {
+  const data = snapshot(count);
+  // 8 部时：喜剧·爱情 3 部、悬疑 3 部、其余无类型。
+  data.koreanDramas.forEach((show, index) => Object.assign(show, {
+    year: 2026, recommendScore: 40 - index, contentType: index < count * 3 / 8 ? '喜剧·爱情' : index < count * 6 / 8 ? '悬疑' : '',
+  }));
+  Object.assign(data.chineseVariety[0], { title: '奔跑综艺', mediaType: '综艺', year: 2026 });
+  return data;
+}
+
+test('watched and want marks persist locally, sink watched cards and fill the personal list', () => {
+  const client = createApp();
+  const { helpers, elements } = client;
+  helpers.setAllData(markedSnapshot());
+  helpers.switchTab('korean', { animate: false });
+  const titles = () => [...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>([^<]+)/gu)].map(match => match[1]);
+  assert.deepEqual(titles(), ['剧目0', '剧目1', '剧目2', '剧目3']);
+  assert.match(elements.showGrid.innerHTML, /data-mark-key="剧目0\|2026"><button class="card-mark" type="button" data-mark="want" aria-pressed="false">想看/u);
+
+  // 点击只就地更新卡片；下一次筛选时看过的才沉底。
+  helpers.bindCardActions();
+  const pressed = new Map();
+  const card = { classList: { toggle(name, force) { card.seen = force; } } };
+  const group = { dataset: { markKey: '剧目0|2026' }, querySelectorAll: () => [seenButton] };
+  const seenButton = {
+    dataset: { mark: 'seen' }, setAttribute: (name, value) => pressed.set(name, value),
+    closest: selector => selector === '.card-mark' ? seenButton : selector === '.card-marks' ? group : card,
+  };
+  elements.showGrid.dispatch('click', { target: seenButton });
+  assert.equal(pressed.get('aria-pressed'), 'true');
+  assert.equal(card.seen, true);
+  assert.equal(elements.showGrid.htmlWrites, 1, 'marking does not rebuild the grid');
+  helpers.setMark('剧目2|2026', 'want');
+  assert.deepEqual(JSON.parse(client.otherStorage.get('iyf:marks:v1')).kind, 'iyf-marks');
+
+  helpers.applyFilters();
+  assert.deepEqual(titles(), ['剧目1', '剧目2', '剧目3', '剧目0']);
+  assert.match(elements.showGrid.innerHTML, /show-card is-seen"[^>]*>[\s\S]*剧目0/u);
+  helpers.switchTab('mine', { animate: false });
+  assert.deepEqual(titles(), ['剧目2', '剧目0'], 'the personal list holds marked shows with watched ones last');
+
+  // 新会话从本地存储恢复；同一节目只有一个标记，再点一次取消。
+  const restored = createApp(undefined, null, Date.now(), Object.fromEntries(client.otherStorage));
+  assert.equal(restored.helpers.getShowMark({ title: '剧目0', year: 2026 }), 'seen');
+  assert.equal(restored.helpers.setMark('剧目0|2026', 'want'), 'want');
+  assert.equal(restored.helpers.setMark('剧目0|2026', 'want'), '');
+  assert.equal(restored.helpers.getShowMark({ title: '剧目0', year: 2026 }), '');
+  restored.helpers.setMark('剧目2|2026', 'want');
+  restored.helpers.setAllData(markedSnapshot());
+  restored.helpers.switchTab('mine', { animate: false });
+  assert.match(restored.elements.emptyMessage.textContent, /还没有标记节目/u);
+
+  // 损坏或不相干的存储内容从空标记开始。
+  const broken = createApp(undefined, null, Date.now(), { 'iyf:marks:v1': '{"kind":"iyf-marks","seen":["x"],"want":{"a|1":"bad"}}' });
+  assert.equal(broken.helpers.getShowMark({ title: 'a', year: 1 }), '');
+});
+
+test('quick filter chips toggle the shared filters, genre and hide-watched state', () => {
+  const client = createApp();
+  const { helpers, elements, location } = client;
+  helpers.setAllData(markedSnapshot(8));
+  helpers.bindFilters();
+  helpers.bindQuickFilters();
+  helpers.switchTab('korean', { animate: false });
+  const chips = () => [...elements.quickFilters.innerHTML.matchAll(/data-chip="(\w+)"(?: data-genre="([^"]+)")? aria-pressed="(\w+)">([^<]+)/gu)]
+    .map(([, name, genre, pressed, label]) => `${genre || name}:${pressed}:${label}`);
+  assert.deepEqual(chips(), ['playable:false:可播放', 'ongoing:false:连载中', 'score8:false:8 分以上', '喜剧:false:喜剧', '爱情:false:爱情', '悬疑:false:悬疑'],
+    'genre chips need at least three shows');
+  const click = dataset => elements.quickFilters.dispatch('click', { target: { closest: () => ({ dataset }) } });
+  click({ chip: 'genre', genre: '喜剧' });
+  assert.match(location.search, /genre=%E5%96%9C%E5%89%A7/u);
+  assert.match(elements.resultSummary.textContent, /显示 3 个推荐结果 · 喜剧/u);
+  assert.ok(chips().includes('喜剧:true:喜剧'));
+  click({ chip: 'ongoing' });
+  assert.equal(elements.filterStatus.value, 'ongoing');
+  click({ chip: 'ongoing' });
+  click({ chip: 'score8' });
+  assert.equal(elements.filterScore.value, '8');
+  click({ chip: 'score8' });
+  click({ chip: 'playable' });
+  assert.equal(elements.filterPlayable.checked, true);
+  click({ chip: 'playable' });
+  click({ chip: 'genre', genre: '喜剧' });
+  assert.doesNotMatch(location.search, /genre=/u);
+
+  helpers.setMark('剧目1|2026', 'seen');
+  helpers.applyFilters();
+  assert.ok(chips().includes('hideSeen:false:隐藏看过'), 'the hide-watched chip appears once something is marked watched');
+  click({ chip: 'hideSeen' });
+  assert.match(elements.resultSummary.textContent, /显示 7 个推荐结果 · 隐藏看过/u);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /card-title"[^>]*>剧目1</u);
+  elements.resetFilters.dispatch('click');
+  assert.match(elements.resultSummary.textContent, /显示 8 个推荐结果$/u);
+
+  // 地址里的类型参数恢复筛选；畸形值被忽略。时间表标签只保留“连载中”。
+  location.search = '?genre=%E6%82%AC%E7%96%91';
+  helpers.handleUrlStateChange();
+  assert.match(elements.resultSummary.textContent, /显示 3 个推荐结果 · 悬疑/u);
+  location.search = '?genre=%3Cscript%3E';
+  helpers.handleUrlStateChange();
+  assert.match(elements.resultSummary.textContent, /显示 8 个推荐结果$/u);
+  helpers.setTVmazeCache([]);
+  helpers.switchTab('tvmaze', { animate: false });
+  assert.deepEqual(chips(), ['ongoing:false:连载中']);
+});
+
+test('search covers every category with outside results after the current tab and labelled by category', () => {
+  const { helpers, elements } = createApp();
+  const data = markedSnapshot();
+  data.koreanDramas[3].title = '奔跑少年';
+  helpers.setAllData(data);
+  elements.searchInput.value = '奔跑';
+  helpers.switchTab('korean', { animate: false });
+  const titles = [...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>([^<]+)/gu)].map(match => match[1]);
+  assert.deepEqual(titles, ['奔跑少年', '奔跑综艺']);
+  assert.equal(elements.showGrid.innerHTML.match(/meta-tag category">([^<]+)/gu).length, 1);
+  assert.match(elements.showGrid.innerHTML, /meta-tag category">综艺</u);
+  assert.match(elements.resultSummary.textContent, /搜索“奔跑” · 含其他分类 1 个/u);
+  helpers.switchTab('variety', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /meta-tag category">韩剧</u);
+  elements.searchInput.value = '';
+  helpers.applyFilters();
+  assert.doesNotMatch(elements.showGrid.innerHTML, /meta-tag category/u);
 });

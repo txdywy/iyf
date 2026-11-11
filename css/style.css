@@ -319,6 +319,46 @@ a:hover { color: var(--pink); }
   color: var(--text-dim);
 }
 
+/* 快捷筛选标签：一排可横向滑动的开关，点一下即生效。空容器不占高度。 */
+.quick-filters {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* 给焦点环留出空间，避免被横向滚动容器裁掉。 */
+  padding: 4px;
+  margin-inline: -4px;
+}
+
+.quick-filters:empty { display: none; }
+.quick-filters::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 4px 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chip:hover { border-color: var(--accent-light); color: #fff; }
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.chip:focus-visible { outline-offset: 1px; }
+
 .filter-meta {
   display: flex;
   align-items: center;
@@ -790,6 +830,54 @@ a:hover { color: var(--pink); }
   color: #fff;
 }
 
+/* “想看 / 看过”标记：只保存在本机浏览器。 */
+.card-marks {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.card-mark {
+  flex: 1 1 0;
+  min-height: 32px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.card-mark:hover { border-color: var(--accent-light); color: #fff; }
+
+.card-mark[aria-pressed="true"] {
+  border-color: var(--green);
+  background: rgba(0,184,148,0.16);
+  color: #7fe8d0;
+  font-weight: 700;
+}
+
+.card-mark[aria-pressed="true"]::before { content: "✓ "; }
+
+.card-mark[data-mark="want"][aria-pressed="true"] {
+  border-color: var(--orange);
+  background: rgba(253,203,110,0.14);
+  color: var(--orange);
+}
+
+/* 看过的卡片压暗海报和标题，文字仍保持可读对比度。 */
+.show-card.is-seen .card-poster img,
+.show-card.is-seen .card-poster .placeholder { opacity: 0.4; }
+.show-card.is-seen .card-title { color: var(--text-muted); }
+
+.meta-tag.category {
+  background: rgba(253,203,110,0.16);
+  color: var(--orange);
+  font-weight: 700;
+}
+
 /* 资料来源收为一行小号文字链接；每个链接至少 24px 高，保持可点击。 */
 .card-links {
   display: flex;
@@ -1016,6 +1104,9 @@ a:hover { color: var(--pink); }
   .card-ai-reason { -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
   .card-primary-action { margin: 8px 0 10px; }
   .card-primary-action .card-action { min-height: 44px; font-size: 0.82rem; }
+  .card-marks { margin-bottom: 8px; }
+  .card-mark { min-height: 40px; font-size: 0.82rem; }
+  .chip { min-height: 40px; padding: 6px 14px; }
   .card-actions { flex-wrap: wrap; gap: 5px; }
   .card-action { flex: 1 1 45%; min-height: 44px; font-size: 0.85rem; }
   .filter-row { display: grid; grid-template-columns: minmax(0, 1fr); }

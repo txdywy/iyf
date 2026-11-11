@@ -1078,7 +1078,8 @@ for (const tab of ['korean', 'tvmaze']) {
   });
   elements.searchInput.value = '奔跑吧';
   helpers.switchTab('korean');
-  assert.match(elements.emptyMessage.textContent, /暂无符合/u, 'search should stay within the currently selected category');
+  assert.match(elements.showGrid.innerHTML, /meta-tag category">综艺<[\s\S]*奔跑吧/u, 'search covers every category and labels results from outside the selected tab');
+  assert.match(elements.resultSummary.textContent, /含其他分类 1 个/u);
   helpers.switchTab('variety');
   assert.match(elements.showGrid.innerHTML, /周五/u, 'variety cards should show the source update message when status text is absent');
 }

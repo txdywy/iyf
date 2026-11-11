@@ -43,6 +43,7 @@
         <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🎬</span> 全部综艺</button>
         <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🆕</span> 新近加入</button>
         <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🏆</span> 经典必看</button>
+        <button id="tab-mine" class="tab" data-tab="mine" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">⭐</span> 我的片单</button>
         <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">📡</span> 韩国电视剧时间表</button>
       </div>
       <p class="tabs-hint" id="tabsHint">左右滑动查看更多分类</p>
@@ -86,10 +87,11 @@
             </div>
           </div>
           <div class="search-box">
-            <input type="search" id="searchInput" placeholder="搜索当前分类中的剧名/演员…" aria-label="搜索当前分类中的剧名或演员" autocomplete="off">
+            <input type="search" id="searchInput" placeholder="搜索全部韩剧和综艺的剧名/演员…" aria-label="搜索全部韩剧和综艺的剧名/演员" autocomplete="off">
           </div>
           <button class="filter-toggle" id="filterToggle" type="button" aria-controls="filterControls" aria-expanded="false">筛选与排序</button>
         </div>
+        <div class="quick-filters" id="quickFilters" role="group" aria-label="快捷筛选"></div>
         <div class="filter-meta">
           <span class="result-summary" id="resultSummary" role="status" aria-live="polite"></span>
           <button class="filter-reset" id="resetFilters" type="button" hidden>清除筛选</button>
