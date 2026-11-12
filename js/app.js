@@ -39,9 +39,6 @@
   const AI_BADGE_MIN_SCORE = 70;
   // 最后一次实际观测超过 14 天的播放量已冻结，只能作为历史参考。
   const PLAY_COUNT_STALE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
-  // 简介超过约两行（窄屏）或三行（宽屏）时提供展开按钮，截断文字始终可读。
-  const DESCRIPTION_TOGGLE_MIN_LENGTH = 28;
-  const DESCRIPTION_WIDE_TOGGLE_MIN_LENGTH = 48;
   const REMOTE_TAB_LABELS = { tvmaze: 'TVmaze 韩国电视剧时间表' };
   const REMOTE_LINK_HOSTS = Object.freeze({
     tvmaze: new Set(['www.tvmaze.com']),
@@ -85,6 +82,15 @@
   let _outsideShows = new Set();
   let _outsideResultCount = 0;
   let _marks = loadMarks();
+  // 详情层当前展示的节目；地址里的 show= 参数与它保持一致，可直接分享。
+  let _detailShow = null;
+  let _detailPushedHistory = false;
+  // 海报 sizes 必须与网格断点一致：紧凑网格窄屏 3 列（间距 10px、左右各 10px）、平板 4 列（间距 12px、左右各 14px），
+  // 宽屏 auto-fill minmax(170px, 1fr)，单列最宽约 216px。
+  const POSTER_SIZES_COMPACT = '(max-width: 480px) calc((100vw - 40px) / 3), (max-width: 768px) calc((100vw - 64px) / 4), 216px';
+  // 完整卡片（时间表）：宽屏网格为 minmax(220px, 1fr)、18px 间距、左右各 20px 留白、容器最宽 1240px。
+  const POSTER_SIZES_FULL = '(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), (max-width: 973px) calc((100vw - 76px) / 3), (max-width: 1211px) calc((100vw - 94px) / 4), 226px';
+  const POSTER_SIZES_DETAIL = '(max-width: 600px) 96px, 200px';
   const AUTO_LOAD_ROOT_MARGIN = '0px 0px 480px 0px';
 
 
@@ -98,6 +104,7 @@
     bindPosterFallbacks();
     bindCardActions();
     bindQuickFilters();
+    bindDetail();
     bindContentNavigation();
     bindBackToTop();
     window.addEventListener('popstate', handleUrlStateChange);
@@ -121,6 +128,7 @@
         if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
         renderedFromCache = true;
+        syncDetailFromUrl();
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
         showDataLoading();
       }
@@ -159,6 +167,7 @@
         switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
       }
       saveDataCache(data);
+      syncDetailFromUrl();
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
       if (renderedFromCache) {
@@ -377,6 +386,7 @@
       // 旧书签没有该参数时保持不过滤。
       playable: params.get('playable') === '1',
       genre: normalizeGenre(params.get('genre')),
+      show: (params.get('show') || '').slice(0, 200),
     };
   }
 
@@ -493,6 +503,15 @@
   function handleUrlStateChange() {
     if (location.hash === '#mainContent') return;
     const state = readUrlState();
+    // 只是打开或关闭详情层（仅 show= 变化）时不重跑筛选，列表、焦点和阅读位置保持原样。
+    const current = readFilterState();
+    const filtersUnchanged = state.tab === activeTabName && state.status === current.status && state.score === current.score &&
+      state.query === current.query && state.genre === _genreFilter && (!state.sort || state.sort === current.sort) &&
+      state.playable === (document.getElementById('filterPlayable')?.checked === true);
+    if (filtersUnchanged && (state.show || _detailShow)) {
+      syncDetailFromUrl(state);
+      return;
+    }
     _tabSortPreferences.set(state.tab, state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend');
     if (state.tab !== activeTabName) {
       switchTab(state.tab, { syncUrl: false });
@@ -502,6 +521,7 @@
       restoreFilterControls(state);
       applyFilters();
     }
+    syncDetailFromUrl(state);
   }
 
   function bindContentNavigation() {
@@ -595,7 +615,10 @@
       if (active) activeButton = b;
     });
     if (scrollToTab) revealTabHorizontally(activeButton);
-    document.getElementById('showGrid')?.setAttribute('aria-labelledby', `tab-${tab}`);
+    const tabGrid = document.getElementById('showGrid');
+    tabGrid?.setAttribute('aria-labelledby', `tab-${tab}`);
+    // 推荐标签用紧凑海报网格，点开看详情；时间表保留完整卡片。
+    tabGrid?.classList.toggle('is-compact', tab !== 'tvmaze');
 
     const newestOption = sortSelect?.querySelector?.('option[value="newest"]');
     if (newestOption) newestOption.textContent = tab === 'tvmaze' ? '播出时间' : tab === 'new' ? '最近加入' : '最新发布';
@@ -823,32 +846,28 @@
 
   function bindPosterFallbacks() {
     const grid = document.getElementById('showGrid');
-    grid.addEventListener('error', event => {
-      const image = event.target;
-      if (!image || image.tagName !== 'IMG' || !image.closest('.card-poster')) return;
-      const placeholder = document.createElement('div');
-      placeholder.className = 'placeholder';
-      placeholder.textContent = image.dataset.fallbackIcon || '🎬';
-      image.replaceWith(placeholder);
-    }, true);
+    grid.addEventListener('error', event => replaceBrokenPoster(event.target), true);
   }
 
-  // 卡片内按钮共用一个委托监听：“想看/看过”标记与简介展开。
-  // 简介默认按行截断；按钮展开/收起同一段文字，读屏用户也能通过 aria-expanded 得知状态。
+  function replaceBrokenPoster(image) {
+    if (!image || image.tagName !== 'IMG' || !image.closest('.card-poster')) return;
+    const placeholder = document.createElement('div');
+    placeholder.className = 'placeholder';
+    placeholder.textContent = image.dataset.fallbackIcon || '🎬';
+    image.replaceWith(placeholder);
+  }
+
+  // 网格上的委托监听：点卡片打开详情层（完整简介、链接和“想看/看过”都在详情层里）。
   function bindCardActions() {
     const grid = document.getElementById('showGrid');
     grid?.addEventListener('click', event => {
-      const markButton = event?.target?.closest?.('.card-mark');
-      if (markButton) {
-        toggleCardMark(markButton);
-        return;
+      // 卡片整体是指向 ?show= 的链接：普通点击就地打开详情层，带修饰键或中键时按浏览器默认在新标签打开。
+      const openLink = event?.target?.closest?.('.card-open');
+      if (openLink) {
+        if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const show = findShowById(openLink.dataset?.showId);
+        if (show && openDetail(show)) event.preventDefault?.();
       }
-      const button = event?.target?.closest?.('.card-desc-toggle');
-      if (!button) return;
-      const expanded = button.getAttribute('aria-expanded') !== 'true';
-      button.setAttribute('aria-expanded', String(expanded));
-      button.textContent = expanded ? '收起简介' : '展开简介';
-      document.getElementById(button.getAttribute('aria-controls'))?.classList.toggle('is-expanded', expanded);
     });
   }
 
@@ -1013,93 +1032,121 @@
     if (target.textContent !== message) target.textContent = message;
   }
 
-  function renderCard(show, index, dataYear = getCurrentDataYear(), referenceTime = getSnapshotTime()) {
-    const title = escapeHtml(show.title);
-    const titleId = `card-${index}-title`;
-    const descId = `card-${index}-desc`;
-    const playUrl = getPlayableUrl(show);
-    const badges = [];
-    const aiScore = normalizeAIScore(show.aiScore);
-    const score = toFiniteNumber(show.score, NaN);
-    const tmdbRating = toFiniteNumber(show.tmdbRating, NaN);
-    if (playUrl) badges.push('<span class="badge badge-playable">可播放</span>');
-    // 只突出高匹配度；文字本身说明含义，不依赖仅鼠标可见的 title。
-    if (Number.isFinite(aiScore) && aiScore >= AI_BADGE_MIN_SCORE) {
-      badges.push(`<span class="badge badge-ai"><span aria-hidden="true">🤖</span> AI 推荐 ${escapeHtml(String(aiScore))}<span class="sr-only">分（口味匹配度，满分100）</span></span>`);
-    }
-    if (Number.isFinite(score) && score > 0) badges.push(`<span class="badge badge-score" title="爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐</span><span class="sr-only">爱壹帆评分</span> ${escapeHtml(String(show.score))}</span>`);
-    else if (Number.isFinite(tmdbRating) && tmdbRating > 0) badges.push(`<span class="badge badge-score" title="TMDB 用户评分，满分10分">TMDB ${escapeHtml(String(tmdbRating))}</span>`);
-    if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
-    if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
-    const newBadge = getNewBadgeLabel(show, dataYear);
-    if (newBadge) badges.push(`<span class="badge badge-new">${newBadge}</span>`);
-    if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
-    else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
-
-    const posterContent = renderPoster(show.coverImg, show.title, index, '🎬');
-
-    const statusText = show.isComplete
+  function getStatusText(show) {
+    return show.isComplete
       ? (show.totalEpisodes ? `已完结 · ${show.totalEpisodes}集` : '已完结')
       : show.mediaType === '综艺'
         ? (formatVarietyStatus(show.updateStatus || show.updateMsg) || '更新中')
         : show.currentEpisode
           ? `更新至第${show.currentEpisode}集${show.totalEpisodes ? ' / 共' + show.totalEpisodes + '集' : ''}`
           : show.updateStatus || '未知';
+  }
 
-    const statusClass = isShowOngoing(show) ? 'ongoing' : '';
-    const viewsText = getPlayCountText(show, referenceTime);
+  // 评分优先用爱壹帆来源评分，未评分时回退 TMDB；返回 null 表示没有可展示的评分。
+  function getDisplayScore(show) {
+    const score = toFiniteNumber(show.score, NaN);
+    if (Number.isFinite(score) && score > 0) return { value: show.score, source: 'yfsp' };
+    const tmdbRating = toFiniteNumber(show.tmdbRating, NaN);
+    return Number.isFinite(tmdbRating) && tmdbRating > 0 ? { value: tmdbRating, source: 'tmdb' } : null;
+  }
 
-    const actors = toText(show.actor).split(',').filter(Boolean).slice(0, 3).join(' / ');
-
-    const tags = [];
-    if (_outsideShows.has(show)) tags.push(`<span class="meta-tag category">${show.mediaType === '综艺' ? '综艺' : '韩剧'}</span>`);
-    if (show.regional) tags.push(`<span class="meta-tag region">${escapeHtml(show.regional)}</span>`);
-    if (toText(show.contentType)) {
-      toText(show.contentType).split(/[·/]/).slice(0, 3).forEach(g => {
-        tags.push(`<span class="meta-tag">${escapeHtml(g.trim())}</span>`);
-      });
+  // 详情层里的完整标签。
+  function renderBadges(show, dataYear, playUrl = getPlayableUrl(show)) {
+    const badges = [];
+    const aiScore = normalizeAIScore(show.aiScore);
+    const displayScore = getDisplayScore(show);
+    if (playUrl) badges.push('<span class="badge badge-playable">可播放</span>');
+    // 只突出高匹配度；文字本身说明含义，不依赖仅鼠标可见的 title。
+    if (Number.isFinite(aiScore) && aiScore >= AI_BADGE_MIN_SCORE) {
+      badges.push(`<span class="badge badge-ai"><span aria-hidden="true">🤖</span> AI 推荐 ${escapeHtml(String(aiScore))}<span class="sr-only">分（口味匹配度，满分100）</span></span>`);
     }
-    if (show.lang && show.lang !== '国语' && show.lang !== '韩语') {
-      tags.push(`<span class="meta-tag">${escapeHtml(show.lang)}</span>`);
+    if (displayScore?.source === 'yfsp') badges.push(`<span class="badge badge-score" title="爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐</span><span class="sr-only">爱壹帆评分</span> ${escapeHtml(String(displayScore.value))}</span>`);
+    else if (displayScore) badges.push(`<span class="badge badge-score" title="TMDB 用户评分，满分10分">TMDB ${escapeHtml(String(displayScore.value))}</span>`);
+    if (show.isClassic) badges.push('<span class="badge badge-classic">经典</span>');
+    if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
+    const newBadge = getNewBadgeLabel(show, dataYear);
+    if (newBadge) badges.push(`<span class="badge badge-new">${newBadge}</span>`);
+    if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
+    else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
+    return badges;
+  }
+
+  // 列表卡片只留海报、片名、评分和状态；其余信息在详情层里。
+  function renderCard(show, index, dataYear = getCurrentDataYear()) {
+    const titleId = `card-${index}-title`;
+    const playUrl = getPlayableUrl(show);
+    const aiScore = normalizeAIScore(show.aiScore);
+    const posterBadges = [];
+    if (Number.isFinite(aiScore) && aiScore >= AI_BADGE_MIN_SCORE) {
+      posterBadges.push(`<span class="badge badge-ai">AI ${escapeHtml(String(aiScore))}<span class="sr-only">分（AI 推荐，口味匹配度，满分100）</span></span>`);
     }
+    const newBadge = getNewBadgeLabel(show, dataYear);
+    if (newBadge) posterBadges.push(`<span class="badge badge-new">${newBadge}</span>`);
+    else if (show.isClassic) posterBadges.push('<span class="badge badge-classic">经典</span>');
 
-    const recommendWidth = getRecommendationWidth(show);
-    const mark = getShowMark(show);
-
-    const primaryAction = renderPrimaryAction(show, playUrl);
-    const sourceLinks = renderSourceLinks(show, primaryAction?.url || '');
-
-    const description = `${show.descriptionSource === 'ai' ? 'AI生成推荐语：' : ''}${toText(show.description)}`;
-    const descriptionLength = Array.from(description).length;
-    const descriptionToggle = descriptionLength > DESCRIPTION_TOGGLE_MIN_LENGTH
-      ? `<button class="card-desc-toggle${descriptionLength > DESCRIPTION_WIDE_TOGGLE_MIN_LENGTH ? '' : ' narrow-only'}" type="button" aria-expanded="false" aria-controls="${descId}">展开简介</button>`
+    const displayScore = getDisplayScore(show);
+    const scoreHtml = displayScore
+      ? `<span class="card-score"><span aria-hidden="true">★</span><span class="sr-only">${displayScore.source === 'yfsp' ? '爱壹帆评分' : 'TMDB 评分'}</span> ${escapeHtml(String(displayScore.value))}</span>`
       : '';
+    const mark = getShowMark(show);
+    const category = _outsideShows.has(show) ? `<span class="meta-tag category">${show.mediaType === '综艺' ? '综艺' : '韩剧'}</span>` : '';
+    const recommendWidth = getRecommendationWidth(show);
+    const detailHref = `?show=${encodeURIComponent(show.id)}#${activeTabName}`;
 
     return `
-      <article class="show-card${mark === 'seen' ? ' is-seen' : ''}" aria-labelledby="${titleId}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
+      <article class="show-card${mark === 'seen' ? ' is-seen' : ''}" aria-labelledby="${titleId}" data-mark-key="${escapeHtml(getMarkKey(show))}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
         <div class="card-poster">
-          ${posterContent}
-          ${primaryAction ? `<a class="card-poster-link" href="${escapeHtml(primaryAction.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"></a>` : ''}
-          <div class="card-badges">${badges.join('')}</div>
+          ${renderPoster(show.coverImg, show.title, index, '🎬', POSTER_SIZES_COMPACT)}
+          <div class="card-badges">${posterBadges.join('')}</div>
+          ${playUrl ? '<span class="card-play-tag">可播放</span>' : ''}
+          <span class="card-mark-pill"${mark ? '' : ' hidden'}>${MARK_LABELS[mark] || ''}</span>
         </div>
         <div class="card-body">
           <div class="recommend-bar" style="width:${recommendWidth}%" role="img" aria-label="相对推荐度 ${recommendWidth}%"></div>
-          <h3 class="card-title" id="${titleId}">${title}</h3>
-          ${badges.length ? `<div class="card-badges-inline">${badges.join('')}</div>` : ''}
-          <div class="card-meta">${tags.join('')}</div>
-          ${primaryAction ? `<div class="card-primary-action">${primaryAction.html}</div>` : ''}
-          ${renderMarkButtons(show, mark)}
-          ${actors ? `<div class="card-actors"><span aria-hidden="true">🎭</span> ${escapeHtml(actors)}</div>` : ''}
-          <p class="card-desc" id="${descId}">${escapeHtml(description)}</p>
-          ${descriptionToggle}
-          ${show.aiReason ? `<p class="card-ai-reason"><span aria-hidden="true">🤖</span> AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
-          <div class="card-footer">
-            <span class="card-status ${statusClass}">${escapeHtml(statusText)}</span>
-            ${viewsText ? `<span class="card-views"><span aria-hidden="true">👁</span> ${viewsText}</span>` : ''}
-          </div>
-          ${sourceLinks}
+          <h3 class="card-title" id="${titleId}"><a class="card-open" href="${escapeHtml(detailHref)}" data-show-id="${escapeHtml(show.id)}">${escapeHtml(show.title)}</a></h3>
+          <p class="card-sub">${category}${scoreHtml}<span class="card-status ${isShowOngoing(show) ? 'ongoing' : ''}">${escapeHtml(getStatusText(show))}</span></p>
         </div>
       </article>
+    `;
+  }
+
+  // 详情层内容：完整简介、演员、进度、AI 推荐理由和全部资料链接，底部固定操作栏。
+  function renderDetail(show, dataYear = getCurrentDataYear(), referenceTime = getSnapshotTime()) {
+    const playUrl = getPlayableUrl(show);
+    const badges = renderBadges(show, dataYear, playUrl);
+    const viewsText = getPlayCountText(show, referenceTime);
+    const actors = toText(show.actor).split(',').map(actor => actor.trim()).filter(Boolean).slice(0, 6).join(' / ');
+    const tags = [];
+    if (show.regional) tags.push(`<span class="meta-tag region">${escapeHtml(show.regional)}</span>`);
+    getShowGenres(show).slice(0, 4).forEach(genre => tags.push(`<span class="meta-tag">${escapeHtml(genre)}</span>`));
+    if (show.lang && show.lang !== '国语' && show.lang !== '韩语') tags.push(`<span class="meta-tag">${escapeHtml(show.lang)}</span>`);
+    const year = toFiniteNumber(show.year);
+    const primaryAction = renderPrimaryAction(show, playUrl);
+    const sourceLinks = renderSourceLinks(show, primaryAction?.url || '');
+    const description = toText(show.description).trim();
+
+    return `
+      <button class="detail-close" type="button" data-detail-close aria-label="关闭详情"><span aria-hidden="true">✕</span></button>
+      <div class="detail-body">
+        <div class="detail-poster card-poster">${renderPoster(show.coverImg, show.title, 0, '🎬', POSTER_SIZES_DETAIL)}</div>
+        <div class="detail-head">
+          <h2 class="detail-title" id="detailTitle">${escapeHtml(show.title)}</h2>
+          ${badges.length ? `<div class="detail-badges">${badges.join('')}</div>` : ''}
+          ${tags.length ? `<div class="card-meta">${tags.join('')}</div>` : ''}
+          <p class="detail-status"><span class="card-status ${isShowOngoing(show) ? 'ongoing' : ''}">${escapeHtml(getStatusText(show))}</span>${year ? ` · ${year}` : ''}${viewsText ? ` · <span class="card-views"><span aria-hidden="true">👁</span> ${viewsText}</span>` : ''}</p>
+          ${actors ? `<p class="detail-actors"><span class="detail-label">主演</span>${escapeHtml(actors)}</p>` : ''}
+        </div>
+        <div class="detail-text">
+          ${description ? `<p class="detail-desc">${show.descriptionSource === 'ai' ? '<span class="detail-label">AI生成推荐语</span>' : ''}${escapeHtml(description)}</p>` : ''}
+          ${show.aiReason ? `<p class="card-ai-reason"><span aria-hidden="true">🤖</span> AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
+          ${sourceLinks}
+        </div>
+      </div>
+      <div class="detail-bar">
+        ${primaryAction ? primaryAction.html : ''}
+        ${renderMarkButtons(show)}
+        <button class="detail-share" type="button" data-detail-share>分享</button>
+      </div>
     `;
   }
 
@@ -1130,7 +1177,7 @@
     if (!primaryUrl) return null;
     // 无播放源时降为次要样式，明确告知只能查看资料。
     const className = playUrl ? 'card-action primary' : 'card-action primary is-info';
-    const label = playUrl ? '观看 / 详情' : '暂无播放源 · 查看资料';
+    const label = playUrl ? '去观看' : '暂无播放源 · 查看资料';
     return {
       url: primaryUrl,
       html: `<a class="${className}" href="${escapeHtml(primaryUrl)}" target="_blank" rel="noopener noreferrer">${label}${externalLinkSuffix(show.title)}</a>`,
@@ -1424,8 +1471,126 @@
     for (const other of group.querySelectorAll?.('.card-mark') || []) {
       other.setAttribute('aria-pressed', String(other.dataset?.mark === mark));
     }
-    button.closest?.('.show-card')?.classList.toggle('is-seen', mark === 'seen');
+    // 详情层里的标记同步到列表中的同一张卡片。
+    for (const card of document.getElementById('showGrid')?.children || []) {
+      if (card.dataset?.markKey !== key) continue;
+      card.classList?.toggle('is-seen', mark === 'seen');
+      const pill = card.querySelector?.('.card-mark-pill');
+      if (pill) {
+        pill.textContent = MARK_LABELS[mark] || '';
+        pill.hidden = !mark;
+      }
+    }
     updateQuickFilters();
+  }
+
+  // ── 详情层 ──────────────────────────────────────
+  function findShowById(id) {
+    return typeof id === 'string' && id ? getAllRecommendationShows().find(show => show.id === id) || null : null;
+  }
+
+  function getDetailDialog() {
+    const dialog = document.getElementById('detailDialog');
+    return dialog && typeof dialog.showModal === 'function' ? dialog : null;
+  }
+
+  function setDetailUrl(id, { push = false } = {}) {
+    const url = new URL(typeof location.href === 'string' && location.href ? location.href : `http://localhost/${location.hash || ''}`);
+    if (id) url.searchParams.set('show', id);
+    else url.searchParams.delete('show');
+    const target = `${url.pathname}${url.search}${url.hash}`;
+    if (push && typeof history.pushState === 'function') {
+      history.pushState(null, '', target);
+      _detailPushedHistory = true;
+    } else {
+      history.replaceState(null, '', target);
+    }
+  }
+
+  // 打开时留一条历史记录，手机上的返回手势关闭详情层而不是离开页面。
+  function openDetail(show, { push = true } = {}) {
+    const dialog = getDetailDialog();
+    const content = document.getElementById('detailContent');
+    if (!dialog || !content || !show) return false;
+    _detailShow = show;
+    content.innerHTML = renderDetail(show);
+    if (!dialog.open) dialog.showModal();
+    const body = content.querySelector?.('.detail-body');
+    if (body) body.scrollTop = 0;
+    if (push) setDetailUrl(show.id, { push: true });
+    return true;
+  }
+
+  // 地址变化（返回/前进、打开分享链接）决定详情层的开合。
+  function syncDetailFromUrl(state = readUrlState()) {
+    const dialog = getDetailDialog();
+    if (!dialog) return;
+    const show = findShowById(state.show);
+    if (show) {
+      if (_detailShow !== show || !dialog.open) openDetail(show, { push: false });
+    } else if (_detailShow || dialog.open) {
+      _detailShow = null;
+      _detailPushedHistory = false;
+      if (dialog.open) dialog.close();
+    }
+  }
+
+  function getDetailShareUrl(show) {
+    const url = new URL(typeof location.href === 'string' && location.href ? location.href : 'http://localhost/');
+    url.search = '';
+    url.searchParams.set('show', show.id);
+    url.hash = show.mediaType === '综艺' ? 'variety' : 'korean';
+    return url.href;
+  }
+
+  async function shareDetail(button) {
+    if (!_detailShow) return;
+    const url = getDetailShareUrl(_detailShow);
+    const title = `${_detailShow.title} · 剧荒救星`;
+    let label = '已复制链接';
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+      else if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        await navigator.share({ title, url });
+        label = '分享';
+      } else throw new Error('unsupported');
+    } catch (error) {
+      // 用户取消系统分享面板不算失败；其余情况给出可手动复制的链接。
+      if (error?.name === 'AbortError') return;
+      window.prompt?.('复制这个链接分享：', url);
+      label = '分享';
+    }
+    button.textContent = label;
+  }
+
+  function bindDetail() {
+    const dialog = getDetailDialog();
+    if (!dialog) return;
+    dialog.addEventListener('click', event => {
+      const target = event?.target;
+      // 点击面板以外的遮罩关闭。
+      if (target === dialog || target?.closest?.('[data-detail-close]')) {
+        dialog.close();
+        return;
+      }
+      const markButton = target?.closest?.('.card-mark');
+      if (markButton) {
+        toggleCardMark(markButton);
+        return;
+      }
+      const shareButton = target?.closest?.('[data-detail-share]');
+      if (shareButton) shareDetail(shareButton);
+    });
+    // 关闭按钮、遮罩和 Esc 都走这里：撤掉地址里的 show=，焦点由浏览器交还给打开它的卡片。
+    dialog.addEventListener('close', () => {
+      if (!_detailShow) return;
+      _detailShow = null;
+      const pushed = _detailPushedHistory;
+      _detailPushedHistory = false;
+      if (pushed && typeof history.back === 'function') history.back();
+      else setDetailUrl('');
+    });
+    dialog.addEventListener('error', event => replaceBrokenPoster(event?.target), true);
   }
 
   function getAllRecommendationShows() {
@@ -1643,7 +1808,7 @@
     }
   }
 
-  function renderPoster(value, title, index, fallbackIcon) {
+  function renderPoster(value, title, index, fallbackIcon, sizes = POSTER_SIZES_FULL) {
     const source = safeExternalUrl(value);
     if (!source) return `<div class="placeholder">${fallbackIcon}</div>`;
 
@@ -1662,7 +1827,7 @@
         const url780 = `${parsed.origin}${path780}${parsed.search}`;
         // 使用宽度描述符后 src 不参与候选。宽屏网格为 minmax(220px, 1fr)、18px 间距、左右各 20px 留白、
         // 容器最宽 1240px：769–973px 三列，974–1211px 四列，更宽时五列（每列约 220–226px）。
-        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w, ${escapeHtml(url780)} 780w" sizes="(max-width: 480px) 112px, (max-width: 768px) calc((100vw - 42px) / 2), (max-width: 973px) calc((100vw - 76px) / 3), (max-width: 1211px) calc((100vw - 94px) / 4), 226px"`;
+        responsive = ` srcset="${escapeHtml(url185)} 185w, ${escapeHtml(url342)} 342w, ${escapeHtml(url500)} 500w, ${escapeHtml(url780)} 780w" sizes="${sizes}"`;
       }
     } catch {}
 

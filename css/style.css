@@ -719,37 +719,6 @@ a:hover { color: var(--pink); }
   overflow: hidden;
 }
 
-.card-desc.is-expanded {
-  display: block;
-  -webkit-line-clamp: unset;
-  max-height: none;
-  overflow: visible;
-}
-
-.card-desc-toggle {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  margin: -6px 0 8px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--accent-light);
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
-.card-desc-toggle:hover { color: #fff; }
-
-/* 中等长度简介在宽屏三行内能完整显示，只在两行截断的窄屏提供展开。 */
-@media (min-width: 481px) {
-  .card-desc-toggle.narrow-only { display: none; }
-}
-
 /* 状态与播放量合并为一行，空间不足时自然换行。 */
 .card-footer {
   display: flex;
@@ -1100,7 +1069,6 @@ a:hover { color: var(--pink); }
   .meta-tag { padding: 3px 7px; font-size: 0.72rem; }
   .card-actors { font-size: 0.8rem; }
   .card-desc { font-size: 1rem; -webkit-line-clamp: 2; max-height: 3.2em; line-height: 1.6; margin-bottom: 8px; }
-  .card-desc.is-expanded { max-height: none; }
   .card-ai-reason { -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
   .card-primary-action { margin: 8px 0 10px; }
   .card-primary-action .card-action { min-height: 44px; font-size: 0.82rem; }
@@ -1175,6 +1143,209 @@ a:hover { color: var(--pink); }
   .show-card { animation: none; }
   .show-card:hover { transform: none; }
   .show-card:hover .card-poster img { transform: none; }
+}
+
+/* ── 紧凑海报网格（推荐标签）─────────────────────────────── */
+/* 卡片只留海报、片名、评分和状态，点开看详情；时间表标签仍用上面的完整卡片。 */
+.show-grid.is-compact {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.show-grid.is-compact .show-card { display: block; }
+.show-grid.is-compact .card-poster { height: auto; min-height: 0; aspect-ratio: 2/3; }
+.show-grid.is-compact .card-poster .placeholder { font-size: 2.6rem; }
+.show-grid.is-compact .card-body { padding: 10px 12px 12px; }
+.show-grid.is-compact .card-title { font-size: 0.95rem; margin-bottom: 4px; }
+.show-grid.is-compact .recommend-bar { margin-bottom: 6px; }
+.show-grid.is-compact .card-badges { display: flex; top: 8px; left: 8px; gap: 4px; }
+.show-grid.is-compact .card-badges .badge { padding: 2px 7px; font-size: 0.68rem; }
+
+/* 片名链接铺满整张卡片，卡片任意位置都能点开详情；焦点环画在卡片上。 */
+.card-open,
+.card-open:visited { color: inherit; }
+.card-open::after { content: ""; position: absolute; inset: 0; z-index: 3; }
+.card-open:focus-visible { outline: none; }
+.show-card:has(.card-open:focus-visible) { outline: 3px solid var(--orange); outline-offset: 3px; }
+
+.card-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.card-sub .card-status { font-size: inherit; }
+.card-sub .meta-tag { align-self: center; }
+.card-score { color: var(--orange); font-weight: 700; white-space: nowrap; }
+
+.card-play-tag,
+.card-mark-pill {
+  position: absolute;
+  z-index: 2;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.6;
+  pointer-events: none;
+}
+
+.card-play-tag { left: 8px; bottom: 8px; background: #0b6b3f; color: #fff; }
+.card-mark-pill { top: 8px; right: 8px; background: rgba(15,15,19,0.88); color: var(--orange); border: 1px solid currentColor; }
+.show-card.is-seen .card-mark-pill { color: #7fe8d0; }
+.card-mark-pill[hidden] { display: none; }
+
+.show-grid.is-compact .skeleton-card { display: block; }
+.show-grid.is-compact .skeleton-poster { min-height: 0; aspect-ratio: 2/3; }
+.show-grid.is-compact .skeleton-line:nth-child(n+3) { display: none; }
+
+@media (max-width: 768px) {
+  .show-grid.is-compact { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .show-grid.is-compact { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .show-grid.is-compact .card-body { padding: 8px; }
+  .show-grid.is-compact .card-title { font-size: 0.84rem; line-height: 1.35; }
+  .show-grid.is-compact .card-badges { top: 5px; left: 5px; }
+  .show-grid.is-compact .card-badges .badge { padding: 1px 5px; font-size: 0.62rem; letter-spacing: 0; }
+  .card-sub { font-size: 0.72rem; gap: 0 6px; }
+  .card-play-tag { left: 5px; bottom: 5px; font-size: 0.62rem; padding: 0 5px; }
+  .card-mark-pill { top: 5px; right: 5px; font-size: 0.62rem; padding: 0 5px; }
+}
+
+/* ── 详情层 ──────────────────────────────────────────────── */
+html:has(.detail[open]) { overflow: hidden; }
+
+.detail {
+  width: min(760px, calc(100vw - 32px));
+  max-width: none;
+  max-height: 86vh;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bg-card);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.detail::backdrop { background: rgba(0,0,0,0.62); }
+
+.detail-sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 86vh;
+}
+
+.detail-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15,15,19,0.72);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.detail-close:hover { background: var(--accent); }
+
+.detail-body {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 16px 20px;
+  padding: 22px 22px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.detail-poster { height: auto; min-height: 0; aspect-ratio: 2/3; border-radius: 10px; align-self: start; }
+.detail-title { padding-right: 44px; font-size: 1.4rem; line-height: 1.3; overflow-wrap: anywhere; }
+.detail-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
+.detail-status,
+.detail-actors { margin-top: 8px; font-size: 0.9rem; color: var(--text-muted); }
+.detail-status .card-status { font-size: inherit; }
+.detail-label { margin-right: 8px; color: var(--text-dim); font-size: 0.82rem; }
+.detail-text { grid-column: 1 / -1; }
+.detail-desc { font-size: 1rem; line-height: 1.7; overflow-wrap: anywhere; }
+.detail-text .card-ai-reason { margin-top: 12px; }
+.detail-text .card-links { margin-top: 12px; }
+
+.detail-bar {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  padding: 12px 22px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-card);
+}
+
+.detail-bar .card-action.primary {
+  flex: 2 1 0;
+  min-height: 44px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.detail-bar .card-action.primary:hover { background: var(--accent-light); color: #161525; }
+
+.detail-bar .card-action.primary.is-info {
+  border: 1px solid rgba(162,155,254,0.45);
+  background: transparent;
+  color: var(--accent-light);
+}
+
+.detail-bar .card-action.primary.is-info:hover { background: rgba(108,92,231,0.18); color: #fff; }
+.detail-bar .card-marks { flex: 2 1 0; margin: 0; }
+.detail-bar .card-mark { min-height: 44px; font-size: 0.88rem; }
+
+.detail-share {
+  flex: 0 0 auto;
+  min-width: 56px;
+  min-height: 44px;
+  padding: 2px 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.detail-share:hover { border-color: var(--accent-light); color: #fff; }
+
+@media (max-width: 600px) {
+  .detail {
+    width: 100%;
+    max-height: 90vh;
+    margin: auto 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+  .detail-sheet { max-height: 90vh; }
+  .detail-body { grid-template-columns: 96px minmax(0, 1fr); gap: 12px 14px; padding: 16px 16px 12px; }
+  .detail-title { font-size: 1.15rem; }
+  /* 关闭按钮占右上角，标签行让开它。 */
+  .detail-badges { margin-right: 40px; }
+  .detail-bar { flex-wrap: wrap; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+  .detail-bar .card-action.primary { flex: 1 1 100%; }
+  .detail-bar .card-marks { flex: 1 1 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .detail[open] { animation: fadeInUp 0.22s ease-out both; }
 }
 
 /* ── External Source Cards ──────────────────────────────────── */
