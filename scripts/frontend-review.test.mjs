@@ -1646,3 +1646,41 @@ test('search covers every category with outside results after the current tab an
   helpers.applyFilters();
   assert.doesNotMatch(elements.showGrid.innerHTML, /meta-tag category/u);
 });
+
+test('active filters without their own toggle appear as removable chips', () => {
+  const { helpers, elements } = createApp();
+  helpers.setAllData(markedSnapshot(8));
+  helpers.bindFilters();
+  helpers.bindQuickFilters();
+  elements.searchInput.value = '剧目';
+  elements.filterStatus.value = 'complete';
+  elements.filterScore.value = '9';
+  helpers.switchTab('korean', { animate: false });
+  const removable = () => [...elements.quickFilters.innerHTML.matchAll(/chip-remove" type="button" data-chip="(\w+)" aria-pressed="true">([^<]+)</gu)].map(match => `${match[1]}:${match[2]}`);
+  assert.deepEqual(removable(), ['clearQuery:搜索“剧目”', 'clearStatus:已完结', 'clearScore:9 分以上']);
+  const click = chip => elements.quickFilters.dispatch('click', { target: { closest: () => ({ dataset: { chip } }) } });
+  click('clearScore');
+  assert.equal(elements.filterScore.value, '0');
+  click('clearStatus');
+  assert.equal(elements.filterStatus.value, 'all');
+  assert.deepEqual(removable(), ['clearQuery:搜索“剧目”']);
+  click('clearQuery');
+  assert.equal(elements.searchInput.value, '');
+  assert.deepEqual(removable(), []);
+  assert.match(elements.resultSummary.textContent, /显示 8 个推荐结果$/u);
+  elements.filterScore.value = '8';
+  helpers.applyFilters();
+  assert.deepEqual(removable(), [], 'the 8+ threshold already has its own toggle chip');
+});
+
+test('missing posters name the show and the load-more status states the remaining count first', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(30);
+  data.koreanDramas[0].title = '无海报<剧>';
+  data.koreanDramas[1].coverImg = 'https://image.tmdb.org/t/p/original/x.jpg';
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /<div class="placeholder"><span aria-hidden="true">🎬<\/span><span class="placeholder-title" aria-hidden="true">无海报&lt;剧&gt;<\/span><\/div>/u);
+  assert.match(elements.showGrid.innerHTML, /data-fallback-icon="🎬" data-fallback-title="剧目1">/u);
+  assert.equal(elements.loadMoreStatus.textContent, '还有 6 部，继续下滑自动加载');
+});

@@ -139,31 +139,28 @@ a:hover { color: var(--pink); }
   min-width: 5.9em;
 }
 
-.tabs-hint {
-  display: none;
+/* 右侧还有分类没露出时显示渐隐和箭头（脚本按滚动位置切换 .has-more），滑到头后消失。 */
+.tabs::after {
+  content: '›';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: var(--accent-light);
+  font-size: 1.4rem;
+  font-weight: 700;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(26,26,36,0), var(--bg-card) 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-@media (max-width: 900px) {
-  .tabs::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 32px;
-    pointer-events: none;
-    background: linear-gradient(90deg, rgba(26,26,36,0), var(--bg-card));
-  }
-
-  .tabs-hint {
-    display: block;
-    padding: 0 42px 6px 14px;
-    color: var(--text-dim);
-    font-size: 0.72rem;
-    line-height: 1.4;
-    text-align: right;
-  }
-}
+.tabs.has-more::after { opacity: 1; }
 
 .tabs .container {
   display: flex;
@@ -358,6 +355,9 @@ a:hover { color: var(--pink); }
 }
 
 .chip:focus-visible { outline-offset: 1px; }
+
+/* 可单独移除的生效条件 */
+.chip.chip-remove { background: rgba(108,92,231,0.22); border-color: var(--accent-light); color: #fff; font-weight: 600; }
 
 .filter-meta {
   display: flex;
@@ -587,10 +587,29 @@ a:hover { color: var(--pink); }
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   font-size: 4rem;
-  opacity: 0.3;
+  line-height: 1.2;
+}
+
+.card-poster .placeholder > span:first-child { opacity: 0.3; }
+
+/* 没有海报或加载失败时，占位里写出片名。 */
+.card-poster .placeholder-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .card-badges {

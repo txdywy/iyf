@@ -105,6 +105,9 @@
     bindCardActions();
     bindQuickFilters();
     bindDetail();
+    bindTabOverflowHint();
+    bindKeyboardShortcuts();
+    bindScrollMemory();
     bindContentNavigation();
     bindBackToTop();
     window.addEventListener('popstate', handleUrlStateChange);
@@ -129,6 +132,7 @@
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
         renderedFromCache = true;
         syncDetailFromUrl();
+        restoreScrollMemory();
       } else if (!REMOTE_TAB_LABELS[activeTabName]) {
         showDataLoading();
       }
@@ -168,6 +172,7 @@
       }
       saveDataCache(data);
       syncDetailFromUrl();
+      restoreScrollMemory();
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
       if (renderedFromCache) {
@@ -851,9 +856,20 @@
 
   function replaceBrokenPoster(image) {
     if (!image || image.tagName !== 'IMG' || !image.closest('.card-poster')) return;
+    // 海报加载失败时占位里带上片名，至少能认出是哪部。
     const placeholder = document.createElement('div');
     placeholder.className = 'placeholder';
-    placeholder.textContent = image.dataset.fallbackIcon || '🎬';
+    const icon = document.createElement('span');
+    icon.textContent = image.dataset.fallbackIcon || '🎬';
+    icon.setAttribute('aria-hidden', 'true');
+    placeholder.append(icon);
+    if (image.dataset.fallbackTitle) {
+      const title = document.createElement('span');
+      title.className = 'placeholder-title';
+      title.setAttribute('aria-hidden', 'true');
+      title.textContent = image.dataset.fallbackTitle;
+      placeholder.append(title);
+    }
     image.replaceWith(placeholder);
   }
 
@@ -1027,7 +1043,7 @@
     const remaining = Math.max(0, totalCount - visibleCount);
     sentinel.hidden = remaining === 0;
     const status = document.getElementById('loadMoreStatus');
-    const message = remaining ? `继续下滑自动加载（还有 ${remaining} 部）` : '已加载全部内容';
+    const message = remaining ? `还有 ${remaining} 部，继续下滑自动加载` : '已加载全部内容';
     const target = status || sentinel;
     if (target.textContent !== message) target.textContent = message;
   }
@@ -1484,6 +1500,87 @@
     updateQuickFilters();
   }
 
+  // ── 标签栏溢出提示、快捷键与阅读位置 ──────────────────
+  // 右侧还有没露出的分类时显示渐隐和箭头；滑到头或一屏放得下时隐藏，不占一行文字。
+  function bindTabOverflowHint() {
+    const tabs = document.querySelector?.('.tabs');
+    const scroller = tabs?.querySelector?.('.container');
+    if (!tabs || !scroller) return;
+    const update = () => {
+      const hasMore = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft > 8;
+      tabs.classList.toggle('has-more', hasMore);
+    };
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    update();
+  }
+
+  // “/” 聚焦搜索框（输入中或详情层打开时不拦截）。
+  function bindKeyboardShortcuts() {
+    document.addEventListener('keydown', event => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || _detailShow) return;
+      const target = event.target;
+      if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
+      const search = document.getElementById('searchInput');
+      if (!search) return;
+      event.preventDefault();
+      search.focus();
+      search.select?.();
+    });
+  }
+
+  // 离开页面（去看剧、切到别的应用）再回来被浏览器重新加载时，回到同一地址下上次读到的位置。
+  const SCROLL_MEMORY_KEY = 'iyf:scroll:v1';
+  const SCROLL_MEMORY_MAX_AGE_MS = 30 * 60 * 1000;
+  let _scrollMemoryRestored = false;
+
+  function getScrollMemoryUrl() {
+    const params = new URLSearchParams(location.search);
+    params.delete('show');
+    return `${params.toString()}${location.hash}`;
+  }
+
+  function bindScrollMemory() {
+    if (typeof sessionStorage === 'undefined') return;
+    const save = () => {
+      try {
+        sessionStorage.setItem(SCROLL_MEMORY_KEY, JSON.stringify({
+          url: getScrollMemoryUrl(), savedAt: Date.now(), scrollY: Math.round(window.scrollY || 0), visible: _visibleShowCount,
+        }));
+      } catch {
+        // 存储不可用时只是不记位置。
+      }
+    };
+    window.addEventListener('pagehide', save);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') save();
+    });
+  }
+
+  function restoreScrollMemory() {
+    if (_scrollMemoryRestored || typeof sessionStorage === 'undefined') return;
+    _scrollMemoryRestored = true;
+    let memory = null;
+    try {
+      memory = JSON.parse(sessionStorage.getItem(SCROLL_MEMORY_KEY) || 'null');
+    } catch {
+      return;
+    }
+    const age = Date.now() - Number(memory?.savedAt);
+    const scrollY = Number(memory?.scrollY);
+    const visible = Number(memory?.visible);
+    if (!memory || memory.url !== getScrollMemoryUrl() || !(age >= 0 && age < SCROLL_MEMORY_MAX_AGE_MS) ||
+      !(scrollY > 0) || REMOTE_TAB_LABELS[activeTabName]) return;
+    // 用户已经开始滚动时不打断。
+    if ((window.scrollY || 0) > 0) return;
+    if (Number.isInteger(visible) && visible > _visibleShowCount) {
+      _visibleShowCount = Math.min(visible, _filteredShows.length);
+      renderVisibleShows();
+      updateResultSummary(_filteredShows.length, _visibleShowCount);
+    }
+    window.scrollTo?.({ top: scrollY, behavior: 'auto' });
+  }
+
   // ── 详情层 ──────────────────────────────────────
   function findShowById(id) {
     return typeof id === 'string' && id ? getAllRecommendationShows().find(show => show.id === id) || null : null;
@@ -1618,6 +1715,12 @@
     const chip = (name, label, pressed, extra = '') =>
       `<button class="chip" type="button" data-chip="${name}"${extra} aria-pressed="${pressed}">${escapeHtml(label)}</button>`;
     const chips = [];
+    // 没有对应开关的生效条件（搜索词、已完结、7/9 分门槛）排在最前，点一下单独移除。
+    const removable = (name, label) =>
+      `<button class="chip chip-remove" type="button" data-chip="${name}" aria-pressed="true">${escapeHtml(label)}<span aria-hidden="true"> ×</span><span class="sr-only">，点击移除</span></button>`;
+    if (state.query) chips.push(removable('clearQuery', `搜索“${state.query}”`));
+    if (state.status === 'complete') chips.push(removable('clearStatus', '已完结'));
+    if (state.score !== '0' && state.score !== '8') chips.push(removable('clearScore', `${state.score} 分以上`));
     if (!isSchedule) chips.push(chip('playable', '可播放', state.playable));
     chips.push(chip('ongoing', '连载中', state.status === 'ongoing'));
     if (!isSchedule) {
@@ -1633,9 +1736,10 @@
     const focusedGenre = focused?.dataset?.genre;
     container.innerHTML = html;
     if (focusedChip) {
-      [...(container.querySelectorAll?.('.chip') || [])]
-        .find(button => button.dataset?.chip === focusedChip && button.dataset?.genre === focusedGenre)
-        ?.focus({ preventScroll: true });
+      const sameChip = [...(container.querySelectorAll?.('.chip') || [])]
+        .find(button => button.dataset?.chip === focusedChip && button.dataset?.genre === focusedGenre);
+      // 被移除的条件标签消失后，焦点交给搜索框。
+      (sameChip || document.getElementById('searchInput'))?.focus({ preventScroll: true });
     }
   }
 
@@ -1659,6 +1763,17 @@
         case 'hideSeen':
           _marks.hideSeen = !_marks.hideSeen;
           saveMarks();
+          break;
+        case 'clearQuery': {
+          const search = document.getElementById('searchInput');
+          if (search) search.value = '';
+          break;
+        }
+        case 'clearStatus':
+          if (status) status.value = 'all';
+          break;
+        case 'clearScore':
+          if (score) score.value = '0';
           break;
         case 'genre': {
           const genre = normalizeGenre(button.dataset.genre);
@@ -1810,7 +1925,8 @@
 
   function renderPoster(value, title, index, fallbackIcon, sizes = POSTER_SIZES_FULL) {
     const source = safeExternalUrl(value);
-    if (!source) return `<div class="placeholder">${fallbackIcon}</div>`;
+    // 片名在卡片标题里已有可访问文本，占位里的重复文字对读屏隐藏。
+    if (!source) return `<div class="placeholder"><span aria-hidden="true">${fallbackIcon}</span><span class="placeholder-title" aria-hidden="true">${escapeHtml(title)}</span></div>`;
 
     const firstViewport = index < 2;
     let responsive = '';
@@ -1831,7 +1947,7 @@
       }
     } catch {}
 
-    return `<img src="${escapeHtml(source)}"${responsive} alt="" loading="${firstViewport ? 'eager' : 'lazy'}"${firstViewport ? ' fetchpriority="high"' : ''} decoding="async" data-fallback-icon="${fallbackIcon}">`;
+    return `<img src="${escapeHtml(source)}"${responsive} alt="" loading="${firstViewport ? 'eager' : 'lazy'}"${firstViewport ? ' fetchpriority="high"' : ''} decoding="async" data-fallback-icon="${fallbackIcon}" data-fallback-title="${escapeHtml(title)}">`;
   }
 
   function cancelPendingTabRequest() {
@@ -2107,7 +2223,7 @@
     const statusText = complete ? '已完结' : show.status === 'Running' ? '连载中' : '待定/筹备';
     const posterContent = img
       ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" decoding="async" data-fallback-icon="📺">`
-      : '<div class="placeholder">📺</div>';
+      : '<div class="placeholder"><span aria-hidden="true">📺</span></div>';
 
     return `
       <article class="show-card source-tvmaze" aria-labelledby="card-${index}-title" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
