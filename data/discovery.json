@@ -2512,13 +2512,13 @@
     ]
   },
   "2026-11-12": {
-    "timestamp": "2026-11-12T05:36:44.878Z",
-    "totalFound": 17,
+    "timestamp": "2026-11-12T20:08:59.385Z",
+    "totalFound": 19,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1141069,
+        "playCount": 1141627,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -2530,7 +2530,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 450470,
+        "playCount": 450556,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -2542,7 +2542,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 370077,
+        "playCount": 370143,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -2554,7 +2554,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339614,
+        "playCount": 339664,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -2566,7 +2566,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215422,
+        "playCount": 215457,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -2578,7 +2578,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167434,
+        "playCount": 167458,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -2590,7 +2590,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 151567,
+        "playCount": 151855,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -2602,7 +2602,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 111062,
+        "playCount": 111071,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -2614,7 +2614,7 @@
       {
         "title": "最后一桌",
         "score": 6.6,
-        "playCount": 100179,
+        "playCount": 101415,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -2626,7 +2626,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 84593,
+        "playCount": 84890,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -2638,11 +2638,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 79208,
+        "playCount": 80818,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到33",
+        "updateStatus": "更新到34",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -2650,7 +2650,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 71384,
+        "playCount": 72378,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -2662,7 +2662,7 @@
       {
         "title": "独一无二的浪漫",
         "score": 0,
-        "playCount": 19584,
+        "playCount": 21653,
         "year": 2026,
         "actor": "金贤镇,朴秀荣",
         "source": "api_index",
@@ -2674,11 +2674,11 @@
       {
         "title": "老板的露骨取向",
         "score": 0,
-        "playCount": 11166,
+        "playCount": 21000,
         "year": 2026,
         "actor": "成勋,吴世英,李正信,朴政学,金在仁",
         "source": "api_index",
-        "updateStatus": "更新到01",
+        "updateStatus": "更新到02",
         "contentType": "爱情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -2686,7 +2686,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21836,
+        "playCount": 21844,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -2710,7 +2710,7 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10847,
+        "playCount": 10848,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
@@ -2718,6 +2718,30 @@
         "contentType": "",
         "mediaType": "综艺",
         "regional": "韩国"
+      },
+      {
+        "title": "热烈的告别",
+        "score": 0,
+        "playCount": 5787,
+        "year": 2026,
+        "actor": "姜勋,赵贤哲,金政振,李伊潭,崔玟熙",
+        "source": "api_index",
+        "updateStatus": "更新到01",
+        "contentType": "喜剧",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "趁热打铁",
+        "score": 0,
+        "playCount": 480,
+        "year": 2026,
+        "actor": "向佐,王博文,蒙恩,董又霖,李希侃,于洋,刘旭威,高梓添,黄河源,彭泽华,任泓锜,梁云滔,冯元",
+        "source": "api_index",
+        "updateStatus": "更新到20261112(第2期)",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
       }
     ]
   }
