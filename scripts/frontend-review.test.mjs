@@ -151,6 +151,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml, formatVarietyStatus, renderCard, isShowDataset, handleUrlStateChange,
       bindCardActions, bindQuickFilters, updateQuickFilters, getShowMark, setMark, getMarkKey,
+      renderDetail, openDetail, syncDetailFromUrl, bindDetail, getDetailShareUrl, toggleCardMark,
       setAllData: value => { allData = value; },
       setTVmazeCache: shows => {
         _tvmazeCache = shows; _tvmazeCachedAt = Date.now(); _tvmazeCacheDate = getScheduleDateKey();
@@ -866,7 +867,7 @@ for (const change of ['link-replaced', 'programme-removed', 'all-results-removed
     view.scrollY = 1700;
     elements.showGrid.children[10].querySelector('a[href]').focus();
     const updated = structuredClone(cached);
-    if (change === 'link-replaced') updated.koreanDramas[10].primaryUrl = 'https://www.themoviedb.org/tv/replacement';
+    if (change === 'link-replaced') updated.koreanDramas[10].id = 'replacement';
     else if (change === 'programme-removed') updated.koreanDramas.splice(10, 1);
     else updated.koreanDramas = [];
     resolveRequest({ ok: true, json: async () => updated });
@@ -1118,13 +1119,15 @@ test('a TMDB rating stands in for a missing source score in badges, score filter
   elements.sortBy.value = 'score';
   helpers.applyFilters();
   const markup = elements.showGrid.innerHTML;
-  assert.match(markup, /title="TMDB 用户评分，满分10分">TMDB 8\.4</u);
+  assert.match(markup, /<span class="sr-only">TMDB 评分<\/span> 8\.4</u);
+  assert.match(helpers.renderDetail(data.koreanDramas[0]), /title="TMDB 用户评分，满分10分">TMDB 8\.4</u);
   assert.doesNotMatch(markup, /剧目1|剧目2/u, 'an existing source score keeps precedence and an unrated show stays unrated');
   assert.equal(elements.statHighScore.textContent, 1);
   elements.filterScore.value = '0';
   helpers.applyFilters();
-  assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
-  assert.match(elements.showGrid.innerHTML, /爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐<\/span><span class="sr-only">爱壹帆评分<\/span> 7\.2</u);
+  assert.deepEqual([...elements.showGrid.innerHTML.matchAll(/class="card-open"[^>]*>剧目(\d)/gu)].map(match => match[1]), ['0', '1', '2']);
+  assert.match(elements.showGrid.innerHTML, /<span class="sr-only">爱壹帆评分<\/span> 7\.2</u);
+  assert.match(helpers.renderDetail(data.koreanDramas[1]), /爱壹帆来源评分，满分10分"><span aria-hidden="true">⭐<\/span><span class="sr-only">爱壹帆评分<\/span> 7\.2</u);
 });
 
 test('a degraded playback source says when new-drama data was last refreshed instead of calling the site stale', async () => {
@@ -1141,27 +1144,33 @@ test('a degraded playback source says when new-drama data was last refreshed ins
   assert.match(stale.elements.updateInfo.textContent, /数据源暂不可用，展示上一快照.*数据可能过期|数据可能过期.*数据源暂不可用/u);
 });
 
-test('cards repeat their badges in an inline row that narrow screens show instead of covering the poster', async () => {
+test('compact cards keep a few poster badges while the detail sheet carries the full set', async () => {
   const data = snapshot();
-  Object.assign(data.koreanDramas[0], { score: 8.6, isNew: true, isSerial: true, year: new Date().getFullYear() });
+  Object.assign(data.koreanDramas[0], { score: 8.6, isNew: true, isSerial: true, aiScore: 91, year: new Date().getFullYear(), yfspUrl: 'https://www.kubb.tv/play/a',
+    coverImg: 'https://image.tmdb.org/t/p/original/a.jpg' });
   const client = createApp(async () => ({ ok: true, json: async () => data }));
   await client.helpers.loadData();
   const markup = client.elements.showGrid.innerHTML;
-  const inline = markup.match(/<div class="card-badges-inline">((?:<span[\s\S]*?<\/span>)+)<\/div>/u)?.[1] || '';
-  assert.match(inline, /badge-new">新加入</u, 'the single new-arrival badge is part of the inline row');
+  const poster = markup.match(/<div class="card-badges">([\s\S]*?)<\/div>/u)?.[1] || '';
+  assert.match(poster, /badge-ai">AI 91<span class="sr-only">/u);
+  assert.match(poster, /badge-new">新加入</u);
+  assert.doesNotMatch(poster, /badge-score|badge-ongoing|badge-playable/u, 'score, status and playability are shown outside the badge stack');
   assert.doesNotMatch(markup, /card-new-badge|badge-new-flag|>NEW<|>新剧</u, 'a show carries only one new marker');
-  assert.match(inline, /8\.6/u);
-  assert.match(inline, /连载/u);
+  assert.match(markup, /<span class="card-play-tag">可播放<\/span>/u);
+  assert.match(markup, /<p class="card-sub"><span class="card-score">[\s\S]*?8\.6<\/span><span class="card-status ongoing">/u);
+  assert.doesNotMatch(markup, /card-desc|card-links|card-action|card-mark"/u, 'descriptions, links and actions live in the detail sheet');
+  const detail = client.helpers.renderDetail(data.koreanDramas[0]);
+  for (const badge of ['badge-playable">可播放', 'AI 推荐 91', '8.6', 'badge-new">新加入', 'badge-ongoing">连载']) assert.ok(detail.includes(badge), badge);
   const css = readFileSync(new URL('../css/style.css', import.meta.url), 'utf8');
-  const narrow = css.slice(css.indexOf('@media (max-width: 480px)'));
-  assert.match(narrow, /\.card-badges \{ display: none; \}/u, 'narrow screens hide the poster overlay');
-  assert.match(narrow, /\.card-badges-inline \{ display: flex;/u);
+  assert.match(css, /@media \(max-width: 480px\) \{\s*\.show-grid\.is-compact \{ grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 10px; \}/u,
+    'narrow screens show three posters per row, matching the poster sizes attribute');
+  assert.match(markup, /sizes="\(max-width: 480px\) calc\(\(100vw - 40px\) \/ 3\), \(max-width: 768px\) calc\(\(100vw - 64px\) \/ 4\), 216px"/u);
 });
 
 // ── 可播放、卡片信息密度与筛选体验 ──
 const DAY = 24 * 60 * 60 * 1000;
 const cardMarkup = elements => elements.showGrid.innerHTML.split('</article>').slice(0, -1);
-const renderedTitles = elements => [...elements.showGrid.innerHTML.matchAll(/id="card-\d+-title">([^<]+)</gu)].map(match => match[1]);
+const renderedTitles = elements => [...elements.showGrid.innerHTML.matchAll(/class="card-open"[^>]*>([^<]+)</gu)].map(match => match[1]);
 
 test('playable cards carry a badge and a watch action while other cards offer a secondary info link', () => {
   const { helpers, elements } = createApp();
@@ -1176,9 +1185,12 @@ test('playable cards carry a badge and a watch action while other cards offer a 
   });
   helpers.setAllData(data);
   helpers.switchTab('korean', { animate: false });
-  const [playable, info] = cardMarkup(elements);
+  const [playableCard, infoCard] = cardMarkup(elements);
+  assert.match(playableCard, /card-play-tag">可播放</u);
+  assert.doesNotMatch(infoCard, /card-play-tag/u);
+  const [playable, info] = data.koreanDramas.map(show => helpers.renderDetail(show));
   assert.match(playable, /badge-playable">可播放</u);
-  assert.match(playable, /class="card-action primary" href="https:\/\/www\.yfsp\.tv\/play\/a"[^>]*>观看 \/ 详情/u);
+  assert.match(playable, /class="card-action primary" href="https:\/\/www\.yfsp\.tv\/play\/a"[^>]*>去观看/u);
   assert.match(playable, /class="card-link" href="https:\/\/www\.themoviedb\.org\/tv\/1"/u, 'metadata stays reachable in the compact link row');
   assert.doesNotMatch(info, /badge-playable/u);
   assert.match(info, /class="card-action primary is-info" href="https:\/\/www\.themoviedb\.org\/tv\/2"[^>]*>暂无播放源 · 查看资料/u);
@@ -1255,14 +1267,15 @@ test('play counts are hidden until live-observed and labelled as historical afte
   Object.assign(data.koreanDramas[3], { recommendScore: 1, playCount: 900, scrapedAt: new Date(now - 30 * DAY).toISOString(), lastLiveAt: new Date(now - DAY).toISOString() });
   helpers.setAllData(data);
   helpers.switchTab('korean', { animate: false });
-  const cards = cardMarkup(elements);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /card-views/u, 'play counts are a detail-sheet fact');
+  const cards = data.koreanDramas.map(show => helpers.renderDetail(show));
   assert.doesNotMatch(cards[0], /播放<|card-views/u, 'seed play counts that were never observed are not shown');
   assert.match(cards[1], /5\.0万次播放/u);
   assert.doesNotMatch(cards[1], /历史播放/u);
   assert.match(cards[2], /历史播放 800次/u);
   assert.match(cards[3], /900次播放/u, 'the newest observation of either timestamp decides freshness');
   assert.doesNotMatch(cards[3], /历史播放/u);
-  assert.match(cards[1], /<div class="card-footer">\s*<span class="card-status[^>]*>[^<]*<\/span>\s*<span class="card-views">/u, 'status and play count share one footer line');
+  assert.match(cards[1], /<p class="detail-status"><span class="card-status[^>]*>[^<]*<\/span> · <span class="card-views">/u, 'status and play count share one line');
 });
 
 test('variety status codes become readable while unknown formats stay unchanged', () => {
@@ -1297,12 +1310,14 @@ test('cards show one new marker, no internal discovery label and only high AI ma
   helpers.setAllData(data);
   helpers.switchTab('korean', { animate: false });
   let cards = cardMarkup(elements);
-  assert.equal((cards[0].match(/badge-new">新加入</gu) || []).length, 2, 'one badge, repeated only in the overlay and inline row');
+  assert.equal((cards[0].match(/badge-new">新加入</gu) || []).length, 1, 'one new marker per card');
   assert.doesNotMatch(cards[0], /新发现|>新剧</u);
-  assert.match(cards[0], /badge-ai"><span aria-hidden="true">🤖<\/span> AI 推荐 88<span class="sr-only">/u);
+  assert.match(cards[0], /badge-ai">AI 88<span class="sr-only">分（AI 推荐，口味匹配度，满分100）<\/span>/u);
+  assert.match(helpers.renderDetail(data.koreanDramas[0]), /badge-ai"><span aria-hidden="true">🤖<\/span> AI 推荐 88<span class="sr-only">/u);
   assert.match(cards[1], /badge-new">新剧</u);
   assert.doesNotMatch(cards[1], /badge-ai/u, 'scores below 70 are not highlighted');
-  assert.match(cards[2], /AI 推荐 70/u);
+  assert.doesNotMatch(helpers.renderDetail(data.koreanDramas[1]), /badge-ai/u);
+  assert.match(cards[2], /AI 70/u);
   assert.doesNotMatch(cards[2], /badge-new/u);
   assert.match(cards[3], /badge-new">新加入</u, 'a recent arrival is marked regardless of release year');
 
@@ -1329,50 +1344,99 @@ test('cards are labelled by their titles and external links name the show and th
   assert.deepEqual(labelled, ['card-0-title', 'card-1-title']);
   for (const id of labelled) assert.equal((markup.match(new RegExp(`id="${id}"`, 'gu')) || []).length, 1);
   const card = cardMarkup(elements).find(markup => markup.includes('&lt;链接&gt;剧'));
-  const allLinks = card.match(/<a [\s\S]*?<\/a>/gu);
-  const posterLinks = allLinks.filter(link => link.includes('card-poster-link'));
-  assert.equal(posterLinks.length, 1, 'the poster is one extra pointer target for the primary action');
-  assert.match(posterLinks[0], /tabindex="-1" aria-hidden="true"/u, 'the poster link duplicates the button, so it stays out of the tab order and the accessibility tree');
-  const links = allLinks.filter(link => !link.includes('card-poster-link'));
+  const cardLinks = card.match(/<a [\s\S]*?<\/a>/gu);
+  assert.equal(cardLinks.length, 1, 'the whole card is one link that opens the detail sheet');
+  assert.match(cardLinks[0], /^<a class="card-open" href="\?show=show-1#korean" data-show-id="show-1">&lt;链接&gt;剧<\/a>$/u);
+  const detail = helpers.renderDetail(data.koreanDramas[1]);
+  assert.match(detail, /<h2 class="detail-title" id="detailTitle">&lt;链接&gt;剧<\/h2>/u);
+  const links = detail.match(/<a [\s\S]*?<\/a>/gu);
   assert.equal(links.length, 3);
   for (const link of links) assert.match(link, /<span class="sr-only">：&lt;链接&gt;剧（新窗口）<\/span><\/a>$/u);
-  for (const emoji of ['⭐', '🎭']) assert.match(card, new RegExp(`<span aria-hidden="true">${emoji}</span>`, 'u'));
+  assert.match(detail, /<span aria-hidden="true">⭐<\/span>/u);
+  assert.match(detail, /<p class="detail-actors"><span class="detail-label">主演<\/span>甲 \/ 乙<\/p>/u);
+  assert.match(detail, /<button class="detail-close" type="button" data-detail-close aria-label="关闭详情">/u);
 });
 
-test('long descriptions get an accessible expand toggle while short ones do not', () => {
-  const { helpers, elements, document } = createApp();
+test('the detail sheet shows the whole description, labels AI copy and offers marks and sharing', () => {
+  const { helpers, location } = createApp();
   const data = snapshot(2);
-  data.koreanDramas[0].description = '很长的简介'.repeat(12);
-  data.koreanDramas[1].description = '一句话简介';
+  Object.assign(data.koreanDramas[0], { description: '很长的简介'.repeat(40), aiReason: '轻松<喜剧>', year: 2026 });
+  Object.assign(data.koreanDramas[1], { description: '机器写的推荐语', descriptionSource: 'ai' });
   helpers.setAllData(data);
-  helpers.switchTab('korean', { animate: false });
-  const [long, short] = cardMarkup(elements);
-  assert.match(long, /<p class="card-desc" id="card-0-desc">/u);
-  assert.match(long, /<button class="card-desc-toggle" type="button" aria-expanded="false" aria-controls="card-0-desc">展开简介<\/button>/u);
-  assert.doesNotMatch(short, /card-desc-toggle/u);
-  assert.match(helpers.renderCard({ id: 'm', title: '中等', description: '中'.repeat(30) }, 5), /card-desc-toggle narrow-only/u,
-    'a medium description only needs the toggle where it is clamped to two lines');
+  const detail = helpers.renderDetail(data.koreanDramas[0]);
+  assert.ok(detail.includes(`<p class="detail-desc">${'很长的简介'.repeat(40)}</p>`), 'the description is never truncated');
+  assert.match(detail, /AI推荐: 轻松&lt;喜剧&gt;/u);
+  assert.match(detail, /data-mark-key="剧目0\|2026"><button class="card-mark" type="button" data-mark="want" aria-pressed="false">想看/u);
+  assert.match(detail, /<button class="detail-share" type="button" data-detail-share>分享<\/button>/u);
+  assert.doesNotMatch(detail, /card-action/u, 'a show without any link has no primary action');
+  assert.match(helpers.renderDetail(data.koreanDramas[1]), /<span class="detail-label">AI生成推荐语<\/span>机器写的推荐语/u);
+  location.href = 'https://example.test/?status=ongoing&q=x#year';
+  assert.equal(helpers.getDetailShareUrl(data.koreanDramas[0]), 'https://example.test/?show=show-0#korean', 'share links drop the sharer\'s filters');
+  assert.equal(helpers.getDetailShareUrl(data.chineseVariety[0]), 'https://example.test/?show=variety#korean');
+});
 
+function detailDialog(client) {
+  const dialog = Object.assign(client.document.createElement(), {
+    open: false,
+    showModal() { dialog.open = true; },
+    close() { if (!dialog.open) return; dialog.open = false; dialog.dispatch('close'); },
+  });
+  const content = client.document.createElement();
+  const getElementById = client.document.getElementById;
+  client.document.getElementById = id => id === 'detailDialog' ? dialog : id === 'detailContent' ? content : getElementById(id);
+  const history = { pushes: 0, backs: 0 };
+  return { dialog, content, history };
+}
+
+test('opening a card shows the detail sheet, tracks it in the URL and closes through history or the dialog', () => {
+  const client = createApp();
+  const { helpers, elements, location } = client;
+  const { dialog, content } = detailDialog(client);
+  const data = snapshot(3);
+  helpers.setAllData(data);
   helpers.bindCardActions();
-  const attributes = new Map([['aria-expanded', 'false'], ['aria-controls', 'card-0-desc']]);
-  const button = {
-    textContent: '展开简介',
-    closest: selector => selector === '.card-desc-toggle' ? button : null,
-    getAttribute: name => attributes.get(name),
-    setAttribute: (name, value) => attributes.set(name, value),
-  };
-  const description = document.createElement();
-  const getElementById = document.getElementById;
-  document.getElementById = id => id === 'card-0-desc' ? description : getElementById(id);
-  elements.showGrid.dispatch('click', { target: button });
-  assert.equal(attributes.get('aria-expanded'), 'true');
-  assert.equal(button.textContent, '收起简介');
-  assert.equal(description.classList.contains('is-expanded'), true);
-  elements.showGrid.dispatch('click', { target: button });
-  assert.equal(attributes.get('aria-expanded'), 'false');
-  assert.equal(description.classList.contains('is-expanded'), false);
-  elements.showGrid.dispatch('click', { target: { closest: () => null } });
-  assert.equal(attributes.get('aria-expanded'), 'false', 'other clicks inside the grid are ignored');
+  helpers.bindDetail();
+  helpers.switchTab('korean', { animate: false });
+  const writes = elements.showGrid.htmlWrites;
+
+  let prevented = false;
+  const link = { dataset: { showId: 'show-1' }, closest: selector => selector === '.card-open' ? link : null };
+  elements.showGrid.dispatch('click', { target: link, preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(dialog.open, true);
+  assert.match(content.innerHTML, /id="detailTitle">剧目1</u);
+  assert.match(location.search, /show=show-1/u, 'the open show is shareable from the address bar');
+
+  // 带修饰键的点击交给浏览器在新标签打开分享链接。
+  prevented = false;
+  dialog.close();
+  assert.doesNotMatch(location.search, /show=/u, 'closing removes the parameter');
+  elements.showGrid.dispatch('click', { target: link, ctrlKey: true, preventDefault() { prevented = true; } });
+  assert.equal(prevented, false);
+  assert.equal(dialog.open, false);
+
+  // 分享链接或前进/后退：地址决定开合，且不重跑筛选。
+  location.search = '?show=show-2';
+  helpers.handleUrlStateChange();
+  assert.equal(dialog.open, true);
+  assert.match(content.innerHTML, /id="detailTitle">剧目2</u);
+  location.search = '';
+  helpers.handleUrlStateChange();
+  assert.equal(dialog.open, false);
+  assert.equal(elements.showGrid.htmlWrites, writes, 'opening and closing never rebuilds the list');
+  location.search = '?show=missing';
+  helpers.handleUrlStateChange();
+  assert.equal(dialog.open, false, 'an unknown show id opens nothing');
+
+  // 详情层里的标记同步到列表卡片。
+  helpers.openDetail(data.koreanDramas[0], { push: false });
+  const pill = { textContent: '', hidden: true };
+  const card = { dataset: { markKey: '剧目0|' }, classList: { toggle(name, force) { card.seen = force; } }, querySelector: () => pill };
+  elements.showGrid.children.push(card);
+  const group = { dataset: { markKey: '剧目0|' }, querySelectorAll: () => [] };
+  helpers.toggleCardMark({ dataset: { mark: 'seen' }, closest: selector => selector === '.card-marks' ? group : null });
+  assert.equal(card.seen, true);
+  assert.deepEqual(pill, { textContent: '看过', hidden: false });
 });
 
 test('the schedule tab hides recommendation-only sorts and filters and restores them afterwards', async () => {
@@ -1420,7 +1484,7 @@ for (const [age, expectedWrites] of [[0, 0], [2 * DAY, 1]]) {
 
 test('the static loading markup matches the first scripted skeleton so the grid does not jump', () => {
   const index = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const staticGrid = index.match(/<div class="show-grid" id="showGrid"[^>]*>([\s\S]*?)<\/div>\s*<div class="load-more"/u)?.[1] || '';
+  const staticGrid = index.match(/<div class="show-grid is-compact" id="showGrid"[^>]*>([\s\S]*?)<\/div>\s*<div class="load-more"/u)?.[1] || '';
   const client = createApp(() => new Promise(() => {}));
   client.helpers.loadData();
   const normalize = html => html.replace(/<!--[\s\S]*?-->/gu, '').replace(/\s+/gu, ' ').trim();
@@ -1475,29 +1539,27 @@ test('watched and want marks persist locally, sink watched cards and fill the pe
   const { helpers, elements } = client;
   helpers.setAllData(markedSnapshot());
   helpers.switchTab('korean', { animate: false });
-  const titles = () => [...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>([^<]+)/gu)].map(match => match[1]);
+  const titles = () => [...elements.showGrid.innerHTML.matchAll(/class="card-open"[^>]*>([^<]+)/gu)].map(match => match[1]);
   assert.deepEqual(titles(), ['剧目0', '剧目1', '剧目2', '剧目3']);
-  assert.match(elements.showGrid.innerHTML, /data-mark-key="剧目0\|2026"><button class="card-mark" type="button" data-mark="want" aria-pressed="false">想看/u);
+  assert.match(elements.showGrid.innerHTML, /data-mark-key="剧目0\|2026"[\s\S]*?<span class="card-mark-pill" hidden><\/span>/u);
 
-  // 点击只就地更新卡片；下一次筛选时看过的才沉底。
-  helpers.bindCardActions();
+  // 在详情层里标记只就地更新；下一次筛选时看过的才沉底。
   const pressed = new Map();
-  const card = { classList: { toggle(name, force) { card.seen = force; } } };
   const group = { dataset: { markKey: '剧目0|2026' }, querySelectorAll: () => [seenButton] };
   const seenButton = {
     dataset: { mark: 'seen' }, setAttribute: (name, value) => pressed.set(name, value),
-    closest: selector => selector === '.card-mark' ? seenButton : selector === '.card-marks' ? group : card,
+    closest: selector => selector === '.card-marks' ? group : null,
   };
-  elements.showGrid.dispatch('click', { target: seenButton });
+  helpers.toggleCardMark(seenButton);
   assert.equal(pressed.get('aria-pressed'), 'true');
-  assert.equal(card.seen, true);
   assert.equal(elements.showGrid.htmlWrites, 1, 'marking does not rebuild the grid');
   helpers.setMark('剧目2|2026', 'want');
   assert.deepEqual(JSON.parse(client.otherStorage.get('iyf:marks:v1')).kind, 'iyf-marks');
 
   helpers.applyFilters();
   assert.deepEqual(titles(), ['剧目1', '剧目2', '剧目3', '剧目0']);
-  assert.match(elements.showGrid.innerHTML, /show-card is-seen"[^>]*>[\s\S]*剧目0/u);
+  assert.match(elements.showGrid.innerHTML, /show-card is-seen"[^>]*>[\s\S]*<span class="card-mark-pill">看过<\/span>[\s\S]*剧目0/u);
+  assert.match(elements.showGrid.innerHTML, /<span class="card-mark-pill">想看<\/span>[\s\S]*剧目2/u);
   helpers.switchTab('mine', { animate: false });
   assert.deepEqual(titles(), ['剧目2', '剧目0'], 'the personal list holds marked shows with watched ones last');
 
@@ -1550,7 +1612,7 @@ test('quick filter chips toggle the shared filters, genre and hide-watched state
   assert.ok(chips().includes('hideSeen:false:隐藏看过'), 'the hide-watched chip appears once something is marked watched');
   click({ chip: 'hideSeen' });
   assert.match(elements.resultSummary.textContent, /显示 7 个推荐结果 · 隐藏看过/u);
-  assert.doesNotMatch(elements.showGrid.innerHTML, /card-title"[^>]*>剧目1</u);
+  assert.doesNotMatch(elements.showGrid.innerHTML, /class="card-open"[^>]*>剧目1</u);
   elements.resetFilters.dispatch('click');
   assert.match(elements.resultSummary.textContent, /显示 8 个推荐结果$/u);
 
@@ -1573,7 +1635,7 @@ test('search covers every category with outside results after the current tab an
   helpers.setAllData(data);
   elements.searchInput.value = '奔跑';
   helpers.switchTab('korean', { animate: false });
-  const titles = [...elements.showGrid.innerHTML.matchAll(/card-title"[^>]*>([^<]+)/gu)].map(match => match[1]);
+  const titles = [...elements.showGrid.innerHTML.matchAll(/class="card-open"[^>]*>([^<]+)/gu)].map(match => match[1]);
   assert.deepEqual(titles, ['奔跑少年', '奔跑综艺']);
   assert.equal(elements.showGrid.innerHTML.match(/meta-tag category">([^<]+)/gu).length, 1);
   assert.match(elements.showGrid.innerHTML, /meta-tag category">综艺</u);

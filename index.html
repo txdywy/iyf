@@ -128,7 +128,7 @@
       <div class="container">
         <h2 class="sr-only" id="contentHeading">推荐内容</h2>
         <noscript><p>请启用 JavaScript，以查看和筛选推荐内容。</p></noscript>
-        <div class="show-grid" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-describedby="resultSummary" aria-busy="true">
+        <div class="show-grid is-compact" id="showGrid" role="tabpanel" aria-label="推荐结果" aria-labelledby="tab-korean" aria-describedby="resultSummary" aria-busy="true">
           <!-- 静态骨架与脚本首屏骨架一致，数据到达前预留网格高度，避免页脚和加载提示跳动。 -->
           <article class="skeleton-card" aria-hidden="true">
             <div class="skeleton-poster skeleton-shimmer"></div>
@@ -199,6 +199,11 @@
         </div>
       </div>
     </main>
+
+    <!-- 详情层：桌面居中弹出，窄屏从底部滑出 -->
+    <dialog class="detail" id="detailDialog" aria-labelledby="detailTitle">
+      <div class="detail-sheet" id="detailContent"></div>
+    </dialog>
 
     <!-- 底部 -->
     <button class="back-to-top" id="backToTop" type="button" hidden><span aria-hidden="true">↑</span> 回到顶部</button>

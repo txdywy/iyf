@@ -189,6 +189,7 @@ function loadAppHelpers({
       loadData,
       isShowDataset,
       renderCard,
+      renderDetail,
       fetchJSONWithTimeout,
       escapeHtml,
       safeExternalUrl,
@@ -694,7 +695,7 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(elements.statOngoing.textContent, 1, 'ongoing statistics must only count positively known running shows');
   assert.ok(!helpers.isShowDataset({ koreanDramas: [{}], chineseVariety: [] }), 'malformed datasets must not enter the cache');
   assert.ok(helpers.isShowDataset({ lastUpdated: '2026-09-27', koreanDramas: [{ id: 'valid', title: '有效节目' }], chineseVariety: [] }));
-  assert.doesNotMatch(helpers.renderCard({ title: '缺少AI分', aiScore: null }, 0), /🤖 0\/100/, 'missing AI scores must not become zero-score badges');
+  assert.doesNotMatch((helpers.renderCard({ title: '缺少AI分', aiScore: null }, 0) + helpers.renderDetail({ title: '缺少AI分', aiScore: null })), /🤖 0\/100/, 'missing AI scores must not become zero-score badges');
 }
 
 {
@@ -837,7 +838,9 @@ for (const tab of ['korean', 'tvmaze']) {
 }
 
 {
-  const { renderCard, safeExternalUrl } = loadAppHelpers();
+  // 列表卡片只留海报、片名、评分和状态，其余在详情层；链接与标签的断言针对两者合起来的标记。
+  const { renderCard: renderCompactCard, renderDetail, safeExternalUrl } = loadAppHelpers();
+  const renderCard = (show, index) => renderCompactCard(show, index) + renderDetail(show);
   const yfspOnly = renderCard({
     title: '仅播放源',
     primaryUrl: 'https://www.yfsp.tv/play/rkNc61MMTE0',
@@ -854,7 +857,7 @@ for (const tab of ['korean', 'tvmaze']) {
   }, 0);
   assert.match(metadataAndYfsp, />TMDB</, 'metadata links should still render when present');
   assert.match(metadataAndYfsp, /href="https:\/\/www\.yfsp\.tv\/play\/live"/, 'cards with metadata should also expose the playable YFSP link');
-  assert.match(metadataAndYfsp, /观看 \/ 详情/, 'YFSP action should keep the watch/detail label');
+  assert.match(metadataAndYfsp, /去观看/, 'the playable action is labelled as the way to watch');
 
   const metadataNoYfsp = renderCard({
     title: '仅资料',
@@ -873,7 +876,7 @@ for (const tab of ['korean', 'tvmaze']) {
     tmdbUrl: 'ftp://example.com/not-web',
   }, 0);
   assert.doesNotMatch(unsafeActions, /javascript:|data:|ftp:/, 'non-http external URLs should not render into card actions');
-  assert.doesNotMatch(unsafeActions, /<a /, 'unsafe-only cards should not render any link');
+  assert.doesNotMatch(unsafeActions, /<a (?!class="card-open" href="\?show=)/, 'unsafe-only cards render no link besides the in-page detail link');
   assert.equal(safeExternalUrl(' https://example.com/path '), 'https://example.com/path', 'safe URL helper should trim valid web URLs');
   assert.equal(safeExternalUrl('javascript:alert(1)'), '', 'safe URL helper should reject javascript URLs');
   assert.equal(safeExternalUrl('https://evil.com/"onload=alert(1)'), '', 'safe URL helper should reject URLs containing quotes');
@@ -892,7 +895,7 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.match(renderCard({ title: '高匹配', aiScore: 70, coverImg: '', recommendScore: 0 }, 0), /AI 推荐 70/, 'an AI score of 70 or more should render a labelled badge');
   const responsivePoster = renderCard({ title: '响应式海报', coverImg: 'https://image.tmdb.org/t/p/original/poster.jpg', recommendScore: 0 }, 0);
   assert.match(responsivePoster, /w185\/poster\.jpg 185w/, 'poster srcset should include a mobile-sized image candidate');
-  assert.match(responsivePoster, /sizes="\(max-width: 480px\) 112px/, 'poster sizes should match the compact mobile card width');
+  assert.match(responsivePoster, /sizes="\(max-width: 480px\) calc\(\(100vw - 40px\) \/ 3\)/, 'poster sizes should match the three-column mobile grid');
   assert.match(renderCard({ title: '延迟海报', coverImg: 'https://image.tmdb.org/t/p/original/poster.jpg', recommendScore: 0 }, 2), /loading="lazy"/, 'non-viewport posters should remain lazy');
   assert.match(renderCard({ title: '待升级封面', tmdbCoverPending: true, coverImg: '', recommendScore: 0 }, 0), /封面待升级/, 'pending TMDB cover status should be visible on recommendation cards');
   const unsafeCover = renderCard({ title: '坏图测试', coverImg: 'javascript:alert(1)', score: 0, recommendScore: 0 }, 0);
@@ -958,8 +961,9 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.switchTab('korean', { animate: false });
   assert.match(elements.showGrid.innerHTML, /src="https:\/\/image\.tmdb\.org\/t\/p\/original\/demo%27s\.jpg"/, 'valid quoted poster paths must render an image');
   assert.match(elements.showGrid.innerHTML, /w185\/demo%27s\.jpg 185w/, 'responsive poster candidates must preserve the encoded quoted path');
-  assert.match(elements.showGrid.innerHTML, /href="https:\/\/www\.yfsp\.tv\/play\/demo%27s"/, 'valid quoted primary paths must remain actionable');
-  assert.match(elements.showGrid.innerHTML, /观看 \/ 详情/);
+  const apostropheDetail = helpers.renderDetail({ id: 'apostrophe-path', title: "Editor's 韩剧", yfspUrl: "https://www.yfsp.tv/play/demo's" });
+  assert.match(apostropheDetail, /href="https:\/\/www\.yfsp\.tv\/play\/demo%27s"/, 'valid quoted primary paths must remain actionable');
+  assert.match(apostropheDetail, /去观看/);
   assert.match(elements.showGrid.innerHTML, /Editor&#39;s 韩剧/, 'the real card must keep HTML text escaped');
   assert.doesNotMatch(elements.showGrid.innerHTML, /class="placeholder"/);
 
@@ -972,8 +976,9 @@ for (const tab of ['korean', 'tvmaze']) {
     'https://user:password@example.com/path',
     'https://example.com/demo\u0000s',
   ]) {
-    const card = helpers.renderCard({ title: '不安全来源', coverImg: url, primaryUrl: url, yfspUrl: url }, 0);
-    assert.doesNotMatch(card, /<img |<a /, 'unsafe source URLs must not become poster or action attributes');
+    const unsafeShow = { title: '不安全来源', coverImg: url, primaryUrl: url, yfspUrl: url };
+    const card = helpers.renderCard(unsafeShow, 0) + helpers.renderDetail(unsafeShow);
+    assert.doesNotMatch(card, /<img |<a (?!class="card-open" href="\?show=)/, 'unsafe source URLs must not become poster or action attributes');
   }
 }
 
@@ -1078,7 +1083,7 @@ for (const tab of ['korean', 'tvmaze']) {
   });
   elements.searchInput.value = '奔跑吧';
   helpers.switchTab('korean');
-  assert.match(elements.showGrid.innerHTML, /meta-tag category">综艺<[\s\S]*奔跑吧/u, 'search covers every category and labels results from outside the selected tab');
+  assert.match(elements.showGrid.innerHTML, /奔跑吧[\s\S]*meta-tag category">综艺</u, 'search covers every category and labels results from outside the selected tab');
   assert.match(elements.resultSummary.textContent, /含其他分类 1 个/u);
   helpers.switchTab('variety');
   assert.match(elements.showGrid.innerHTML, /周五/u, 'variety cards should show the source update message when status text is absent');
@@ -2773,7 +2778,7 @@ for (const hasStaleCache of [false, true]) {
 
 // ── Source contract smoke checks ──────────────────────────
 assert.match(app, /escapeHtml\(String\(aiScore\)\)/, 'AI score badge should escape normalized output');
-assert.match(app, /escapeHtml\(String\(show\.score\)\)/, 'score badge should escape stringified output');
+assert.match(app, /escapeHtml\(String\(displayScore\.value\)\)/, 'score badge should escape stringified output');
 assert.doesNotMatch(app, /card-score-float/, 'poster score overlays should not duplicate the score badge');
 assert.match(app, /toText\(s\.title\)\.toLowerCase\(\)\.includes\(query\)/, 'search should tolerate missing titles');
 assert.match(app, /function getValidTime\(/, 'date sorting should use a valid-time helper');
