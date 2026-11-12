@@ -937,16 +937,33 @@ function isYearCompatible(seed, candidate) {
   return Math.abs(seed.year - candidateYear) <= 1 || hasSeedYearUpdate;
 }
 
+// 综艺种子通常不写季号，代表“最新一季”；来源按季建条目（如“种地吧第4季”），
+// 标题匹配规则不会把无季号标题并到带季号的条目上，这类种子因此长期没有播放源。
+// 返回来源标题对应的季号：只限非经典综艺种子，且去掉季号后的标题必须完全相同
+// （“第3季Plus版”这类衍生版没有季号结尾，不会命中）。韩剧不适用：无季号的剧种子就是第一季。
+function seedSeasonOf(seed, title, mediaType = seed?.mediaType) {
+  if (mediaType !== '综艺' || !seed?.title || seed.isClassic || seasonKey(seed.title)) return 0;
+  const season = seasonNumberFromTitle(title);
+  return season && normalizeTitle(stripSeasonSuffix(title)) === normalizeTitle(seed.title) ? season : 0;
+}
+
 function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
-  const candidates = [...liveShows.values()].filter(s =>
+  const eligible = [...liveShows.values()].filter(s =>
     s.mediaType === mediaType &&
     (!regionMatcher || regionMatcher(s)) &&
-    (!seed.regional || !s.regional || seed.regional === s.regional) &&
+    (!seed.regional || !s.regional || seed.regional === s.regional));
+  const candidates = eligible.filter(s =>
     titleMatches(seed.title, s.title) &&
     haveCompatibleTitleSeasons(seed.title, s.title) &&
     isYearCompatible(seed, s)
   );
-  return candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0] || null;
+  const exact = candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+  if (exact) return exact;
+  // 没有同名条目时采用来源上季号最大的一季。
+  return eligible
+    .map(show => ({ show, season: seedSeasonOf(seed, show.title, mediaType) }))
+    .filter(entry => entry.season)
+    .sort((a, b) => b.season - a.season)[0]?.show || null;
 }
 
 function applyLiveFields(seedShow, liveMatch) {
@@ -990,6 +1007,10 @@ function applyLiveFields(seedShow, liveMatch) {
     isLive: true,
     yfspUrl: liveMatch.yfspUrl || liveMatch.url || '',
   };
+  // 采用来源的某一季时，年份以该季为准；种子里写的年份只是“最新一季”的猜测。
+  if (seedSeasonOf(seedShow, liveMatch.title, seedShow.mediaType || liveMatch.mediaType) && boundedYear(liveMatch.year)) {
+    merged.year = boundedYear(liveMatch.year);
+  }
   const curatedSeedFields = ['title', 'actor', 'contentType', 'regional', 'lang', 'year']
     .filter(field => field === 'year' ? boundedYear(seedShow[field]) : safeText(seedShow[field]).length > 0);
   if (hasLiveField('description') && !sourceFields.includes('description')) sourceFields.push('description');
@@ -1001,9 +1022,14 @@ function sameSeedShowIdentity(a, b) {
   if (!a?.seedId || a.seedId !== b?.seedId || !a.title || !b?.title) return false;
   if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
   if (a.regional && b.regional && a.regional !== b.regional) return false;
-  if (a.year && b.year && Math.abs(a.year - b.year) > 1) return false;
   const aSeason = seasonKey(a.title);
   const bSeason = seasonKey(b.title);
+  // 综艺种子上一轮已采用来源的某一季（标题带季号、年份为该季年份）：同一 seedId 且去季号后同名即同一张卡。
+  if (!aSeason !== !bSeason) {
+    const [unnumbered, seasonal] = aSeason ? [b, a] : [a, b];
+    if (seedSeasonOf(unnumbered, seasonal.title, unnumbered.mediaType || seasonal.mediaType)) return true;
+  }
+  if (a.year && b.year && Math.abs(a.year - b.year) > 1) return false;
   if (aSeason && bSeason) return aSeason === bSeason && titleMatches(a.title, b.title);
   if (!titleMatches(a.title, b.title)) return false;
 
@@ -1088,6 +1114,28 @@ function sameShowIdentity(a, b) {
 // 源站简介不超过这个长度时，富化阶段会尝试换成更完整的 TMDB/Wikipedia 文案。
 const DESCRIPTION_UPGRADE_MAX_LENGTH = 80;
 
+// 源站常把简介截断成以省略号结尾的半句话；这类文案同样需要换成完整来源。
+function isTruncatedDescription(text) {
+  return /(?:\.{3,}|…+)\s*$/u.test(safeText(text, 2000));
+}
+
+function isIncompleteSourceDescription(text) {
+  const value = safeText(text, 2000);
+  return !value || value.length <= DESCRIPTION_UPGRADE_MAX_LENGTH || isTruncatedDescription(value);
+}
+
+// 中文维基条目首句通常是“《X》是某台自某日起播出的……”，只有播出信息，不是剧情。
+function isWikipediaBroadcastLede(text) {
+  return /^《[^》]{1,60}》\s*[，,（(]?[^。]{0,40}?(?:是|为|為)/u.test(safeText(text, 2000));
+}
+
+function hasBroadcastLedeDescription(show) {
+  return show?.descriptionSource === 'wikipedia' && isWikipediaBroadcastLede(show.description);
+}
+
+// 简介质量规则上线前记录的“TMDB 没有更好简介”只比较了长度，对维基播出信息首句不成立。
+const DESCRIPTION_QUALITY_RULES_SINCE = Date.parse('2026-11-12T00:00:00Z');
+
 function mergePreviousShowState(current, previous) {
   if (!previous) return { ...current };
   const merged = { ...previous, ...current };
@@ -1121,7 +1169,8 @@ function mergePreviousShowState(current, previous) {
     ['tmdb', 'wikipedia'].includes(previous.descriptionSource) && previous.description &&
     (seasonNumberFromTitle(merged.title)
       ? previous.descriptionSource === 'tmdb' && !!previous.descriptionTmdbSeasonUrl
-      : current.description.length <= DESCRIPTION_UPGRADE_MAX_LENGTH && previous.description.length > current.description.length);
+      : isIncompleteSourceDescription(current.description) && !isWikipediaBroadcastLede(previous.description) &&
+        (previous.description.length > current.description.length || isTruncatedDescription(current.description)));
   if (keepsPreviousUpgrade) {
     rememberSourcedHardExclusion(current);
     merged.description = previous.description;
@@ -1198,6 +1247,11 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
       merged.id = prev.id;
       merged.title = prev.title;
     }
+    // 上一轮已采用来源某一季的综艺种子：本轮没有来源观测时继续沿用带季号的标题。
+    if (current.isLive === false && current.seedId && prev.seedId === current.seedId &&
+        seedSeasonOf(current, prev.title, current.mediaType || mediaType)) {
+      merged.title = prev.title;
+    }
     merged.category = category;
     merged.mediaType = merged.mediaType || mediaType;
     merged.recommendScore = scoreFn(merged);
@@ -1252,10 +1306,16 @@ function restorePreviousRecommendations(kdramaMap, varietyMap, prevShows) {
 }
 
 function scoreYfspCandidate(show, result) {
-  if (!result || typeof result !== 'object' || !titleMatches(show.title, result.title) ||
-      !haveCompatibleTitleSeasons(show.title, result.title)) return -1;
+  if (!result || typeof result !== 'object') return -1;
   const resultMediaType = safeText(result.atypeName, 20);
   const resultRegion = safeText(result.regional, 40);
+  // 无季号综艺种子：没有同名同年条目时采用季号最大的一季；分数低于任何常规匹配。
+  const adoptedSeason = show.seedId && !show.yfspUrl && resultMediaType === '综艺' ? seedSeasonOf(show, result.title) : 0;
+  if (adoptedSeason) {
+    if (show.regional && resultRegion && resultRegion !== show.regional) return -1;
+    return adoptedSeason / 100;
+  }
+  if (!titleMatches(show.title, result.title) || !haveCompatibleTitleSeasons(show.title, result.title)) return -1;
   if (show.mediaType && resultMediaType && resultMediaType !== show.mediaType) return -1;
   if (show.regional && resultRegion && resultRegion !== show.regional) return -1;
   if (!isYearCompatible(show, { year: extractYear(result.postTime || ''), publishTime: result.postTime || '', updateStatus: result.lastName || '', mediaType: result.atypeName })) return -1;
@@ -1271,6 +1331,9 @@ function scoreYfspCandidate(show, result) {
   return score;
 }
 
+// 结果按上线时间从旧到新排列；长寿综艺（如奔跑吧）有二十多个条目，取少了会漏掉最新一季。
+const YFSP_SEARCH_PAGE_SIZE = 36;
+
 async function searchYfspTitle(show, { deadline = Infinity } = {}) {
   let hadError = false;
   let completedQueries = 0;
@@ -1279,7 +1342,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
     const remaining = requestDeadline - Date.now();
     if (remaining <= 0 || yfspCircuitOpen()) return { lookupState: 'unknown' };
     try {
-      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=12&orderby=0&desc=0`,
+      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=${YFSP_SEARCH_PAGE_SIZE}&orderby=0&desc=0`,
         { timeout: Math.min(15000, remaining) });
       if (Date.now() >= requestDeadline) return { lookupState: 'unknown' };
       const rawResults = data?.data?.info?.[0]?.result;
@@ -1320,6 +1383,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
           contentType: safeText(match.tag, 300),
           cidMapper: safeText(match.cidMapper, 300),
         };
+        if (best.score > 0 && best.score < 1) found.adoptedSeason = true;
         if (typeof match.isSerial === 'boolean') found.isSerial = match.isSerial;
         // Preserve “missing” vs explicit zero. A partial upstream response must
         // not erase the last reliable score/play count, while a real 0 remains
@@ -1785,8 +1849,13 @@ function scoreVariety(s, now = Date.now()) {
   const yfspHotness = applyYfspHotness(s, now);
   sc += boundedPlayCount(s.playCount) > 0 ? yfspHotness : Math.max(yfspHotness, tmdbPopularityHotness(s));
 
+  // 种子里手写的年份和连载状态在来源从未观测到之前只是猜测，不能拿新鲜度和连载加成，
+  // 否则没有播放源的种子会排在真正在播的节目前面。
+  const unverifiedSeed = !!s.seedId && !s.isClassic && !s.lastLiveAt && !s.scrapedAt && !s.yfspUrl;
+
   // 年份新鲜度加成（综艺更强调新）
-  if (s.year >= CURRENT_YEAR) sc += 30;
+  if (unverifiedSeed) sc += 0;
+  else if (s.year >= CURRENT_YEAR) sc += 30;
   else if (s.year >= CURRENT_YEAR - 1) sc += 15;
   else if (s.year >= CURRENT_YEAR - 2) sc += 5;
 
@@ -1794,7 +1863,7 @@ function scoreVariety(s, now = Date.now()) {
   if (s.isClassic) sc += 15;
 
   // 连载中加成（正在更新的综艺更有追看价值）
-  if (s.isSerial && !s.isComplete) sc += 10;
+  if (s.isSerial && !s.isComplete && !unverifiedSeed) sc += 10;
 
   // 轻松搞笑类型额外加权
   const funnyScore = VarietyFunnyKeywords.filter(kw => t.includes(kw)).length;
@@ -3574,12 +3643,37 @@ async function enrichMissingYfspLinks(shows) {
     const verified = !found?.url ? found?.lookupState || 'unknown'
       : isVerifiableYfspPlayUrl(found.url) ? await verifyYfspUrl(show, found.url, { deadline: stageDeadline })
         : YFSP_VERIFY_STATUS.VALID;
+    // 采用的那一季已经有独立卡片时不再采用，避免同一季出现两张卡。
+    if (verified === YFSP_VERIFY_STATUS.VALID && found.adoptedSeason && publishedShows.some(other => other !== show &&
+        (other.yfspUrl === found.url || sameShowIdentity(other, { title: found.title, mediaType: show.mediaType, regional: show.regional })))) {
+      markYfspLookup(show, 'not_found', '');
+      console.log(`    ✗ ${show.title}（最新一季「${found.title}」已有独立卡片）`);
+      await sleep(YFSP_REFRESH_DELAY);
+      return;
+    }
     markYfspLookup(show, verified, found?.url || '');
     if (verified === YFSP_VERIFY_STATUS.VALID) {
       show.yfspUrl = found.url;
       attachLinkFields(show, found.url, show.doubanUrl);
       show.linkMatchedTitle = found.title;
       applyYfspSearchFields(show, found);
+      if (found.adoptedSeason) {
+        // 卡片改为来源上真实存在的那一季：标题带季号，年份取该季上线年份。
+        const seasonYear = boundedYear(extractYear(found.publishTime || ''));
+        console.log(`    ↪ 种子「${show.title}」采用来源最新一季「${found.title}」${seasonYear ? `（${seasonYear}）` : ''}`);
+        show.title = found.title;
+        if (seasonYear) show.year = seasonYear;
+        // 种子的 TMDB 链接和封面属于整个系列，不能证明这一季：先用来源封面，
+        // 下一轮由常规的季封面流程按季号重新核实。
+        for (const field of ['tmdbUrl', 'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'tmdbCoverPending']) delete show[field];
+        const sourceCover = safeOutputUrl(fullSizeYfspCover(found.coverImg));
+        if (sourceCover) {
+          show.coverImg = sourceCover;
+          show.yfspCoverImg = sourceCover;
+          show.coverSource = 'yfsp';
+        }
+        attachLinkFields(show, found.url, show.doubanUrl);
+      }
       matched++;
       console.log(`    ✓ ${show.title} → ${found.title}`);
     } else {
@@ -3763,9 +3857,12 @@ async function enrichDescriptions(shows) {
     const target = descriptionTarget(s);
     if (hasSeasonDescriptionEvidence(s, target)) return false;
     if (needsSeasonDescriptionMigration(s, target)) return true;
-    if (s.descriptionSource !== 'ai' && s.description && s.description.length > DESCRIPTION_UPGRADE_MAX_LENGTH) return false;
+    const broadcastLede = hasBroadcastLedeDescription(s);
+    if (s.descriptionSource !== 'ai' && !broadcastLede &&
+        !(s.descriptionSource === 'yfsp' ? isIncompleteSourceDescription(s.description) : !s.description || s.description.length <= DESCRIPTION_UPGRADE_MAX_LENGTH)) return false;
     // 同一 TMDB 条目最近已确认没有更好的中文简介时，7 天内不再重复请求。
-    if (target && hasRecentLookupMiss(s.descriptionTmdbCheckedAt, s.descriptionTmdbCheckedPath, target.path)) return false;
+    if (target && hasRecentLookupMiss(s.descriptionTmdbCheckedAt, s.descriptionTmdbCheckedPath, target.path) &&
+        !(broadcastLede && comparableTimestamp(s.descriptionTmdbCheckedAt) < DESCRIPTION_QUALITY_RULES_SINCE)) return false;
     return target;
   });
 
@@ -3791,7 +3888,10 @@ async function enrichDescriptions(shows) {
         throw new Error('TMDB description returned invalid data');
       }
       const overview = typeof data?.overview === 'string' ? safeText(data.overview, 2000) : '';
-      if (overview && (show.descriptionSource === 'ai' || target.seasonNumber || overview.length > (show.description || '').length)) {
+      // 完整的 TMDB 剧情可以比被截断的源站半句话或维基播出信息更短。
+      const replacesIncomplete = hasBroadcastLedeDescription(show) ||
+        (show.descriptionSource === 'yfsp' && isTruncatedDescription(show.description) && !isTruncatedDescription(overview));
+      if (overview && (show.descriptionSource === 'ai' || target.seasonNumber || replacesIncomplete || overview.length > (show.description || '').length)) {
         // Display copy may improve without erasing reliable content evidence.
         // An unverified legacy series synopsis is being retired, not validated.
         if (!needsSeasonDescriptionMigration(show, target)) rememberSourcedHardExclusion(show);
@@ -3854,7 +3954,10 @@ async function enrichDescriptions(shows) {
           // 服务端用 Content-Language 声明实际转换的变体；只记录一次尝试，避免未转换时每轮重取。
           const variant = lang === 'zh' ? safeText(resp.headers?.get?.('content-language'), 20).toLowerCase() || 'unknown' : '';
           const migratingVariant = needsWikipediaVariant(show);
-          if (extract && (show.descriptionSource === 'ai' || migratingVariant || extract.length > (show.description || '').length)) {
+          // 只有播出信息的维基首句不能顶替已有的来源剧情简介；没有任何简介时仍可兜底。
+          const ledeOverSynopsis = isWikipediaBroadcastLede(extract) && show.description && show.descriptionSource !== 'ai' &&
+            show.descriptionSource !== 'wikipedia';
+          if (extract && !ledeOverSynopsis && (show.descriptionSource === 'ai' || migratingVariant || extract.length > (show.description || '').length)) {
             rememberSourcedHardExclusion(show);
             show.description = extract;
             show.descriptionSource = 'wikipedia';

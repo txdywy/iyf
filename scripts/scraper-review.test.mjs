@@ -53,6 +53,7 @@ function loadHelpers({
         discoverVarietyFromTMDB, scoreVariety,
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
+        seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
       };
     `;
   vm.createContext(context);
@@ -3661,4 +3662,72 @@ test('a seed without a live match this run keeps its previously published source
   helpers.restorePreviousCategory(occupied, [previous], 'korean_drama', '电视剧', () => 100, 'disc_kd');
   assert.equal(occupied.get('live-key-1').title, '另一部剧');
   assert.ok(occupied.has(seed.id));
+});
+
+test('an unnumbered variety seed adopts the latest source season and keeps it on later runs', async () => {
+  const season = (n, year) => ({ title: `测试综艺第${n}季`, atypeName: '综艺', regional: '大陆', postTime: `${year}-05-01`, contxt: `s${n}`,
+    imgPath: `https://static.kubb.tv/s${n}.jpg`, lastName: '12集全' });
+  const { helpers } = loadHelpers({ fetchImpl: async url => response({ data: { info: [{ result: [
+    { title: '测试综艺', atypeName: '综艺', regional: '大陆', postTime: '2020-01-01', contxt: 'old' },
+    season(2, 2021), season(3, 2024), { ...season(9, 2025), title: '测试综艺第3季Plus版' },
+    { ...season(8, 2026), atypeName: '电视剧' },
+  ] }] } }) });
+  const seed = { id: 'seed_var_2026_99', seedId: 'seed_var_2026_99', title: '测试综艺', year: 2026, mediaType: '综艺', regional: '大陆',
+    category: 'variety', yfspUrl: '', tmdbUrl: 'https://www.themoviedb.org/tv/1', coverImg: 'https://image.tmdb.org/t/p/original/a.jpg' };
+  assert.equal(helpers.seedSeasonOf(seed, '测试综艺第3季'), 3);
+  assert.equal(helpers.seedSeasonOf(seed, '测试综艺第3季Plus版'), 0, 'derivative editions are not a season of the seed');
+  assert.equal(helpers.seedSeasonOf({ ...seed, mediaType: '电视剧' }, '测试综艺第3季'), 0, 'an unnumbered drama seed is its first season');
+  assert.equal(helpers.seedSeasonOf({ ...seed, isClassic: true }, '测试综艺第3季'), 0);
+  await helpers.enrichMissingYfspLinks([seed]);
+  assert.equal(seed.title, '测试综艺第3季', 'the same-name 2020 entry is year-incompatible, so the highest real season wins');
+  assert.equal(seed.year, 2024, 'the card takes the adopted season year instead of the guessed seed year');
+  assert.equal(seed.yfspUrl, 'https://www.kubb.tv/play/s3');
+  assert.equal(seed.tmdbUrl, undefined, 'a series-level TMDB link cannot describe the season card');
+  assert.equal(seed.coverImg, 'https://static.kubb.tv/s3.jpg');
+  assert.equal(helpers.isRenderableShow(seed), true);
+
+  const fallback = { id: 'seed_var_2026_99', seedId: 'seed_var_2026_99', title: '测试综艺', year: 2026, mediaType: '综艺', regional: '大陆', isLive: false };
+  assert.equal(helpers.sameSeedShowIdentity(seed, fallback), true);
+  const target = new Map([[fallback.id, fallback]]);
+  helpers.restorePreviousCategory(target, [{ ...seed, lastLiveAt: new Date().toISOString() }], 'variety', '综艺', () => 50, 'disc_var');
+  const kept = target.get('seed_var_2026_99');
+  assert.equal(kept.title, '测试综艺第3季', 'the next run keeps the season title while the seed is only a fallback');
+  assert.equal(kept.yfspUrl, 'https://www.kubb.tv/play/s3');
+});
+
+test('a live catalog season is matched to its unnumbered variety seed, and unverified seeds get no freshness bonus', () => {
+  const { helpers } = loadHelpers();
+  const live = new Map([
+    ['a', { id: 'a', title: '测试综艺第3季', mediaType: '综艺', regional: '大陆', year: 2025 }],
+    ['b', { id: 'b', title: '测试综艺第4季', mediaType: '综艺', regional: '大陆', year: 2026 }],
+    ['c', { id: 'c', title: '测试综艺第5季', mediaType: '电视剧', regional: '大陆', year: 2026 }],
+  ]);
+  const seed = { id: 'seed_var_2026_98', title: '测试综艺', year: 2026, regional: '大陆' };
+  assert.equal(helpers.findLiveTitleMatch(seed, live, '综艺')?.id, 'b');
+  assert.equal(helpers.findLiveTitleMatch({ ...seed, title: '测试剧' }, live, '综艺'), null);
+
+  const card = { seedId: 'seed_var_2026_98', title: '测试综艺', year: 2026, score: 7.5, playCount: 0, isSerial: true, contentType: '真人秀', actor: '' };
+  const observed = { ...card, yfspUrl: 'https://www.kubb.tv/play/x', lastLiveAt: '2026-10-01T00:00:00Z' };
+  assert.equal(helpers.scoreVariety(observed) - helpers.scoreVariety(card), 40,
+    'a seed never observed on the source gets neither the current-year nor the ongoing bonus');
+});
+
+test('truncated source synopses and Wikipedia broadcast ledes are recognised as incomplete', () => {
+  const { helpers } = loadHelpers();
+  assert.equal(helpers.isTruncatedDescription('任时完饰演虽然是温室里...'), true);
+  assert.equal(helpers.isTruncatedDescription('故事讲到一半……'), true);
+  assert.equal(helpers.isTruncatedDescription('一个完整的句子。'), false);
+  assert.equal(helpers.isWikipediaBroadcastLede('《泪之女王》，是韩国tvN于2024年3月9日起播出的周末连续剧，由金秀贤主演。'), true);
+  assert.equal(helpers.isWikipediaBroadcastLede('《我的完美秘书》 为韩国SBS自2025年1月3日起播出的金土电视剧。'), true);
+  assert.equal(helpers.isWikipediaBroadcastLede('财阀三世与女秘书之间的浪漫喜剧。'), false);
+
+  const previous = { id: 'k', title: '截断测试剧', mediaType: '电视剧', regional: '韩国', descriptionSource: 'tmdb', description: '一段完整的剧情简介。' };
+  const truncated = `${'很长的源站简介'.repeat(14)}...`;
+  const merged = helpers.mergePreviousShowState(helpers.normalizeItem({
+    mediaKey: 'k', title: '截断测试剧', mediaType: '电视剧', regional: '韩国', description: truncated }), previous);
+  assert.equal(merged.description, previous.description, 'a longer but truncated source synopsis does not undo the complete TMDB one');
+  const lede = { ...previous, descriptionSource: 'wikipedia', description: '《截断测试剧》是韩国tvN自2026年起播出的电视剧，由某某主演，共十六集，每周末播出两集。' };
+  const replaced = helpers.mergePreviousShowState(helpers.normalizeItem({
+    mediaKey: 'k', title: '截断测试剧', mediaType: '电视剧', regional: '韩国', description: '一句真实但很短的源站剧情。' }), lede);
+  assert.equal(replaced.descriptionSource, 'yfsp', 'a real source synopsis beats a Wikipedia broadcast lede');
 });
