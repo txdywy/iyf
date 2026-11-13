@@ -579,7 +579,10 @@
       "aiReason": "浪漫奇幻穿越喜剧，高口碑治愈温馨，高度契合观众轻松爱情偏好。",
       "aiScoredAt": "2026-11-11T06:49:58.386Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "1ex150i"
+      "aiScoreInputHash": "1ex150i",
+      "legacyMarkKeys": [
+        "背着善宰跑|2024"
+      ]
     },
     {
       "id": "xac4k6yiTy9",
@@ -6714,7 +6717,7 @@
       "playCount": 3829006,
       "contentType": "真人秀·旅行·搞笑",
       "actor": "邓超,陈赫,鹿晗,范志毅,王勉",
-      "description": "五哈兄弟团欢乐旅行,公路喜剧+真实旅行,全程笑到停不下来。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 5,
@@ -6731,10 +6734,9 @@
       "recommendScore": 276,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/hIZ5ifLbCbF",
-      "doubanUrl": "https://movie.douban.com/subject/37054768/",
-      "primaryUrl": "https://movie.douban.com/subject/37054768/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/37054768/",
+      "primaryUrl": "https://www.kubb.tv/play/hIZ5ifLbCbF",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/hIZ5ifLbCbF",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "https://www.imdb.com/title/tt14098718/",
@@ -6747,7 +6749,6 @@
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:04.761Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/hIZ5ifLbCbF",
-      "descriptionSource": "tmdb",
       "tmdbPopularity": 31.8,
       "tmdbStatsCheckedAt": "2026-11-12T20:08:59.386Z",
       "linkMatchedTitle": "哈哈哈哈哈第6季",
@@ -6759,7 +6760,10 @@
       "aiReason": "旅行公路喜剧，嘉宾熟络，轻松搞笑适合下饭。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "qw3jnf"
+      "aiScoreInputHash": "qw3jnf",
+      "legacyMarkKeys": [
+        "哈哈哈哈哈|2026"
+      ]
     },
     {
       "id": "seed_var_2026_09",
@@ -6878,7 +6882,7 @@
       "playCount": 1915349,
       "contentType": "真人秀·竞技·搞笑",
       "actor": "李晨,郑恺,沙溢,白鹿,范丞丞,周深",
-      "description": "《奔跑吧兄弟》是浙江卫视引进韩国SBS电视台综艺节目《Running Man》推出的明星户外竞技真人秀节目。第五季起更名为《奔跑吧》（Keep Running）。  游戏设定为成员与嘉宾前往各个任务地点进行前期任务，由胜出的队伍或个人获得对最终任务有利之提示或权力，最后在最终任务地点完成最终任务。最终任务游戏沿用《Running Man》的“撕名牌”环节。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 12,
@@ -6896,10 +6900,9 @@
       "recommendScore": 237,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/V380HGzjQcF",
-      "doubanUrl": "https://movie.douban.com/subject/38363866/",
-      "primaryUrl": "https://movie.douban.com/subject/38363866/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/38363866/",
+      "primaryUrl": "https://www.kubb.tv/play/V380HGzjQcF",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/V380HGzjQcF",
       "coverSource": "yfsp",
       "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%94%E8%B7%91%E5%90%A7",
       "imdbUrl": "https://www.imdb.com/title/tt4325992/",
@@ -6912,7 +6915,6 @@
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:04.768Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/V380HGzjQcF",
-      "descriptionSource": "tmdb",
       "tmdbPopularity": 49.3,
       "tmdbStatsCheckedAt": "2026-11-12T20:08:59.386Z",
       "linkMatchedTitle": "奔跑吧第10季",
@@ -6924,7 +6926,10 @@
       "aiReason": "户外竞技游戏密集，笑点稳定，适合放松观看。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "14w6k96"
+      "aiScoreInputHash": "14w6k96",
+      "legacyMarkKeys": [
+        "奔跑吧|2026"
+      ]
     },
     {
       "id": "seed_var_2026_22",
@@ -6934,7 +6939,7 @@
       "playCount": 690300,
       "contentType": "喜剧·相声·搞笑",
       "actor": "郭德纲,于谦,岳云鹏,烧饼,孟鹤堂",
-      "description": "德云社团综,相声竞演+游戏互动,德云男孩的快乐源泉。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -6951,10 +6956,9 @@
       "recommendScore": 223,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/fktqvATS6j4",
-      "doubanUrl": "https://movie.douban.com/subject/34894508/",
-      "primaryUrl": "https://movie.douban.com/subject/34894508/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/34894508/",
+      "primaryUrl": "https://www.kubb.tv/play/fktqvATS6j4",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/fktqvATS6j4",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "https://www.imdb.com/title/tt35348702/",
@@ -6967,7 +6971,6 @@
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:05.174Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/fktqvATS6j4",
-      "descriptionSource": "tmdb",
       "tmdbPopularity": 6.3,
       "tmdbStatsCheckedAt": "2026-11-12T20:08:59.386Z",
       "linkMatchedTitle": "德云斗笑社第3季",
@@ -6979,7 +6982,10 @@
       "aiReason": "相声竞演加游戏互动，轻松搞笑，适合下饭。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "esxeof"
+      "aiScoreInputHash": "esxeof",
+      "legacyMarkKeys": [
+        "德云斗笑社|2026"
+      ]
     },
     {
       "id": "gnwJzB3fVq8",
@@ -7226,7 +7232,7 @@
       "playCount": 405149,
       "contentType": "真人秀·生活·搞笑",
       "actor": "十个勤天,蒋敦豪,鹭卓,李耕耘",
-      "description": "十个年轻人真实种地,从播种到收获,热血又搞笑,治愈力满分。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 16,
@@ -7243,10 +7249,9 @@
       "recommendScore": 203,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/ZmEXNTlFkt6",
-      "doubanUrl": "https://movie.douban.com/subject/37562142/",
-      "primaryUrl": "https://movie.douban.com/subject/37562142/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/37562142/",
+      "primaryUrl": "https://www.kubb.tv/play/ZmEXNTlFkt6",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/ZmEXNTlFkt6",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "",
@@ -7256,7 +7261,6 @@
       "yfspPlayRate": 1283,
       "yfspAgeDays": 316,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:06.069Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/ZmEXNTlFkt6",
@@ -7271,7 +7275,10 @@
       "aiReason": "真实种地慢生活，热血搞笑又治愈，适合放松。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "1yendnq"
+      "aiScoreInputHash": "1yendnq",
+      "legacyMarkKeys": [
+        "种地吧|2026"
+      ]
     },
     {
       "id": "4S7WToyAam7",
@@ -7449,7 +7456,7 @@
       "playCount": 738692,
       "contentType": "真人秀·推理·搞笑",
       "actor": "孙红雷,沙溢,黄子韬,杨迪,宋亚轩",
-      "description": "萌探家族欢乐探案,沉浸式剧本杀+搞笑互动,笑到停不下来。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -7466,10 +7473,9 @@
       "recommendScore": 192,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/KEujNGBCxH1",
-      "doubanUrl": "https://movie.douban.com/subject/35231928/",
-      "primaryUrl": "https://movie.douban.com/subject/35231928/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/35231928/",
+      "primaryUrl": "https://www.kubb.tv/play/KEujNGBCxH1",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/KEujNGBCxH1",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "",
@@ -7479,7 +7485,6 @@
       "yfspPlayRate": 523,
       "yfspAgeDays": 1412,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:05.135Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/KEujNGBCxH1",
@@ -7494,7 +7499,10 @@
       "aiReason": "探案互动有笑点，但剧本感可能偏重，放松感一般。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "uciy86"
+      "aiScoreInputHash": "uciy86",
+      "legacyMarkKeys": [
+        "萌探探探案|2026"
+      ]
     },
     {
       "id": "seed_var_2026_29",
@@ -7525,10 +7533,9 @@
       "recommendScore": 188,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/KZqyG3nxpIB",
-      "doubanUrl": "https://movie.douban.com/subject/27079327/",
-      "primaryUrl": "https://movie.douban.com/subject/27079327/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/27079327/",
+      "primaryUrl": "https://www.kubb.tv/play/KZqyG3nxpIB",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/KZqyG3nxpIB",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "https://www.imdb.com/title/tt7143342/",
@@ -7550,7 +7557,10 @@
       "aiReason": "美食旅行田园氛围佳，但经营任务感略强。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "1ya786x"
+      "aiScoreInputHash": "1ya786x",
+      "legacyMarkKeys": [
+        "中餐厅|2026"
+      ]
     },
     {
       "id": "Bawp4DMyHu7",
@@ -7682,7 +7692,7 @@
       "playCount": 7070748,
       "contentType": "喜剧·竞演·搞笑",
       "actor": "马东,黄渤,徐峥,于和伟",
-      "description": "一年一度喜剧大赛团队新作, Sketch喜剧竞演,创意与笑点齐飞。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -7699,10 +7709,9 @@
       "recommendScore": 186,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/bRFNfg1VVD1",
-      "doubanUrl": "https://movie.douban.com/subject/36540857/",
-      "primaryUrl": "https://movie.douban.com/subject/36540857/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/36540857/",
+      "primaryUrl": "https://www.kubb.tv/play/bRFNfg1VVD1",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/bRFNfg1VVD1",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "https://www.imdb.com/title/tt32862759/",
@@ -7712,7 +7721,6 @@
       "yfspPlayRate": 10385,
       "yfspAgeDays": 681,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:05.283Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/bRFNfg1VVD1",
@@ -7727,7 +7735,10 @@
       "aiReason": "Sketch喜剧竞演，创意笑点密集，适合放松。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "27powy"
+      "aiScoreInputHash": "27powy",
+      "legacyMarkKeys": [
+        "喜人奇妙夜|2026"
+      ]
     },
     {
       "id": "dYFS8oZkjND",
@@ -7856,7 +7867,7 @@
       "playCount": 1404736,
       "contentType": "真人秀·游戏·搞笑",
       "actor": "沈腾,贾玲,关晓彤,华晨宇,宋亚轩",
-      "description": "《王牌对王牌》是浙江卫视推出的大型原创室内竞技真人秀节目，由浙江卫视节目中心制作。节目每期围绕一个主题，邀请两支王牌团队，由两队固定队长各带领多名热门IP嘉宾进行PK对战，通过才艺比拼、游戏竞技，决出王牌中的王牌。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -7874,10 +7885,9 @@
       "recommendScore": 176,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/Bd8c3zCGqNO",
-      "doubanUrl": "https://movie.douban.com/subject/26694902/",
-      "primaryUrl": "https://movie.douban.com/subject/26694902/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/26694902/",
+      "primaryUrl": "https://www.kubb.tv/play/Bd8c3zCGqNO",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/Bd8c3zCGqNO",
       "coverSource": "yfsp",
       "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8E%8B%E7%89%8C%E5%B0%8D%E7%8E%8B%E7%89%8C_(%E7%9C%9F%E4%BA%BA%E7%A7%80)",
       "imdbUrl": "https://www.imdb.com/title/tt6742518/",
@@ -7887,7 +7897,6 @@
       "yfspPlayRate": 2063,
       "yfspAgeDays": 681,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:05.656Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/Bd8c3zCGqNO",
@@ -7902,7 +7911,10 @@
       "aiReason": "游戏竞技热闹，但口碑一般，轻松感有限。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "102jaxz"
+      "aiScoreInputHash": "102jaxz",
+      "legacyMarkKeys": [
+        "王牌对王牌|2026"
+      ]
     },
     {
       "id": "dLeoShJqNd8",
@@ -8021,7 +8033,7 @@
       "playCount": 3327195,
       "contentType": "真人秀·推理·搞笑",
       "actor": "何炅,张若昀,王鸥,魏晨,杨蓉",
-      "description": "明星推理探案,剧本杀沉浸体验,逻辑与笑料并存。",
+      "description": "",
       "totalEpisodes": 40,
       "isComplete": true,
       "currentEpisode": 40,
@@ -8038,10 +8050,9 @@
       "recommendScore": 170,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/gD6LAvf9O9C",
-      "doubanUrl": "https://movie.douban.com/subject/4888016/",
-      "primaryUrl": "https://movie.douban.com/subject/4888016/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/4888016/",
+      "primaryUrl": "https://www.kubb.tv/play/gD6LAvf9O9C",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/gD6LAvf9O9C",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "",
@@ -8051,13 +8062,9 @@
       "yfspPlayRate": 3178,
       "yfspAgeDays": 1047,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:06.267Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/gD6LAvf9O9C",
-      "doubanId": "4888016",
-      "doubanMatchedTitle": "大侦探",
-      "doubanMatchedSeasonNumber": 0,
       "tmdbPopularity": 3.9,
       "updateStatus": "20240508(收官宴)集全",
       "tmdbStatsCheckedAt": "2026-11-11T06:48:37.965Z",
@@ -8069,7 +8076,10 @@
       "aiReason": "推理笑点兼具，嘉宾熟络，适合轻松下饭。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "1gf39g2"
+      "aiScoreInputHash": "1gf39g2",
+      "legacyMarkKeys": [
+        "大侦探|2026"
+      ]
     },
     {
       "id": "GDezaTazjgT",
@@ -8271,7 +8281,7 @@
       "playCount": 1425661,
       "contentType": "真人秀·生活·搞笑",
       "actor": "宋丹丹,汪苏泷,李雪琴,王鹤棣,孟子义",
-      "description": "《五十公里桃花坞》是腾讯视频的一档以“一个人抵达，一群人出发”的立意的生活类群体生活社交观察真人秀。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -8288,10 +8298,9 @@
       "recommendScore": 166,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/MdOQbEJXdMA",
-      "doubanUrl": "https://movie.douban.com/subject/37814472/",
-      "primaryUrl": "https://movie.douban.com/subject/37814472/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/37814472/",
+      "primaryUrl": "https://www.kubb.tv/play/MdOQbEJXdMA",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/MdOQbEJXdMA",
       "coverSource": "yfsp",
       "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E4%BA%94%E5%8D%81%E5%85%AC%E9%87%8C%E6%A1%83%E8%8A%B1%E5%9D%9E",
       "imdbUrl": "https://www.imdb.com/title/tt30461027/",
@@ -8301,11 +8310,9 @@
       "yfspPlayRate": 4514,
       "yfspAgeDays": 316,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "wikipedia",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:05.889Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/MdOQbEJXdMA",
-      "descriptionWikipediaVariant": "zh",
       "tmdbPopularity": 39.4,
       "tmdbStatsCheckedAt": "2026-11-12T20:08:59.386Z",
       "linkMatchedTitle": "五十公里桃花坞第6季",
@@ -8317,7 +8324,10 @@
       "aiReason": "群居生活有烟火气，但社交观察可能略尴尬。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "erml4g"
+      "aiScoreInputHash": "erml4g",
+      "legacyMarkKeys": [
+        "五十公里桃花坞|2026"
+      ]
     },
     {
       "id": "seed_var_2026_18",
@@ -8344,10 +8354,9 @@
       "recommendScore": 166,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/Sfn07M7TVrA",
-      "doubanUrl": "https://movie.douban.com/subject/37453965/",
-      "primaryUrl": "https://movie.douban.com/subject/37453965/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/37453965/",
+      "primaryUrl": "https://www.kubb.tv/play/Sfn07M7TVrA",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/Sfn07M7TVrA",
       "coverSource": "yfsp",
       "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%90%91%E5%BE%80%E7%9A%84%E7%94%9F%E6%B4%BB",
       "imdbUrl": "https://www.imdb.com/title/tt10525584/",
@@ -8371,7 +8380,10 @@
       "aiReason": "乡村慢生活治愈下饭，熟人氛围轻松。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "8jxlml"
+      "aiScoreInputHash": "8jxlml",
+      "legacyMarkKeys": [
+        "向往的生活|2026"
+      ]
     },
     {
       "id": "vSzt3Zf4Gl2",
@@ -8495,7 +8507,7 @@
       "playCount": 1489358,
       "contentType": "真人秀·旅行·搞笑",
       "actor": "陈楚生,苏醒,王栎鑫,张远,王铮亮,陆虎",
-      "description": "再就业男团的音乐旅行,熟人局的化学反应,笑中带泪的宝藏综艺。",
+      "description": "",
       "totalEpisodes": 0,
       "isComplete": true,
       "currentEpisode": 0,
@@ -8512,10 +8524,9 @@
       "recommendScore": 164,
       "category": "variety",
       "yfspUrl": "https://www.kubb.tv/play/cdMZvXu2yKL",
-      "doubanUrl": "https://movie.douban.com/subject/35918457/",
-      "primaryUrl": "https://movie.douban.com/subject/35918457/",
-      "primaryUrlSource": "douban",
-      "url": "https://movie.douban.com/subject/35918457/",
+      "primaryUrl": "https://www.kubb.tv/play/cdMZvXu2yKL",
+      "primaryUrlSource": "yfsp",
+      "url": "https://www.kubb.tv/play/cdMZvXu2yKL",
       "coverSource": "yfsp",
       "wikipediaUrl": "",
       "imdbUrl": "",
@@ -8525,7 +8536,6 @@
       "yfspPlayRate": 838,
       "yfspAgeDays": 1777,
       "yfspReleaseDateSource": "year",
-      "descriptionSource": "tmdb",
       "yfspLookupState": "valid",
       "yfspLookupCheckedAt": "2026-11-12T20:09:06.056Z",
       "yfspLookupUrl": "https://www.kubb.tv/play/cdMZvXu2yKL",
@@ -8540,7 +8550,10 @@
       "aiReason": "熟人旅行笑点密集，治愈又下饭。",
       "aiScoredAt": "2026-11-12T20:09:58.620Z",
       "aiScoreVersion": 4,
-      "aiScoreInputHash": "159cr06"
+      "aiScoreInputHash": "159cr06",
+      "legacyMarkKeys": [
+        "快乐再出发|2026"
+      ]
     },
     {
       "id": "3ybm2DqSIv9",

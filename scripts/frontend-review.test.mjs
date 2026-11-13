@@ -151,8 +151,8 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml, formatVarietyStatus, renderCard, isShowDataset, handleUrlStateChange,
       bindCardActions, bindQuickFilters, updateQuickFilters, getShowMark, setMark, getMarkKey,
-      renderDetail, openDetail, syncDetailFromUrl, bindDetail, getDetailShareUrl, toggleCardMark,
-      setAllData: value => { allData = value; },
+      renderDetail, openDetail, syncDetailFromUrl, bindDetail, getDetailShareUrl, toggleCardMark, findShowById,
+      setAllData: value => { allData = value; migrateMarks(); },
       setTVmazeCache: shows => {
         _tvmazeCache = shows; _tvmazeCachedAt = Date.now(); _tvmazeCacheDate = getScheduleDateKey();
       },
@@ -1366,7 +1366,7 @@ test('the detail sheet shows the whole description, labels AI copy and offers ma
   const detail = helpers.renderDetail(data.koreanDramas[0]);
   assert.ok(detail.includes(`<p class="detail-desc">${'很长的简介'.repeat(40)}</p>`), 'the description is never truncated');
   assert.match(detail, /AI推荐: 轻松&lt;喜剧&gt;/u);
-  assert.match(detail, /data-mark-key="剧目0\|2026"><button class="card-mark" type="button" data-mark="want" aria-pressed="false">想看/u);
+  assert.match(detail, /data-mark-key="id:show-0"><button class="card-mark" type="button" data-mark="want" aria-pressed="false">想看/u);
   assert.match(detail, /<button class="detail-share" type="button" data-detail-share>分享<\/button>/u);
   assert.doesNotMatch(detail, /card-action/u, 'a show without any link has no primary action');
   assert.match(helpers.renderDetail(data.koreanDramas[1]), /<span class="detail-label">AI生成推荐语<\/span>机器写的推荐语/u);
@@ -1431,9 +1431,9 @@ test('opening a card shows the detail sheet, tracks it in the URL and closes thr
   // 详情层里的标记同步到列表卡片。
   helpers.openDetail(data.koreanDramas[0], { push: false });
   const pill = { textContent: '', hidden: true };
-  const card = { dataset: { markKey: '剧目0|' }, classList: { toggle(name, force) { card.seen = force; } }, querySelector: () => pill };
+  const card = { dataset: { markKey: 'id:show-0' }, classList: { toggle(name, force) { card.seen = force; } }, querySelector: () => pill };
   elements.showGrid.children.push(card);
-  const group = { dataset: { markKey: '剧目0|' }, querySelectorAll: () => [] };
+  const group = { dataset: { markKey: 'id:show-0' }, querySelectorAll: () => [] };
   helpers.toggleCardMark({ dataset: { mark: 'seen' }, closest: selector => selector === '.card-marks' ? group : null });
   assert.equal(card.seen, true);
   assert.deepEqual(pill, { textContent: '看过', hidden: false });
@@ -1512,7 +1512,7 @@ test('the public payload omits empty optional fields without changing what the f
           if (verbatim.has(field)) continue;
           assert.ok(value !== null && value !== '' && value !== false && !(Array.isArray(value) && !value.length), `${category}[${index}].${field} is empty`);
         }
-        assert.equal(show.description, original.description, 'descriptions are never truncated');
+        assert.equal(show.description || '', original.description || '', 'descriptions are never truncated');
         assert.equal(show.lastLiveAt, original.lastLiveAt || undefined, 'live observation time is published for play-count freshness');
         assert.equal(Object.hasOwn(show, 'isAutoDiscovered'), false, 'the internal discovery flag is no longer rendered');
         assert.equal(withoutDelay(helpers.renderCard(show, 0, 2026, referenceTime)),
@@ -1541,11 +1541,11 @@ test('watched and want marks persist locally, sink watched cards and fill the pe
   helpers.switchTab('korean', { animate: false });
   const titles = () => [...elements.showGrid.innerHTML.matchAll(/class="card-open"[^>]*>([^<]+)/gu)].map(match => match[1]);
   assert.deepEqual(titles(), ['剧目0', '剧目1', '剧目2', '剧目3']);
-  assert.match(elements.showGrid.innerHTML, /data-mark-key="剧目0\|2026"[\s\S]*?<span class="card-mark-pill" hidden><\/span>/u);
+  assert.match(elements.showGrid.innerHTML, /data-mark-key="id:show-0"[\s\S]*?<span class="card-mark-pill" hidden><\/span>/u);
 
   // 在详情层里标记只就地更新；下一次筛选时看过的才沉底。
   const pressed = new Map();
-  const group = { dataset: { markKey: '剧目0|2026' }, querySelectorAll: () => [seenButton] };
+  const group = { dataset: { markKey: 'id:show-0' }, querySelectorAll: () => [seenButton] };
   const seenButton = {
     dataset: { mark: 'seen' }, setAttribute: (name, value) => pressed.set(name, value),
     closest: selector => selector === '.card-marks' ? group : null,
@@ -1553,7 +1553,7 @@ test('watched and want marks persist locally, sink watched cards and fill the pe
   helpers.toggleCardMark(seenButton);
   assert.equal(pressed.get('aria-pressed'), 'true');
   assert.equal(elements.showGrid.htmlWrites, 1, 'marking does not rebuild the grid');
-  helpers.setMark('剧目2|2026', 'want');
+  helpers.setMark('id:show-2', 'want');
   assert.deepEqual(JSON.parse(client.otherStorage.get('iyf:marks:v1')).kind, 'iyf-marks');
 
   helpers.applyFilters();
@@ -1563,13 +1563,20 @@ test('watched and want marks persist locally, sink watched cards and fill the pe
   helpers.switchTab('mine', { animate: false });
   assert.deepEqual(titles(), ['剧目2', '剧目0'], 'the personal list holds marked shows with watched ones last');
 
+  const savedMarks = Object.fromEntries(client.otherStorage);
+  elements.searchInput.value = '剧目';
+  helpers.applyFilters();
+  assert.deepEqual(titles(), ['剧目2', '剧目0'], 'search stays inside the personal list');
+  helpers.toggleCardMark(seenButton);
+  assert.deepEqual(titles(), ['剧目2'], 'removing a mark removes the card immediately');
+
   // 新会话从本地存储恢复；同一节目只有一个标记，再点一次取消。
-  const restored = createApp(undefined, null, Date.now(), Object.fromEntries(client.otherStorage));
-  assert.equal(restored.helpers.getShowMark({ title: '剧目0', year: 2026 }), 'seen');
-  assert.equal(restored.helpers.setMark('剧目0|2026', 'want'), 'want');
-  assert.equal(restored.helpers.setMark('剧目0|2026', 'want'), '');
-  assert.equal(restored.helpers.getShowMark({ title: '剧目0', year: 2026 }), '');
-  restored.helpers.setMark('剧目2|2026', 'want');
+  const restored = createApp(undefined, null, Date.now(), savedMarks);
+  assert.equal(restored.helpers.getShowMark({ id: 'show-0', title: '剧目0', year: 2026 }), 'seen');
+  assert.equal(restored.helpers.setMark('id:show-0', 'want'), 'want');
+  assert.equal(restored.helpers.setMark('id:show-0', 'want'), '');
+  assert.equal(restored.helpers.getShowMark({ id: 'show-0', title: '剧目0', year: 2026 }), '');
+  restored.helpers.setMark('id:show-2', 'want');
   restored.helpers.setAllData(markedSnapshot());
   restored.helpers.switchTab('mine', { animate: false });
   assert.match(restored.elements.emptyMessage.textContent, /还没有标记节目/u);
@@ -1607,7 +1614,7 @@ test('quick filter chips toggle the shared filters, genre and hide-watched state
   click({ chip: 'genre', genre: '喜剧' });
   assert.doesNotMatch(location.search, /genre=/u);
 
-  helpers.setMark('剧目1|2026', 'seen');
+  helpers.setMark('id:show-1', 'seen');
   helpers.applyFilters();
   assert.ok(chips().includes('hideSeen:false:隐藏看过'), 'the hide-watched chip appears once something is marked watched');
   click({ chip: 'hideSeen' });
@@ -1683,4 +1690,20 @@ test('missing posters name the show and the load-more status states the remainin
   assert.match(elements.showGrid.innerHTML, /<div class="placeholder"><span aria-hidden="true">🎬<\/span><span class="placeholder-title" aria-hidden="true">无海报&lt;剧&gt;<\/span><\/div>/u);
   assert.match(elements.showGrid.innerHTML, /data-fallback-icon="🎬" data-fallback-title="剧目1">/u);
   assert.equal(elements.loadMoreStatus.textContent, '还有 6 部，继续下滑自动加载');
+});
+
+test('a renamed seed migrates an old watchlist entry and shares the stable ID', () => {
+  const { helpers, otherStorage } = createApp(undefined, null, Date.now(), {
+    'iyf:marks:v1': JSON.stringify({ kind: 'iyf-marks', want: { '测试综艺|2026': 100 } }),
+  });
+  const data = snapshot();
+  const show = Object.assign(data.chineseVariety[0], {
+    id: 'live-3', seedId: 'seed-3', mediaType: '综艺', title: '测试综艺第3季', year: 2024,
+    legacyMarkKeys: ['测试综艺|2026'], legacyIds: ['live-2'],
+  });
+  helpers.setAllData(data);
+  assert.equal(helpers.getShowMark(show), 'want');
+  assert.equal(JSON.parse(otherStorage.get('iyf:marks:v1')).want['id:seed-3'], 100);
+  assert.match(helpers.getDetailShareUrl(show), /show=seed-3#variety$/u);
+  assert.equal(helpers.findShowById('live-2'), show);
 });

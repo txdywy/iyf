@@ -127,6 +127,7 @@
     try {
       if (cached) {
         allData = cached.data;
+        migrateMarks();
         updateYearTabLabels();
         if (!REMOTE_TAB_LABELS[activeTabName]) switchTab(activeTabName, { syncUrl: false, animate: false, scrollToTab: false });
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
@@ -151,6 +152,7 @@
       const unchanged = allData && JSON.stringify(data) === JSON.stringify(allData);
       // 内容相同的响应沿用原快照对象，后续筛选仍能保留已渲染卡片。
       allData = unchanged ? allData : data;
+      migrateMarks();
       _dataLoadFailed = false;
       _dataLoadNotice = '';
       updateYearTabLabels();
@@ -469,7 +471,8 @@
     const playableGroup = document.getElementById('playableFilterGroup');
     if (playableGroup) playableGroup.hidden = isSchedule;
     const search = document.getElementById('searchInput');
-    const placeholder = isSchedule ? SEARCH_PLACEHOLDER_SCHEDULE : SEARCH_PLACEHOLDER;
+    const placeholder = isSchedule ? SEARCH_PLACEHOLDER_SCHEDULE :
+      activeTabName === 'mine' ? '搜索我的片单的剧名/演员…' : SEARCH_PLACEHOLDER;
     if (search && search.placeholder !== placeholder) {
       search.placeholder = placeholder;
       search.setAttribute?.('aria-label', placeholder.replace(/…$/u, ''));
@@ -901,6 +904,7 @@
       updateResetVisibility();
       return;
     }
+    if (activeTabName === 'mine') currentShows = getAllRecommendationShows().filter(getShowMark);
     const filters = readFilterState();
     const minScore = parseFloat(filters.score);
     const query = filters.query.toLowerCase();
@@ -955,7 +959,7 @@
     let shows = filterAndSort(currentShows);
     // 搜索默认覆盖全部韩剧和综艺：当前分类的结果在前，其他分类的命中接在后面并标出分类。
     let outside = [];
-    if (query && !isSchedule && allData) {
+    if (query && !isSchedule && activeTabName !== 'mine' && allData) {
       const inTab = new Set(currentShows);
       outside = filterAndSort(getAllRecommendationShows().filter(show => !inTab.has(show)));
     }
@@ -1107,7 +1111,7 @@
     const mark = getShowMark(show);
     const category = _outsideShows.has(show) ? `<span class="meta-tag category">${show.mediaType === '综艺' ? '综艺' : '韩剧'}</span>` : '';
     const recommendWidth = getRecommendationWidth(show);
-    const detailHref = `?show=${encodeURIComponent(show.id)}#${activeTabName}`;
+    const detailHref = `?show=${encodeURIComponent(getDetailId(show))}#${activeTabName}`;
 
     return `
       <article class="show-card${mark === 'seen' ? ' is-seen' : ''}" aria-labelledby="${titleId}" data-mark-key="${escapeHtml(getMarkKey(show))}" style="animation-delay:${Math.min(index * 0.05, 0.5)}s">
@@ -1440,9 +1444,47 @@
     }
   }
 
+  function getDetailId(show) {
+    return show.publicId || show.seedId || show.id;
+  }
+
   function getMarkKey(show) {
+    const id = show && getDetailId(show);
+    return id ? `id:${id}` : getLegacyMarkKey(show);
+  }
+
+  function getLegacyMarkKey(show) {
     const title = toText(show?.title).trim();
     return title ? `${title}|${toFiniteNumber(show?.year) || ''}` : '';
+  }
+
+  function migrateMarks() {
+    const owners = new Map();
+    for (const show of getAllRecommendationShows()) {
+      const key = getMarkKey(show);
+      const legacyIds = Array.isArray(show.legacyIds) ? show.legacyIds : [];
+      const legacyMarks = Array.isArray(show.legacyMarkKeys) ? show.legacyMarkKeys : [];
+      for (const alias of [getLegacyMarkKey(show), ...legacyMarks, ...[show.id, ...legacyIds].map(id => `id:${id}`)]) {
+        if (!alias || alias === key) continue;
+        owners.set(alias, owners.has(alias) && owners.get(alias) !== key ? null : key);
+      }
+    }
+    let changed = false;
+    for (const [alias, key] of owners) {
+      if (!key) continue;
+      const candidates = MARK_KINDS.flatMap(kind => [alias, key]
+        .filter(entry => entry in _marks[kind])
+        .map(entry => ({ kind, entry, time: _marks[kind][entry] })));
+      if (!candidates.some(candidate => candidate.entry === alias)) continue;
+      const latest = candidates.sort((a, b) => b.time - a.time)[0];
+      for (const kind of MARK_KINDS) {
+        delete _marks[kind][alias];
+        delete _marks[kind][key];
+      }
+      _marks[latest.kind][key] = latest.time;
+      changed = true;
+    }
+    if (changed) saveMarks();
   }
 
   // 同一节目只有一个标记：'want'、'seen' 或空。
@@ -1497,7 +1539,11 @@
         pill.hidden = !mark;
       }
     }
-    updateQuickFilters();
+    if (activeTabName === 'mine' || readFilterState().hideSeen) {
+      applyFilters(false, { preserveVisibleCount: true });
+    } else {
+      updateQuickFilters();
+    }
   }
 
   // ── 标签栏溢出提示、快捷键与阅读位置 ──────────────────
@@ -1583,7 +1629,10 @@
 
   // ── 详情层 ──────────────────────────────────────
   function findShowById(id) {
-    return typeof id === 'string' && id ? getAllRecommendationShows().find(show => show.id === id) || null : null;
+    if (typeof id !== 'string' || !id) return null;
+    const shows = getAllRecommendationShows();
+    return shows.find(show => show.id === id || getDetailId(show) === id) ||
+      shows.find(show => Array.isArray(show.legacyIds) && show.legacyIds.includes(id)) || null;
   }
 
   function getDetailDialog() {
@@ -1614,7 +1663,11 @@
     if (!dialog.open) dialog.showModal();
     const body = content.querySelector?.('.detail-body');
     if (body) body.scrollTop = 0;
-    if (push) setDetailUrl(show.id, { push: true });
+    if (push) {
+      setDetailUrl(getDetailId(show), { push: true });
+      const notice = document.getElementById('detailNotice');
+      if (notice) notice.hidden = true;
+    }
     return true;
   }
 
@@ -1623,6 +1676,12 @@
     const dialog = getDetailDialog();
     if (!dialog) return;
     const show = findShowById(state.show);
+    const notice = document.getElementById('detailNotice');
+    if (notice) {
+      const missing = Boolean(allData && state.show && !show);
+      notice.hidden = !missing;
+      notice.textContent = missing ? '这个分享链接对应的节目暂不可用，可在下方搜索。' : '';
+    }
     if (show) {
       if (_detailShow !== show || !dialog.open) openDetail(show, { push: false });
     } else if (_detailShow || dialog.open) {
@@ -1635,7 +1694,7 @@
   function getDetailShareUrl(show) {
     const url = new URL(typeof location.href === 'string' && location.href ? location.href : 'http://localhost/');
     url.search = '';
-    url.searchParams.set('show', show.id);
+    url.searchParams.set('show', getDetailId(show));
     url.hash = show.mediaType === '综艺' ? 'variety' : 'korean';
     return url.href;
   }
@@ -1684,6 +1743,9 @@
       _detailShow = null;
       const pushed = _detailPushedHistory;
       _detailPushedHistory = false;
+      if (document.activeElement === document.body) {
+        document.getElementById(`tab-${activeTabName}`)?.focus({ preventScroll: true });
+      }
       if (pushed && typeof history.back === 'function') history.back();
       else setDetailUrl('');
     });

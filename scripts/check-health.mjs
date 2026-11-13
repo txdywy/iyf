@@ -40,14 +40,12 @@ export function evaluateHealth(data, { now = Date.now() } = {}) {
   const ai = isObject(data.aiRunStatus) ? data.aiRunStatus : null;
   const stopReason = typeof ai?.stopReason === 'string' ? ai.stopReason : '';
 
-  if (sourceStatus !== 'healthy') {
-    if (!Number.isFinite(lastUpdatedAge)) {
-      errors.push(`来源状态为 ${sourceStatus || '未知'}，且 lastUpdated 无效`);
-    } else if (lastUpdatedAge > STALE_SOURCE_MS) {
-      errors.push(`来源状态为 ${sourceStatus || '未知'}，推荐快照已 ${formatAge(lastUpdatedAge)} 未更新（超过 48 小时）`);
-    } else {
-      warnings.push(`来源状态为 ${sourceStatus || '未知'}，沿用 ${formatAge(lastUpdatedAge)} 前的推荐快照`);
-    }
+  if (!Number.isFinite(lastUpdatedAge)) {
+    errors.push(`来源状态为 ${sourceStatus || '未知'}，且 lastUpdated 无效`);
+  } else if (lastUpdatedAge > STALE_SOURCE_MS) {
+    errors.push(`来源状态为 ${sourceStatus || '未知'}，推荐快照已 ${formatAge(lastUpdatedAge)} 未更新（超过 48 小时）`);
+  } else if (sourceStatus !== 'healthy') {
+    warnings.push(`来源状态为 ${sourceStatus || '未知'}，沿用 ${formatAge(lastUpdatedAge)} 前的推荐快照`);
   }
   if (!PRIMARY_SOURCE_KINDS.has(sourceKind)) {
     warnings.push(sourceKind === 'search'
@@ -82,7 +80,8 @@ export function renderSummary(data, result) {
     ['总体', status],
     ['sourceStatus', facts.sourceStatus || '—'],
     ['sourceKind', facts.sourceKind || '—'],
-    ['首页/目录页（成功 / 有效）', `${count(source.sourcePagesSucceeded)} / ${count(source.sourcePagesMeaningful)}`],
+    ['首页（成功 / 有效）', `${count(source.sourcePagesSucceeded)} / ${count(source.sourcePagesMeaningful)}`],
+    ['目录（成功页数）', count(source.sourceCatalogPages)],
     ['搜索兜底（命中 / 目标）', `${count(source.sourceSearchMatched)} / ${count(source.sourceSearchTargets)}`],
     ['韩剧 / 综艺 / 其他', `${count(stats.koreanDramas)} / ${count(stats.chineseVariety)} / ${count(stats.otherDramas)}`],
     ['本轮抓取条目', count(stats.totalScraped)],

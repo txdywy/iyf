@@ -60,8 +60,8 @@ test('a degraded source is an error only after the snapshot is older than 48 hou
   const invalid = evaluateHealth(snapshot({ sourceStatus: 'degraded', lastUpdated: 'not a date' }), { now: NOW });
   assert.equal(invalid.errors.length, 1);
 
-  // 健康来源的旧 lastUpdated 不由本检查报错（validate-data 只警告）。
-  assert.deepEqual(evaluateHealth(snapshot({ lastUpdated: iso(NOW - 10 * 24 * HOUR) }), { now: NOW }).errors, []);
+  const staleHealthy = evaluateHealth(snapshot({ lastUpdated: iso(NOW - 10 * 24 * HOUR) }), { now: NOW });
+  assert.match(staleHealthy.errors[0], /超过 48 小时/u);
 });
 
 test('AI auth and credit stops are errors while quota, failures and budget only warn', () => {
@@ -84,11 +84,12 @@ test('non-object snapshots are reported as errors', () => {
 });
 
 test('summary lists source, pages, counts, AI status and snapshot ages', () => {
-  const data = snapshot({ sourceKind: 'catalog', aiRunStatus: { stopReason: 'quota', requested: 6, scored: 33 } });
+  const data = snapshot({ sourceKind: 'catalog', sourceCatalogPages: 4, aiRunStatus: { stopReason: 'quota', requested: 6, scored: 33 } });
   const summary = renderSummary(data, evaluateHealth(data, { now: NOW }));
   assert.match(summary, /\| sourceStatus \| healthy \|/u);
   assert.match(summary, /\| sourceKind \| catalog \|/u);
   assert.match(summary, /30 \/ 28/u);
+  assert.match(summary, /目录（成功页数） \| 4/u);
   assert.match(summary, /70 \/ 110 \/ 12/u);
   assert.match(summary, /停止原因 quota，请求 6，评分 33/u);
   assert.match(summary, /2\.0 小时前/u);

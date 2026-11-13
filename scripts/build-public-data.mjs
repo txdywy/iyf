@@ -10,7 +10,7 @@ const outputPath = resolveBuildOutput(root, process.argv.slice(2), 'site/data/sh
 
 const source = JSON.parse(readFileSync(join(root, 'data', 'shows.json'), 'utf8'));
 const PUBLIC_SHOW_FIELDS = [
-  'id', 'title', 'titleAliases', 'mediaType', 'regional', 'lang', 'year',
+  'id', 'seedId', 'publicId', 'legacyIds', 'legacyMarkKeys', 'title', 'titleAliases', 'mediaType', 'regional', 'lang', 'year',
   'score', 'tmdbRating', 'playCount', 'recommendScore', 'aiScore', 'aiReason',
   'contentType', 'actor', 'description', 'descriptionSource', 'coverImg', 'publishTime',
   'firstSeenAt', 'scrapedAt', 'lastLiveAt', 'updateMsg',
