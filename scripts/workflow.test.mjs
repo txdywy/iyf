@@ -33,11 +33,11 @@ test('the shared concurrency group and SHA-pinned actions are preserved', () => 
   }
 });
 
-test('the health job runs only after publishing, only for scrape runs, and reads committed data', () => {
+test('the health job runs after publishing on scheduled and manual runs, even when scraping was skipped', () => {
   const health = jobBlock(deploy, 'health');
   assert.match(health, /needs: \[scrape, deploy, deploy-cloudflare\]/u);
-  assert.match(health, /always\(\) && github\.ref == 'refs\/heads\/main' && github\.event_name != 'push'/u);
-  assert.match(health, /needs\.scrape\.outputs\.scrape == 'true'/u);
+  assert.match(health, /always\(\) && !cancelled\(\) && github\.ref == 'refs\/heads\/main' && github\.event_name != 'push'/u);
+  assert.doesNotMatch(health, /needs\.scrape\.outputs\.scrape == 'true'/u);
   assert.match(health, /ref: \$\{\{ needs\.scrape\.outputs\.sha \|\| 'main' \}\}/u);
   assert.match(health, /persist-credentials: false/u);
   assert.match(health, /permissions:\n\s+contents: read\n/u);

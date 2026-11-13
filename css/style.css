@@ -82,7 +82,7 @@ a:hover { color: var(--pink); }
 /* ── Header ─────────────────────────────────────────────── */
 .header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  padding: 32px 0 24px;
+  padding: 20px 0 16px;
   text-align: center;
   border-bottom: 1px solid rgba(108,92,231,0.3);
 }
@@ -401,7 +401,7 @@ a:hover { color: var(--pink); }
 
 .stats-bar .container {
   display: flex;
-  gap: 24px;
+  gap: 8px 24px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -1254,6 +1254,8 @@ html:has(.detail[open]) { overflow: hidden; }
   overflow: hidden;
 }
 
+.detail-notice { padding-block: 12px; color: var(--text-muted); }
+
 .detail::backdrop { background: rgba(0,0,0,0.62); }
 
 .detail-sheet {
@@ -1290,6 +1292,7 @@ html:has(.detail[open]) { overflow: hidden; }
 }
 
 .detail-poster { height: auto; min-height: 0; aspect-ratio: 2/3; border-radius: 10px; align-self: start; }
+.detail-poster > img, .detail-poster > .placeholder { position: absolute; inset: 0; }
 .detail-title { padding-right: 44px; font-size: 1.4rem; line-height: 1.3; overflow-wrap: anywhere; }
 .detail-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
 .detail-status,

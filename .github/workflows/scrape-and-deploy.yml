@@ -312,9 +312,7 @@ jobs:
     name: 数据健康检查
     # 发布完成后才检查，失败只把运行标红提醒，不会阻断或回滚已完成的发布。
     needs: [scrape, deploy, deploy-cloudflare]
-    if: >-
-      always() && github.ref == 'refs/heads/main' && github.event_name != 'push'
-      && needs.scrape.outputs.scrape == 'true'
+    if: ${{ always() && !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

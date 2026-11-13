@@ -3673,7 +3673,9 @@ test('an unnumbered variety seed adopts the latest source season and keeps it on
     { ...season(8, 2026), atypeName: '电视剧' },
   ] }] } }) });
   const seed = { id: 'seed_var_2026_99', seedId: 'seed_var_2026_99', title: '测试综艺', year: 2026, mediaType: '综艺', regional: '大陆',
-    category: 'variety', yfspUrl: '', tmdbUrl: 'https://www.themoviedb.org/tv/1', coverImg: 'https://image.tmdb.org/t/p/original/a.jpg' };
+    category: 'variety', yfspUrl: '', tmdbUrl: 'https://www.themoviedb.org/tv/1', coverImg: 'https://image.tmdb.org/t/p/original/a.jpg',
+    doubanUrl: 'https://movie.douban.com/subject/12345/', doubanMatchedSeasonNumber: 0,
+    doubanMatchedTitle: '测试综艺', description: '系列简介', descriptionSource: 'tmdb' };
   assert.equal(helpers.seedSeasonOf(seed, '测试综艺第3季'), 3);
   assert.equal(helpers.seedSeasonOf(seed, '测试综艺第3季Plus版'), 0, 'derivative editions are not a season of the seed');
   assert.equal(helpers.seedSeasonOf({ ...seed, mediaType: '电视剧' }, '测试综艺第3季'), 0, 'an unnumbered drama seed is its first season');
@@ -3684,6 +3686,9 @@ test('an unnumbered variety seed adopts the latest source season and keeps it on
   assert.equal(seed.yfspUrl, 'https://www.kubb.tv/play/s3');
   assert.equal(seed.tmdbUrl, undefined, 'a series-level TMDB link cannot describe the season card');
   assert.equal(seed.coverImg, 'https://static.kubb.tv/s3.jpg');
+  assert.equal(seed.doubanUrl, '');
+  assert.equal(seed.description, '');
+  assert.deepEqual(Array.from(seed.legacyMarkKeys), ['测试综艺|2026']);
   assert.equal(helpers.isRenderableShow(seed), true);
 
   const fallback = { id: 'seed_var_2026_99', seedId: 'seed_var_2026_99', title: '测试综艺', year: 2026, mediaType: '综艺', regional: '大陆', isLive: false };

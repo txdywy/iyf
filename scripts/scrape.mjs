@@ -1008,8 +1008,10 @@ function applyLiveFields(seedShow, liveMatch) {
     yfspUrl: liveMatch.yfspUrl || liveMatch.url || '',
   };
   // 采用来源的某一季时，年份以该季为准；种子里写的年份只是“最新一季”的猜测。
-  if (seedSeasonOf(seedShow, liveMatch.title, seedShow.mediaType || liveMatch.mediaType) && boundedYear(liveMatch.year)) {
-    merged.year = boundedYear(liveMatch.year);
+  if (seedSeasonOf(seedShow, liveMatch.title, seedShow.mediaType || liveMatch.mediaType)) {
+    if (boundedYear(liveMatch.year)) merged.year = boundedYear(liveMatch.year);
+    rememberPublishedIdentity(merged, seedShow);
+    clearUnverifiedVarietySeasonMetadata(merged, liveMatch.coverImg);
   }
   const curatedSeedFields = ['title', 'actor', 'contentType', 'regional', 'lang', 'year']
     .filter(field => field === 'year' ? boundedYear(seedShow[field]) : safeText(seedShow[field]).length > 0);
@@ -1211,7 +1213,44 @@ function mergePreviousShowState(current, previous) {
     merged.coverSource = previous.coverSource || 'tmdb';
     delete merged.tmdbCoverPending;
   }
+  rememberPublishedIdentity(merged, previous);
   return merged;
+}
+
+function clearUnverifiedVarietySeasonMetadata(show, coverImg) {
+  const season = seasonNumberFromTitle(show.title);
+  if (Number(show.doubanMatchedSeasonNumber) !== season ||
+      !show.doubanMatchedTitle || !haveCompatibleTitleSeasons(show.title, show.doubanMatchedTitle)) {
+    applyDoubanMetadata(show, { doubanUrl: '' });
+  }
+  if (['tmdb', 'wikipedia', 'seed'].includes(show.descriptionSource)) {
+    show.description = '';
+    delete show.descriptionSource;
+    delete show.descriptionTmdbSeasonUrl;
+    delete show.descriptionWikipediaVariant;
+  }
+  for (const field of ['tmdbUrl', 'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'tmdbCoverPending']) delete show[field];
+  const sourceCover = safeOutputUrl(fullSizeYfspCover(coverImg));
+  show.coverImg = sourceCover;
+  show.yfspCoverImg = sourceCover;
+  if (sourceCover) show.coverSource = 'yfsp';
+  else delete show.coverSource;
+}
+
+function rememberPublishedIdentity(show, previous) {
+  const previousKey = previous.publicId || previous.seedId || previous.id;
+  const currentKey = show.publicId || show.seedId || show.id;
+  if (previousKey && (previous.publicId || previousKey !== currentKey)) show.publicId = previousKey;
+  const publicId = show.publicId || show.seedId || show.id;
+  const ids = [...new Set([previous.id, ...(previous.legacyIds || []), ...(show.legacyIds || [])])]
+    .filter(id => id && id !== publicId && id !== show.id);
+  if (ids.length) show.legacyIds = ids.slice(0, 32);
+
+  const oldMark = `${previous.title}|${previous.year || ''}`;
+  const mark = `${show.title}|${show.year || ''}`;
+  const keys = [...new Set([oldMark, ...(previous.legacyMarkKeys || []), ...(show.legacyMarkKeys || [])])]
+    .filter(key => key !== mark);
+  if (keys.length) show.legacyMarkKeys = keys.slice(0, 32);
 }
 
 // 旧推荐只在数据源暂时漏项时续保；连续多周未出现则退休，避免永久保留下架内容。
@@ -3661,17 +3700,11 @@ async function enrichMissingYfspLinks(shows) {
         // 卡片改为来源上真实存在的那一季：标题带季号，年份取该季上线年份。
         const seasonYear = boundedYear(extractYear(found.publishTime || ''));
         console.log(`    ↪ 种子「${show.title}」采用来源最新一季「${found.title}」${seasonYear ? `（${seasonYear}）` : ''}`);
+        const previousIdentity = { ...show };
         show.title = found.title;
         if (seasonYear) show.year = seasonYear;
-        // 种子的 TMDB 链接和封面属于整个系列，不能证明这一季：先用来源封面，
-        // 下一轮由常规的季封面流程按季号重新核实。
-        for (const field of ['tmdbUrl', 'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'tmdbCoverPending']) delete show[field];
-        const sourceCover = safeOutputUrl(fullSizeYfspCover(found.coverImg));
-        if (sourceCover) {
-          show.coverImg = sourceCover;
-          show.yfspCoverImg = sourceCover;
-          show.coverSource = 'yfsp';
-        }
+        rememberPublishedIdentity(show, previousIdentity);
+        clearUnverifiedVarietySeasonMetadata(show, found.coverImg);
         attachLinkFields(show, found.url, show.doubanUrl);
       }
       matched++;
