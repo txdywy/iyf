@@ -1669,7 +1669,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-13T06:58:14.216Z"
+    "externalMetadataCheckedAt": "2026-11-14T06:45:52.217Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -2254,25 +2254,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-09T06:54:30.139Z"
   },
-  "DE8OTEgWrH5": {
-    "title": "西伦敦暗线",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/mt5R8D6DVnchastooMyzK4wvgPy.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "西伦敦暗线",
-    "matchedTitle": "西伦敦暗线",
-    "tmdbId": 330542,
-    "tmdbUrl": "https://www.themoviedb.org/tv/330542",
-    "doubanUrl": "https://movie.douban.com/subject/37456785/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37976607/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-16T01:00:43.300Z",
-    "doubanId": "37456785",
-    "doubanMatchedTitle": "西伦敦暗线"
-  },
   "PwLAKyPFpPE": {
     "title": "我们的少年时代2",
     "year": 2026,
@@ -2572,7 +2553,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-13T06:58:14.370Z"
+    "externalMetadataCheckedAt": "2026-11-14T06:45:52.433Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -8988,7 +8969,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt39837101/",
     "wikidataId": "Q137008661",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-13T06:58:14.469Z",
+    "externalMetadataCheckedAt": "2026-11-14T06:45:52.417Z",
     "cachedAt": "2026-11-08T04:47:10.678Z"
   },
   "5k6LypC7hgD": {
@@ -9439,7 +9420,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-13T06:58:14.370Z",
+    "externalMetadataCheckedAt": "2026-11-14T06:45:52.433Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -10687,11 +10668,14 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/326975",
     "cachedAt": "2026-11-13T06:58:02.109Z",
     "doubanUrl": "https://movie.douban.com/subject/37369744/",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-13T06:58:02.109Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-14T06:45:52.210Z",
     "doubanId": "37369744",
     "doubanMatchedTitle": "BOSS的甜蜜诱惑",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": ""
   },
   "2t68W474HXC": {
     "title": "重生密码",
