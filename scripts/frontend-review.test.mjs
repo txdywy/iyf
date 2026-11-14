@@ -1663,8 +1663,9 @@ test('active filters without their own toggle appear as removable chips', () => 
   elements.filterStatus.value = 'complete';
   elements.filterScore.value = '9';
   helpers.switchTab('korean', { animate: false });
-  const removable = () => [...elements.quickFilters.innerHTML.matchAll(/chip-remove" type="button" data-chip="(\w+)" aria-pressed="true">([^<]+)</gu)].map(match => `${match[1]}:${match[2]}`);
+  const removable = () => [...elements.quickFilters.innerHTML.matchAll(/chip-remove" type="button" data-chip="(\w+)">([^<]+)</gu)].map(match => `${match[1]}:${match[2]}`);
   assert.deepEqual(removable(), ['clearQuery:搜索“剧目”', 'clearStatus:已完结', 'clearScore:9 分以上']);
+  assert.doesNotMatch(elements.quickFilters.innerHTML, /chip-remove[^>]*aria-pressed/u, 'a remove action is not a toggle, so it must not announce a pressed state');
   const click = chip => elements.quickFilters.dispatch('click', { target: { closest: () => ({ dataset: { chip } }) } });
   click('clearScore');
   assert.equal(elements.filterScore.value, '0');

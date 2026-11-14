@@ -947,7 +947,7 @@ function seedSeasonOf(seed, title, mediaType = seed?.mediaType) {
   return season && normalizeTitle(stripSeasonSuffix(title)) === normalizeTitle(seed.title) ? season : 0;
 }
 
-function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
+function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher, { minSeason = 0 } = {}) {
   const eligible = [...liveShows.values()].filter(s =>
     s.mediaType === mediaType &&
     (!regionMatcher || regionMatcher(s)) &&
@@ -959,11 +959,26 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher) {
   );
   const exact = candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
   if (exact) return exact;
-  // 没有同名条目时采用来源上季号最大的一季。
+  // 没有同名条目时采用来源上季号最大的一季。分类列表只含近期上架的条目，旧季重新上架时也会出现：
+  // 已采用过某一季的种子只接受不低于它的季；尚未采用的种子只接受当年或上一年的季，
+  // 更早的季交给补链接搜索（能看到全部季）判断哪一季最新。
+  const seedYear = boundedYear(seed.year);
   return eligible
     .map(show => ({ show, season: seedSeasonOf(seed, show.title, mediaType) }))
-    .filter(entry => entry.season)
+    .filter(entry => entry.season && (minSeason
+      ? entry.season >= minSeason
+      : !seedYear || boundedYear(entry.show.year) >= seedYear - 1))
     .sort((a, b) => b.season - a.season)[0]?.show || null;
+}
+
+// 上一轮已发布的同一种子卡片采用的季号，作为本轮实时采用的下限。
+function previousAdoptedSeasons(previousShows = []) {
+  const seasons = new Map();
+  for (const show of previousShows) {
+    const season = show?.seedId ? seasonNumberFromTitle(show.title) : 0;
+    if (season) seasons.set(show.seedId, Math.max(seasons.get(show.seedId) || 0, season));
+  }
+  return seasons;
 }
 
 function applyLiveFields(seedShow, liveMatch) {
@@ -1127,8 +1142,11 @@ function isIncompleteSourceDescription(text) {
 }
 
 // 中文维基条目首句通常是“《X》是某台自某日起播出的……”，只有播出信息，不是剧情。
+// 只认“《X》（注释）是/为……播出/卫视/电视台……”这种首句：片名后紧跟判断词，且同一句里有播出用语。
+// “《鱿鱼游戏》讲述了数百名为钱所困的人……”之类的真实剧情不算。
 function isWikipediaBroadcastLede(text) {
-  return /^《[^》]{1,60}》\s*[，,（(]?[^。]{0,40}?(?:是|为|為)/u.test(safeText(text, 2000));
+  return /^《[^》]{1,60}》\s*(?:[（(][^）)]{0,80}[）)])?\s*[，,]?\s*(?:是|为|為)[^。]{0,120}?(?:播出|播映|首播|播放|上映|上线|推出|电视台|电视剧|卫视|频道|电视网)/u
+    .test(safeText(text, 2000));
 }
 
 function hasBroadcastLedeDescription(show) {
@@ -1171,7 +1189,7 @@ function mergePreviousShowState(current, previous) {
     ['tmdb', 'wikipedia'].includes(previous.descriptionSource) && previous.description &&
     (seasonNumberFromTitle(merged.title)
       ? previous.descriptionSource === 'tmdb' && !!previous.descriptionTmdbSeasonUrl
-      : isIncompleteSourceDescription(current.description) && !isWikipediaBroadcastLede(previous.description) &&
+      : isIncompleteSourceDescription(current.description) && !hasBroadcastLedeDescription(previous) &&
         (previous.description.length > current.description.length || isTruncatedDescription(current.description)));
   if (keepsPreviousUpgrade) {
     rememberSourcedHardExclusion(current);
@@ -1205,6 +1223,8 @@ function mergePreviousShowState(current, previous) {
   } else if (current.descriptionSource === 'seed' || current.seedId) {
     merged.descriptionSource = 'seed';
   }
+
+  relabelSeedCopy(merged, current.seedId || previous.seedId);
 
   // 上次已发布的是 TMDB 高清图时,不要被本轮 YFSP 低质量图覆盖。
   const previousTMDBCover = normalizeTMDBOriginalUrl(previous.coverImg);
@@ -1266,8 +1286,24 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
     const prev = previous.find(candidate =>
       sameShowIdentity(candidate, current) || sameSeedShowIdentity(candidate, current));
     if (!prev) continue;
-    const restoredSeedAlias = !sameShowIdentity(prev, current) && sameSeedShowIdentity(prev, current);
+    // 两个方向都会被 sameSeedShowIdentity 判为同一张卡，处理方式相反：
+    // 上一轮带季号、本轮是无来源观测的种子 → 沿用上一轮的季卡片；
+    // 本轮实时采用了与上一轮不同的一季 → 以本轮为准，系列级元数据不能证明这一季。
+    const sameSeed = !sameShowIdentity(prev, current) && sameSeedShowIdentity(prev, current);
+    const adoptedNewSeason = sameSeed && current.isLive !== false && !!seasonKey(current.title) &&
+      seasonKey(current.title) !== seasonKey(prev.title);
+    const restoredSeedAlias = sameSeed && !adoptedNewSeason;
     const merged = reconcileShowStatus(mergePreviousShowState(current, prev));
+    if (adoptedNewSeason) {
+      merged.id = current.id;
+      merged.title = current.title;
+      merged.year = current.year;
+      clearUnverifiedVarietySeasonMetadata(merged, current.coverImg);
+      if (current.description && current.descriptionSource === 'yfsp') {
+        merged.description = current.description;
+        merged.descriptionSource = 'yfsp';
+      }
+    }
     if (restoredSeedAlias) {
       // Keep the last published seasonal title and live ID while the seed supplies
       // the fallback card during a source outage.
@@ -1661,6 +1697,21 @@ const KDramaNegative = [
 ];
 const KDramaHardExclude = ['恐怖', '血腥', '丧尸', '虐杀', '猎奇', '极端暴力'];
 
+let _seedDescriptions = null;
+function seedDescriptionOf(seedId) {
+  if (!seedId) return '';
+  _seedDescriptions ||= new Map([...SEED_KDRAMAS, ...SEED_VARIETY]
+    .filter(seed => seed.description).map(seed => [seed.id, safeText(seed.description, 2000)]));
+  return _seedDescriptions.get(seedId) || '';
+}
+
+// 种子手写文案曾被沿用为 TMDB/Wikipedia 来源；与种子原文逐字相同的简介一律标回 seed。
+function relabelSeedCopy(show, seedId = show?.seedId) {
+  const seedCopy = seedDescriptionOf(show?.seedId || seedId);
+  if (seedCopy && show.description === seedCopy && show.descriptionSource !== 'seed') show.descriptionSource = 'seed';
+  return show;
+}
+
 function sourceDescriptionForScoring(show, maxLength = 2000) {
   return show?.descriptionSource === 'ai' ? '' : safeText(show?.description, maxLength);
 }
@@ -1874,7 +1925,10 @@ const UNRATED_NEW_VARIETY_PRIOR = Math.round(7.0 * 5 * 0.6);
 
 function scoreVariety(s, now = Date.now()) {
   let sc = 0;
-  const t = `${s.cidMapper} ${s.contentType} ${sourceDescriptionForScoring(s)} ${s.title}`.toLowerCase();
+  // 种子手写文案按“想推荐”的口吻写成，满是“爆笑/治愈/欢乐”，不参与综艺关键词计分；
+  // 否则没有播放源的种子仅凭文案就能压过真正在播的节目。
+  const description = s.descriptionSource === 'seed' ? '' : sourceDescriptionForScoring(s);
+  const t = `${s.cidMapper} ${s.contentType} ${description} ${s.title}`.toLowerCase();
   for (const [g, b] of Object.entries(VarietyBoost)) if (t.includes(g)) sc += b;
   for (const kw of VarietyExclude) if (s.title.includes(kw)) return -1;
 
@@ -1943,6 +1997,7 @@ async function recalculateExistingData() {
     .map(show => {
       repairKnownSeedMetadata(show);
       repairKnownIdentityCorruption(show);
+      relabelSeedCopy(show);
       reconcileShowStatus(show);
       if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
@@ -2904,8 +2959,10 @@ async function main() {
       varietyMap.set(s.id, s);
     }
   }
+  const adoptedVarietySeasons = previousAdoptedSeasons(prevShows.chineseVariety);
   for (const s of SEED_VARIETY) {
-    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
+    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional),
+      { minSeason: adoptedVarietySeasons.get(s.id) || 0 });
     const existingKey = liveMatch?.id || s.id;
     let show = { ...s, mediaType:'综艺', type:5, coverImg:s.coverImg || '', scrapedAt:'', isLive:false, isClassic:s.isClassic||false, seedId: s.id };
     show = applyLiveFields(show, liveMatch);
@@ -2996,8 +3053,10 @@ async function main() {
     }
   }
   for (const s of SEED_VARIETY) {
-    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional));
-    if (liveMatch && liveMatch.id !== s.id) {
+    const liveMatch = findLiveTitleMatch(s, liveShows, '综艺', show => ['大陆', '韩国'].includes(show.regional),
+      { minSeason: adoptedVarietySeasons.get(s.id) || 0 });
+    // 种子的封面缓存属于整个系列，不能挂到采用的某一季上。
+    if (liveMatch && liveMatch.id !== s.id && !seedSeasonOf(s, liveMatch.title, '综艺')) {
       if (imgCache[s.id] && !imgCache[liveMatch.id]) imgCache[liveMatch.id] = imgCache[s.id];
       if (imgCache[liveMatch.id] && !imgCache[s.id]) imgCache[s.id] = imgCache[liveMatch.id];
     }

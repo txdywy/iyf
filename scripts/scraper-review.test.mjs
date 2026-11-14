@@ -54,6 +54,7 @@ function loadHelpers({
         applyAIRecommendationAdjustment, addDiscoveredShows, pruneImageCache, normalizeDiscoveryRejections,
         getHomepageCategoryCoverage, isHomepageHealthy,
         seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
+        seedDescriptionOf, previousAdoptedSeasons, clearUnverifiedVarietySeasonMetadata,
       };
     `;
   vm.createContext(context);
@@ -1741,7 +1742,10 @@ test('a complete all-503 run preserves published source descriptions and dynamic
       if (!current) continue; // The existing retirement window still applies to old non-seed recommendations.
       if (old.description && ['yfsp', 'tmdb', 'wikipedia'].includes(old.descriptionSource)) {
         assert.equal(current.description, old.description, `${old.title}: preserve the sourced description`);
-        assert.equal(current.descriptionSource, old.descriptionSource, `${old.title}: preserve provenance`);
+        // 与种子原文逐字相同的“来源简介”是早期误标，合并时改回 seed；其余来源标签必须保留。
+        const seedCopy = helpers.seedDescriptionOf(old.seedId);
+        const expectedSource = seedCopy && old.description === seedCopy ? 'seed' : old.descriptionSource;
+        assert.equal(current.descriptionSource, expectedSource, `${old.title}: preserve provenance`);
         checked++;
       }
       for (const field of ['score', 'playCount', 'totalEpisodes', 'currentEpisode', 'isComplete', 'isSerial', 'updateStatus', 'updateMsg', 'publishTime', 'scrapedAt']) {
@@ -3735,4 +3739,99 @@ test('truncated source synopses and Wikipedia broadcast ledes are recognised as 
   const replaced = helpers.mergePreviousShowState(helpers.normalizeItem({
     mediaKey: 'k', title: '截断测试剧', mediaType: '电视剧', regional: '韩国', description: '一句真实但很短的源站剧情。' }), lede);
   assert.equal(replaced.descriptionSource, 'yfsp', 'a real source synopsis beats a Wikipedia broadcast lede');
+});
+
+function seedVarietyCard(helpers, liveMatch) {
+  const seed = { id: 'seed_var_t', title: '回归综艺', year: 2026, score: 8, playCount: 300000, contentType: '真人秀',
+    regional: '大陆', lang: '国语', description: '种子文案', isSerial: true };
+  const base = { ...seed, mediaType: '综艺', type: 5, coverImg: '', scrapedAt: '', isLive: false, isClassic: false, seedId: seed.id };
+  const card = helpers.applyLiveFields(base, liveMatch);
+  card.category = 'variety';
+  return { seed, card };
+}
+
+function liveVarietyRow(helpers, key, title, year) {
+  return helpers.normalizeItem({ mediaKey: key, title, mediaType: '综艺', regional: '大陆', publishTime: `${year}-05-01T00:00:00`,
+    updateStatus: '全集', score: 7.5, playCount: 1000, coverImgUrl: `https://static.kubb.tv/${key}.jpg` });
+}
+
+test('a season adopted from the live catalog survives the snapshot restore with season-level metadata only', () => {
+  const { helpers } = loadHelpers();
+  const live = new Map([['L4', liveVarietyRow(helpers, 'L4', '回归综艺第4季', 2025)]]);
+  const { seed } = seedVarietyCard(helpers, null);
+  const match = helpers.findLiveTitleMatch(seed, live, '综艺');
+  assert.equal(match?.id, 'L4');
+  const { card } = seedVarietyCard(helpers, match);
+  const map = new Map([[match.id, card]]);
+  const previous = [{ id: 'seed_var_t', seedId: 'seed_var_t', title: '回归综艺', year: 2026, mediaType: '综艺', regional: '大陆',
+    category: 'variety', coverImg: 'https://image.tmdb.org/t/p/original/series.jpg', coverSource: 'tmdb',
+    tmdbUrl: 'https://www.themoviedb.org/tv/123', tmdbId: 123, primaryUrl: 'https://www.themoviedb.org/tv/123',
+    description: '种子文案', descriptionSource: 'tmdb', lastLiveAt: '2026-11-01T00:00:00Z' }];
+  helpers.restorePreviousCategory(map, previous, 'variety', '综艺', helpers.scoreVariety, 'disc_var');
+  const out = [...map.values()][0];
+  assert.equal(map.size, 1);
+  assert.equal(out.title, '回归综艺第4季', 'the restore step must not revert the adopted season title');
+  assert.equal(out.year, 2025);
+  assert.equal(out.id, 'L4');
+  assert.equal(out.tmdbUrl, undefined, 'a series-level TMDB link cannot describe the season card');
+  assert.equal(out.coverImg, 'https://static.kubb.tv/L4.jpg');
+  assert.match(out.yfspUrl, /\/play\/L4$/u);
+});
+
+test('live adoption never steps back to an older season or picks a stale season for an unadopted seed', () => {
+  const { helpers } = loadHelpers();
+  const { seed } = seedVarietyCard(helpers, null);
+  const older = new Map([['L2', liveVarietyRow(helpers, 'L2', '回归综艺第2季', 2023)]]);
+  assert.equal(helpers.findLiveTitleMatch(seed, older, '综艺', null, { minSeason: 4 }), null,
+    'a re-uploaded older season cannot replace the season adopted last run');
+  assert.equal(helpers.findLiveTitleMatch(seed, older, '综艺'), null,
+    'an unadopted 2026 seed leaves a 2023 season to the full-listing search instead of adopting it from the catalog');
+  const same = new Map([['L4', liveVarietyRow(helpers, 'L4', '回归综艺第4季', 2022)]]);
+  assert.equal(helpers.findLiveTitleMatch(seed, same, '综艺', null, { minSeason: 4 })?.id, 'L4',
+    'the season adopted last run keeps matching regardless of its year');
+  const seasons = helpers.previousAdoptedSeasons([
+    { seedId: 'seed_var_t', title: '回归综艺第4季' }, { seedId: 'seed_var_u', title: '另一档' }, { title: '无种子第9季' }]);
+  assert.equal(seasons.get('seed_var_t'), 4);
+  assert.equal(seasons.has('seed_var_u'), false);
+
+  // 上一轮第4季卡片 + 本轮无来源观测：保持第4季，不回到种子。
+  const { card: fallback } = seedVarietyCard(helpers, null);
+  const map = new Map([[fallback.id, fallback]]);
+  helpers.restorePreviousCategory(map, [{ id: 'L4', seedId: 'seed_var_t', title: '回归综艺第4季', year: 2025, mediaType: '综艺',
+    regional: '大陆', category: 'variety', yfspUrl: 'https://www.kubb.tv/play/L4', coverImg: 'https://static.kubb.tv/L4.jpg',
+    primaryUrl: 'https://www.kubb.tv/play/L4', lastLiveAt: '2026-11-11T00:00:00Z' }], 'variety', '综艺', helpers.scoreVariety, 'disc_var');
+  assert.deepEqual([...map.values()].map(show => `${show.id}|${show.title}|${show.year}`), ['L4|回归综艺第4季|2025']);
+});
+
+test('the broadcast-lede rule only matches 《X》是…播出 sentences and only retires Wikipedia text', () => {
+  const { helpers } = loadHelpers();
+  for (const plot of ['《鱿鱼游戏》讲述了数百名为钱所困的人接受邀请参加儿童游戏的故事。',
+    '《请回答1988》以1988年首尔双门洞为背景，讲述五家人的故事，是一部温情喜剧。']) {
+    assert.equal(helpers.isWikipediaBroadcastLede(plot), false, plot);
+  }
+  for (const lede of ['《种地吧》是浙江卫视自2023年起播出的劳作纪实节目。',
+    '《泪之女王》，是韩国tvN于2024年3月9日起播出的周末连续剧。',
+    '《机智牢房》（韩语：슬기로운 감빵생활）是韩国tvN于2017年播出的电视剧。']) {
+    assert.equal(helpers.isWikipediaBroadcastLede(lede), true, lede);
+  }
+  const tmdbIntro = `《风华合伙人》是由浙江卫视推出的一档经营快乐的实验真人秀。${'节目以一家青春潮饮生活店为背景。'.repeat(4)}`;
+  const merged = helpers.mergePreviousShowState(helpers.normalizeItem({ mediaKey: 'f', title: '风华合伙人', mediaType: '综艺',
+    regional: '大陆', description: '一档经营快乐的实验真人秀...' }),
+  { id: 'f', title: '风华合伙人', mediaType: '综艺', regional: '大陆', description: tmdbIntro, descriptionSource: 'tmdb' });
+  assert.equal(merged.descriptionSource, 'tmdb', 'a TMDB synopsis that opens with 《X》是 is not undone by a truncated source line');
+});
+
+test('seed copy carried under a TMDB label is relabelled as seed and is not keyword-scored for variety', () => {
+  const { helpers } = loadHelpers();
+  const seed = helpers.SEED_VARIETY.find(show => show.description && !show.isClassic);
+  const copy = helpers.seedDescriptionOf(seed.id);
+  assert.ok(copy);
+  const fallback = helpers.applyLiveFields({ ...seed, mediaType: '综艺', seedId: seed.id, scrapedAt: '', isLive: false }, null);
+  const merged = helpers.mergePreviousShowState(fallback, { ...fallback, description: copy, descriptionSource: 'tmdb' });
+  assert.equal(merged.descriptionSource, 'seed');
+  const card = { title: '计分测试', contentType: '真人秀', score: 7, playCount: 0, year: 2020, actor: '',
+    description: '爆笑搞笑欢乐治愈游戏综艺', descriptionSource: 'seed' };
+  assert.equal(helpers.scoreVariety(card), helpers.scoreVariety({ ...card, description: '' }),
+    'curated seed copy adds no keyword points');
+  assert.ok(helpers.scoreVariety({ ...card, descriptionSource: 'yfsp' }) > helpers.scoreVariety(card), 'source copy still counts');
 });
