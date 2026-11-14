@@ -2970,13 +2970,13 @@
     ]
   },
   "2026-11-14": {
-    "timestamp": "2026-11-14T06:45:51.855Z",
-    "totalFound": 17,
+    "timestamp": "2026-11-14T18:19:30.753Z",
+    "totalFound": 19,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1142877,
+        "playCount": 1143450,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -2988,7 +2988,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 450755,
+        "playCount": 450837,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -3000,7 +3000,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 370256,
+        "playCount": 370314,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -3012,7 +3012,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 339811,
+        "playCount": 339859,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -3024,7 +3024,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215556,
+        "playCount": 215591,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -3036,7 +3036,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167517,
+        "playCount": 167540,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -3048,7 +3048,7 @@
       {
         "title": "夏季",
         "score": 7.9,
-        "playCount": 152382,
+        "playCount": 152610,
         "year": 2026,
         "actor": "金道民,成仁浩,林煐岷",
         "source": "api_index",
@@ -3060,7 +3060,7 @@
       {
         "title": "蔚蓝之春",
         "score": 6.1,
-        "playCount": 111109,
+        "playCount": 111121,
         "year": 2026,
         "actor": "金艺琳,姜相准",
         "source": "api_index",
@@ -3071,12 +3071,12 @@
       },
       {
         "title": "最后一桌",
-        "score": 6.6,
-        "playCount": 104027,
+        "score": 6.7,
+        "playCount": 105790,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
-        "updateStatus": "更新到06",
+        "updateStatus": "更新到07",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -3084,7 +3084,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 85643,
+        "playCount": 85995,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -3096,7 +3096,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 85472,
+        "playCount": 86602,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -3108,7 +3108,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 74556,
+        "playCount": 75253,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -3120,7 +3120,7 @@
       {
         "title": "老板的露骨取向",
         "score": 0,
-        "playCount": 34923,
+        "playCount": 38776,
         "year": 2026,
         "actor": "成勋,吴世英,李正信,朴政学,金在仁",
         "source": "api_index",
@@ -3132,7 +3132,7 @@
       {
         "title": "热烈的告别",
         "score": 0,
-        "playCount": 14876,
+        "playCount": 16879,
         "year": 2026,
         "actor": "姜勋,赵贤哲,金政振,李伊潭,崔玟熙",
         "source": "api_index",
@@ -3144,7 +3144,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21881,
+        "playCount": 21893,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -3168,7 +3168,7 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10849,
+        "playCount": 10851,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
@@ -3176,6 +3176,30 @@
         "contentType": "",
         "mediaType": "综艺",
         "regional": "韩国"
+      },
+      {
+        "title": "文武",
+        "score": 0,
+        "playCount": 2736,
+        "year": 2026,
+        "actor": "李贤旭,张赫,金康宇,朴成雄,郑雄仁",
+        "source": "api_index",
+        "updateStatus": "更新到01",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "名侦探学院第10季",
+        "score": 0,
+        "playCount": 1651,
+        "year": 2026,
+        "actor": "郭文韬,齐思钧,周峻炜,何运晨,曹恩齐,李晋晔,唐九洲,邵明明,火树,罗予彤",
+        "source": "api_index",
+        "updateStatus": "更新到20261114(第1期)",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
       }
     ]
   }
