@@ -1063,23 +1063,28 @@
     "doubanMatchedSeasonNumber": 9
   },
   "seed_var_2026_03": {
-    "title": "极限挑战",
-    "year": 2026,
+    "title": "极限挑战第10季",
+    "year": 2024,
     "mediaType": "综艺",
-    "url": "https://image.tmdb.org/t/p/original/nYsiHMplUCBFazdAOVr1gQaGy34.jpg",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/toTfqoUuvj1lcRmJsTtWQgKOHFP.jpg",
     "source": "tmdb",
     "version": 16,
-    "query": "极限挑战",
-    "matchedTitle": "极限挑战",
+    "query": "season-direct:89620:10",
+    "matchedTitle": "极限挑战第 10 季",
+    "matchedSeriesTitle": "极限挑战",
     "tmdbId": 89620,
-    "tmdbUrl": "https://www.themoviedb.org/tv/89620",
-    "doubanUrl": "https://movie.douban.com/subject/26387728/",
+    "tmdbUrl": "https://www.themoviedb.org/tv/89620/season/10",
+    "tmdbSeriesId": 89620,
+    "tmdbSeasonId": 389538,
+    "tmdbSeasonNumber": 10,
+    "doubanUrl": "",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98",
     "imdbUrl": "https://www.imdb.com/title/tt7131118/",
     "wikidataId": "Q20645067",
-    "cachedAt": "2026-08-23T16:34:06.505Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.248Z"
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.049Z",
+    "cachedAt": "2026-11-15T00:58:12.051Z"
   },
   "seed_var_2026_07": {
     "title": "你好星期六",
@@ -1669,7 +1674,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-14T06:45:52.217Z"
+    "externalMetadataCheckedAt": "2026-11-15T00:58:11.697Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -2254,25 +2259,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-09T06:54:30.139Z"
   },
-  "5NZ99RXKAI2": {
-    "title": "爱的三次方",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/I1hpQ530N6m5EMIiJuUdWqVcjb.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "爱的三次方",
-    "matchedTitle": "爱的三次方",
-    "tmdbId": 299158,
-    "tmdbUrl": "https://www.themoviedb.org/tv/299158",
-    "doubanUrl": "https://movie.douban.com/subject/37528972/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt39127238/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-17T00:58:43.477Z",
-    "doubanId": "37528972",
-    "doubanMatchedTitle": "爱的三次方"
-  },
   "aN4jOCt4jgE": {
     "title": "藏锋",
     "year": 2026,
@@ -2534,7 +2520,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-14T06:45:52.433Z"
+    "externalMetadataCheckedAt": "2026-11-15T00:58:11.762Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -2735,7 +2721,11 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:21.596Z"
+    "cachedAt": "2026-11-13T19:53:21.596Z",
+    "doubanUrl": "https://movie.douban.com/subject/36624308/",
+    "doubanId": "36624308",
+    "doubanMatchedTitle": "青春环游记 第五季",
+    "doubanMatchedSeasonNumber": 5
   },
   "seed_var_2026_08": {
     "title": "萌探探探案第3季",
@@ -2802,15 +2792,28 @@
     "cachedAt": "2026-10-29T01:15:52.606Z"
   },
   "seed_var_2026_13": {
-    "title": "快乐的大人",
-    "year": 2026,
+    "title": "快乐的大人第2季",
+    "year": 2025,
     "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/v0fAlYZ9VKjL7v3jtVMkrZk790b.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "大陆",
-    "notFound": true,
-    "cachedAt": "2026-11-13T19:53:22.132Z"
+    "query": "season-direct:229572:2",
+    "matchedTitle": "快乐的大人第 2 季",
+    "matchedSeriesTitle": "快乐的大人",
+    "tmdbId": 229572,
+    "tmdbUrl": "https://www.themoviedb.org/tv/229572/season/2",
+    "tmdbSeriesId": 229572,
+    "tmdbSeasonId": 448571,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.802Z",
+    "cachedAt": "2026-11-15T00:58:12.804Z"
   },
   "seed_var_2026_14": {
     "title": "闪亮的日子",
@@ -3026,15 +3029,28 @@
     "cachedAt": "2026-11-06T07:00:36.872Z"
   },
   "seed_var_2026_26": {
-    "title": "我们的歌",
-    "year": 2026,
+    "title": "我们的歌第2季",
+    "year": 2020,
     "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/kx9u3Bx0MDyyVUONTx8nwhadaPj.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "大陆",
-    "notFound": true,
-    "cachedAt": "2026-11-13T19:53:23.788Z"
+    "query": "season-direct:99496:2",
+    "matchedTitle": "我们的歌第 2 季",
+    "matchedSeriesTitle": "我们的歌",
+    "tmdbId": 99496,
+    "tmdbUrl": "https://www.themoviedb.org/tv/99496/season/2",
+    "tmdbSeriesId": 99496,
+    "tmdbSeasonId": 165540,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.797Z",
+    "cachedAt": "2026-11-15T00:58:12.800Z"
   },
   "seed_var_2026_05": {
     "title": "密室大逃脱",
@@ -3069,26 +3085,52 @@
     "cachedAt": "2026-11-10T19:52:48.355Z"
   },
   "seed_var_2026_31": {
-    "title": "天赐的声音",
+    "title": "天赐的声音第7季",
     "year": 2026,
     "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/4CliDPWHNsqFm7MZb3E33iZ5F6z.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "大陆",
-    "notFound": true,
-    "cachedAt": "2026-11-13T19:53:24.312Z"
+    "query": "season-direct:116777:7",
+    "matchedTitle": "天赐的声音第 7 季",
+    "matchedSeriesTitle": "天赐的声音",
+    "tmdbId": 116777,
+    "tmdbUrl": "https://www.themoviedb.org/tv/116777/season/7",
+    "tmdbSeriesId": 116777,
+    "tmdbSeasonId": 519623,
+    "tmdbSeasonNumber": 7,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.919Z",
+    "cachedAt": "2026-11-15T00:58:12.921Z"
   },
   "seed_var_2026_35": {
-    "title": "无限超越班",
+    "title": "无限超越班第4季",
     "year": 2026,
     "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/f2fKRnNOZXRuLnXs4WxfipA0AJ8.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "大陆",
-    "notFound": true,
-    "cachedAt": "2026-11-13T19:53:24.312Z"
+    "query": "season-direct:216487:4",
+    "matchedTitle": "无限超越班第4季",
+    "matchedSeriesTitle": "无限超越班",
+    "tmdbId": 216487,
+    "tmdbUrl": "https://www.themoviedb.org/tv/216487/season/4",
+    "tmdbSeriesId": 216487,
+    "tmdbSeasonId": 506870,
+    "tmdbSeasonNumber": 4,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:13.326Z",
+    "cachedAt": "2026-11-15T00:58:13.328Z"
   },
   "seed_var_2026_32": {
     "title": "奋斗吧人生",
@@ -8950,7 +8992,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt39837101/",
     "wikidataId": "Q137008661",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-14T06:45:52.417Z",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:11.789Z",
     "cachedAt": "2026-11-08T04:47:10.678Z"
   },
   "5k6LypC7hgD": {
@@ -9401,7 +9443,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-14T06:45:52.433Z",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:11.762Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -10479,7 +10521,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-11T19:44:26.024Z"
+    "cachedAt": "2026-11-15T00:58:12.463Z"
   },
   "MvjiznkhEzl": {
     "title": "指环王：力量之戒第3季",
