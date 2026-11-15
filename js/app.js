@@ -378,14 +378,14 @@
     };
   }
 
-  function readUrlState() {
+  function readUrlState({ emptyHashTab = activeTabName } = {}) {
     const params = new URLSearchParams(location.search);
     const hashTab = location.hash.slice(1).split('?')[0];
     const status = params.get('status');
     const score = params.get('score');
     const sort = params.get('sort');
     return {
-      tab: normalizeTabName(hashTab || activeTabName),
+      tab: normalizeTabName(hashTab || emptyHashTab),
       status: VALID_FILTER_STATUS.has(status) ? status : 'all',
       score: VALID_FILTER_SCORES.has(score) ? score : '0',
       sort: VALID_SORTS.has(sort) ? sort : '',
@@ -436,7 +436,8 @@
       playable: activeTabName !== 'tvmaze' && document.getElementById('filterPlayable')?.checked === true,
       // 类型与“隐藏看过”只作用于推荐标签；时间表没有这些信息。
       genre: activeTabName !== 'tvmaze' ? _genreFilter : '',
-      hideSeen: activeTabName !== 'tvmaze' && _marks.hideSeen === true,
+      // “我的片单”是查看看过记录的地方，不受“隐藏看过”影响。
+      hideSeen: activeTabName !== 'tvmaze' && activeTabName !== 'mine' && _marks.hideSeen === true,
     };
   }
 
@@ -510,19 +511,24 @@
 
   function handleUrlStateChange() {
     if (location.hash === '#mainContent') return;
-    const state = readUrlState();
+    // 首次打开时地址可能没有 #标签；从第一个切换的标签返回到这条记录时应回到默认标签。
+    const state = readUrlState({ emptyHashTab: 'korean' });
     // 只是打开或关闭详情层（仅 show= 变化）时不重跑筛选，列表、焦点和阅读位置保持原样。
     const current = readFilterState();
     const filtersUnchanged = state.tab === activeTabName && state.status === current.status && state.score === current.score &&
       state.query === current.query && state.genre === _genreFilter && (!state.sort || state.sort === current.sort) &&
       state.playable === (document.getElementById('filterPlayable')?.checked === true);
-    if (filtersUnchanged && (state.show || _detailShow)) {
+    // 用 ✕/Esc/遮罩关闭时 _detailShow 已先清空，这里同样只同步详情层，不重建列表。
+    if (filtersUnchanged) {
       syncDetailFromUrl(state);
       return;
     }
     _tabSortPreferences.set(state.tab, state.sort || DEFAULT_SORT_BY_TAB[state.tab] || 'recommend');
     if (state.tab !== activeTabName) {
+      const focusInTabs = !!document.activeElement?.closest?.('.tabs');
       switchTab(state.tab, { syncUrl: false });
+      // 返回/前进切换标签时，焦点不能留在已取消选中（tabindex=-1）的旧标签上。
+      if (focusInTabs) document.getElementById(`tab-${activeTabName}`)?.focus({ preventScroll: true });
       restoreFilterControls(state);
       applyFilters();
     } else {
@@ -684,6 +690,11 @@
     }
 
     currentShows = shows;
+    // 类型来自上一个标签；新标签里没有这个类型时清除，避免切过去就是空结果。
+    if (_genreFilter && !shows.some(show => getShowGenres(show).includes(_genreFilter))) {
+      _genreFilter = '';
+      if (syncUrl) syncUrlState();
+    }
     applyFilters(animate, { preserveVisibleCount });
   }
 
@@ -1000,7 +1011,7 @@
       updateLoadMore(0, 0);
       // 由筛选造成的空结果直接提供清除操作，避免用户回到顶部寻找按钮。
       if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
-      else if (activeTabName === 'mine') setEmptyState('还没有标记节目。在任意卡片上点“想看”或“看过”，它们会出现在这里（只保存在这台设备的浏览器里）。');
+      else if (activeTabName === 'mine') setEmptyState('还没有标记节目。点开任意节目，在详情里点“想看”或“看过”，它们会出现在这里（只保存在这台设备的浏览器里）。');
       else setEmptyState('😢 暂无符合当前条件的推荐');
       return;
     }
@@ -1586,11 +1597,21 @@
     return `${params.toString()}${location.hash}`;
   }
 
+  // 禁用 Cookie 或沙箱环境里访问 sessionStorage 本身就会抛 SecurityError，不能让它中断初始化。
+  function getSessionStorage() {
+    try {
+      return typeof window.sessionStorage === 'undefined' ? null : window.sessionStorage;
+    } catch {
+      return null;
+    }
+  }
+
   function bindScrollMemory() {
-    if (typeof sessionStorage === 'undefined') return;
+    const storage = getSessionStorage();
+    if (!storage) return;
     const save = () => {
       try {
-        sessionStorage.setItem(SCROLL_MEMORY_KEY, JSON.stringify({
+        storage.setItem(SCROLL_MEMORY_KEY, JSON.stringify({
           url: getScrollMemoryUrl(), savedAt: Date.now(), scrollY: Math.round(window.scrollY || 0), visible: _visibleShowCount,
         }));
       } catch {
@@ -1604,11 +1625,12 @@
   }
 
   function restoreScrollMemory() {
-    if (_scrollMemoryRestored || typeof sessionStorage === 'undefined') return;
+    const storage = getSessionStorage();
+    if (_scrollMemoryRestored || !storage) return;
     _scrollMemoryRestored = true;
     let memory = null;
     try {
-      memory = JSON.parse(sessionStorage.getItem(SCROLL_MEMORY_KEY) || 'null');
+      memory = JSON.parse(storage.getItem(SCROLL_MEMORY_KEY) || 'null');
     } catch {
       return;
     }
@@ -1658,6 +1680,8 @@
     const dialog = getDetailDialog();
     const content = document.getElementById('detailContent');
     if (!dialog || !content || !show) return false;
+    // 搜索防抖还没写进地址时先写入，否则关闭详情层回到的历史记录里没有搜索词。
+    if (push) syncUrlState();
     _detailShow = show;
     content.innerHTML = renderDetail(show);
     if (!dialog.open) dialog.showModal();
@@ -1779,7 +1803,7 @@
     const chips = [];
     // 没有对应开关的生效条件（搜索词、已完结、7/9 分门槛）排在最前，点一下单独移除。
     const removable = (name, label) =>
-      `<button class="chip chip-remove" type="button" data-chip="${name}" aria-pressed="true">${escapeHtml(label)}<span aria-hidden="true"> ×</span><span class="sr-only">，点击移除</span></button>`;
+      `<button class="chip chip-remove" type="button" data-chip="${name}">${escapeHtml(label)}<span aria-hidden="true"> ×</span><span class="sr-only">，点击移除</span></button>`;
     if (state.query) chips.push(removable('clearQuery', `搜索“${state.query}”`));
     if (state.status === 'complete') chips.push(removable('clearStatus', '已完结'));
     if (state.score !== '0' && state.score !== '8') chips.push(removable('clearScore', `${state.score} 分以上`));
@@ -1787,7 +1811,7 @@
     chips.push(chip('ongoing', '连载中', state.status === 'ongoing'));
     if (!isSchedule) {
       chips.push(chip('score8', '8 分以上', state.score === '8'));
-      if (state.hideSeen || Object.keys(_marks.seen).length) chips.push(chip('hideSeen', '隐藏看过', state.hideSeen));
+      if (activeTabName !== 'mine' && (state.hideSeen || Object.keys(_marks.seen).length)) chips.push(chip('hideSeen', '隐藏看过', state.hideSeen));
       for (const genre of getQuickGenres()) chips.push(chip('genre', genre, state.genre === genre, ` data-genre="${escapeHtml(genre)}"`));
     }
     const html = chips.join('');
