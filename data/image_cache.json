@@ -2072,13 +2072,16 @@
     "tmdbSeriesId": 220074,
     "tmdbSeasonId": 385147,
     "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36823955/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B4%A2%E9%98%80X%E5%88%91%E8%AD%A6",
     "imdbUrl": "https://www.imdb.com/title/tt30413181/",
     "wikidataId": "Q121879488",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.349Z",
-    "cachedAt": "2026-11-08T04:47:08.351Z"
+    "cachedAt": "2026-11-08T04:47:08.351Z",
+    "doubanId": "36823955",
+    "doubanMatchedTitle": "财阀X刑警 第二季",
+    "doubanMatchedSeasonNumber": 2
   },
   "s8mQNa4EKGF": {
     "title": "花开锦绣",
@@ -2422,7 +2425,7 @@
     "wikidataId": "Q140423087",
     "cachedAt": "2026-08-23T16:33:58.052Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.466Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.111Z"
   },
   "seed_kd_2026_05": {
     "title": "在你的灿烂季节",
@@ -2713,19 +2716,31 @@
     "externalMetadataCheckedAt": "2026-10-24T15:17:20.337Z"
   },
   "seed_var_2026_09": {
-    "title": "青春环游记",
-    "year": 2026,
+    "title": "青春环游记第5季",
+    "year": 2024,
     "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/v1FjVZ80OiqUbXA44rQmXMdRpf2.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "大陆",
-    "notFound": true,
-    "cachedAt": "2026-11-13T19:53:21.596Z",
+    "query": "season-direct:106938:5",
+    "matchedTitle": "青春环游记第 5 季",
+    "matchedSeriesTitle": "青春环游记",
+    "tmdbId": 106938,
+    "tmdbUrl": "https://www.themoviedb.org/tv/106938/season/5",
+    "tmdbSeriesId": 106938,
+    "tmdbSeasonId": 394354,
+    "tmdbSeasonNumber": 5,
     "doubanUrl": "https://movie.douban.com/subject/36624308/",
     "doubanId": "36624308",
     "doubanMatchedTitle": "青春环游记 第五季",
-    "doubanMatchedSeasonNumber": 5
+    "doubanMatchedSeasonNumber": 5,
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T12:20:06.292Z",
+    "cachedAt": "2026-11-15T12:20:06.294Z"
   },
   "seed_var_2026_08": {
     "title": "萌探探探案第3季",
@@ -6061,7 +6076,7 @@
     "regional": "韩国",
     "doubanLookupId": "37835653",
     "notFound": true,
-    "cachedAt": "2026-11-14T18:19:33.418Z"
+    "cachedAt": "2026-11-15T12:20:10.075Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -8012,7 +8027,7 @@
     "wikidataId": "Q131386568",
     "cachedAt": "2026-08-23T16:33:58.236Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.448Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.130Z"
   },
   "UurBm3jVg5E": {
     "title": "订阅男友",
@@ -8031,7 +8046,7 @@
     "wikidataId": "Q132561179",
     "cachedAt": "2026-08-23T16:33:58.253Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.555Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.207Z"
   },
   "jD4BSUsG7w0": {
     "title": "努力克服自卑的我们",
@@ -8050,7 +8065,7 @@
     "wikidataId": "Q137843064",
     "cachedAt": "2026-08-23T16:33:58.387Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.573Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.210Z"
   },
   "0lVivlOc4H1": {
     "title": "权欲之巅",
@@ -8582,13 +8597,16 @@
     "matchedTitle": "共感细胞",
     "tmdbId": 315007,
     "tmdbUrl": "https://www.themoviedb.org/tv/315007",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38239742/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt43440117/",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.403Z",
-    "cachedAt": "2026-11-08T04:47:08.405Z"
+    "cachedAt": "2026-11-08T04:47:08.405Z",
+    "doubanId": "38239742",
+    "doubanMatchedTitle": "共感细胞",
+    "doubanMatchedSeasonNumber": 0
   },
   "e5E6ryElabL": {
     "title": "检察官室的提案",
@@ -8662,13 +8680,16 @@
     "matchedTitle": "铁拳教育",
     "tmdbId": 276161,
     "tmdbUrl": "https://www.themoviedb.org/tv/276161",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37071123/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%90%B5%E6%8B%B3%E6%95%99%E8%82%B2",
     "imdbUrl": "https://www.imdb.com/title/tt34809853/",
     "wikidataId": "Q137844128",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.656Z",
-    "cachedAt": "2026-11-08T04:47:08.658Z"
+    "cachedAt": "2026-11-08T04:47:08.658Z",
+    "doubanId": "37071123",
+    "doubanMatchedTitle": "铁拳教育",
+    "doubanMatchedSeasonNumber": 0
   },
   "c08gRfCqHJ1": {
     "title": "新进职员姜会长",
@@ -8722,13 +8743,16 @@
     "matchedTitle": "超能路人甲",
     "tmdbId": 259837,
     "tmdbUrl": "https://www.themoviedb.org/tv/259837",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/36680667/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E8%B6%85%E8%83%BD%E8%B7%AF%E4%BA%BA%E7%94%B2",
     "imdbUrl": "https://www.imdb.com/title/tt34440854/",
     "wikidataId": "Q130748503",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:09.525Z",
-    "cachedAt": "2026-11-08T04:47:09.527Z"
+    "cachedAt": "2026-11-08T04:47:09.527Z",
+    "doubanId": "36680667",
+    "doubanMatchedTitle": "超能路人甲",
+    "doubanMatchedSeasonNumber": 0
   },
   "6fPfX4eGl7F": {
     "title": "最后一排的男孩",
@@ -8739,7 +8763,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-14T18:19:33.186Z"
+    "cachedAt": "2026-11-15T12:20:06.479Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -9619,7 +9643,7 @@
     "wikidataId": "Q125121395",
     "cachedAt": "2026-08-23T16:33:58.219Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.469Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.120Z"
   },
   "G5LcDrl6yM4": {
     "title": "理事长和我的秘密关系",
@@ -9660,7 +9684,7 @@
     "wikidataId": "Q137700437",
     "cachedAt": "2026-08-23T16:33:58.477Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T10:58:09.580Z"
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.221Z"
   },
   "ew7rimThCP9": {
     "title": "春日狂热",
@@ -10521,7 +10545,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-15T00:58:12.463Z"
+    "cachedAt": "2026-11-15T12:20:05.896Z"
   },
   "MvjiznkhEzl": {
     "title": "指环王：力量之戒第3季",
@@ -11118,5 +11142,25 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-14T18:19:41.478Z",
     "cachedAt": "2026-11-14T18:19:41.480Z"
+  },
+  "COkLOef1z9B": {
+    "title": "十万狂花入梦来",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/A5LbZohCVL7O4x5H6Q2Xbw4w3mv.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "十万狂花入梦来",
+    "matchedTitle": "十万狂花入梦来",
+    "tmdbId": 261315,
+    "tmdbUrl": "https://www.themoviedb.org/tv/261315",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37148648/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T12:20:05.971Z",
+    "cachedAt": "2026-11-15T12:20:05.974Z"
   }
 }
