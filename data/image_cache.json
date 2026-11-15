@@ -2279,23 +2279,6 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:21.069Z"
   },
-  "B6Pk85dZKpD": {
-    "title": "绿灯军团",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/5ZmOP60VIEfM2cnt7CpAK1j9mEv.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "绿灯军团",
-    "matchedTitle": "绿灯军团",
-    "tmdbId": 95350,
-    "tmdbUrl": "https://www.themoviedb.org/tv/95350",
-    "doubanUrl": "",
-    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%B6%A0%E5%85%89%E8%BB%8D%E5%9C%98_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
-    "imdbUrl": "https://www.imdb.com/title/tt26545992/",
-    "wikidataId": "Q110556821",
-    "cachedAt": "2026-08-17T12:34:02.704Z"
-  },
   "hXUxnwld7b7": {
     "title": "T教授第5季",
     "year": 2026,
@@ -8103,7 +8086,7 @@
     "wikidataId": "Q137711304",
     "cachedAt": "2026-08-23T16:33:59.111Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.658Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:45.872Z"
   },
   "rPCsIycyeLn": {
     "title": "赌金",
@@ -8122,7 +8105,7 @@
     "wikidataId": "Q134848097",
     "cachedAt": "2026-08-23T16:33:59.269Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.771Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:45.949Z"
   },
   "Er9DKePdV51": {
     "title": "魔女之吻",
@@ -8141,7 +8124,7 @@
     "wikidataId": "Q137772351",
     "cachedAt": "2026-08-23T16:33:59.428Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.766Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:46.294Z"
   },
   "RyHxZP9EKpL": {
     "title": "菜鸟炊事兵",
@@ -9545,7 +9528,7 @@
     "negativeLookupVersion": 2,
     "regional": "泰国",
     "notFound": true,
-    "cachedAt": "2026-11-08T17:59:54.009Z"
+    "cachedAt": "2026-11-15T21:21:46.992Z"
   },
   "B3aTjg72S7B": {
     "title": "槲寄生谋杀案第3季",
@@ -9703,7 +9686,7 @@
     "wikidataId": "Q136527446",
     "cachedAt": "2026-08-23T16:33:58.931Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.653Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:45.846Z"
   },
   "SrGB0CqkDtC": {
     "title": "给你宇宙",
@@ -9722,7 +9705,7 @@
     "wikidataId": "Q137668853",
     "cachedAt": "2026-08-23T16:33:58.653Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.673Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:45.861Z"
   },
   "W1I1nVRjGd7": {
     "title": "今天开始是人类",
@@ -9741,7 +9724,7 @@
     "wikidataId": "Q130241021",
     "cachedAt": "2026-08-23T16:33:59.594Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-16T15:58:22.789Z"
+    "externalMetadataCheckedAt": "2026-11-15T21:21:45.968Z"
   },
   "2yPCqfxgKQD": {
     "title": "凌晨两点的灰姑娘",
@@ -11162,5 +11145,45 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-15T12:20:05.971Z",
     "cachedAt": "2026-11-15T12:20:05.974Z"
+  },
+  "HafugzXhKZA": {
+    "title": "明暗谜案录",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/m9eZy0jzWCHSUUzbzIpysOrLgFb.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "明暗谜案录",
+    "matchedTitle": "明暗谜案录",
+    "tmdbId": 336243,
+    "tmdbUrl": "https://www.themoviedb.org/tv/336243",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt37214564/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T21:21:46.497Z",
+    "cachedAt": "2026-11-15T21:21:46.500Z"
+  },
+  "Qurmqh5rnl0": {
+    "title": "越来越糟",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "英国",
+    "url": "https://image.tmdb.org/t/p/original/xm3NMFDjgPRjgCmH5uo3LuVZYBX.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "越来越糟",
+    "matchedTitle": "越来越糟",
+    "tmdbId": 334470,
+    "tmdbUrl": "https://www.themoviedb.org/tv/334470",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/It_Gets_Worse_(TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt35926686/",
+    "wikidataId": "Q136689588",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T21:21:46.539Z",
+    "cachedAt": "2026-11-15T21:21:46.542Z"
   }
 }
