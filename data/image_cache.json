@@ -1674,7 +1674,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-15T00:58:11.697Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.234Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -2506,7 +2506,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-15T00:58:11.762Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.523Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -6059,7 +6059,7 @@
     "regional": "韩国",
     "doubanLookupId": "37835653",
     "notFound": true,
-    "cachedAt": "2026-11-15T12:20:10.075Z"
+    "cachedAt": "2026-11-16T06:50:12.119Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -8067,7 +8067,7 @@
     "wikidataId": "Q136945952",
     "cachedAt": "2026-08-23T16:33:59.760Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.593Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.135Z"
   },
   "DjCWQPGEBG1": {
     "title": "秒杀爱情",
@@ -8146,7 +8146,7 @@
     "doubanMatchedTitle": "菜鸟炊事兵",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.633Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.238Z"
   },
   "Zu289anQlB1": {
     "title": "贞淑的推销",
@@ -8746,7 +8746,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-15T12:20:06.479Z"
+    "cachedAt": "2026-11-16T06:50:10.012Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -9450,7 +9450,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-15T00:58:11.762Z",
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.523Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -9762,7 +9762,7 @@
     "wikidataId": "Q130211747",
     "cachedAt": "2026-08-23T16:34:00.457Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.857Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.365Z"
   },
   "uGuMFP9oOzG": {
     "title": "善意的竞争",
@@ -10238,7 +10238,7 @@
     "wikidataId": "Q111820593",
     "cachedAt": "2026-08-23T16:34:00.437Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T02:44:10.794Z"
+    "externalMetadataCheckedAt": "2026-11-16T06:50:08.148Z"
   },
   "KFdnCjFSKl7": {
     "title": "那家伙是黑炎龙",
@@ -10528,7 +10528,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-15T12:20:05.896Z"
+    "cachedAt": "2026-11-16T06:50:09.336Z"
   },
   "MvjiznkhEzl": {
     "title": "指环王：力量之戒第3季",
@@ -11185,5 +11185,125 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-15T21:21:46.539Z",
     "cachedAt": "2026-11-15T21:21:46.542Z"
+  },
+  "tpJGaYBzSyS": {
+    "title": "无限超越班第4季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/f2fKRnNOZXRuLnXs4WxfipA0AJ8.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:216487:4",
+    "matchedTitle": "无限超越班第4季",
+    "matchedSeriesTitle": "无限超越班",
+    "tmdbId": 216487,
+    "tmdbUrl": "https://www.themoviedb.org/tv/216487/season/4",
+    "tmdbSeriesId": 216487,
+    "tmdbSeasonId": 506870,
+    "tmdbSeasonNumber": 4,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:13.326Z",
+    "cachedAt": "2026-11-15T00:58:13.328Z"
+  },
+  "JWm4D0zlMBE": {
+    "title": "快乐的大人第2季",
+    "year": 2025,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/v0fAlYZ9VKjL7v3jtVMkrZk790b.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:229572:2",
+    "matchedTitle": "快乐的大人第 2 季",
+    "matchedSeriesTitle": "快乐的大人",
+    "tmdbId": 229572,
+    "tmdbUrl": "https://www.themoviedb.org/tv/229572/season/2",
+    "tmdbSeriesId": 229572,
+    "tmdbSeasonId": 448571,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.802Z",
+    "cachedAt": "2026-11-15T00:58:12.804Z"
+  },
+  "BizuNUiRGEK": {
+    "title": "极限挑战第10季",
+    "year": 2024,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/toTfqoUuvj1lcRmJsTtWQgKOHFP.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:89620:10",
+    "matchedTitle": "极限挑战第 10 季",
+    "matchedSeriesTitle": "极限挑战",
+    "tmdbId": 89620,
+    "tmdbUrl": "https://www.themoviedb.org/tv/89620/season/10",
+    "tmdbSeriesId": 89620,
+    "tmdbSeasonId": 389538,
+    "tmdbSeasonNumber": 10,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9E%81%E9%99%90%E6%8C%91%E6%88%98",
+    "imdbUrl": "https://www.imdb.com/title/tt7131118/",
+    "wikidataId": "Q20645067",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.049Z",
+    "cachedAt": "2026-11-15T00:58:12.051Z"
+  },
+  "I4zceGNoIaS": {
+    "title": "我们的歌第2季",
+    "year": 2020,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/kx9u3Bx0MDyyVUONTx8nwhadaPj.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:99496:2",
+    "matchedTitle": "我们的歌第 2 季",
+    "matchedSeriesTitle": "我们的歌",
+    "tmdbId": 99496,
+    "tmdbUrl": "https://www.themoviedb.org/tv/99496/season/2",
+    "tmdbSeriesId": 99496,
+    "tmdbSeasonId": 165540,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.797Z",
+    "cachedAt": "2026-11-15T00:58:12.800Z"
+  },
+  "I6VMziD9VX3": {
+    "title": "天赐的声音第7季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/4CliDPWHNsqFm7MZb3E33iZ5F6z.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:116777:7",
+    "matchedTitle": "天赐的声音第 7 季",
+    "matchedSeriesTitle": "天赐的声音",
+    "tmdbId": 116777,
+    "tmdbUrl": "https://www.themoviedb.org/tv/116777/season/7",
+    "tmdbSeriesId": 116777,
+    "tmdbSeasonId": 519623,
+    "tmdbSeasonNumber": 7,
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T00:58:12.919Z",
+    "cachedAt": "2026-11-15T00:58:12.921Z"
   }
 }
