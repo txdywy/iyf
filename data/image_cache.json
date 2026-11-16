@@ -2279,23 +2279,6 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:21.069Z"
   },
-  "hXUxnwld7b7": {
-    "title": "T教授第5季",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/jJ9SjrX7tEAwHigRq20TeANhH1Q.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "T教授",
-    "matchedTitle": "T教授",
-    "tmdbId": 126660,
-    "tmdbUrl": "https://www.themoviedb.org/tv/126660",
-    "doubanUrl": "",
-    "wikipediaUrl": "https://en.wikipedia.org/wiki/Professor_T._(British_TV_series)",
-    "imdbUrl": "https://www.imdb.com/title/tt11981644/",
-    "wikidataId": "Q98744252",
-    "cachedAt": "2026-08-18T12:35:48.433Z"
-  },
   "BVjGYk8aZ20": {
     "title": "不想睡的星期五",
     "year": 2026,
@@ -2822,7 +2805,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:22.149Z"
+    "cachedAt": "2026-11-16T22:21:23.537Z"
   },
   "seed_var_2026_11": {
     "title": "五十公里桃花坞第6季",
@@ -2881,7 +2864,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:22.692Z"
+    "cachedAt": "2026-11-16T22:21:24.038Z"
   },
   "seed_var_2026_15": {
     "title": "快乐再出发第2季",
@@ -2916,7 +2899,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:23.270Z"
+    "cachedAt": "2026-11-16T22:21:24.631Z"
   },
   "seed_var_2026_18": {
     "title": "向往的生活第8季",
@@ -3013,7 +2996,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:23.768Z"
+    "cachedAt": "2026-11-16T22:21:24.907Z"
   },
   "seed_var_2026_24": {
     "title": "披荆斩棘的哥哥",
@@ -3139,7 +3122,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:24.377Z"
+    "cachedAt": "2026-11-16T22:21:25.417Z"
   },
   "seed_var_c02": {
     "title": "极限挑战第一季",
@@ -3688,7 +3671,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:21.584Z"
+    "cachedAt": "2026-11-16T22:21:24.034Z"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -3788,7 +3771,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:20.468Z"
+    "cachedAt": "2026-11-16T22:21:22.848Z"
   },
   "Oq4Z8GUXr47": {
     "title": "金色",
@@ -3940,7 +3923,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:20.474Z"
+    "cachedAt": "2026-11-16T22:21:22.681Z"
   },
   "wkooR40Eji0": {
     "title": "鼠惑",
@@ -6059,7 +6042,7 @@
     "regional": "韩国",
     "doubanLookupId": "37835653",
     "notFound": true,
-    "cachedAt": "2026-11-16T06:50:12.119Z"
+    "cachedAt": "2026-11-16T22:21:23.227Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -8746,7 +8729,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-16T06:50:10.012Z"
+    "cachedAt": "2026-11-16T22:21:22.005Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -9602,12 +9585,25 @@
     "title": "异能研究所第2季",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/4MwXkOAMd9ObxdacasPFM32n9dZ.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "欧美",
-    "notFound": true,
-    "cachedAt": "2026-11-09T06:54:32.600Z"
+    "query": "season-direct:253372:2",
+    "matchedTitle": "异能研究所第 2 季",
+    "matchedSeriesTitle": "异能研究所",
+    "tmdbId": 253372,
+    "tmdbUrl": "https://www.themoviedb.org/tv/253372/season/2",
+    "tmdbSeriesId": 253372,
+    "tmdbSeasonId": 547058,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/The_Institute_(TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt10946316/",
+    "wikidataId": "Q131424584",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-16T22:21:27.206Z",
+    "cachedAt": "2026-11-16T22:21:27.209Z"
   },
   "oQBP0ycKY24": {
     "title": "爱情怎么翻译",
@@ -9743,7 +9739,7 @@
     "wikidataId": "Q127698375",
     "cachedAt": "2026-08-23T16:34:00.708Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:37.906Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:20.001Z"
   },
   "xac4k6yiTy9": {
     "title": "我的完美秘书",
@@ -9781,7 +9777,7 @@
     "wikidataId": "Q127800838",
     "cachedAt": "2026-08-23T16:34:00.625Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:37.886Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:19.997Z"
   },
   "vDxDtPor2PE": {
     "title": "泪之女王",
@@ -9800,7 +9796,7 @@
     "wikidataId": "Q116921048",
     "cachedAt": "2026-08-23T16:34:00.788Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:38.004Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:20.370Z"
   },
   "4qEYMMyEhw6": {
     "title": "背着善宰跑",
@@ -10143,7 +10139,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:23.199Z"
+    "cachedAt": "2026-11-16T22:21:27.660Z"
   },
   "aNDM9gcctI5": {
     "title": "明星大侦探",
@@ -10257,7 +10253,7 @@
     "wikidataId": "Q127411915",
     "cachedAt": "2026-08-23T16:34:00.682Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:37.896Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:20.125Z"
   },
   "yXRUFEylQY9": {
     "title": "照明商店",
@@ -10276,7 +10272,7 @@
     "wikidataId": "Q124616105",
     "cachedAt": "2026-08-23T16:34:00.843Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:38.012Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:20.448Z"
   },
   "KylvETa3s39": {
     "title": "低谷医生",
@@ -10295,7 +10291,7 @@
     "wikidataId": "Q117219597",
     "cachedAt": "2026-08-23T16:34:01.326Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-17T14:51:38.005Z"
+    "externalMetadataCheckedAt": "2026-11-16T22:21:20.340Z"
   },
   "QZUlhy4z5JU": {
     "title": "正年",
@@ -10483,7 +10479,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-13T19:53:21.013Z"
+    "cachedAt": "2026-11-16T22:21:23.360Z"
   },
   "tmdb_tv_326901": {
     "title": "崩溃爬山趣",
@@ -10528,7 +10524,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-16T06:50:09.336Z"
+    "cachedAt": "2026-11-16T22:21:21.308Z"
   },
   "MvjiznkhEzl": {
     "title": "指环王：力量之戒第3季",
@@ -10776,11 +10772,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T06:58:16.144Z",
-    "doubanUrl": "https://movie.douban.com/subject/38363866/",
-    "doubanId": "38363866",
-    "doubanMatchedTitle": "奔跑吧 第十季",
-    "doubanMatchedSeasonNumber": 10
+    "cachedAt": "2026-11-16T22:21:25.503Z"
   },
   "Bd8c3zCGqNO": {
     "title": "王牌对王牌第9季",
@@ -11016,7 +11008,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-13T06:58:19.353Z"
+    "cachedAt": "2026-11-16T22:21:26.115Z"
   },
   "byqCZxdnyGZ": {
     "title": "文武",
@@ -11305,5 +11297,126 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-15T00:58:12.919Z",
     "cachedAt": "2026-11-15T00:58:12.921Z"
+  },
+  "z5MqAxqhbE6": {
+    "title": "青春环游记第5季",
+    "year": 2024,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/v1FjVZ80OiqUbXA44rQmXMdRpf2.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:106938:5",
+    "matchedTitle": "青春环游记第 5 季",
+    "matchedSeriesTitle": "青春环游记",
+    "tmdbId": 106938,
+    "tmdbUrl": "https://www.themoviedb.org/tv/106938/season/5",
+    "tmdbSeriesId": 106938,
+    "tmdbSeasonId": 394354,
+    "tmdbSeasonNumber": 5,
+    "doubanUrl": "https://movie.douban.com/subject/36624308/",
+    "doubanId": "36624308",
+    "doubanMatchedTitle": "青春环游记 第五季",
+    "doubanMatchedSeasonNumber": 5,
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-15T12:20:06.292Z",
+    "cachedAt": "2026-11-15T12:20:06.294Z"
+  },
+  "kk6ozgm69dU": {
+    "title": "碰撞搜查线第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/oPIBR97FWoPGDiDpxGAdCNNAPo6.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:226102:2",
+    "matchedTitle": "碰撞搜查线第2季",
+    "matchedSeriesTitle": "碰撞搜查线",
+    "tmdbId": 226102,
+    "tmdbUrl": "https://www.themoviedb.org/tv/226102/season/2",
+    "tmdbSeriesId": 226102,
+    "tmdbSeasonId": 445934,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "https://movie.douban.com/subject/36996291/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%A2%B0%E6%92%9E%E6%90%9C%E6%9F%A5%E7%B7%9A",
+    "imdbUrl": "https://www.imdb.com/title/tt32117300/",
+    "wikidataId": "Q124799094",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-16T22:21:22.178Z",
+    "cachedAt": "2026-11-16T22:21:22.181Z",
+    "doubanId": "36996291",
+    "doubanMatchedTitle": "碰撞搜查线 第二季",
+    "doubanMatchedSeasonNumber": 2
+  },
+  "myB7Ct8oEpU": {
+    "title": "日落时分说爱你第2季",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/17v0MynvHgnc8keSb1ofry5fgR9.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:309015:2",
+    "matchedTitle": "日落时分说爱你第2季",
+    "matchedSeriesTitle": "日落时分说爱你",
+    "tmdbId": 309015,
+    "tmdbUrl": "https://www.themoviedb.org/tv/309015/season/2",
+    "tmdbSeriesId": 309015,
+    "tmdbSeasonId": 557443,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "https://movie.douban.com/subject/38412163/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-16T22:21:22.631Z",
+    "cachedAt": "2026-11-16T22:21:22.634Z",
+    "doubanId": "38412163",
+    "doubanMatchedTitle": "日落时分说爱你2",
+    "doubanMatchedSeasonNumber": 2
+  },
+  "DoHbZpy6ZHI": {
+    "title": "多喜一家人",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/oEHYm8uzdqbfD5aIe1YBJLq2ko3.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "多喜一家人",
+    "matchedTitle": "多喜一家人",
+    "tmdbId": 294498,
+    "tmdbUrl": "https://www.themoviedb.org/tv/294498",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-16T22:21:25.598Z",
+    "cachedAt": "2026-11-16T22:21:25.601Z"
+  },
+  "s0iyzyCoZnB0": {
+    "title": "翻案人生",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/wYIvIX9JNKoJ4x178GvqeBB62KK.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "翻案人生",
+    "matchedTitle": "翻案人生",
+    "tmdbId": 338562,
+    "tmdbUrl": "https://www.themoviedb.org/tv/338562",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39390491/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-16T22:21:25.677Z",
+    "cachedAt": "2026-11-16T22:21:25.681Z"
   }
 }
