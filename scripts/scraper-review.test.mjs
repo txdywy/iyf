@@ -3880,3 +3880,21 @@ test('a Korean co-production registered in Japan is reached through its direct T
   assert.equal(result.tmdbId, 305551);
   assert.equal(result.url, 'https://image.tmdb.org/t/p/original/berry.jpg');
 });
+
+test('when two cards share a TMDB entity the playable source card survives de-duplication', () => {
+  const { helpers } = loadHelpers();
+  const tmdbUrl = 'https://www.themoviedb.org/tv/326975';
+  const deduped = helpers.dedupByTitle([
+    { title: 'BOSS的甜蜜诱惑', id: 'tmdb_tv_326975', mediaType: '电视剧', regional: '韩国', year: 2026, tmdbUrl, recommendScore: 162 },
+    { title: '其他剧', id: 'x', mediaType: '电视剧', regional: '韩国', year: 2026, recommendScore: 150 },
+    { title: '老板的露骨取向', id: 'Em4yTTn4IcB', mediaType: '电视剧', regional: '韩国', year: 2026, tmdbUrl,
+      yfspUrl: 'https://www.kubb.tv/play/Em4yTTn4IcB', recommendScore: 140 },
+  ]);
+  assert.deepEqual(deduped.map(show => show.title), ['其他剧', '老板的露骨取向'],
+    'a higher-scored card without a play link must not push out the playable card for the same show');
+  const bothPlayable = helpers.dedupByTitle([
+    { title: '甲', tmdbUrl, yfspUrl: 'https://www.kubb.tv/play/a', recommendScore: 9 },
+    { title: '乙', tmdbUrl, yfspUrl: 'https://www.kubb.tv/play/b', recommendScore: 5 },
+  ]);
+  assert.deepEqual(bothPlayable.map(show => show.title), ['甲'], 'otherwise the higher-scored card is kept');
+});

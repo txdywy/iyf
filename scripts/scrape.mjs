@@ -3436,26 +3436,39 @@ function dedupByTitle(list) {
   }
   const seenTitles = new Set();
   const seenExternal = new Map();
-  return list.filter(s => {
-    const newestYear = newestEditions.get(editionKey(s));
-    if (newestYear && boundedYear(s.year) < newestYear) return false;
-    const key = (s.title || '').trim();
-    if (!key || seenTitles.has(key)) return false;
-
-    const externalKeys = externalIdentityKeys(s);
-    for (const external of externalKeys) {
+  const kept = new Set();
+  const remember = show => {
+    for (const external of externalIdentityKeys(show)) {
       const previous = seenExternal.get(external) || [];
-      if (previous.some(p => shouldDedupByExternal(p, s))) return false;
-    }
-    for (const external of externalKeys) {
-      const previous = seenExternal.get(external) || [];
-      previous.push(s);
+      previous.push(show);
       seenExternal.set(external, previous);
     }
+    seenTitles.add((show.title || '').trim());
+  };
+  for (const s of list) {
+    const newestYear = newestEditions.get(editionKey(s));
+    if (newestYear && boundedYear(s.year) < newestYear) continue;
+    const key = (s.title || '').trim();
+    if (!key || seenTitles.has(key)) continue;
 
-    seenTitles.add(key);
-    return true;
-  });
+    const duplicate = externalIdentityKeys(s)
+      .flatMap(external => seenExternal.get(external) || [])
+      .find(p => shouldDedupByExternal(p, s));
+    if (duplicate) {
+      // 同一实体的两张卡（例如 TMDB 发现的中文译名卡和来源卡）只留一张：
+      // 能播放的优先，否则保持推荐分高的那张。否则高分的无播放源卡会把可播放的来源卡挤掉。
+      if (!safeOutputUrl(duplicate.yfspUrl) && safeOutputUrl(s.yfspUrl) && kept.has(duplicate)) {
+        kept.delete(duplicate);
+        kept.add(s);
+        remember(s);
+      }
+      continue;
+    }
+    remember(s);
+    kept.add(s);
+  }
+  // 输入已按推荐分排序；按原顺序输出保留的卡片。
+  return list.filter(show => kept.has(show));
 }
 
 const OUTPUT_URL_HOSTS = new Set([
