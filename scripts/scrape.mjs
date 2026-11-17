@@ -5334,6 +5334,10 @@ function simplifyTitleForSearch(title = '') {
 
 // 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
 const TMDB_ID_MAP = {
+  // 日韩合拍，TMDB 登记为日本剧（中文名《莓好遇见你》），按地区和中文名都匹配不到。
+  '爱上草莓的季节': { id: 305551, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
+  // TMDB 中文名《BOSS的甜蜜诱惑》（보스의 노골적 취향），与来源译名无共同词。
+  '老板的露骨取向': { id: 326975, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   '明天也要上班！': { id: 289763, kind: 'tv' },
   '忙忙碌碌寻宝藏': { id: 259700, kind: 'tv' },
   '我们的宿舍': { id: 294253, kind: 'tv' },
@@ -5384,8 +5388,12 @@ function tmdbPosterFromImages(images) {
 async function lookupTMDBDirect(show) {
   const entry = getTMDBDirectEntry(show);
   if (!entry) return null;
+  return lookupTMDBById(show, entry.id, entry.kind, { query: `direct:${entry.id}` });
+}
 
-  const mediaKind = entry.kind;
+// 按已确认的 TMDB ID 取中文详情里的海报；matchedTitle 缺省时用详情返回的名称。
+async function lookupTMDBById(show, id, mediaKind, { query, matchedTitle = '' } = {}) {
+  const entry = { id, kind: mediaKind };
   const data = await fetchTMDBJSON(`${mediaKind}/${entry.id}?language=zh-CN`);
   if (!data) return null;
   if (!Number.isSafeInteger(data.id) || data.id !== entry.id ||
@@ -5406,11 +5414,33 @@ async function lookupTMDBDirect(show) {
     url: `${TMDB_IMG_BASE}${posterPath}`,
     tmdbUrl: `${TMDB_WEB_BASE}/${mediaKind}/${entry.id}`,
     ...external,
-    matchedTitle: data.name || data.original_name || data.title || data.original_title || '',
+    matchedTitle: matchedTitle || data.name || data.original_name || data.title || data.original_title || '',
     tmdbId: data.id,
     mediaKind,
-    query: `direct:${entry.id}`,
+    query,
   };
+}
+
+// 中文搜索结果只带中文名和原名，没有英文名；用英文映射名搜索时必须请求英文结果才能核对名字，
+// 否则“Notes from the Last Row”这类映射永远对不上（TMDB 中文名“末行手记”）。核对通过后再按 ID 取中文海报。
+async function lookupTMDBByEnglishTitle(show, enTitle, mediaKind) {
+  const yearKey = mediaKind === 'movie' ? 'year' : 'first_air_date_year';
+  for (const yearParam of [show.year ? `&${yearKey}=${show.year}` : '', ''].filter((value, index, all) => all.indexOf(value) === index)) {
+    if (!hasOptionalEnrichmentBudget()) return null;
+    const data = await fetchTMDBJSON(`search/${mediaKind}?query=${encodeURIComponent(enTitle)}&language=en-US&page=1${yearParam}`);
+    if (!data) continue;
+    if (!Array.isArray(data.results)) throw new Error('TMDB search returned invalid data');
+    for (const r of data.results) {
+      if (!r || typeof r !== 'object' || Array.isArray(r) || !Number.isSafeInteger(r.id) || r.id <= 0) continue;
+      if (!isTMDBIdentityFieldsWellFormed(r) || !isTMDBResultRegionCompatible(show, r)) continue;
+      const matchedTitle = tmdbResultNames(r).find(name => titleMatches(name, enTitle));
+      if (!matchedTitle || !isTMDBResultYearCompatible(show, r, { yearParam })) continue;
+      const found = await lookupTMDBById(show, r.id, mediaKind, { query: enTitle, matchedTitle });
+      if (found) return found;
+    }
+    await sleep(TMDB_SEARCH_DELAY);
+  }
+  return null;
 }
 
 async function lookupTMDBSeasonById(show, seriesId, matchedSeriesTitle) {
@@ -5600,6 +5630,15 @@ async function searchTMDBImage(show, { cacheEntry = null } = {}) {
 
   const mediaKind = show.mediaType === '电影' ? 'movie' : 'tv';
   const enTitle = TITLE_EN_MAP[show.title];
+  if (enTitle && !expectedSeasonNumber) {
+    try {
+      const found = await lookupTMDBByEnglishTitle(show, enTitle, mediaKind);
+      if (found) return found;
+    } catch (error) {
+      hadTransientError = true;
+      console.warn(`  [WARN] TMDB English title lookup failed for "${show.title}": ${error.message}`);
+    }
+  }
   const simplified = simplifyTitleForSearch(show.title);
   const queries = [...new Set([...titleCandidates(show.title), enTitle, simplified].filter(Boolean))];
   // TV/综艺的 TMDB 原始条目通常不带年份后缀，所以始终重试不带年份的搜索
