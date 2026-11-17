@@ -3633,13 +3633,13 @@
     ]
   },
   "2026-11-17": {
-    "timestamp": "2026-11-17T08:38:43.160Z",
-    "totalFound": 17,
+    "timestamp": "2026-11-17T08:45:48.002Z",
+    "totalFound": 18,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1145513,
+        "playCount": 1145515,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -3675,7 +3675,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 340179,
+        "playCount": 340180,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -3723,7 +3723,7 @@
       {
         "title": "最后一桌",
         "score": 6.7,
-        "playCount": 117023,
+        "playCount": 117026,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -3747,7 +3747,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 90975,
+        "playCount": 90983,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -3759,7 +3759,7 @@
       {
         "title": "少年，注意",
         "score": 8.7,
-        "playCount": 87173,
+        "playCount": 87174,
         "year": 2026,
         "actor": "刘世一,河柾熏",
         "source": "api_index",
@@ -3771,7 +3771,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 77985,
+        "playCount": 77986,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -3783,7 +3783,7 @@
       {
         "title": "文武",
         "score": 0,
-        "playCount": 27043,
+        "playCount": 27057,
         "year": 2026,
         "actor": "李贤旭,张赫,金康宇,朴成雄,郑雄仁",
         "source": "api_index",
@@ -3795,7 +3795,7 @@
       {
         "title": "碰撞搜查线第2季",
         "score": 0,
-        "playCount": 10555,
+        "playCount": 10622,
         "year": 2026,
         "actor": "李民基,郭善英,许成泰,李浩哲,崔玟熙",
         "source": "api_index",
@@ -3838,6 +3838,18 @@
         "updateStatus": "02集全",
         "contentType": "",
         "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "老板的露骨取向",
+        "score": 0,
+        "playCount": 49092,
+        "year": 2026,
+        "actor": "成勋,吴世英,李正信,朴政学,金在仁",
+        "source": "api_index",
+        "updateStatus": "更新到02",
+        "contentType": "爱情",
+        "mediaType": "电视剧",
         "regional": "韩国"
       }
     ]
