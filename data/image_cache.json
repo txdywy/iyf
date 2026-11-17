@@ -1674,7 +1674,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-16T06:50:08.234Z"
+    "externalMetadataCheckedAt": "2026-11-17T08:38:43.758Z"
   },
   "zPGDvwJlzVc": {
     "title": "灿如繁星",
@@ -2489,7 +2489,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-16T06:50:08.523Z"
+    "externalMetadataCheckedAt": "2026-11-17T08:38:43.990Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -6036,13 +6036,24 @@
     "title": "爱上草莓的季节",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/wp8P68sxj6VmLJSzvadxhlNIro9.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "韩国",
-    "doubanLookupId": "37835653",
-    "notFound": true,
-    "cachedAt": "2026-11-16T22:21:23.227Z"
+    "query": "direct:305551",
+    "matchedTitle": "莓好遇见你",
+    "tmdbId": 305551,
+    "tmdbUrl": "https://www.themoviedb.org/tv/305551",
+    "doubanUrl": "https://movie.douban.com/subject/37835653/",
+    "doubanId": "37835653",
+    "doubanMatchedTitle": "爱上草莓的季节",
+    "doubanMatchedSeasonNumber": 0,
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%84%9B%E4%B8%8A%E8%8D%89%E8%8E%93%E7%9A%84%E5%AD%A3%E7%AF%80",
+    "imdbUrl": "https://www.imdb.com/title/tt38937897/",
+    "wikidataId": "Q141131777",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-17T08:38:44.347Z",
+    "cachedAt": "2026-11-17T08:38:44.352Z"
   },
   "Iqg5hAsIbd3": {
     "title": "魔女嘉莉",
@@ -9433,7 +9444,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-16T06:50:08.523Z",
+    "externalMetadataCheckedAt": "2026-11-17T08:38:43.990Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -10519,12 +10530,21 @@
     "title": "老板的露骨取向",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/peQVEJPOdAAi6b0TTNusyddhVTX.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "韩国",
-    "notFound": true,
-    "cachedAt": "2026-11-16T22:21:21.308Z"
+    "query": "direct:326975",
+    "matchedTitle": "BOSS的甜蜜诱惑",
+    "tmdbId": 326975,
+    "tmdbUrl": "https://www.themoviedb.org/tv/326975",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-17T08:38:44.256Z",
+    "cachedAt": "2026-11-17T08:38:44.261Z"
   },
   "MvjiznkhEzl": {
     "title": "指环王：力量之戒第3季",
