@@ -2301,23 +2301,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-19T02:58:40.211Z"
   },
-  "2J37ChGXyoD": {
-    "title": "师兄太稳健",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/2YCpWCqn1V5EzT3PORIcgzFPblg.jpg",
-    "source": "tmdb",
-    "version": 14,
-    "query": "师兄太稳健",
-    "matchedTitle": "师兄太稳健",
-    "tmdbId": 272938,
-    "tmdbUrl": "https://www.themoviedb.org/tv/272938",
-    "doubanUrl": "",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37231342/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-19T12:36:53.614Z"
-  },
   "a8mnHC2VzyH": {
     "title": "好，我们离婚吧",
     "year": 2026,
@@ -8197,7 +8180,7 @@
     "wikidataId": "Q110244733",
     "cachedAt": "2026-08-23T16:34:01.831Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.331Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.024Z"
   },
   "NRzBNo9zKxy0": {
     "title": "王后伞下",
@@ -8216,7 +8199,7 @@
     "wikidataId": "Q111986155",
     "cachedAt": "2026-08-23T16:34:01.833Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.484Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.032Z"
   },
   "1XYgiueYed9": {
     "title": "大力女都奉顺",
@@ -8238,7 +8221,7 @@
     "doubanMatchedTitle": "大力女子都奉顺",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.678Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.315Z"
   },
   "BXtTzzzyZBB1": {
     "title": "文森佐",
@@ -8735,12 +8718,21 @@
     "title": "最后一排的男孩",
     "year": 2026,
     "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/e8GGUacMjy50RsucgXk0oPHZsL.jpg",
     "source": "tmdb",
     "version": 16,
-    "negativeLookupVersion": 2,
-    "regional": "韩国",
-    "notFound": true,
-    "cachedAt": "2026-11-16T22:21:22.005Z"
+    "query": "Notes from the Last Row",
+    "matchedTitle": "Notes from the Last Row",
+    "tmdbId": 286360,
+    "tmdbUrl": "https://www.themoviedb.org/tv/286360",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9C%AB%E8%A1%8C%E6%89%8B%E8%A8%98",
+    "imdbUrl": "https://www.imdb.com/title/tt36270432/",
+    "wikidataId": "Q137836165",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.921Z",
+    "cachedAt": "2026-11-17T15:50:42.925Z"
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -10022,7 +10014,7 @@
     "doubanMatchedTitle": "机智医生生活",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.533Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.147Z"
   },
   "2jzwEhEb7iR": {
     "title": "孤单又灿烂的神-鬼怪",
@@ -10359,7 +10351,7 @@
     "wikidataId": "Q19657395",
     "cachedAt": "2026-08-23T16:34:01.794Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.509Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:41.909Z"
   },
   "ruWHJK2MnR4": {
     "title": "机智的监狱生活",
@@ -10403,7 +10395,7 @@
     "doubanMatchedTitle": "举重妖精金福珠",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:21:37.716Z"
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.253Z"
   },
   "iG34zLzNioS": {
     "title": "非常律师禹英禑",
@@ -11438,5 +11430,25 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-16T22:21:25.677Z",
     "cachedAt": "2026-11-16T22:21:25.681Z"
+  },
+  "0M8NKEUZ91B": {
+    "title": "沉默知情者",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "其它",
+    "url": "https://image.tmdb.org/t/p/original/zhlfKxe6nf3bLyhzCRuaRaxtlrZ.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "沉默知情者",
+    "matchedTitle": "沉默知情者",
+    "tmdbId": 297454,
+    "tmdbUrl": "https://www.themoviedb.org/tv/297454",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt41337266/",
+    "wikidataId": "Q139500644",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-17T15:50:42.818Z",
+    "cachedAt": "2026-11-17T15:50:42.821Z"
   }
 }
