@@ -3835,3 +3835,48 @@ test('seed copy carried under a TMDB label is relabelled as seed and is not keyw
     'curated seed copy adds no keyword points');
   assert.ok(helpers.scoreVariety({ ...card, descriptionSource: 'yfsp' }) > helpers.scoreVariety(card), 'source copy still counts');
 });
+
+test('an English title mapping is verified against English TMDB names and the poster comes from the Chinese details', async () => {
+  const requests = [];
+  const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    const parsed = new URL(url);
+    requests.push(`${parsed.pathname}?language=${parsed.searchParams.get('language') || ''}`);
+    if (url.includes('/external_ids')) return response({ id: 286360 });
+    if (parsed.pathname.endsWith('/search/tv')) {
+      // 中文结果没有英文名，只有英文结果能核对映射名。
+      const english = parsed.searchParams.get('language') === 'en-US';
+      return response({ results: [{ id: 286360, name: english ? 'Notes from the Last Row' : '末行手记',
+        original_name: '맨 끝줄 소년', poster_path: english ? '/english-poster.jpg' : '/zh-poster.jpg',
+        first_air_date: '2026-06-26', origin_country: ['KR'] }] });
+    }
+    if (parsed.pathname.endsWith('/tv/286360')) {
+      return response({ id: 286360, name: '末行手记', original_name: '맨 끝줄 소년', poster_path: '/zh-poster.jpg',
+        first_air_date: '2026-06-26', origin_country: ['KR'] });
+    }
+    return response(null, { status: 404 });
+  } });
+  const show = { id: 'last-row', title: '最后一排的男孩', year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const result = await helpers.searchTMDBImage(show);
+  assert.equal(result.tmdbId, 286360);
+  assert.equal(result.url, 'https://image.tmdb.org/t/p/original/zh-poster.jpg', 'the poster is taken from the Chinese details');
+  assert.equal(result.matchedTitle, 'Notes from the Last Row');
+  assert.ok(requests.some(entry => entry.startsWith('/3/search/tv?language=en-US')), JSON.stringify(requests));
+  const cache = { title: show.title, year: 2026, mediaType: '电视剧', regional: '韩国', url: result.url, source: 'tmdb',
+    version: 16, matchedTitle: result.matchedTitle, tmdbId: 286360, tmdbUrl: result.tmdbUrl, query: result.query };
+  assert.equal(helpers.isReusableTMDBCoverCache(cache, show), true,
+    'a cover matched through the English mapping must be reusable, or it is searched again every run');
+});
+
+test('a Korean co-production registered in Japan is reached through its direct TMDB mapping', async () => {
+  const { helpers } = loadHelpers({ env: { TMDB_TOKEN: 'test-token' }, fetchImpl: async url => {
+    if (url.includes('/external_ids')) return response({ id: 305551 });
+    if (new URL(url).pathname.endsWith('/tv/305551')) {
+      return response({ id: 305551, name: '莓好遇见你', original_name: 'メリーベリーラブ', poster_path: '/berry.jpg',
+        first_air_date: '2026-10-07', origin_country: ['JP'] });
+    }
+    return response({ results: [] });
+  } });
+  const result = await helpers.searchTMDBImage({ title: '爱上草莓的季节', year: 2026, mediaType: '电视剧', regional: '韩国' });
+  assert.equal(result.tmdbId, 305551);
+  assert.equal(result.url, 'https://image.tmdb.org/t/p/original/berry.jpg');
+});
