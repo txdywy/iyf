@@ -1,9 +1,4 @@
 {
-  "2026-09-19": {
-    "timestamp": "2026-09-19T15:14:46.427Z",
-    "totalFound": 0,
-    "shows": []
-  },
   "2026-09-20": {
     "timestamp": "2026-09-20T15:19:12.314Z",
     "totalFound": 0,
@@ -3851,6 +3846,228 @@
         "contentType": "爱情",
         "mediaType": "电视剧",
         "regional": "韩国"
+      }
+    ]
+  },
+  "2026-11-18": {
+    "timestamp": "2026-11-18T07:43:59.842Z",
+    "totalFound": 18,
+    "shows": [
+      {
+        "title": "杀人者的购物中心2",
+        "score": 8.6,
+        "playCount": 1146254,
+        "year": 2026,
+        "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
+        "source": "api_index",
+        "updateStatus": "8集全",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "医到孤岛爱上你",
+        "score": 7,
+        "playCount": 451249,
+        "year": 2026,
+        "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
+        "source": "api_index",
+        "updateStatus": "12集全",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "大叔再出招",
+        "score": 7.5,
+        "playCount": 370597,
+        "year": 2026,
+        "actor": "申河均,吴正世,许成泰",
+        "source": "api_index",
+        "updateStatus": "12集全",
+        "contentType": "喜剧",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "我们愉快的好日子",
+        "score": 0,
+        "playCount": 340264,
+        "year": 2026,
+        "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
+        "source": "api_index",
+        "updateStatus": "更新到122",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "在韩国成为房主的方法",
+        "score": 6,
+        "playCount": 215828,
+        "year": 2026,
+        "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
+        "source": "api_index",
+        "updateStatus": "12集全",
+        "contentType": "惊悚",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "逆转",
+        "score": 3.9,
+        "playCount": 167644,
+        "year": 2026,
+        "actor": "徐智慧,高洙,金栽经,姜泳锡",
+        "source": "api_index",
+        "updateStatus": "8集全",
+        "contentType": "爱情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "夏季",
+        "score": 7.9,
+        "playCount": 153786,
+        "year": 2026,
+        "actor": "金道民,成仁浩,林煐岷",
+        "source": "api_index",
+        "updateStatus": "10集全",
+        "contentType": "同性",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "最后一桌",
+        "score": 6.7,
+        "playCount": 119119,
+        "year": 2026,
+        "actor": "安孝燮,洪华莲,张栗,郑幼贞",
+        "source": "api_index",
+        "updateStatus": "更新到08",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "蔚蓝之春",
+        "score": 6.1,
+        "playCount": 111216,
+        "year": 2026,
+        "actor": "金艺琳,姜相准",
+        "source": "api_index",
+        "updateStatus": "6集全",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "妈妈发疯了",
+        "score": 0,
+        "playCount": 93511,
+        "year": 2026,
+        "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
+        "source": "api_index",
+        "updateStatus": "更新到37",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "少年，注意",
+        "score": 8.7,
+        "playCount": 87524,
+        "year": 2026,
+        "actor": "刘世一,河柾熏",
+        "source": "api_index",
+        "updateStatus": "8集全",
+        "contentType": "同性",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "解不开的我们",
+        "score": 6.6,
+        "playCount": 78788,
+        "year": 2026,
+        "actor": "",
+        "source": "api_index",
+        "updateStatus": "更新到05",
+        "contentType": "同性",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "文武",
+        "score": 0,
+        "playCount": 30212,
+        "year": 2026,
+        "actor": "李贤旭,张赫,金康宇,朴成雄,郑雄仁",
+        "source": "api_index",
+        "updateStatus": "更新到02",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "碰撞搜查线第2季",
+        "score": 0,
+        "playCount": 23481,
+        "year": 2026,
+        "actor": "李民基,郭善英,许成泰,李浩哲,崔玟熙",
+        "source": "api_index",
+        "updateStatus": "更新到02",
+        "contentType": "动作",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "摩登音乐秀",
+        "score": 3.8,
+        "playCount": 21940,
+        "year": 2018,
+        "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
+        "source": "search",
+        "updateStatus": "20181202集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "音乐同学会-好歌谣",
+        "score": 0,
+        "playCount": 18181,
+        "year": 2020,
+        "actor": "李寿根,郑恩地,刘世允,金信英",
+        "source": "search",
+        "updateStatus": "20200216集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "我的音乐老师，你好",
+        "score": 3.3,
+        "playCount": 10855,
+        "year": 2020,
+        "actor": "尹度玹,金在奂,刘载焕]",
+        "source": "search",
+        "updateStatus": "02集全",
+        "contentType": "",
+        "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "sketch合集·纯享版",
+        "score": 0,
+        "playCount": 0,
+        "year": 2026,
+        "actor": "",
+        "source": "tmdb_discover",
+        "updateStatus": "更新到02",
+        "contentType": "真人秀·喜剧",
+        "mediaType": "综艺",
+        "regional": "大陆"
       }
     ]
   }
