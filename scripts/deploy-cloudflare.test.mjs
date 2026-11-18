@@ -640,3 +640,10 @@ test('origin/main lookup still fails after three unsuccessful attempts', async (
   await assert.rejects(readOriginMainSha({ run: malformed, sleep: async () => {} }), /no origin\/main commit/);
   assert.equal(calls, 3);
 });
+
+test('Cloudflare verification rejects a canonical redirect to the Pages host', async t => {
+  const h = createHarness(t, { publicReply: ({ origin }) => origin === CANONICAL_ORIGIN
+    ? { status: 301, headers: { location: PAGES_ORIGIN } } : {} });
+  await assert.rejects(h.run(), /HTTP 301/u);
+  assert.ok(h.calls.slice(1).every(call => call.options.redirect === 'manual'));
+});

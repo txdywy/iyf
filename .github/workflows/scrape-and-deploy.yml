@@ -104,7 +104,9 @@ jobs:
 
       - name: Run Scraper
         if: steps.mode.outputs.scrape == 'true'
-        run: node scripts/scrape.mjs
+        run: |
+          echo "IYF_SCRAPE_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          node scripts/scrape.mjs
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}

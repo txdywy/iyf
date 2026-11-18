@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveBuildOutput } from './build-output-path.mjs';
+import { applyVerifiedKoreanDrama, buildKoreanHotList, loadKoreanDramaEvidence, projectKoreanBroadcast } from './korean-drama-sources.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const { isShowDataset } = createRequire(import.meta.url)('../js/app.js');
 const outputPath = resolveBuildOutput(root, process.argv.slice(2), 'site/data/shows.json', 'build-public-data.mjs');
 
 const source = JSON.parse(readFileSync(join(root, 'data', 'shows.json'), 'utf8'));
@@ -36,6 +39,8 @@ function projectShow(show) {
   for (const field of PUBLIC_SHOW_FIELDS) {
     if (Object.hasOwn(show, field) && !isEmptyOptional(field, show[field])) projected[field] = show[field];
   }
+  const broadcast = projectKoreanBroadcast(show.broadcast);
+  if (broadcast) projected.broadcast = broadcast;
   return projected;
 }
 
@@ -43,6 +48,10 @@ if (!Array.isArray(source.koreanDramas) || !Array.isArray(source.chineseVariety)
   throw new Error('data/shows.json is missing public recommendation arrays');
 }
 
+const koreanEvidence = loadKoreanDramaEvidence();
+const koreanDramas = source.koreanDramas.map(show => applyVerifiedKoreanDrama(show, koreanEvidence, source.koreanSignals));
+// Actions 与 Cloudflare 分别构建。榜周和播放观测以已提交数据为准，构建时钟不能改变文件字节。
+const hot = buildKoreanHotList(koreanDramas, koreanEvidence, source.koreanSignals, source.generatedAt);
 const publicData = {
   lastUpdated: source.lastUpdated,
   generatedAt: source.generatedAt,
@@ -51,10 +60,16 @@ const publicData = {
     koreanDramas: source.koreanDramas.length,
     chineseVariety: source.chineseVariety.length,
   },
-  koreanDramas: source.koreanDramas.map(projectShow),
+  koreanDramas: koreanDramas.map(projectShow),
   chineseVariety: source.chineseVariety.map(projectShow),
+  ...(hot ? { koreanHot: { weekStart: hot.weekStart, weekEnd: hot.weekEnd, shows: hot.shows.map(show => ({
+    ...projectShow(show), hotEvidence: show.hotEvidence, ...(show.recentPlays ? { recentPlays: show.recentPlays } : {}),
+  })) } } : {}),
 };
 
+const payload = JSON.stringify(publicData);
+if (!isShowDataset(JSON.parse(payload))) throw new Error('Invalid public recommendation payload');
+
 mkdirSync(dirname(outputPath), { recursive: true });
-writeFileSync(outputPath, `${JSON.stringify(publicData)}\n`, 'utf8');
-console.log(`Built public data: ${outputPath} (${Buffer.byteLength(JSON.stringify(publicData))} bytes)`);
+writeFileSync(outputPath, `${payload}\n`, 'utf8');
+console.log(`Built public data: ${outputPath} (${Buffer.byteLength(payload)} bytes)`);

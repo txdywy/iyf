@@ -55,7 +55,7 @@ export function evaluateHealth(data, { now = Date.now() } = {}) {
   if (FATAL_AI_STOP_REASONS.has(stopReason)) {
     errors.push(`AI 评分因 ${stopReason === 'auth' ? '鉴权失败' : '余额/额度不足'} (${stopReason}) 停止，请检查 OPENROUTER_API_KEY`);
   } else if (WARNING_AI_STOP_REASONS.has(stopReason)) {
-    warnings.push(`AI 评分提前停止 (${stopReason})，本次已评分 ${Number.isInteger(ai.scored) ? ai.scored : '未知'} 部`);
+    warnings.push(`AI 评分提前停止 (${stopReason})，本次成功 ${Number.isInteger(ai.scored) ? ai.scored : '未知'} 批`);
   } else if (stopReason) {
     warnings.push(`AI 评分停止原因未知 (${stopReason.slice(0, 40)})`);
   }
@@ -85,7 +85,7 @@ export function renderSummary(data, result) {
     ['搜索兜底（命中 / 目标）', `${count(source.sourceSearchMatched)} / ${count(source.sourceSearchTargets)}`],
     ['韩剧 / 综艺 / 其他', `${count(stats.koreanDramas)} / ${count(stats.chineseVariety)} / ${count(stats.otherDramas)}`],
     ['本轮抓取条目', count(stats.totalScraped)],
-    ['AI 状态', ai ? `停止原因 ${facts.stopReason || '无'}，请求 ${count(ai.requested)}，评分 ${count(ai.scored)}` : '未记录'],
+    ['AI 状态', ai ? `停止原因 ${facts.stopReason || '无'}，请求 ${count(ai.requested)}，成功批次 ${count(ai.scored)}` : '未记录'],
     ['lastUpdated', `${cell(source.lastUpdated)}（${formatAge(facts.lastUpdatedAge)}前）`],
     ['generatedAt', `${cell(source.generatedAt)}（${formatAge(facts.generatedAge)}前）`],
   ];

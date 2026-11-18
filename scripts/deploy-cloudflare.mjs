@@ -184,7 +184,7 @@ export async function deployCloudflare({
         const remaining = deadline - now();
         if (remaining <= 0) return `${label}: verification deadline expired`;
         signal = AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining)));
-        const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store' });
+        const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store', redirect: 'manual' });
         if (response.status !== item.status) {
           // 轮询期间旧部署会持续返回非预期状态；释放未读正文，避免连接堆积到截止时间。
           await response.body?.cancel?.().catch(() => {});

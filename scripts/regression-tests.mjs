@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey } from './korean-drama-sources.mjs';
+import { applyVerifiedKoreanDrama, buildKoreanHotList, koreanDiscoveryQueue, koreanPlayIdentity, loadKoreanDramaEvidence, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = path => readFileSync(join(root, path), 'utf8');
@@ -51,6 +53,9 @@ function loadScrapeHelpers({ env = {}, fetchImpl = async () => { throw new Error
     console: { log() {}, warn() {}, error() {} },
     process: { env },
     fetch: fetchImpl,
+    YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey, applyVerifiedKoreanDrama, koreanDiscoveryQueue, koreanPlayIdentity, updateKoreanPlayObservations,
+    loadKoreanDramaEvidence: () => ({ titles: {}, charts: [] }),
+    refreshKoreanDramaSignals: async () => ({ airings: [] }),
     URL,
     AbortController,
     setTimeout: setTimeoutImpl,
@@ -760,16 +765,20 @@ for (const tab of ['korean', 'tvmaze']) {
     execFileSync(process.execPath, [join(root, 'scripts/build-public-data.mjs'), '--output', output]);
     const published = JSON.parse(readFileSync(output, 'utf8'));
     const source = JSON.parse(read('data/shows.json'));
+    const evidence = loadKoreanDramaEvidence();
+    const projectedDramas = source.koreanDramas.map(show => applyVerifiedKoreanDrama(show, evidence, source.koreanSignals));
+    const hot = buildKoreanHotList(projectedDramas, evidence, source.koreanSignals, source.generatedAt);
     for (const category of ['koreanDramas', 'chineseVariety']) {
+      const expectedShows = category === 'koreanDramas' ? projectedDramas : source[category];
       assert.equal(published[category].length, source[category].length);
-      for (const [i, show] of source[category].entries()) {
+      for (const [i, show] of expectedShows.entries()) {
         for (const field of ['firstSeenAt', 'scrapedAt', 'updateMsg', 'descriptionSource']) {
           assert.deepEqual(published[category][i][field], show[field], `public projection must retain ${field} for ${show.title}`);
         }
         assert.equal(published[category][i].aiScoreInputHash, undefined, 'internal scoring metadata must not leak into the public payload');
       }
     }
-    assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'lastUpdated', 'sourceStatus', 'stats'],
+    assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', ...(hot ? ['koreanHot'] : []), 'lastUpdated', 'sourceStatus', 'stats'],
       'private run state such as the preferred AI model must not leak into the public payload');
     const helpers = loadAppHelpers();
     assert.ok(helpers.isShowDataset(published), 'the deployed artifact must satisfy the frontend contract');

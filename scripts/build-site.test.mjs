@@ -16,13 +16,14 @@ const assetPath = (sourceRoot, path) => path.replace(/\.(css|js)$/u, `.${createH
 function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, 'data/shows.json')))) {
   for (const path of [
     'scripts/build-site.mjs', 'scripts/build-site-index.mjs', 'scripts/build-public-data.mjs', 'scripts/build-output-path.mjs', 'scripts/prepare-github-pages.mjs', 'scripts/validate-data.mjs',
+    'scripts/korean-drama-sources.mjs', 'data/korean-drama-evidence.json',
     'index.html', 'css/style.css', 'js/app.js', '404.html', '_headers', 'robots.txt',
   ]) {
     const target = join(directory, path);
     mkdirSync(dirname(target), { recursive: true });
     copyFileSync(join(root, path), target);
   }
-  mkdirSync(join(directory, 'data'));
+  mkdirSync(join(directory, 'data'), { recursive: true });
   writeFileSync(join(directory, 'data/shows.json'), JSON.stringify({ ...sourceData, lastUpdated: new Date().toISOString() }));
   for (const file of ['image_cache.json', 'discovery.json']) {
     writeFileSync(join(directory, 'data', file), '{}');
@@ -168,7 +169,7 @@ test('the public payload omits private source and AI run diagnostics', t => {
   for (const field of ['aiRunStatus', 'sourceKind', 'sourcePagesSucceeded', 'aiPreferredModel']) {
     assert.equal(Object.hasOwn(published, field), false, `${field} must stay private`);
   }
-  assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'lastUpdated', 'sourceStatus', 'stats']);
+  assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'koreanHot', 'lastUpdated', 'sourceStatus', 'stats']);
 });
 
 test('GitHub Pages 404 preparation uses the project prefix without changing other files', t => {

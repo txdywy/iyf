@@ -1,0 +1,156 @@
+{
+  "titles": {
+    "perfect-crown": {
+      "title": "21世纪大君夫人",
+      "aliases": ["21세기 대군부인", "Perfect Crown", "The 21st Century Grand Prince's Wife"],
+      "year": 2026,
+      "tmdbId": 278573,
+      "seedId": "seed_kd_2026_02",
+      "description": "在实行君主立宪制的架空现代韩国，财阀继承人与有头衔却受制于王室的王子缔结契约婚姻，两人试图改变各自的处境。",
+      "contentType": "爱情·喜剧·架空王室",
+      "broadcast": { "premiereDate": "2026-04-10", "status": "ended", "airedEpisodes": 12, "totalEpisodes": 12, "checkedOn": "2026-11-07", "sourceUrl": "https://www.disneyplus.com/en-kr/browse/entity-5599fd38-0dda-4ffc-95c1-37610b17e878" }
+    },
+    "kitchen-soldier": {
+      "title": "菜鸟炊事兵",
+      "aliases": ["菜鸟伙房兵", "취사병 전설이 되다", "The Legend of Kitchen Soldier"],
+      "year": 2026,
+      "tmdbId": 295509,
+      "seedId": "seed_kd_2026_15",
+      "broadcast": { "premiereDate": "2026-05-11", "status": "ended", "airedEpisodes": 12, "totalEpisodes": 12, "checkedOn": "2026-11-07", "sourceUrl": "https://tvn.cjenm.com/ko/THE-LEGEND-OF-KITCHEN-SOLDIER/" }
+    },
+    "we-are-all-trying-here": {
+      "title": "努力克服自卑的我们",
+      "aliases": ["모두가 자신의 무가치함과 싸우고 있다", "We Are All Trying Here"],
+      "year": 2026,
+      "tmdbId": 289424,
+      "seedId": "seed_kd_2026_06",
+      "description": "在电影圈打拼的黄东万迟迟等不到属于自己的机会。他与身边的朋友一起面对自我怀疑，试着找回创作和生活的勇气。",
+      "broadcast": { "status": "ended", "airedEpisodes": 12, "totalEpisodes": 12, "checkedOn": "2026-11-07", "sourceUrl": "https://tv.jtbc.co.kr/replay/pr10011927/pm10071854" }
+    },
+    "sold-out-on-you": {
+      "title": "秒杀爱情",
+      "aliases": ["오늘도 매진했습니다", "Sold Out on You"],
+      "year": 2026,
+      "tmdbId": 287011,
+      "seedId": "seed_kd_2026_11",
+      "description": "安孝燮和蔡元彬主演的职场爱情喜剧。两个把生活排得满满当当的人相遇后，开始重新理解工作与亲密关系。",
+      "broadcast": { "status": "ended", "airedEpisodes": 12, "totalEpisodes": 12, "checkedOn": "2026-11-07", "sourceUrl": "https://news.sbs.co.kr/english/endPagePrintPopup.do?news_id=N1008584988" }
+    },
+    "gold-land": {
+      "title": "赌金",
+      "aliases": ["골드랜드", "Gold Land"],
+      "year": 2026,
+      "tmdbId": 278113,
+      "seedId": "seed_kd_2026_12",
+      "tvmazeId": 90928,
+      "description": "机场安检员意外卷入一批走私黄金的争夺，围绕黄金的交易逐渐变成一场危险的追逐。",
+      "broadcast": { "status": "ended", "airedEpisodes": 10, "totalEpisodes": 10, "checkedOn": "2026-11-07", "sourceUrl": "https://www.tvmaze.com/shows/90928/gold-land" }
+    },
+    "100-days": {
+      "title": "百日谎言",
+      "aliases": ["100일의 거짓말", "100 Days of Deception"],
+      "year": 2026,
+      "tmdbId": 293607,
+      "tvmazeId": 90249,
+      "broadcast": { "premiereDate": "2026-10-10", "status": "airing", "airedEpisodes": 8, "checkedOn": "2026-11-05", "sourceUrl": "https://cjnews.cj.net/?p=81953" }
+    },
+    "doctor-x": {
+      "title": "Doctor X：白色黑手党时代",
+      "aliases": ["닥터X : 하얀 마피아의 시대", "Doctor X: Mafia in White"],
+      "year": 2026,
+      "tmdbId": 293610,
+      "tvmazeId": 91309,
+      "broadcast": { "premiereDate": "2026-10-09", "status": "airing", "airedEpisodes": 9, "checkedOn": "2026-11-06", "sourceUrl": "https://programs.sbs.co.kr/programTemplate/amp/vod/doctorx/22000639393" }
+    },
+    "not-your-romance": {
+      "title": "不是你的恋爱",
+      "aliases": ["너 말고 다른 연애"],
+      "year": 2026,
+      "tmdbId": 314939,
+      "broadcast": { "status": "ended", "airedEpisodes": 14, "totalEpisodes": 14, "checkedOn": "2026-11-07", "sourceUrl": "https://schedule.kbs.co.kr/?search_day=20261031" }
+    },
+    "my-guilty-human": {
+      "title": "我的有罪之人",
+      "aliases": ["나의 유죄인간"],
+      "year": 2026,
+      "tmdbId": 303745,
+      "broadcast": { "premiereDate": "2026-10-19", "status": "airing", "airedEpisodes": 4, "checkedOn": "2026-10-27", "sourceUrl": "https://cjnews.cj.net/?p=81953" }
+    },
+    "heartbeat-workshop": {
+      "title": "心动制造所",
+      "aliases": ["내가 떨릴 수 있게"],
+      "year": 2026,
+      "tmdbId": 311648
+    },
+    "take-charge": {
+      "title": "恋爱充电中",
+      "aliases": ["戀愛充電中", "나를 충전해줘", "Take Charge of My Heart"],
+      "year": 2026,
+      "tmdbId": 289423,
+      "broadcast": { "status": "ended", "airedEpisodes": 10, "totalEpisodes": 10, "checkedOn": "2026-11-07", "sourceUrl": "https://www.netflix.com/tw/title/82016402" }
+    },
+    "remarried-empress": {
+      "title": "再婚皇后",
+      "aliases": ["再婚皇後", "재혼 황후", "The Remarried Empress"],
+      "year": 2026,
+      "tvmazeId": 90035,
+      "card": { "actor": "申敏儿,朱智勋,李钟硕,李世荣", "contentType": "爱情·宫廷·奇幻", "description": "皇后纳维尔在皇帝提出离婚后与邻国王储结盟，争取重新掌握自己的命运。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/641/1604516.jpg", "primaryUrl": "https://thewaltdisneycompany.com/news/remarried-empress-early-premiere/" },
+      "broadcast": { "premiereDate": "2026-11-03", "status": "airing", "airedEpisodes": 4, "totalEpisodes": 10, "checkedOn": "2026-11-06", "sourceUrl": "https://thewaltdisneycompany.com/news/remarried-empress-most-viewed-local-original-premiere/" }
+    },
+    "love-doctor": {
+      "title": "恋爱博士",
+      "aliases": ["연애박사", "Between Steps", "Love Doctor"],
+      "year": 2026,
+      "tvmazeId": 92156,
+      "card": { "actor": "金所泫,秋英宇", "contentType": "爱情·青春", "description": "一位曾是游泳选手的博士生与正在重新寻找方向的硕士生相遇，逐渐理解彼此的处境。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/646/1615071.jpg", "primaryUrl": "https://www.tvmaze.com/shows/92156/between-steps" },
+      "broadcast": { "premiereDate": "2026-10-05", "status": "airing", "checkedOn": "2026-11-07", "sourceUrl": "https://www.tvmaze.com/shows/92156/between-steps" }
+    },
+    "final-table": {
+      "title": "Final Table",
+      "aliases": ["파이널 테이블", "最终餐桌"],
+      "year": 2026,
+      "tvmazeId": 91448,
+      "card": { "actor": "安孝燮,洪华妍,张律,郑幼贞", "contentType": "美食·竞技·剧情", "description": "几位厨师在料理比赛中碰面，他们对一顿好饭的不同理解，也成了彼此较量的一部分。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/646/1617487.jpg", "primaryUrl": "https://tv.jtbc.co.kr/finaltable" },
+      "broadcast": { "premiereDate": "2026-10-24", "status": "airing", "checkedOn": "2026-11-07", "sourceUrl": "https://tv.jtbc.co.kr/trailer/pr10011969/pm10072397/vo10949978/view" }
+    },
+    "liar": {
+      "title": "谎言",
+      "aliases": ["라이어", "Liar", "The Perfect Lie"],
+      "year": 2026,
+      "tvmazeId": 94682,
+      "card": { "actor": "徐玄振,柳演锡", "contentType": "悬疑·心理惊悚", "description": "两个人对同一晚发生的事各执一词，随着调查推进，双方叙述中的矛盾不断浮现。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/646/1617481.jpg", "primaryUrl": "https://enews.imbc.com/News/RetrieveNewsInfo/521440" },
+      "broadcast": { "premiereDate": "2026-10-30", "status": "airing", "airedEpisodes": 3, "checkedOn": "2026-11-06", "sourceUrl": "https://m.imbc.com/VOD/VodView?broadcastID=1006930100035100000&progCode=1006930100000100000&type=Prevod" }
+    },
+    "love-on-the-menu": {
+      "title": "爱情来了",
+      "aliases": ["사랑이 온다", "Love on the Menu"],
+      "year": 2026,
+      "tvmazeId": 93245,
+      "card": { "contentType": "家庭·爱情", "description": "KBS2 周末家庭剧，从家人的日常相处讲到不同世代重新理解亲情与爱情。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/633/1583690.jpg", "primaryUrl": "https://program.kbs.co.kr/2tv/drama/loveonthemenu/pc/index.html" },
+      "broadcast": { "premiereDate": "2026-07-25", "status": "airing", "checkedOn": "2026-11-07", "sourceUrl": "https://www.tvmaze.com/shows/93245/love-on-the-menu" }
+    },
+    "dead-end-job": {
+      "title": "Dead-End Job",
+      "aliases": ["꿀알바"],
+      "year": 2026,
+      "excluded": "恐怖题材"
+    }
+  },
+  "charts": [
+    {
+      "source": "fundex", "weekEnd": "2026-11-01",
+      "url": "https://racoi.s3.ap-northeast-2.amazonaws.com/2026_%ED%8E%80%EB%8D%B1%EC%8A%A4%EB%A6%AC%ED%8F%AC%ED%8A%B8_10%EC%9B%94_5%EC%A3%BC%EC%B0%A8.pdf#page=4",
+      "ranks": { "100-days": 1, "doctor-x": 2, "dead-end-job": 3, "liar": 4, "love-doctor": 5, "not-your-romance": 6, "my-guilty-human": 7, "final-table": 8, "remarried-empress": 9, "love-on-the-menu": 10 }
+    },
+    {
+      "source": "netflix-kr", "weekEnd": "2026-11-01",
+      "url": "https://www.netflix.com/tudum/top10/south-korea/tv?week=2026-11-01",
+      "ranks": { "doctor-x": 1, "dead-end-job": 2, "100-days": 3, "take-charge": 10 }
+    },
+    {
+      "source": "tving", "weekEnd": "2026-11-01",
+      "url": "https://cjnews.cj.net/?p=81953",
+      "ranks": { "100-days": 1, "my-guilty-human": 2, "heartbeat-workshop": 3 }
+    }
+  ]
+}

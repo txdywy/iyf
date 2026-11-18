@@ -32,12 +32,15 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, renameSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey } from './korean-drama-sources.mjs';
+import { applyVerifiedKoreanDrama, koreanDiscoveryQueue, koreanPlayIdentity, loadKoreanDramaEvidence, refreshKoreanDramaSignals, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, '..', 'data');
 const SHOWS_FILE = join(DATA_DIR, 'shows.json');
 const HISTORY_FILE = join(DATA_DIR, 'history.json');
 const DISCOVERY_FILE = join(DATA_DIR, 'discovery.json');
+const KOREAN_EVIDENCE = loadKoreanDramaEvidence();
 
 function writeFileSyncAtomic(path, data) {
   if (typeof renameSync === 'function') {
@@ -61,9 +64,6 @@ function readAuxiliaryObject(path) {
   }
 }
 
-// 爱壹帆站点域名按优先级尝试：kubb.tv 是 2026 年 11 月起的网页版新域名；yfsp.tv 已无法解析，iyf.tv 拒绝 Runner。
-// 各域名沿用同一套子域约定：api.（首页接口）、rankv21.（搜索）、www.（播放页）、static.（图片）。
-const YFSP_SITE_DOMAINS = Object.freeze(['kubb.tv', 'yfsp.tv', 'iyf.tv']);
 // 尚未确认任何域名可用时，新生成的播放页沿用历史链接所在域名，避免发布未经验证的新地址。
 const YFSP_LEGACY_DOMAIN = 'yfsp.tv';
 const API_BASES = YFSP_SITE_DOMAINS.map(domain => `https://api.${domain}`);
@@ -74,18 +74,13 @@ let _preferredYfspRankBase = YFSP_RANK_BASES[0];
 let _yfspActiveDomain = YFSP_LEGACY_DOMAIN;
 let _yfspActiveDomainConfirmed = false;
 // 本轮在已确认域名上观测到的节目 ID，用来证明新旧域名共用同一套 ID 后再迁移已有链接。
-const _yfspObservedKeys = new Set();
+const _yfspObservedKeys = new Map();
 const API_PATH = '/api/list/index';
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Referer': `https://www.${YFSP_SITE_DOMAINS[0]}/`,
   'Accept': 'application/json, text/plain, */*',
 };
-
-function yfspDomainOfHost(hostname = '') {
-  const host = String(hostname).toLowerCase();
-  return YFSP_SITE_DOMAINS.find(domain => host === domain || host.endsWith(`.${domain}`)) || '';
-}
 
 function confirmYfspDomain(base) {
   const domain = yfspDomainOfHost(new URL(base).hostname);
@@ -95,55 +90,49 @@ function confirmYfspDomain(base) {
   _yfspActiveDomainConfirmed = true;
 }
 
-function yfspPlayUrl(key) {
-  if (_yfspActiveDomainConfirmed) _yfspObservedKeys.add(key);
-  return `https://www.${_yfspActiveDomain}/play/${encodeURIComponent(key)}`;
-}
-
-// 已知站点任一域名下的播放页（www.<域名>/play/<ID>）；返回 ID，非播放页返回空。
-function yfspPlayKey(url) {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:' || !parsed.hostname.startsWith('www.') || !yfspDomainOfHost(parsed.hostname)) return '';
-    const match = parsed.pathname.match(/^\/play\/([^/?#]+)\/?$/u);
-    return match ? decodeURIComponent(match[1]) : '';
-  } catch {
-    return '';
+function yfspPlayUrl(key, observedDomain = _yfspActiveDomainConfirmed ? _yfspActiveDomain : '') {
+  if (observedDomain) {
+    if (!_yfspObservedKeys.has(observedDomain)) _yfspObservedKeys.set(observedDomain, new Set());
+    _yfspObservedKeys.get(observedDomain).add(key);
   }
+  return `https://www.${observedDomain || _yfspActiveDomain}/play/${encodeURIComponent(key)}`;
 }
 
-let _yfspKeySpaceShared = false;
+const _yfspSharedDomains = new Map();
 // 本轮已失败的搜索域名不再在每个关键词上重复尝试（首选域名除外），避免失败转移把请求数放大数倍。
 const _failedYfspRankBases = new Set();
 
 // 只有新域名返回的节目 ID 与上一版卡片在其他域名上的播放页 ID 对上，才证明两边共用 ID，
 // 此后把已有播放页迁到本轮可用域名；否则保留原链接，避免发布指向别的节目的地址。
 function noteYfspKeySpace(previous = {}) {
-  if (!_yfspActiveDomainConfirmed || _yfspKeySpaceShared) return _yfspKeySpaceShared;
+  if (!_yfspActiveDomainConfirmed) return false;
+  const sources = _yfspSharedDomains.get(_yfspActiveDomain) || new Set();
   for (const category of ['koreanDramas', 'chineseVariety', 'otherDramas']) {
     for (const show of previous[category] || []) {
       const url = safeText(show?.yfspUrl, 1200);
       const key = yfspPlayKey(url);
-      if (!key || !_yfspObservedKeys.has(key)) continue;
-      if (yfspDomainOfHost(new URL(url).hostname) === _yfspActiveDomain) continue;
-      _yfspKeySpaceShared = true;
-      console.log(`  爱壹帆 ${_yfspActiveDomain} 与旧域名节目 ID 一致，已有播放链接迁移到新域名`);
-      return true;
+      if (!key || !_yfspObservedKeys.get(_yfspActiveDomain)?.has(key)) continue;
+      const source = yfspDomainOfHost(new URL(url).hostname);
+      if (source === _yfspActiveDomain || sources.has(source)) continue;
+      sources.add(source);
+      console.log(`  爱壹帆 ${_yfspActiveDomain} 与 ${source} 节目 ID 一致，已有播放链接迁移到新域名`);
     }
   }
-  return false;
+  if (sources.size) _yfspSharedDomains.set(_yfspActiveDomain, sources);
+  return sources.size > 0;
 }
 
 function migrateYfspPlayUrl(url) {
   const text = safeText(url, 1200);
-  if (!_yfspKeySpaceShared) return text;
+  const sources = _yfspSharedDomains.get(_yfspActiveDomain);
+  if (!sources) return text;
   const key = yfspPlayKey(text);
-  if (!key || yfspDomainOfHost(new URL(text).hostname) === _yfspActiveDomain) return text;
+  if (!key || !sources.has(yfspDomainOfHost(new URL(text).hostname))) return text;
   return `https://www.${_yfspActiveDomain}/play/${encodeURIComponent(key)}`;
 }
 
 function migrateShowYfspUrls(show) {
-  if (!_yfspKeySpaceShared || !show) return;
+  if (!_yfspSharedDomains.has(_yfspActiveDomain) || !show) return;
   if (show.yfspUrl) show.yfspUrl = migrateYfspPlayUrl(show.yfspUrl);
   // 无效结论只属于当时检查的域名；改写成不可验证的新域名后会在下一轮被当作误判而恢复。
   if (show.yfspLookupUrl && show.yfspLookupState !== 'invalid') show.yfspLookupUrl = migrateYfspPlayUrl(show.yfspLookupUrl);
@@ -167,7 +156,7 @@ async function fetchYfspSearch(pathAndQuery, { timeout = 15000 } = {}) {
       _preferredYfspRankBase = base;
       _failedYfspRankBases.delete(base);
       confirmYfspDomain(base);
-      return data;
+      return { data, domain: yfspDomainOfHost(new URL(base).hostname) };
     } catch (error) {
       if (error?.name !== 'AbortError') _failedYfspRankBases.add(base);
       lastError = error;
@@ -464,7 +453,7 @@ function cleanShowTitle(title = '') {
   return safeText(title, 200).replace(/\s*20\d{2}\s*$/u, '').trim();
 }
 
-function normalizeItem(it) {
+function normalizeItem(it, observedDomain) {
   const updateStatus = safeText(it.updateStatus, 200);
   const ui = parseUpdateStatus(updateStatus);
   const statusShowsOngoing = isOngoingStatus(updateStatus);
@@ -472,7 +461,7 @@ function normalizeItem(it) {
   const hasExplicitSerial = typeof it.isSerial === 'boolean';
   const mediaKey = safeSourceIdentifier(it.mediaKey);
   const episodeKey = safeSourceIdentifier(it.episodeKey);
-  const url = mediaKey ? yfspPlayUrl(mediaKey) : '';
+  const url = mediaKey ? yfspPlayUrl(mediaKey, observedDomain) : '';
   const rawTitle = safeText(it.title, 200);
   const title = it.mediaType === '综艺' ? cleanShowTitle(rawTitle) : rawTitle;
   const description = safeText(it.description, 2000) || safeText(it.introduce, 2000);
@@ -958,7 +947,7 @@ function findLiveTitleMatch(seed, liveShows, mediaType, regionMatcher, { minSeas
     isYearCompatible(seed, s)
   );
   const exact = candidates.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-  if (exact) return exact;
+  if (exact && !minSeason) return exact;
   // 没有同名条目时采用来源上季号最大的一季。分类列表只含近期上架的条目，旧季重新上架时也会出现：
   // 已采用过某一季的种子只接受不低于它的季；尚未采用的种子只接受当年或上一年的季，
   // 更早的季交给补链接搜索（能看到全部季）判断哪一季最新。
@@ -1075,6 +1064,7 @@ function loadPreviousShows() {
       lastUpdated: safeText(prev.lastUpdated, 100),
       aiPreferredModel: safeText(prev.aiPreferredModel, 200),
       discoveryRejections: prev.discoveryRejections,
+      koreanSignals: prev.koreanSignals,
       stats: prev.stats && typeof prev.stats === 'object' ? prev.stats : {},
       koreanDramas: prev.koreanDramas.map(repairKnownSeedMetadata),
       chineseVariety: prev.chineseVariety,
@@ -1292,7 +1282,9 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
     const sameSeed = !sameShowIdentity(prev, current) && sameSeedShowIdentity(prev, current);
     const adoptedNewSeason = sameSeed && current.isLive !== false && !!seasonKey(current.title) &&
       seasonKey(current.title) !== seasonKey(prev.title);
-    const restoredSeedAlias = sameSeed && !adoptedNewSeason;
+    const restoredSeedAlias = sameSeed && !adoptedNewSeason && current.isLive === false &&
+      (prev.id === id || !targetMap.has(prev.id));
+    if (sameSeed && !adoptedNewSeason && !restoredSeedAlias) continue;
     const merged = reconcileShowStatus(mergePreviousShowState(current, prev));
     if (adoptedNewSeason) {
       merged.id = current.id;
@@ -1417,7 +1409,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
     const remaining = requestDeadline - Date.now();
     if (remaining <= 0 || yfspCircuitOpen()) return { lookupState: 'unknown' };
     try {
-      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=${YFSP_SEARCH_PAGE_SIZE}&orderby=0&desc=0`,
+      const { data, domain } = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(query)}&star=&director=&page=1&size=${YFSP_SEARCH_PAGE_SIZE}&orderby=0&desc=0`,
         { timeout: Math.min(15000, remaining) });
       if (Date.now() >= requestDeadline) return { lookupState: 'unknown' };
       const rawResults = data?.data?.info?.[0]?.result;
@@ -1435,7 +1427,7 @@ async function searchYfspTitle(show, { deadline = Infinity } = {}) {
             hadError = true;
             continue;
           }
-          const candidateUrl = yfspPlayUrl(contentKey);
+          const candidateUrl = yfspPlayUrl(contentKey, domain);
           const score = scoreYfspCandidate(show, result);
           if (score >= 0) candidates.push({ result, score, url: candidateUrl });
         } catch {
@@ -1494,6 +1486,18 @@ function searchFallbackDueAt(show) {
   return lastTouched - (show.isSerial ? SEARCH_FALLBACK_SERIAL_LEAD_MS : 0);
 }
 
+function observedYfspSearchShow(found) {
+  return normalizeItem({
+    mediaKey: yfspPlayKey(found.url),
+    title: found.title, mediaType: found.mediaType, regional: found.regional,
+    lang: found.lang, actor: found.actor, contentType: found.contentType, cidMapper: found.cidMapper,
+    publishTime: found.publishTime, updateStatus: found.updateStatus, coverImgUrl: found.coverImg,
+    ...(Object.hasOwn(found, 'isSerial') ? { isSerial: found.isSerial } : {}),
+    ...(Object.hasOwn(found, 'score') ? { score: found.score } : {}),
+    ...(Object.hasOwn(found, 'playCount') ? { playCount: found.playCount } : {}),
+  }, yfspDomainOfHost(new URL(found.url).hostname));
+}
+
 async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000 } = {}) {
   const shows = new Map();
   const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
@@ -1520,15 +1524,7 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
     show.sourceSearchCheckedAt = new Date().toISOString();
     const found = await searchYfspTitle(show, { deadline });
     if (Date.now() >= deadline || !found?.url || found.mediaType !== show.mediaType || found.regional !== show.regional) return;
-    const observed = normalizeItem({
-      mediaKey: decodeURIComponent(new URL(found.url).pathname.split('/').pop()),
-      title: found.title, mediaType: found.mediaType, regional: found.regional,
-      lang: found.lang, actor: found.actor, contentType: found.contentType, cidMapper: found.cidMapper,
-      publishTime: found.publishTime, updateStatus: found.updateStatus, coverImgUrl: found.coverImg,
-      ...(Object.hasOwn(found, 'isSerial') ? { isSerial: found.isSerial } : {}),
-      ...(Object.hasOwn(found, 'score') ? { score: found.score } : {}),
-      ...(Object.hasOwn(found, 'playCount') ? { playCount: found.playCount } : {}),
-    });
+    const observed = observedYfspSearchShow(found);
     shows.set(observed.id, mergeLiveSnapshots(shows.get(observed.id), observed));
     group.matched.add(observed.id);
     await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, deadline - Date.now())));
@@ -1544,6 +1540,27 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
   }));
   console.log(`  搜索回退命中 ${shows.size}/${requiredItems} 条最低覆盖（检索目标 ${targets.length} 部；韩剧 ${groups[0].matched.size}/${groups[0].targets.length}，综艺 ${groups[1].matched.size}/${groups[1].targets.length}），${healthy ? '来源健康' : '覆盖不足，保留快照时间'}`);
   return { shows, healthy, targetCount: targets.length, requiredItems, categoryCoverage };
+}
+
+async function discoverIndependentYfspCandidates(queue, liveShows, attempts) {
+  const deadline = Date.now() + 12000;
+  const candidates = queue.filter(item => item.state === 'pending' && item.season === 1)
+    .sort((a, b) => (attempts[a.id] || 0) - (attempts[b.id] || 0)).slice(0, 4);
+  for (const item of candidates) {
+    const titles = [...new Set([item.title, ...item.titleAliases])];
+    for (const title of titles.slice(0, 2)) {
+      if (Date.now() >= deadline) return;
+      attempts[item.id] = Date.now();
+      const found = await searchYfspTitle({ title, year: item.year, mediaType: '电视剧', regional: '韩国' }, { deadline });
+      // 排期和榜单只提供候选。具体片源须同时匹配名称、年份和类型，之后仍走原收录门。
+      if (!found?.url || found.mediaType !== '电视剧' || found.regional !== '韩国' ||
+        extractYear(found.publishTime) !== item.year || !titles.some(alias =>
+          normalizeTitle(alias) === normalizeTitle(found.title) && haveCompatibleTitleSeasons(alias, found.title))) continue;
+      const observed = observedYfspSearchShow(found);
+      if (!liveShows.has(observed.id)) liveShows.set(observed.id, observed);
+      break;
+    }
+  }
 }
 
 function applyYfspSearchFields(show, found) {
@@ -1891,8 +1908,8 @@ const YFSP_OBSERVATION_FRESH_MS = 14 * DAY_MS;
 
 function hasRecentYfspObservation(show, now = Date.now()) {
   // TMDB 发现的卡片用 scrapedAt 记录 TMDB 观测，不代表爱壹帆数据是新的。
-  if (show?.source === 'tmdb_discover') return false;
-  const observedAt = Math.max(comparableTimestamp(show?.lastLiveAt), comparableTimestamp(show?.scrapedAt));
+  const observedAt = Math.max(comparableTimestamp(show?.lastLiveAt),
+    show?.source !== 'tmdb_discover' || (show.isLive === true && show.yfspUrl) ? comparableTimestamp(show?.scrapedAt) : 0);
   return observedAt > 0 && observedAt <= now && now - observedAt < YFSP_OBSERVATION_FRESH_MS;
 }
 
@@ -1916,7 +1933,7 @@ function scoreKDrama(s, now = Date.now()) {
   if (s.year >= CURRENT_YEAR) sc += 25; else if (s.year >= CURRENT_YEAR - 1) sc += 15; else if (s.year >= CURRENT_YEAR - 2) sc += 8;
   sc += kdramaAiringBonus(s, now);
   if (rating >= 8.5 && s.year >= 2015) sc += 25;
-  if (s.isComplete) sc += 10;
+  if (s.broadcast?.status === 'ended' || s.isComplete) sc += 10;
   return Math.max(0, Math.round(sc));
 }
 
@@ -1999,6 +2016,7 @@ async function recalculateExistingData() {
       repairKnownIdentityCorruption(show);
       relabelSeedCopy(show);
       reconcileShowStatus(show);
+      if (scoreFn === scoreKDrama) Object.assign(show, applyVerifiedKoreanDrama(show, KOREAN_EVIDENCE, data.koreanSignals));
       if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
       if (show.recommendScore < 0) return null;
@@ -2837,6 +2855,10 @@ function isHomepageHealthy({ shows, successfulPages, meaningfulPages, minimumPag
 async function main() {
   console.log(`[SCRAPER] 开始抓取 ${new Date().toISOString()}`);
   _optionalEnrichmentDeadline = 0;
+  _yfspObservedKeys.clear();
+  _yfspSharedDomains.clear();
+  _yfspActiveDomain = YFSP_LEGACY_DOMAIN;
+  _yfspActiveDomainConfirmed = false;
   _yfspNetworkFailures = 0;
   _yfspCircuitReason = '';
   resetAIRunState();
@@ -2894,6 +2916,8 @@ async function main() {
 
   console.log(`  抓取到 ${liveShows.size} 个独立节目 (分类列表 + 首页 ${homepageSeen.size} 个)`);
   const prevShows = loadPreviousShows();
+  // 独立排期/周榜即使能刷新，也不能替爱壹帆首页或已知标题回退通过健康门槛。
+  const koreanSignalsRequest = refreshKoreanDramaSignals(prevShows.koreanSignals, { now: Date.now() });
   setAIPreferredModel(prevShows.aiPreferredModel);
   // 提前停止的页面不算失败；健康度按实际请求页数衡量，覆盖门槛不变。
   const totalRequestedPages = attemptedPages;
@@ -2920,6 +2944,14 @@ async function main() {
       .map(group => `${group.category === 'koreanDramas' ? '韩剧' : '综艺'} ${group.matched}/${group.targetCount}（需 ${group.required}）`)
       .join('，') || '未执行';
     console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，首页 ${homepageItemCount}/${minimumHealthyItems} 条，韩剧 ${homepageCategoryCounts.koreanDramas}/3，综艺 ${homepageCategoryCounts.chineseVariety}/3，搜索回退 ${searchSnapshot.shows.size}/${searchSnapshot.requiredItems} 条；${fallbackCoverage}），将保留上一版快照时间和缺失分类`);
+  }
+
+  const koreanSignals = await koreanSignalsRequest;
+  const discoveryAttempts = Object.fromEntries(Object.entries(prevShows.koreanSignals?.discoveryAttempts || {})
+    .filter(([, at]) => Number.isFinite(at) && at <= Date.now() && Date.now() - at < 28 * DAY_MS));
+  koreanSignals.discoveryAttempts = discoveryAttempts;
+  if (primaryHealthy || searchSnapshot.shows.size > 0) {
+    await discoverIndependentYfspCandidates(koreanDiscoveryQueue(koreanSignals, KOREAN_EVIDENCE, prevShows.koreanDramas), liveShows, discoveryAttempts);
   }
 
   // ── 2. 构建韩剧列表 (合并 API + 种子) ──
@@ -2987,7 +3019,9 @@ async function main() {
   }
   if (!homepageHealthy) {
     for (const previous of prevShows.otherDramas) {
-      if (otherDramas.some(current => sameShowIdentity(current, previous))) continue;
+      if (liveShows.has(previous.id) || otherDramas.some(current => sameShowIdentity(current, previous))) continue;
+      const observed = Math.max(comparableTimestamp(previous.lastLiveAt), comparableTimestamp(previous.scrapedAt));
+      if (!observed || observed > Date.now() || Date.now() - observed > PREVIOUS_RECOMMENDATION_RETENTION_MS || otherDramas.length >= 250) continue;
       const restored = reconcileShowStatus({ ...previous, isLive: false, source: previous.source || 'previous_output' });
       attachLinkFields(restored, restored.yfspUrl, restored.doubanUrl);
       otherDramas.push(restored);
@@ -3130,7 +3164,10 @@ async function main() {
   const removedBeforeAI = removeHardExcludedKDrama(kdramaMap);
   if (removedBeforeAI) console.log(`  按最终内容规则移除 ${removedBeforeAI} 部不符合偏好的韩剧`);
   allShowsList = [...kdramaMap.values(), ...varietyMap.values(), ...otherDramas];
-  for (const show of kdramaMap.values()) show.recommendScore = scoreKDrama(show);
+  for (const show of kdramaMap.values()) {
+    Object.assign(show, applyVerifiedKoreanDrama(show, KOREAN_EVIDENCE, koreanSignals));
+    show.recommendScore = scoreKDrama(show);
+  }
   let excludedVariety = 0;
   for (const [id, show] of varietyMap) {
     show.recommendScore = scoreVariety(show);
@@ -3187,7 +3224,17 @@ async function main() {
 
   const koreanDramas = dedupByTitle([...kdramaMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore));
   const chineseVariety = dedupByTitle([...varietyMap.values()].filter(isRenderableShow).sort((a, b) => b.recommendScore - a.recommendScore));
-  const renderableOtherDramas = otherDramas.filter(isRenderableShow);
+  const publishedIds = new Set([...koreanDramas, ...chineseVariety].map(show => show.id));
+  const renderableOtherDramas = [];
+  let privateBytes = 0;
+  for (const show of otherDramas) {
+    if (publishedIds.has(show.id) || !isRenderableShow(show)) continue;
+    const bytes = Buffer.byteLength(JSON.stringify(show), 'utf8') + 1;
+    if (privateBytes + bytes > 512 * 1024 || renderableOtherDramas.length >= 250) continue;
+    privateBytes += bytes;
+    publishedIds.add(show.id);
+    renderableOtherDramas.push(show);
+  }
 
   // ── 8.5. TMDB 封面覆盖率验证 ──
   const allRenderable = [...koreanDramas, ...chineseVariety, ...renderableOtherDramas];
@@ -3222,6 +3269,13 @@ async function main() {
 
   // ── 9. 输出 ──
   const generatedAt = new Date().toISOString();
+  // 累计量增量只采用当前成功抓取的、带同一具体播放链接的两个观测，种子/旧快照的值不参与。
+  const playObservations = [...liveShows.values()].filter(show =>
+    show.mediaType === '电视剧' && show.regional === '韩国' && sourceFieldsOf(show).includes('playCount'))
+    .map(show => ({ id: yfspPlayKey(show.yfspUrl), identity: koreanPlayIdentity(show),
+      count: show.playCount, at: show.scrapedAt }));
+  koreanSignals.plays = updateKoreanPlayObservations(prevShows.koreanSignals?.plays, playObservations, Date.parse(generatedAt));
+  koreanSignals.discovery = koreanDiscoveryQueue(koreanSignals, KOREAN_EVIDENCE, koreanDramas, Date.parse(generatedAt));
   const output = {
     lastUpdated: sourceHealthy ? generatedAt : (prevShows.lastUpdated || generatedAt),
     generatedAt,
@@ -3232,6 +3286,7 @@ async function main() {
     sourcePagesMeaningful: meaningfulPages,
     sourceSearchMatched: searchSnapshot.shows.size,
     sourceSearchTargets: searchSnapshot.targetCount,
+    koreanSignals,
     // 私有运行状态：下一轮优先复用该免费模型；公开数据投影不包含此字段。
     ...(_aiPreferredModel ? { aiPreferredModel: _aiPreferredModel } : {}),
     aiRunStatus: aiRunStatus(),
@@ -3251,6 +3306,13 @@ async function main() {
     otherDramas: renderableOtherDramas,
   };
 
+  // 私有条目只使用公开推荐与运行状态留下的空间。
+  let bytes = Buffer.byteLength(JSON.stringify(output), 'utf8');
+  while (bytes > MAX_SNAPSHOT_BYTES && output.otherDramas.length) {
+    const removed = output.otherDramas.pop();
+    bytes -= Buffer.byteLength(JSON.stringify(removed), 'utf8') + 1;
+  }
+  output.stats.otherDramas = output.otherDramas.length;
   assertOutputContinuity(output, prevShows);
   assertOutputSchema(output);
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
@@ -3267,7 +3329,7 @@ async function main() {
     console.log(`  清理 ${prunedCache} 条长期未引用的封面缓存`);
   }
 
-  console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${renderableOtherDramas.length}`);
+  console.log(`[SCRAPER] 完成! 韩剧: ${koreanDramas.length}, 综艺: ${chineseVariety.length}, 其他: ${output.stats.otherDramas}`);
 }
 
 function isRecommendationCategory(show) {
@@ -3434,41 +3496,33 @@ function dedupByTitle(list) {
     const year = boundedYear(show.year);
     if (key && year >= CURRENT_YEAR) newestEditions.set(key, Math.max(year, newestEditions.get(key) || 0));
   }
-  const seenTitles = new Set();
-  const seenExternal = new Map();
-  const kept = new Set();
-  const remember = show => {
-    for (const external of externalIdentityKeys(show)) {
-      const previous = seenExternal.get(external) || [];
-      previous.push(show);
-      seenExternal.set(external, previous);
+  const groups = new Map();
+  const positions = new Map(list.map((show, index) => [show, index]));
+  for (const show of list) {
+    const edition = editionKey(show);
+    const newestYear = newestEditions.get(edition);
+    if (newestYear && boundedYear(show.year) < newestYear) continue;
+    const title = (show.title || '').trim();
+    if (!title) continue;
+    const keys = externalIdentityKeys(show);
+    const duplicates = [...groups].filter(([, members]) => members.some(member =>
+      (edition && edition === editionKey(member) && show.year === member.year) ||
+      (shouldDedupByExternal(member, show) && externalIdentityKeys(member).some(key => keys.includes(key)))));
+    if (!duplicates.length && [...groups.keys()].some(item => item.title.trim() === title)) continue;
+    const candidates = [...duplicates.map(([winner]) => winner), show].sort((a, b) => positions.get(a) - positions.get(b));
+    const winner = candidates.find(item => yfspPlayKey(safeOutputUrl(item.yfspUrl))) || candidates[0];
+    for (const previous of candidates) {
+      if (previous === winner) continue;
+      const ids = [previous.publicId, previous.seedId, previous.id, ...(previous.legacyIds || []), ...(winner.legacyIds || [])];
+      winner.legacyIds = [...new Set(ids.filter(id => id && id !== winner.id && id !== winner.publicId && id !== winner.seedId))].slice(0, 32);
+      const marks = [`${previous.title}|${previous.year || ''}`, ...(previous.legacyMarkKeys || []), ...(winner.legacyMarkKeys || [])];
+      winner.legacyMarkKeys = [...new Set(marks)].slice(0, 32);
+      groups.delete(previous);
     }
-    seenTitles.add((show.title || '').trim());
-  };
-  for (const s of list) {
-    const newestYear = newestEditions.get(editionKey(s));
-    if (newestYear && boundedYear(s.year) < newestYear) continue;
-    const key = (s.title || '').trim();
-    if (!key || seenTitles.has(key)) continue;
-
-    const duplicate = externalIdentityKeys(s)
-      .flatMap(external => seenExternal.get(external) || [])
-      .find(p => shouldDedupByExternal(p, s));
-    if (duplicate) {
-      // 同一实体的两张卡（例如 TMDB 发现的中文译名卡和来源卡）只留一张：
-      // 能播放的优先，否则保持推荐分高的那张。否则高分的无播放源卡会把可播放的来源卡挤掉。
-      if (!safeOutputUrl(duplicate.yfspUrl) && safeOutputUrl(s.yfspUrl) && kept.has(duplicate)) {
-        kept.delete(duplicate);
-        kept.add(s);
-        remember(s);
-      }
-      continue;
-    }
-    remember(s);
-    kept.add(s);
+    groups.set(winner, [...duplicates.flatMap(([, members]) => members), show]);
   }
   // 输入已按推荐分排序；按原顺序输出保留的卡片。
-  return list.filter(show => kept.has(show));
+  return list.filter(show => groups.has(show));
 }
 
 const OUTPUT_URL_HOSTS = new Set([
@@ -3555,6 +3609,8 @@ function hasValidTMDBSeasonLink(show) {
   return extractTMDBSeasonNumber(show.tmdbUrl) === expectedSeason;
 }
 
+const MAX_SNAPSHOT_BYTES = 2 * 1024 * 1024;
+
 function assertOutputSchema(output) {
   const seenIds = new Set();
   for (const field of ['koreanDramas', 'chineseVariety', 'otherDramas']) {
@@ -3569,7 +3625,7 @@ function assertOutputSchema(output) {
     }
   }
   const bytes = Buffer.byteLength(JSON.stringify(output), 'utf8');
-  if (bytes > 2 * 1024 * 1024) throw new Error(`[DATA_GUARD] 输出异常膨胀到 ${bytes} bytes`);
+  if (bytes > MAX_SNAPSHOT_BYTES) throw new Error(`[DATA_GUARD] 输出异常膨胀到 ${bytes} bytes`);
 }
 
 function saveHistory(output) {
@@ -4211,7 +4267,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
   for (const kw of DISCOVERY_KEYWORDS) {
     if (searchGuard.shouldStop()) break;
     try {
-      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
+      const { data, domain } = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
         { timeout: searchGuard.timeout() });
       searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
@@ -4244,7 +4300,7 @@ async function discoverNewKDramas(liveShows, kdramaMap, knownBeforeRun = kdramaM
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
             publishTime,
-            yfspUrl: contentKey ? yfspPlayUrl(contentKey) : '',
+            yfspUrl: contentKey ? yfspPlayUrl(contentKey, domain) : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
           });
@@ -4646,7 +4702,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
   for (const kw of VARIETY_DISCOVERY_KEYWORDS) {
     if (searchGuard.shouldStop()) break;
     try {
-      const data = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
+      const { data, domain } = await fetchYfspSearch(`/v3/list/briefsearch?cinema=0&tags=${encodeURIComponent(kw)}&star=&director=&page=1&size=20&orderby=0&desc=0`,
         { timeout: searchGuard.timeout() });
       searchGuard.succeeded();
       const rawResults = data?.data?.info?.[0]?.result;
@@ -4682,7 +4738,7 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
             coverImg: safeText(r.imgPath, 1000), updateStatus,
             updateMsg: '', isSerial: !parsedStatus.isComplete && isOngoingStatus(updateStatus), ...parsedStatus,
             publishTime,
-            yfspUrl: contentKey ? yfspPlayUrl(contentKey) : '',
+            yfspUrl: contentKey ? yfspPlayUrl(contentKey, domain) : '',
             scrapedAt: new Date().toISOString(), isLive: true,
             source: 'search', isAutoDiscovered: true,
           });
