@@ -15,7 +15,7 @@
   const DATA_REQUEST_TIMEOUT_MS = 10000;
   const INITIAL_RENDER_COUNT = 24;
   const RENDER_BATCH_SIZE = 24;
-  const VALID_TABS = new Set(['korean', 'year', 'varietyYear', 'variety', 'new', 'classic', 'mine', 'tvmaze']);
+  const VALID_TABS = new Set(['korean', 'hot', 'year', 'varietyYear', 'variety', 'new', 'classic', 'mine', 'tvmaze']);
   const TAB_ALIASES = Object.freeze({
     year2026: 'year',
     variety2026: 'varietyYear',
@@ -47,6 +47,8 @@
   const TVMAZE_TIME_ZONE = 'Asia/Seoul';
   // “看过/想看”只存在本机浏览器；以片名+年份为键，来源 ID 变化后标记仍然有效。
   const MARKS_KEY = 'iyf:marks:v1';
+  const MARK_ENTRY_PREFIX = 'iyf:mark:v2:';
+  const HIDE_SEEN_KEY = 'iyf:hide-seen:v2';
   const MARKS_MAX_ENTRIES = 2000;
   const MARK_KINDS = ['want', 'seen'];
   const MARK_LABELS = { want: '想看', seen: '看过' };
@@ -84,7 +86,6 @@
   let _marks = loadMarks();
   // 详情层当前展示的节目；地址里的 show= 参数与它保持一致，可直接分享。
   let _detailShow = null;
-  let _detailPushedHistory = false;
   // 海报 sizes 必须与网格断点一致：紧凑网格窄屏 3 列（间距 10px、左右各 10px）、平板 4 列（间距 12px、左右各 14px），
   // 宽屏 auto-fill minmax(170px, 1fr)，单列最宽约 216px。
   const POSTER_SIZES_COMPACT = '(max-width: 480px) calc((100vw - 40px) / 3), (max-width: 768px) calc((100vw - 64px) / 4), 216px';
@@ -95,7 +96,7 @@
 
 
   // ── 初始化 ──────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', init);
+  if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', init);
 
   async function init() {
     bindTabs();
@@ -110,6 +111,17 @@
     bindScrollMemory();
     bindContentNavigation();
     bindBackToTop();
+    window.addEventListener('storage', event => {
+      if (event.key !== null && event.key !== MARKS_KEY && event.key !== HIDE_SEEN_KEY && !event.key.startsWith(MARK_ENTRY_PREFIX)) return;
+      _marks = loadMarks();
+      migrateMarks();
+      resetRenderedShows();
+      applyFilters(false, { preserveVisibleCount: true });
+      const dialog = getDetailDialog();
+      for (const button of dialog?.querySelectorAll?.('.card-mark') || []) {
+        button.setAttribute('aria-pressed', String(button.dataset.mark === getShowMark(_detailShow)));
+      }
+    });
     window.addEventListener('popstate', handleUrlStateChange);
     window.addEventListener('hashchange', handleUrlStateChange);
     // 时间表是独立来源，不应等待推荐 JSON 成功后才允许打开。
@@ -339,6 +351,14 @@
     if (!allData) return;
     const el = document.getElementById('updateInfo');
     if (!el) return;
+    if (activeTabName === 'hot') {
+      const hot = allData.koreanHot;
+      const stale = hot && Date.now() - Date.parse(`${hot.weekEnd}T23:59:59+09:00`) > 10 * DAY_MS;
+      const label = hot ? `榜期 ${hot.weekStart} 至 ${hot.weekEnd}${stale ? ' · 最近一期，等待更新' : ''} · 按周榜展示` : '暂无可核实的热播周榜';
+      const text = `${label}${notice}`;
+      if (el.textContent !== text) el.textContent = text;
+      return;
+    }
     const time = new Date(allData.lastUpdated);
     const timeStr = Number.isNaN(time.getTime()) ? '未知' : time.toLocaleString('zh-CN', { hour12: false });
     const freshness = getDataFreshness(allData.lastUpdated);
@@ -506,7 +526,7 @@
     // 筛选、搜索等连续输入只替换当前记录。
     const target = `${url.pathname}${url.search}${url.hash}`;
     if (push && typeof history.pushState === 'function' && url.hash !== location.hash) history.pushState(null, '', target);
-    else history.replaceState(null, '', target);
+    else history.replaceState(history.state, '', target);
   }
 
   function handleUrlStateChange() {
@@ -636,6 +656,8 @@
 
     const newestOption = sortSelect?.querySelector?.('option[value="newest"]');
     if (newestOption) newestOption.textContent = tab === 'tvmaze' ? '播出时间' : tab === 'new' ? '最近加入' : '最新发布';
+    const recommendOption = sortSelect?.querySelector?.('option[value="recommend"]');
+    if (recommendOption) recommendOption.textContent = tab === 'hot' ? '周榜热度' : '推荐优先';
     if (!allData && !REMOTE_TAB_LABELS[tab]) {
       currentShows = [];
       _filteredShows = [];
@@ -656,6 +678,9 @@
     switch (tab) {
       case 'korean':
         shows = allData.koreanDramas || [];
+        break;
+      case 'hot':
+        shows = allData.koreanHot?.shows || [];
         break;
       case 'year': {
         const dataYear = getCurrentDataYear();
@@ -795,9 +820,10 @@
     if (sort) sort.value = DEFAULT_SORT_BY_TAB[activeTabName] || 'recommend';
     if (playable) playable.checked = false;
     _genreFilter = '';
+    _marks = loadMarks(_marks);
     if (_marks.hideSeen) {
       _marks.hideSeen = false;
-      saveMarks();
+      saveHideSeen();
     }
     if (search) {
       search.value = '';
@@ -951,7 +977,7 @@
       }
       switch (filters.sort) {
         case 'recommend':
-          shows.sort(byKey(show => getShowNumber(show, 'recommend')));
+          if (activeTabName !== 'hot' || source !== currentShows) shows.sort(byKey(show => getShowNumber(show, 'recommend')));
           break;
         case 'score':
           shows.sort(byKey(show => getShowNumber(show, 'score')));
@@ -971,8 +997,8 @@
     // 搜索默认覆盖全部韩剧和综艺：当前分类的结果在前，其他分类的命中接在后面并标出分类。
     let outside = [];
     if (query && !isSchedule && activeTabName !== 'mine' && allData) {
-      const inTab = new Set(currentShows);
-      outside = filterAndSort(getAllRecommendationShows().filter(show => !inTab.has(show)));
+      const inTab = new Set(currentShows.map(show => show.id));
+      outside = filterAndSort(getAllRecommendationShows().filter(show => !inTab.has(show.id)));
     }
     _outsideShows = new Set(outside);
     _outsideResultCount = outside.length;
@@ -1064,6 +1090,7 @@
   }
 
   function getStatusText(show) {
+    if (getBroadcastStatus(show)) return broadcastProgress(show);
     return show.isComplete
       ? (show.totalEpisodes ? `已完结 · ${show.totalEpisodes}集` : '已完结')
       : show.mediaType === '综艺'
@@ -1097,8 +1124,8 @@
     if (show.tmdbCoverPending === true) badges.push('<span class="badge badge-cover-pending">封面待升级</span>');
     const newBadge = getNewBadgeLabel(show, dataYear);
     if (newBadge) badges.push(`<span class="badge badge-new">${newBadge}</span>`);
-    if (show.isComplete) badges.push('<span class="badge badge-complete">完结</span>');
-    else if (show.isSerial) badges.push('<span class="badge badge-ongoing">连载</span>');
+    if (isShowComplete(show)) badges.push('<span class="badge badge-complete">完结</span>');
+    else if (isShowOngoing(show)) badges.push('<span class="badge badge-ongoing">连载</span>');
     return badges;
   }
 
@@ -1145,7 +1172,11 @@
   function renderDetail(show, dataYear = getCurrentDataYear(), referenceTime = getSnapshotTime()) {
     const playUrl = getPlayableUrl(show);
     const badges = renderBadges(show, dataYear, playUrl);
-    const viewsText = getPlayCountText(show, referenceTime);
+    const recent = show.recentPlays;
+    const recentAge = referenceTime - getTimestamp(recent?.to);
+    const viewsText = show.hotEvidence
+      ? (recent && recentAge >= 0 && recentAge <= 2 * DAY_MS ? `近期爱壹帆播放 +${recent.count.toLocaleString('zh-CN')} 次` : '')
+      : getPlayCountText(show, referenceTime);
     const actors = toText(show.actor).split(',').map(actor => actor.trim()).filter(Boolean).slice(0, 6).join(' / ');
     const tags = [];
     if (show.regional) tags.push(`<span class="meta-tag region">${escapeHtml(show.regional)}</span>`);
@@ -1154,6 +1185,12 @@
     const year = toFiniteNumber(show.year);
     const primaryAction = renderPrimaryAction(show, playUrl);
     const sourceLinks = renderSourceLinks(show, primaryAction?.url || '');
+    const evidence = [...(show.hotEvidence || []).map(item => ({ ...item, label: `${item.source} 第 ${item.rank}` })),
+      ...(show.broadcast ? [{ url: show.broadcast.sourceUrl, label: '播出资料' }] : [])];
+    const evidenceLinks = evidence.map(item => {
+      const url = safeExternalUrl(item.url);
+      return url ? `<a class="card-action" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.label)}</a>` : '';
+    }).join('');
     const description = toText(show.description).trim();
 
     return `
@@ -1171,6 +1208,7 @@
           ${description ? `<p class="detail-desc">${show.descriptionSource === 'ai' ? '<span class="detail-label">AI生成推荐语</span>' : ''}${escapeHtml(description)}</p>` : ''}
           ${show.aiReason ? `<p class="card-ai-reason"><span aria-hidden="true">🤖</span> AI推荐: ${escapeHtml(show.aiReason)}</p>` : ''}
           ${sourceLinks}
+          ${evidenceLinks ? `<div class="card-actions">${evidenceLinks}</div>` : ''}
         </div>
       </div>
       <div class="detail-bar">
@@ -1379,14 +1417,48 @@
   }
 
   function isShowComplete(show) {
+    const status = getBroadcastStatus(show);
+    if (status) return status === 'ended';
     if (typeof show?.isComplete === 'boolean') return show.isComplete;
     return ['ended', 'canceled', 'cancelled'].includes(toText(show?.status).toLowerCase());
   }
 
   function isShowOngoing(show) {
+    const status = getBroadcastStatus(show);
+    if (status) return status === 'airing';
     if (isShowComplete(show)) return false;
     if (typeof show?.isSerial === 'boolean') return show.isSerial;
     return toText(show?.status).toLowerCase() === 'running';
+  }
+
+  function getBroadcastStatus(show, now = Date.now()) {
+    if (show?.broadcast) {
+      const { status, checkedOn, premiereDate } = show.broadcast;
+      const checked = Date.parse(`${checkedOn}T00:00:00+09:00`);
+      const expired = status === 'airing' && (!Number.isFinite(checked) || checked > now || now - checked > 8 * DAY_MS);
+      const premierePassed = status === 'upcoming' && Date.parse(`${premiereDate}T00:00:00+09:00`) <= now;
+      if (status === 'unknown' || expired || premierePassed) {
+        const observed = Math.max(getTimestamp(show.lastLiveAt) || 0, getTimestamp(show.scrapedAt) || 0);
+        return getPlayableUrl(show) && observed > checked && now - observed <= 8 * DAY_MS && observed <= now
+          ? '' : 'unknown';
+      }
+      return status;
+    }
+    if (show?.regional === '韩国' && show.mediaType === '电视剧' && show.isSerial && !show.isComplete && show.scrapedAt) {
+      const observed = Date.parse(show.scrapedAt);
+      if (Number.isFinite(observed) && now - observed > 8 * DAY_MS) return 'unknown';
+    }
+    return '';
+  }
+
+  function broadcastProgress(show) {
+    const status = getBroadcastStatus(show);
+    const { airedEpisodes, totalEpisodes } = show.broadcast || {};
+    const text = status === 'ended' ? (totalEpisodes ? `已完结 · 全${totalEpisodes}集` : '已完结')
+      : status === 'airing' ? (airedEpisodes ? `已播第${airedEpisodes}集` : '播出中')
+      : status === 'upcoming' ? '待播' : '播出状态待核实';
+    return show.yfspUrl && show.currentEpisode > 0 && show.updateStatus && (status === 'unknown' || show.currentEpisode !== airedEpisodes)
+      ? `${text} · 片源记录第${show.currentEpisode}集` : text;
   }
 
   function animateNum(id, target) {
@@ -1426,32 +1498,52 @@
   }
 
   // ── 看过 / 想看 ──────────────────────────────────────
-  function loadMarks() {
+  function loadMarks(fallback) {
     const marks = { want: Object.create(null), seen: Object.create(null), hideSeen: false };
     try {
-      if (typeof localStorage === 'undefined') return marks;
-      const stored = JSON.parse(localStorage.getItem(MARKS_KEY) || 'null');
-      if (stored?.kind !== 'iyf-marks') return marks;
+      if (typeof localStorage === 'undefined') return fallback || marks;
+      let stored;
+      try { stored = JSON.parse(localStorage.getItem(MARKS_KEY)); } catch {}
       for (const kind of MARK_KINDS) {
-        const entries = stored[kind];
+        const entries = stored?.kind === 'iyf-marks' ? stored[kind] : null;
         if (entries === null || typeof entries !== 'object' || Array.isArray(entries)) continue;
         for (const [key, time] of Object.entries(entries).slice(0, MARKS_MAX_ENTRIES)) {
           if (key && key.length <= 220 && Number.isFinite(time)) marks[kind][key] = time;
         }
       }
-      marks.hideSeen = stored.hideSeen === true;
+      if (!stored && fallback && !localStorage.length) return fallback;
+      const hideSeen = localStorage.getItem(HIDE_SEEN_KEY);
+      marks.hideSeen = hideSeen === 'true' || (hideSeen == null && stored?.kind === 'iyf-marks' && stored.hideSeen === true);
+      for (let index = 0; index < localStorage.length; index++) {
+        const storageKey = localStorage.key(index);
+        if (!storageKey?.startsWith(MARK_ENTRY_PREFIX)) continue;
+        const key = storageKey.slice(MARK_ENTRY_PREFIX.length);
+        if (!key || key.length > 220) continue;
+        let entry;
+        try { entry = JSON.parse(localStorage.getItem(storageKey)); } catch { continue; }
+        if (!entry || !Number.isFinite(entry.at) || (entry.kind !== '' && !MARK_KINDS.includes(entry.kind))) continue;
+        for (const kind of MARK_KINDS) delete marks[kind][key];
+        if (entry.kind) marks[entry.kind][key] = entry.at;
+      }
     } catch {
-      // 存储不可用或内容损坏时从空标记开始。
+      return fallback || marks;
     }
     return marks;
   }
 
-  function saveMarks() {
+  function saveMark(key, kind, at = Date.now()) {
     try {
       if (typeof localStorage === 'undefined') return;
-      localStorage.setItem(MARKS_KEY, JSON.stringify({ kind: 'iyf-marks', want: _marks.want, seen: _marks.seen, hideSeen: _marks.hideSeen }));
+      // 空标记遮住 v1 中已取消的记录。分开存储避免不同标签页写回整张片单。
+      localStorage.setItem(MARK_ENTRY_PREFIX + key, JSON.stringify({ kind, at }));
     } catch {
       // 隐私模式下标记只在本次访问有效。
+    }
+  }
+
+  function saveHideSeen() {
+    try { localStorage.setItem(HIDE_SEEN_KEY, String(_marks.hideSeen)); } catch {
+      // 存储不可用时继续使用当前页面的设置。
     }
   }
 
@@ -1480,7 +1572,6 @@
         owners.set(alias, owners.has(alias) && owners.get(alias) !== key ? null : key);
       }
     }
-    let changed = false;
     for (const [alias, key] of owners) {
       if (!key) continue;
       const candidates = MARK_KINDS.flatMap(kind => [alias, key]
@@ -1493,9 +1584,9 @@
         delete _marks[kind][key];
       }
       _marks[latest.kind][key] = latest.time;
-      changed = true;
+      saveMark(key, latest.kind, latest.time);
+      saveMark(alias, '');
     }
-    if (changed) saveMarks();
   }
 
   // 同一节目只有一个标记：'want'、'seen' 或空。
@@ -1507,6 +1598,7 @@
 
   function setMark(key, kind) {
     if (!key) return '';
+    _marks = loadMarks(_marks);
     const next = key in _marks[kind] ? '' : kind;
     for (const other of MARK_KINDS) delete _marks[other][key];
     if (next) {
@@ -1514,11 +1606,14 @@
       const keys = Object.keys(_marks[next]);
       if (keys.length >= MARKS_MAX_ENTRIES) {
         keys.sort((a, b) => _marks[next][a] - _marks[next][b]).slice(0, keys.length - MARKS_MAX_ENTRIES + 1)
-          .forEach(oldKey => delete _marks[next][oldKey]);
+          .forEach(oldKey => {
+            delete _marks[next][oldKey];
+            saveMark(oldKey, '');
+          });
       }
       _marks[next][key] = Date.now();
     }
-    saveMarks();
+    saveMark(key, next);
     return next;
   }
 
@@ -1652,7 +1747,8 @@
   // ── 详情层 ──────────────────────────────────────
   function findShowById(id) {
     if (typeof id !== 'string' || !id) return null;
-    const shows = getAllRecommendationShows();
+    const hotShows = allData?.koreanHot?.shows || [];
+    const shows = activeTabName === 'hot' ? [...hotShows, ...getAllRecommendationShows()] : getAllRecommendationShows();
     return shows.find(show => show.id === id || getDetailId(show) === id) ||
       shows.find(show => Array.isArray(show.legacyIds) && show.legacyIds.includes(id)) || null;
   }
@@ -1668,8 +1764,7 @@
     else url.searchParams.delete('show');
     const target = `${url.pathname}${url.search}${url.hash}`;
     if (push && typeof history.pushState === 'function') {
-      history.pushState(null, '', target);
-      _detailPushedHistory = true;
+      history.pushState({ iyfDetail: true }, '', target);
     } else {
       history.replaceState(null, '', target);
     }
@@ -1707,10 +1802,30 @@
       notice.textContent = missing ? '这个分享链接对应的节目暂不可用，可在下方搜索。' : '';
     }
     if (show) {
-      if (_detailShow !== show || !dialog.open) openDetail(show, { push: false });
+      if (dialog.open && _detailShow && JSON.stringify(_detailShow) === JSON.stringify(show)) {
+        _detailShow = show;
+        return;
+      }
+      if (_detailShow !== show || !dialog.open) {
+        const body = dialog.querySelector?.('.detail-body');
+        const sameShow = _detailShow && getDetailId(_detailShow) === getDetailId(show);
+        const scroll = sameShow ? body?.scrollTop : undefined;
+        const focused = document.activeElement;
+        const controlSelector = '.card-mark, [data-detail-close], [data-detail-share], a[href]';
+        const restoreFocus = sameShow && dialog.contains?.(focused) && focused?.matches?.(controlSelector);
+        openDetail(show, { push: false });
+        const refreshed = dialog.querySelector?.('.detail-body');
+        if (restoreFocus) {
+          const controls = [...dialog.querySelectorAll(controlSelector)];
+          const match = controls.find(control => control.tagName === focused.tagName &&
+            (focused.tagName === 'A' ? control.href === focused.href : control.className === focused.className &&
+              control.dataset.mark === focused.dataset.mark));
+          (match || dialog.querySelector('[data-detail-close]'))?.focus({ preventScroll: true });
+        }
+        if (refreshed && scroll != null) refreshed.scrollTop = scroll;
+      }
     } else if (_detailShow || dialog.open) {
       _detailShow = null;
-      _detailPushedHistory = false;
       if (dialog.open) dialog.close();
     }
   }
@@ -1719,7 +1834,7 @@
     const url = new URL(typeof location.href === 'string' && location.href ? location.href : 'http://localhost/');
     url.search = '';
     url.searchParams.set('show', getDetailId(show));
-    url.hash = show.mediaType === '综艺' ? 'variety' : 'korean';
+    url.hash = show.id.startsWith('hot:') ? 'hot' : show.mediaType === '综艺' ? 'variety' : 'korean';
     return url.href;
   }
 
@@ -1765,8 +1880,7 @@
     dialog.addEventListener('close', () => {
       if (!_detailShow) return;
       _detailShow = null;
-      const pushed = _detailPushedHistory;
-      _detailPushedHistory = false;
+      const pushed = history.state?.iyfDetail === true;
       if (document.activeElement === document.body) {
         document.getElementById(`tab-${activeTabName}`)?.focus({ preventScroll: true });
       }
@@ -1777,7 +1891,8 @@
   }
 
   function getAllRecommendationShows() {
-    return [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || [])];
+    return [...(allData?.koreanDramas || []), ...(allData?.chineseVariety || []),
+      ...(allData?.koreanHot?.shows || []).filter(show => show.id.startsWith('hot:'))];
   }
 
   // ── 快捷筛选标签 ──────────────────────────────────────
@@ -1847,8 +1962,9 @@
           if (score) score.value = score.value === '8' ? '0' : '8';
           break;
         case 'hideSeen':
+          _marks = loadMarks(_marks);
           _marks.hideSeen = !_marks.hideSeen;
-          saveMarks();
+          saveHideSeen();
           break;
         case 'clearQuery': {
           const search = document.getElementById('searchInput');
@@ -1899,9 +2015,11 @@
   }
 
   function getNewestSortTime(show) {
+    const sourceDate = /^\d{4}-01-01T00:00:00(?:\.0+)?$/u.test(show?.publishTime || '') ? '' : show?.publishTime;
+    const premiere = show?.broadcast?.premiereDate || sourceDate;
     const value = activeTabName === 'new'
-      ? (show?.firstSeenAt || show?.scrapedAt || show?.publishTime || show?.airDate || show?.year)
-      : (show?.publishTime || show?.airDate || show?.year);
+      ? (show?.firstSeenAt || show?.scrapedAt || premiere || show?.airDate || show?.year)
+      : (premiere || show?.airDate || show?.year);
     return getValidTime(value);
   }
 
@@ -1950,12 +2068,23 @@
     const isRecord = item => item !== null && typeof item === 'object' && !Array.isArray(item);
     const optionalNumber = item => item == null || (typeof item === 'number' && Number.isFinite(item));
     const optionalText = item => item == null || typeof item === 'string';
+    const date = item => typeof item === 'string' && /^\d{4}-\d{2}-\d{2}$/u.test(item) &&
+      Number.isFinite(Date.parse(item)) && new Date(item).toISOString().slice(0, 10) === item;
+    const episode = item => item == null || Number.isInteger(item) && item > 0 && item <= 999;
+    const verifiedUrl = item => typeof item === 'string' && item.startsWith('https://') && !!safeExternalUrl(item);
+    const broadcast = item => item == null || (isRecord(item) && ['airing', 'ended', 'upcoming', 'unknown'].includes(item.status) &&
+      date(item.checkedOn) && (item.premiereDate == null || date(item.premiereDate)) && verifiedUrl(item.sourceUrl) &&
+      episode(item.airedEpisodes) && episode(item.totalEpisodes) && !(item.airedEpisodes > item.totalEpisodes));
     if (!isRecord(value) || typeof value.lastUpdated !== 'string' || !Number.isFinite(Date.parse(value.lastUpdated)) ||
       !Array.isArray(value.koreanDramas) || !Array.isArray(value.chineseVariety) ||
       value.koreanDramas.length > 1000 || value.chineseVariety.length > 1000 ||
       ![value.generatedAt, value.sourceStatus].every(optionalText)) return false;
     if (value.stats != null && (!isRecord(value.stats) ||
       ![value.stats.koreanDramas, value.stats.chineseVariety].every(optionalNumber))) return false;
+    const hot = value.koreanHot;
+    if (hot != null && (!isRecord(hot) || !date(hot.weekStart) || !date(hot.weekEnd) ||
+      Date.parse(hot.weekEnd) - Date.parse(hot.weekStart) !== 6 * DAY_MS || !Array.isArray(hot.shows) || hot.shows.length > 24 ||
+      !hot.shows.every(show => Array.isArray(show?.hotEvidence) && show.hotEvidence.length >= 1 && show.hotEvidence.length <= 4))) return false;
     const numericFields = ['year', 'score', 'tmdbRating', 'playCount', 'recommendScore', 'aiScore', 'currentEpisode', 'totalEpisodes'];
     const booleanFields = ['isComplete', 'isSerial', 'isClassic', 'isNew', 'tmdbCoverPending'];
     const textFields = [
@@ -1964,12 +2093,24 @@
       'primaryUrlSource', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl',
     ];
     // 网络和本地缓存共用渲染契约；可选字段允许缺省/null，结构值不能进入隐式数值或字符串转换。
-    return [...value.koreanDramas, ...value.chineseVariety].every(show =>
+    return [...value.koreanDramas, ...value.chineseVariety, ...(hot?.shows || [])].every(show =>
       isRecord(show) && typeof show.id === 'string' && !!show.id.trim() &&
       typeof show.title === 'string' && !!show.title.trim() && show.title.length <= 200 &&
       numericFields.every(field => optionalNumber(show[field])) &&
       booleanFields.every(field => show[field] == null || typeof show[field] === 'boolean') &&
       textFields.every(field => optionalText(show[field])) &&
+      ['publicId', 'seedId'].every(field => show[field] == null ||
+        (typeof show[field] === 'string' && !!show[field].trim() && show[field].length <= 200)) &&
+      ['legacyIds', 'legacyMarkKeys'].every(field => show[field] == null ||
+        (Array.isArray(show[field]) && show[field].length <= 32 &&
+          show[field].every(key => typeof key === 'string' && !!key.trim() && key.length <= 220))) &&
+      broadcast(show.broadcast) &&
+      (show.hotEvidence == null || (Array.isArray(show.hotEvidence) && show.hotEvidence.every(item =>
+        isRecord(item) && typeof item.source === 'string' && item.source.length <= 40 &&
+        Number.isInteger(item.rank) && item.rank >= 1 && item.rank <= 10 && verifiedUrl(item.url)))) &&
+      (show.recentPlays == null || (isRecord(show.recentPlays) && Number.isSafeInteger(show.recentPlays.count) && show.recentPlays.count >= 0 &&
+        typeof show.recentPlays.from === 'string' && typeof show.recentPlays.to === 'string' &&
+        Number.isFinite(Date.parse(show.recentPlays.from)) && Date.parse(show.recentPlays.to) >= Date.parse(show.recentPlays.from))) &&
       (show.titleAliases == null || (Array.isArray(show.titleAliases) && show.titleAliases.every(alias => typeof alias === 'string'))) &&
       (show.rating == null || (isRecord(show.rating) && optionalNumber(show.rating.average))));
   }
@@ -2359,4 +2500,5 @@
     });
   }
 
+  if (typeof module !== 'undefined' && module.exports) module.exports = { isShowDataset };
 })();

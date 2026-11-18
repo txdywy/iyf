@@ -140,6 +140,15 @@ function validateShows(data) {
         continue;
       }
       if (typeof show.id !== 'string' || !show.id.trim()) errors.push(`${label}: missing id`);
+      for (const field of ['publicId', 'seedId']) {
+        const value = show[field];
+        if (value != null && (typeof value !== 'string' || !value.trim() || value.length > 200)) errors.push(`${label}.${field}: invalid identity`);
+      }
+      for (const field of ['legacyIds', 'legacyMarkKeys']) {
+        const value = show[field];
+        if (value != null && (!Array.isArray(value) || value.length > 32 ||
+          value.some(key => typeof key !== 'string' || !key.trim() || key.length > 220))) errors.push(`${label}.${field}: invalid identity aliases`);
+      }
       if (typeof show.title !== 'string' || !show.title.trim() || show.title.length > 200) errors.push(`${label}: invalid title`);
       for (const field of TEXT_FIELDS) {
         if (show[field] != null && typeof show[field] !== 'string') {
@@ -222,7 +231,10 @@ function validateShows(data) {
   if (REQUIRE_FRESH_DATA) {
     // 抓取任务必须确认本次运行确实写出了数据，避免把未更新的旧文件当作新结果发布。
     const generated = typeof data.generatedAt === 'string' ? Date.parse(data.generatedAt) : NaN;
-    if (!Number.isFinite(generated) || Date.now() - generated > DAY_MS) {
+    const startedAt = Date.parse(process.env.IYF_SCRAPE_STARTED_AT || '');
+    const now = Date.now();
+    if (!Number.isFinite(generated) || generated > now ||
+      (Number.isFinite(startedAt) ? generated < startedAt : now - generated > DAY_MS)) {
       errors.push('data/shows.json: generatedAt was not refreshed by this scrape run');
     }
   }

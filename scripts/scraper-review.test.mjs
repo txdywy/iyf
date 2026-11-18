@@ -4,6 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import vm from 'node:vm';
+import { YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey } from './korean-drama-sources.mjs';
+import { applyVerifiedKoreanDrama, koreanDiscoveryQueue, koreanPlayIdentity, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'scripts/scrape.mjs'), 'utf8');
@@ -12,6 +14,7 @@ const dataDir = '/tmp/iyf-scraper-review/data';
 function loadHelpers({
   env = {}, fetchImpl = async () => { throw new Error('unexpected fetch'); },
   date = '2026-09-30T04:00:00Z', initialFiles = {},
+  koreanEvidence = { titles: {}, charts: [] }, refreshKoreanDramaSignals = async () => ({ airings: [] }),
   setTimeoutImpl = (fn, delay) => { if (delay <= 1000) fn(); return 0; },
   clearTimeoutImpl = () => {},
 } = {}) {
@@ -30,6 +33,8 @@ function loadHelpers({
     writeFileSync: (path, value) => { files.set(path, value); writes.push(path); },
     renameSync: (from, to) => { files.set(to, files.get(from)); files.delete(from); },
     mkdirSync() {}, join,
+    YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey, applyVerifiedKoreanDrama, koreanDiscoveryQueue, koreanPlayIdentity, updateKoreanPlayObservations, refreshKoreanDramaSignals,
+    loadKoreanDramaEvidence: () => koreanEvidence,
   };
   const executable = source
     .replace(/^import .*$/gm, '')
@@ -46,7 +51,7 @@ function loadHelpers({
         aiScoreInputHash, isFreshAIScore, AI_SCORE_CACHE_VERSION,
         saveHistory, recordDiscoveryHistory,
         setEnrichmentDeadline: deadline => { _optionalEnrichmentDeadline = deadline; },
-        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot, yfspPlayKey, noteYfspKeySpace, migrateYfspPlayUrl, normalizeItem,
+        titleMatches, dedupByTitle, findReusableTMDBCache, fetchPage, fetchSearchSnapshot, yfspPlayKey, noteYfspKeySpace, migrateYfspPlayUrl, confirmYfspDomain, discoverIndependentYfspCandidates,
         discoverKDramasFromTMDB, passesKDramaDiscoveryThreshold, calculateYfspHotness, loadImageCache,
         aiEvaluateDiscovery, aiScoreShows,
         refreshKDramaTMDBStats, kdramaAiringBonus,
@@ -3290,7 +3295,7 @@ test('TMDB stats refresh also updates episode status for single-season cards wit
     tmdbStatsCheckedAt: '2026-11-06T20:00:00Z' });
   const finished = card(702, { scrapedAt: '2026-09-01T00:00:00Z', updateStatus: '更新到06', currentEpisode: 6, isSerial: true, isComplete: false });
   const multiSeason = card(703, { updateStatus: '12集全', totalEpisodes: 12, currentEpisode: 12, isComplete: true, isSerial: false });
-  const live = card(704, { scrapedAt: '2026-11-07T00:00:00Z', updateStatus: '更新到05', currentEpisode: 5, isSerial: true, isComplete: false });
+  const live = card(704, { source: 'tmdb_discover', isLive: true, yfspUrl: 'https://www.kubb.tv/play/test704', scrapedAt: '2026-11-07T00:00:00Z', updateStatus: '更新到05', currentEpisode: 5, isSerial: true, isComplete: false });
   await helpers.refreshKDramaTMDBStats(new Map([ongoing, finished, multiSeason, live].map(show => [show.id, show])));
   assert.equal(ongoing.updateStatus, '更新到08', 'a TMDB-only card renewed by discovery still gets newer episodes (ongoing cards refresh daily)');
   assert.equal(ongoing.currentEpisode, 8);
@@ -3789,6 +3794,8 @@ test('live adoption never steps back to an older season or picks a stale season 
   const same = new Map([['L4', liveVarietyRow(helpers, 'L4', '回归综艺第4季', 2022)]]);
   assert.equal(helpers.findLiveTitleMatch(seed, same, '综艺', null, { minSeason: 4 })?.id, 'L4',
     'the season adopted last run keeps matching regardless of its year');
+  same.set('series', liveVarietyRow(helpers, 'series', '回归综艺', 2026));
+  assert.equal(helpers.findLiveTitleMatch(seed, same, '综艺', null, { minSeason: 4 })?.id, 'L4');
   const seasons = helpers.previousAdoptedSeasons([
     { seedId: 'seed_var_t', title: '回归综艺第4季' }, { seedId: 'seed_var_u', title: '另一档' }, { title: '无种子第9季' }]);
   assert.equal(seasons.get('seed_var_t'), 4);
@@ -3892,9 +3899,65 @@ test('when two cards share a TMDB entity the playable source card survives de-du
   ]);
   assert.deepEqual(deduped.map(show => show.title), ['其他剧', '老板的露骨取向'],
     'a higher-scored card without a play link must not push out the playable card for the same show');
+  assert.deepEqual(Array.from(deduped[1].legacyIds), ['tmdb_tv_326975']);
+  assert.deepEqual(Array.from(deduped[1].legacyMarkKeys), ['BOSS的甜蜜诱惑|2026']);
+  const sameTitle = deduped.map(show => ({ ...show }));
+  const source = sameTitle[1];
+  const metadata = { ...source, id: 'old-same-title', yfspUrl: '' };
+  assert.equal(helpers.dedupByTitle([metadata, source])[0].id, source.id);
   const bothPlayable = helpers.dedupByTitle([
     { title: '甲', tmdbUrl, yfspUrl: 'https://www.kubb.tv/play/a', recommendScore: 9 },
     { title: '乙', tmdbUrl, yfspUrl: 'https://www.kubb.tv/play/b', recommendScore: 5 },
   ]);
   assert.deepEqual(bothPlayable.map(show => show.title), ['甲'], 'otherwise the higher-scored card is kept');
+});
+
+test('mixed host responses cannot authorize migration from another domain’s observations', () => {
+  const { helpers } = loadHelpers();
+  const row = homepageFixture().data.list[0].list[0];
+  helpers.confirmYfspDomain('https://api.kubb.tv');
+  const current = helpers.normalizeItem({ ...row, mediaKey: 'only-kubb' });
+  helpers.confirmYfspDomain('https://api.yfsp.tv');
+  helpers.normalizeItem({ ...row, mediaKey: 'only-yfsp' });
+  assert.equal(helpers.noteYfspKeySpace({ koreanDramas: [current] }), false);
+  assert.equal(helpers.migrateYfspPlayUrl(current.yfspUrl), current.yfspUrl);
+});
+
+test('independent discovery rotates failed lookups before retrying them', async () => {
+  const { helpers } = loadHelpers({ fetchImpl: async () => response({ data: { info: [{ result: [] }] } }) });
+  const queue = Array.from({ length: 6 }, (_, i) => ({
+    id: `fixture-${i}`, title: `排期剧${i}`, titleAliases: [], season: 1, year: 2026, state: 'pending',
+  }));
+  const attempts = {};
+  await helpers.discoverIndependentYfspCandidates(queue, new Map(), attempts);
+  assert.equal(Object.keys(attempts).length, 4);
+  await helpers.discoverIndependentYfspCandidates(queue, new Map(), attempts);
+  assert.equal(Object.keys(attempts).length, 6);
+});
+
+test('a degraded homepage keeps the new observation when a private season reuses an ID', async () => {
+  const id = 'private-shared';
+  const now = '2026-10-04T00:00:00Z';
+  const old = { id, title: '私有剧第1季', mediaType: '电视剧', category: 'other_drama', regional: '欧美',
+    year: 2026, scrapedAt: '2026-10-03T00:00:00Z',
+    coverImg: 'https://static.kubb.tv/old.jpg', yfspUrl: `https://www.kubb.tv/play/${id}` };
+  const previous = { lastUpdated: old.scrapedAt, stats: { totalScraped: 30 },
+    koreanDramas: [], chineseVariety: [], otherDramas: [old] };
+  let fetched = false;
+  const { helpers, files } = loadHelpers({
+    date: now, initialFiles: { [join(dataDir, 'shows.json')]: JSON.stringify(previous) },
+    fetchImpl: async url => {
+      if (!fetched && url.includes('api.kubb.tv/api/list/index')) {
+        fetched = true;
+        return response({ data: { list: [{ name: '电视剧', list: [{
+          mediaKey: id, title: '私有剧第2季', mediaType: old.mediaType, regional: old.regional, coverImgUrl: old.coverImg,
+        }] }] } });
+      }
+      return response(null, { status: 503 });
+    },
+  });
+  await helpers.main();
+  const output = JSON.parse(files.get(join(dataDir, 'shows.json')));
+  assert.equal(output.sourceStatus, 'degraded');
+  assert.deepEqual(output.otherDramas.map(show => [show.id, show.title]), [[id, '私有剧第2季']]);
 });

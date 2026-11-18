@@ -91,7 +91,7 @@ test('summary lists source, pages, counts, AI status and snapshot ages', () => {
   assert.match(summary, /30 \/ 28/u);
   assert.match(summary, /目录（成功页数） \| 4/u);
   assert.match(summary, /70 \/ 110 \/ 12/u);
-  assert.match(summary, /停止原因 quota，请求 6，评分 33/u);
+  assert.match(summary, /停止原因 quota，请求 6，成功批次 33/u);
   assert.match(summary, /2\.0 小时前/u);
   assert.match(summary, /### 警告/u);
   assert.doesNotMatch(summary, /### 错误/u);

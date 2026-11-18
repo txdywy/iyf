@@ -1,3 +1,4 @@
+import { applyVerifiedKoreanDrama, loadKoreanDramaEvidence } from './korean-drama-sources.mjs';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -128,7 +129,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   let savedAt = cacheTimestamp;
   let cacheWrites = 0;
   const DATA_CACHE_KEY = 'iyf:shows-cache:v3';
-  const otherStorage = new Map(Object.entries(storage));
+  const otherStorage = storage instanceof Map ? storage : new Map(Object.entries(storage));
   const context = vm.createContext({
     console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
     setTimeout, clearTimeout, setInterval, clearInterval,
@@ -138,6 +139,8 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
       Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
     } },
     localStorage: {
+      get length() { return otherStorage.size; },
+      key: index => [...otherStorage.keys()][index],
       getItem: key => key !== DATA_CACHE_KEY ? (otherStorage.get(key) ?? null)
         : savedData ? JSON.stringify({ version: 3, cachedAt: savedAt, data: savedData }) : null,
       setItem(key, value) {
@@ -1502,12 +1505,15 @@ test('the public payload omits empty optional fields without changing what the f
     const source = JSON.parse(readFileSync(new URL('../data/shows.json', import.meta.url), 'utf8'));
     const { helpers } = createApp();
     assert.ok(helpers.isShowDataset(published));
+    const evidence = loadKoreanDramaEvidence();
     const verbatim = new Set(['firstSeenAt', 'scrapedAt', 'updateMsg', 'descriptionSource']);
     const referenceTime = Date.parse(published.generatedAt);
     const withoutDelay = markup => markup.replace(/style="animation-delay:[^"]+"/u, '');
     for (const category of ['koreanDramas', 'chineseVariety']) {
       for (const [index, show] of published[category].entries()) {
-        const original = source[category][index];
+        const original = category === 'koreanDramas'
+          ? applyVerifiedKoreanDrama(source[category][index], evidence, source.koreanSignals)
+          : source[category][index];
         for (const [field, value] of Object.entries(show)) {
           if (verbatim.has(field)) continue;
           assert.ok(value !== null && value !== '' && value !== false && !(Array.isArray(value) && !value.length), `${category}[${index}].${field} is empty`);
@@ -1554,7 +1560,7 @@ test('watched and want marks persist locally, sink watched cards and fill the pe
   assert.equal(pressed.get('aria-pressed'), 'true');
   assert.equal(elements.showGrid.htmlWrites, 1, 'marking does not rebuild the grid');
   helpers.setMark('id:show-2', 'want');
-  assert.deepEqual(JSON.parse(client.otherStorage.get('iyf:marks:v1')).kind, 'iyf-marks');
+  assert.deepEqual(JSON.parse(client.otherStorage.get('iyf:mark:v2:id:show-2')).kind, 'want');
 
   helpers.applyFilters();
   assert.deepEqual(titles(), ['剧目1', '剧目2', '剧目3', '剧目0']);
@@ -1704,7 +1710,20 @@ test('a renamed seed migrates an old watchlist entry and shares the stable ID', 
   });
   helpers.setAllData(data);
   assert.equal(helpers.getShowMark(show), 'want');
-  assert.equal(JSON.parse(otherStorage.get('iyf:marks:v1')).want['id:seed-3'], 100);
+  assert.equal(JSON.parse(otherStorage.get('iyf:mark:v2:id:seed-3')).at, 100);
   assert.match(helpers.getDetailShareUrl(show), /show=seed-3#variety$/u);
   assert.equal(helpers.findShowById('live-2'), show);
+});
+
+test('independent tabs save marks and removals without replacing another show', () => {
+  const storage = new Map();
+  const tabs = Array.from({ length: 2 }, () => createApp(undefined, null, Date.now(), storage).helpers);
+  tabs[0].setMark('id:first', 'seen');
+  tabs[1].setMark('id:second', 'want');
+  const reloaded = () => createApp(undefined, null, Date.now(), storage).helpers;
+  assert.equal(reloaded().getShowMark({ id: 'first' }), 'seen');
+  assert.equal(reloaded().getShowMark({ id: 'second' }), 'want');
+  tabs[0].setMark('id:first', 'seen');
+  assert.equal(reloaded().getShowMark({ id: 'first' }), '');
+  assert.equal(reloaded().getShowMark({ id: 'second' }), 'want');
 });

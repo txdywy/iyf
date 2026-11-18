@@ -313,3 +313,19 @@ test('validator requires published category statistics to match the catalog', ()
     assert.ok(mismatched.stderr.includes(`stats.${category}: expected 1, got 7`), mismatched.stderr);
   }
 });
+
+test('scrape freshness starts at this run and identity aliases must be strings', () => {
+  const data = dataFixture({ koreanDramas: 1, chineseVariety: 1, otherDramas: 0 });
+  const env = { IYF_REQUIRE_FRESH_DATA: '1', IYF_SCRAPE_STARTED_AT: new Date(Date.now() - 60_000).toISOString() };
+  data.generatedAt = new Date(Date.now() - 10 * 3600_000).toISOString();
+  assert.match(runValidation(data, env).stderr, /not refreshed by this scrape run/u);
+  data.generatedAt = new Date(Date.now() + 3600_000).toISOString();
+  assert.match(runValidation(data, env).stderr, /not refreshed by this scrape run/u);
+  data.generatedAt = new Date().toISOString();
+  assert.equal(runValidation(data, env).status, 0);
+  Object.assign(data.koreanDramas[0], { publicId: 123, legacyIds: { obsolete: true } });
+  const invalid = runValidation(data, env);
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /publicId: invalid identity/u);
+  assert.match(invalid.stderr, /legacyIds: invalid identity aliases/u);
+});
