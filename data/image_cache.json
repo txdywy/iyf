@@ -904,7 +904,7 @@
     "wikidataId": "Q118869205",
     "cachedAt": "2026-08-23T16:34:03.322Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T15:17:05.633Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.943Z"
   },
   "seed_kd_c17": {
     "title": "欢迎来到王之国",
@@ -8287,7 +8287,7 @@
     "doubanMatchedTitle": "金秘书为何那样",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:39:46.111Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.803Z"
   },
   "diQpuuOR4x4": {
     "title": "触及真心",
@@ -8309,7 +8309,7 @@
     "doubanMatchedTitle": "触及真心",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T15:17:05.424Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.763Z"
   },
   "qmzJmjDCZaQ": {
     "title": "社内相亲",
@@ -8331,7 +8331,7 @@
     "doubanMatchedTitle": "社内相亲",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T15:17:05.569Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.925Z"
   },
   "sSQvIKbdmzB": {
     "title": "秘密森林",
@@ -8975,7 +8975,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-08T17:59:53.299Z"
+    "cachedAt": "2026-11-18T20:43:30.715Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -9914,7 +9914,7 @@
     "wikidataId": "Q106758556",
     "cachedAt": "2026-08-23T16:34:03.147Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T15:17:05.426Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.864Z"
   },
   "PZ84TAUGso3": {
     "title": "信号",
@@ -10054,7 +10054,7 @@
     "doubanMatchedTitle": "孤单又灿烂的神：鬼怪",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-18T09:39:46.097Z"
+    "externalMetadataCheckedAt": "2026-11-18T20:43:29.797Z"
   },
   "iU9zThkAEyw": {
     "title": "酒鬼都市男女",
@@ -11512,5 +11512,25 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-18T07:44:08.370Z",
     "cachedAt": "2026-11-18T07:44:08.372Z"
+  },
+  "szA67G4ly0K": {
+    "title": "时尚战争",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/clkiCciCM3qav1JwYmLQX0xjhrN.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "时尚战争",
+    "matchedTitle": "时尚战争",
+    "tmdbId": 340321,
+    "tmdbUrl": "https://www.themoviedb.org/tv/340321",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-18T20:43:30.181Z",
+    "cachedAt": "2026-11-18T20:43:30.184Z"
   }
 }

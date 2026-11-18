@@ -3850,13 +3850,13 @@
     ]
   },
   "2026-11-18": {
-    "timestamp": "2026-11-18T07:43:59.842Z",
-    "totalFound": 18,
+    "timestamp": "2026-11-18T20:43:28.929Z",
+    "totalFound": 19,
     "shows": [
       {
         "title": "杀人者的购物中心2",
         "score": 8.6,
-        "playCount": 1146254,
+        "playCount": 1146659,
         "year": 2026,
         "actor": "李栋旭,金慧埈,赵汉善,玄理,冈田将生,郑允荷,金海娜,李泰英,金旻,朴智彬,徐现宇,金俊裴",
         "source": "api_index",
@@ -3868,7 +3868,7 @@
       {
         "title": "医到孤岛爱上你",
         "score": 7,
-        "playCount": 451249,
+        "playCount": 451307,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -3880,7 +3880,7 @@
       {
         "title": "大叔再出招",
         "score": 7.5,
-        "playCount": 370597,
+        "playCount": 370654,
         "year": 2026,
         "actor": "申河均,吴正世,许成泰",
         "source": "api_index",
@@ -3892,7 +3892,7 @@
       {
         "title": "我们愉快的好日子",
         "score": 0,
-        "playCount": 340264,
+        "playCount": 340314,
         "year": 2026,
         "actor": "严贤京,尹仲勋,申正允,尹多英,金惠玉",
         "source": "api_index",
@@ -3904,7 +3904,7 @@
       {
         "title": "在韩国成为房主的方法",
         "score": 6,
-        "playCount": 215828,
+        "playCount": 215850,
         "year": 2026,
         "actor": "河正宇,林秀晶,金准韩,郑秀晶,沈恩敬",
         "source": "api_index",
@@ -3916,7 +3916,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167644,
+        "playCount": 167660,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -3940,7 +3940,7 @@
       {
         "title": "最后一桌",
         "score": 6.7,
-        "playCount": 119119,
+        "playCount": 120243,
         "year": 2026,
         "actor": "安孝燮,洪华莲,张栗,郑幼贞",
         "source": "api_index",
@@ -3964,11 +3964,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 93511,
+        "playCount": 94726,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到37",
+        "updateStatus": "更新到38",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -3988,7 +3988,7 @@
       {
         "title": "解不开的我们",
         "score": 6.6,
-        "playCount": 78788,
+        "playCount": 79337,
         "year": 2026,
         "actor": "",
         "source": "api_index",
@@ -4012,7 +4012,7 @@
       {
         "title": "碰撞搜查线第2季",
         "score": 0,
-        "playCount": 23481,
+        "playCount": 28283,
         "year": 2026,
         "actor": "李民基,郭善英,许成泰,李浩哲,崔玟熙",
         "source": "api_index",
@@ -4024,7 +4024,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21940,
+        "playCount": 21944,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -4048,7 +4048,7 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10855,
+        "playCount": 10856,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
@@ -4068,6 +4068,18 @@
         "contentType": "真人秀·喜剧",
         "mediaType": "综艺",
         "regional": "大陆"
+      },
+      {
+        "title": "时尚战争",
+        "score": 0,
+        "playCount": 365,
+        "year": 2026,
+        "actor": "李惠利,洪真庆,郑旭俊,裴正南,崔希承",
+        "source": "api_index",
+        "updateStatus": "更新到04",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "韩国"
       }
     ]
   }
