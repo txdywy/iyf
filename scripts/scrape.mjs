@@ -731,6 +731,7 @@ function discoveryRecordIdentityKey(show) {
 }
 
 const TITLE_ALIAS_MAP = {
+  '解不开的我们': ['解不開的我們', '扭曲的领带', '扭曲的領帶', 'Twisted Tie', '비틀린 넥타이'],
   '最后一排的男孩': ['Notes from the Last Row'],
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
@@ -3485,6 +3486,15 @@ function shouldDedupByExternal(a, b) {
   return true;
 }
 
+function sameExplicitAliasEdition(a, b) {
+  if (!a.mediaType || !a.regional || !a.year || a.mediaType !== b.mediaType ||
+      a.regional !== b.regional || a.year !== b.year || seasonKey(a.title) !== seasonKey(b.title) ||
+      !areExplicitTitleAliases(a.title, b.title)) return false;
+  const aTmdb = knownTMDBSeriesId(a);
+  const bTmdb = knownTMDBSeriesId(b);
+  return !aTmdb || !bTmdb || aTmdb === bTmdb;
+}
+
 function dedupByTitle(list) {
   // 新版已经通过收录门禁后，同名旧版不能仅凭更高分占住卡片。
   // 先找出同地区/类型的最新年度版本，再按原推荐分顺序去重。
@@ -3507,12 +3517,17 @@ function dedupByTitle(list) {
     const keys = externalIdentityKeys(show);
     const duplicates = [...groups].filter(([, members]) => members.some(member =>
       (edition && edition === editionKey(member) && show.year === member.year) ||
+      sameExplicitAliasEdition(member, show) ||
       (shouldDedupByExternal(member, show) && externalIdentityKeys(member).some(key => keys.includes(key)))));
     if (!duplicates.length && [...groups.keys()].some(item => item.title.trim() === title)) continue;
     const candidates = [...duplicates.map(([winner]) => winner), show].sort((a, b) => positions.get(a) - positions.get(b));
     const winner = candidates.find(item => yfspPlayKey(safeOutputUrl(item.yfspUrl))) || candidates[0];
     for (const previous of candidates) {
       if (previous === winner) continue;
+      if (sameExplicitAliasEdition(previous, winner)) {
+        winner.titleAliases = [...new Set([previous.title, ...(winner.titleAliases || []), ...titleCandidates(winner.title)])]
+          .filter(alias => alias !== winner.title).slice(0, 20);
+      }
       const ids = [previous.publicId, previous.seedId, previous.id, ...(previous.legacyIds || []), ...(winner.legacyIds || [])];
       winner.legacyIds = [...new Set(ids.filter(id => id && id !== winner.id && id !== winner.publicId && id !== winner.seedId))].slice(0, 32);
       const marks = [`${previous.title}|${previous.year || ''}`, ...(previous.legacyMarkKeys || []), ...(winner.legacyMarkKeys || [])];
@@ -5403,6 +5418,7 @@ function simplifyTitleForSearch(title = '') {
 
 // 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
 const TMDB_ID_MAP = {
+  '解不开的我们': { id: 318634, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // 日韩合拍，TMDB 登记为日本剧（中文名《莓好遇见你》），按地区和中文名都匹配不到。
   '爱上草莓的季节': { id: 305551, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // TMDB 中文名《BOSS的甜蜜诱惑》（보스의 노골적 취향），与来源译名无共同词。

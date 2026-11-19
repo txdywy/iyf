@@ -3961,3 +3961,19 @@ test('a degraded homepage keeps the new observation when a private season reuses
   assert.equal(output.sourceStatus, 'degraded');
   assert.deepEqual(output.otherDramas.map(show => [show.id, show.title]), [[id, '私有剧第2季']]);
 });
+
+test('Twisted Tie aliases publish one playable card without breaking either title or old ID', () => {
+  const { helpers } = loadHelpers();
+  const metadata = { id: 'tmdb_tv_318634', title: '扭曲的领带', year: 2026, mediaType: '电视剧', regional: '韩国',
+    tmdbUrl: 'https://www.themoviedb.org/tv/318634' };
+  const source = { id: 'AHtJxIrqyaJ', title: '解不开的我们', year: 2026, mediaType: '电视剧', regional: '韩国',
+    yfspUrl: 'https://www.kubb.tv/play/AHtJxIrqyaJ' };
+  const result = helpers.dedupByTitle([{ ...metadata }, { ...source }]);
+  assert.deepEqual(Array.from(result, show => show.id), [source.id]);
+  assert.deepEqual(Array.from(result[0].legacyIds), [metadata.id]);
+  assert.ok(result[0].titleAliases.includes(metadata.title));
+  assert.equal(helpers.titleMatches(source.title, '비틀린 넥타이'), true);
+  assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, year: 2027 }]).length, 2);
+  assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, title: '解不开的我们第2季' }]).length, 2);
+  assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, tmdbUrl: 'https://www.themoviedb.org/tv/42' }]).length, 2);
+});
