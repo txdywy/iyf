@@ -1744,6 +1744,8 @@ test('a complete all-503 run preserves published source descriptions and dynamic
   let checked = 0;
   for (const category of ['koreanDramas', 'chineseVariety']) {
     for (const old of previous[category]) {
+      // 上一轮仍是两张卡、但已被别名认定为同一部剧的，合并后只保留其中一张的文案。
+      if (previous[category].some(other => other !== old && helpers.sameShowIdentity(other, old))) continue;
       const current = published[category].find(show => helpers.sameShowIdentity(show, old));
       if (!current) continue; // The existing retirement window still applies to old non-seed recommendations.
       if (old.description && ['yfsp', 'tmdb', 'wikipedia'].includes(old.descriptionSource)) {
@@ -4011,4 +4013,16 @@ test('premiere-based scoring uses the earliest known release, not the latest epi
   assert.equal(remembered.firstPublishTime, '2026-09-01T00:00:00.000Z', 'the earliest observed upload time is kept');
   assert.equal(helpers.rememberFirstPublishTime({ publishTime: '2026-01-01T00:00:00' }, now).firstPublishTime, undefined,
     'a year placeholder is not a release date');
+});
+
+test('The Table aliases collapse the TMDB-named card into the playable source card', () => {
+  const { helpers } = loadHelpers();
+  const metadata = { id: 'tmdb_tv_316702', title: '最后的餐桌', year: 2026, mediaType: '电视剧', regional: '韩国',
+    tmdbUrl: 'https://www.themoviedb.org/tv/316702', recommendScore: 98 };
+  const source = { id: 'zdCuQmsq2YC', title: '最后一桌', year: 2026, mediaType: '电视剧', regional: '韩国',
+    yfspUrl: 'https://www.kubb.tv/play/zdCuQmsq2YC', recommendScore: 80 };
+  const result = helpers.dedupByTitle([{ ...metadata }, { ...source }]);
+  assert.deepEqual(Array.from(result, show => show.id), [source.id]);
+  assert.ok(result[0].titleAliases.includes(metadata.title));
+  assert.ok(Array.from(result[0].legacyIds).includes(metadata.id), 'old share links and marks of the TMDB card keep working');
 });

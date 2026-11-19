@@ -732,6 +732,8 @@ function discoveryRecordIdentityKey(show) {
 
 const TITLE_ALIAS_MAP = {
   '解不开的我们': ['解不開的我們', '扭曲的领带', '扭曲的領帶', 'Twisted Tie', '비틀린 넥타이'],
+  // 同一部剧：来源译名《最后一桌》，TMDB 中文名《最后的餐桌》（316702，维基《最後一桌》）。
+  '最后一桌': ['最後一桌', '最后的餐桌', '最後的餐桌', 'The Last Table'],
   '最后一排的男孩': ['Notes from the Last Row'],
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
@@ -5486,6 +5488,7 @@ function simplifyTitleForSearch(title = '') {
 // 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
 const TMDB_ID_MAP = {
   '解不开的我们': { id: 318634, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
+  '最后一桌': { id: 316702, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // 日韩合拍，TMDB 登记为日本剧（中文名《莓好遇见你》），按地区和中文名都匹配不到。
   '爱上草莓的季节': { id: 305551, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // TMDB 中文名《BOSS的甜蜜诱惑》（보스의 노골적 취향），与来源译名无共同词。
