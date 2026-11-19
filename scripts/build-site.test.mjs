@@ -25,7 +25,7 @@ function createBuildFixture(directory, sourceData = JSON.parse(read(join(root, '
   }
   mkdirSync(join(directory, 'data'), { recursive: true });
   writeFileSync(join(directory, 'data/shows.json'), JSON.stringify({ ...sourceData, lastUpdated: new Date().toISOString() }));
-  for (const file of ['image_cache.json', 'discovery.json']) {
+  for (const file of ['image_cache.json', 'discovery.json', 'history.json']) {
     writeFileSync(join(directory, 'data', file), '{}');
   }
   return directory;
@@ -169,7 +169,10 @@ test('the public payload omits private source and AI run diagnostics', t => {
   for (const field of ['aiRunStatus', 'sourceKind', 'sourcePagesSucceeded', 'aiPreferredModel']) {
     assert.equal(Object.hasOwn(published, field), false, `${field} must stay private`);
   }
-  assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', 'koreanHot', 'lastUpdated', 'sourceStatus', 'stats']);
+  // koreanHot 取决于已提交数据中的榜单证据，buildKoreanHotList 可能返回 null，因此只在存在时校验其形状。
+  const optional = Object.hasOwn(published, 'koreanHot') ? ['koreanHot'] : [];
+  assert.deepEqual(Object.keys(published).sort(), ['chineseVariety', 'generatedAt', 'koreanDramas', ...optional, 'lastUpdated', 'sourceStatus', 'stats']);
+  if (optional.length) assert.ok(Array.isArray(published.koreanHot.shows), 'koreanHot must carry a shows array when present');
 });
 
 test('GitHub Pages 404 preparation uses the project prefix without changing other files', t => {

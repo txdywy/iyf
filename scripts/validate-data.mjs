@@ -30,6 +30,12 @@ const ALLOWED_HOSTS = new Set([
 // 已确认不应发布的独立卡片（例如没有独立季的《黑暗荣耀》第 2 季）。规则放在提交前校验，
 // 而不是让单元测试依赖已提交数据的内容。
 const RETIRED_TITLES = new Set(['黑暗荣耀第2季']);
+// 已确认的错配外链：例如《BTS综艺年代记》曾因别名误连到《奔跑吧，防弹！》(Run BTS!) 的豆瓣条目。
+// 卡片可以因保留期到期而下线，但只要仍发布就不能带回这些链接。
+const FORBIDDEN_LINKS = new Map([
+  ['BTS综艺年代记', new Set(['https://movie.douban.com/subject/26954787/'])],
+]);
+const FORBIDDEN_LINK_FIELDS = ['doubanUrl', 'primaryUrl', 'url'];
 // 私有的 AI 运行状态由抓取器写出，公开载荷不投影；缺失时兼容旧快照。
 const AI_STOP_REASONS = new Set(['', 'quota', 'auth', 'credit', 'failures', 'budget']);
 
@@ -161,6 +167,12 @@ function validateShows(data) {
       if (RETIRED_TITLES.has(show.title) || (Array.isArray(show.titleAliases) && show.titleAliases.some(alias => RETIRED_TITLES.has(alias)))) {
         errors.push(`${label}: retired card must not be published`);
       }
+      const forbiddenLinks = FORBIDDEN_LINKS.get(show.title);
+      for (const field of forbiddenLinks ? FORBIDDEN_LINK_FIELDS : []) {
+        if (typeof show[field] === 'string' && forbiddenLinks.has(show[field].trim())) {
+          errors.push(`${label}.${field}: known mismatched link must not be published`);
+        }
+      }
       const identity = show.id;
       if (seenIds.has(identity)) errors.push(`${label}: duplicate id ${show.id}`);
       seenIds.add(identity);
@@ -244,12 +256,51 @@ function validateObjectFile(path) {
   const data = readJSON(path);
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     errors.push(`${path}: root must be an object`);
+    return null;
+  }
+  return data;
+}
+
+// data/history.json 由 scrape.mjs 的 saveHistory() 写出：以 UTC 日期为键，最多保留 30 天，
+// 每天一条 { timestamp, koreanDramasCount, chineseVarietyCount, topKoreanDramas[≤5], topVariety[≤5] }。
+const HISTORY_MAX_DAYS = 30;
+const HISTORY_TOP_LIMIT = 5;
+
+function validateHistory(path) {
+  const history = validateObjectFile(path);
+  if (!history) return;
+  const days = Object.keys(history);
+  if (days.length > HISTORY_MAX_DAYS) errors.push(`${path}: must keep at most ${HISTORY_MAX_DAYS} days`);
+  for (const day of days) {
+    const label = `${path}[${JSON.stringify(day.slice(0, 20))}]`;
+    if (!/^\d{4}-\d{2}-\d{2}$/u.test(day) || new Date(`${day}T00:00:00Z`).toISOString().slice(0, 10) !== day) {
+      errors.push(`${label}: key must be a YYYY-MM-DD date`);
+    }
+    const entry = history[day];
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      errors.push(`${label}: must be an object`);
+      continue;
+    }
+    if (typeof entry.timestamp !== 'string' || !Number.isFinite(Date.parse(entry.timestamp))) {
+      errors.push(`${label}.timestamp: must be a valid timestamp`);
+    }
+    for (const field of ['koreanDramasCount', 'chineseVarietyCount']) {
+      if (!Number.isInteger(entry[field]) || entry[field] < 0) errors.push(`${label}.${field}: must be a non-negative integer`);
+    }
+    for (const field of ['topKoreanDramas', 'topVariety']) {
+      const titles = entry[field];
+      if (!Array.isArray(titles) || titles.length > HISTORY_TOP_LIMIT ||
+        titles.some(title => typeof title !== 'string' || !title.trim() || title.length > 200)) {
+        errors.push(`${label}.${field}: must be at most ${HISTORY_TOP_LIMIT} non-empty title strings`);
+      }
+    }
   }
 }
 
 validateShows(readJSON('data/shows.json'));
 validateObjectFile('data/image_cache.json');
 validateObjectFile('data/discovery.json');
+validateHistory('data/history.json');
 
 for (const warning of warnings) console.warn(`${annotate ? '::warning::' : 'WARN '}${warning}`);
 if (errors.length) {
