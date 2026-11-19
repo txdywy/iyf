@@ -60,7 +60,7 @@ function loadHelpers({
         getHomepageCategoryCoverage, isHomepageHealthy,
         seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
         seedDescriptionOf, previousAdoptedSeasons, clearUnverifiedVarietySeasonMetadata,
-        isUsableAIScore, clearStaleAIScore, rememberFirstPublishTime,
+        isUsableAIScore, clearStaleAIScore, rememberFirstPublishTime, TMDB_VARIETY_DISCOVERY,
       };
     `;
   vm.createContext(context);
@@ -4025,4 +4025,27 @@ test('The Table aliases collapse the TMDB-named card into the playable source ca
   assert.deepEqual(Array.from(result, show => show.id), [source.id]);
   assert.ok(result[0].titleAliases.includes(metadata.title));
   assert.ok(Array.from(result[0].legacyIds).includes(metadata.id), 'old share links and marks of the TMDB card keep working');
+});
+
+test('the search fallback skips cards already observed this run', async () => {
+  const searched = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    searched.push(new URL(url).searchParams.get('tags'));
+    return response({ data: { info: [{ result: [] }] } });
+  } });
+  const card = (key, title) => ({ id: key, title, mediaType: '电视剧', regional: '韩国', year: 2026, yfspUrl: `https://www.kubb.tv/play/${key}` });
+  await helpers.fetchSearchSnapshot({ koreanDramas: [card('seen1', '已观测剧'), card('todo1', '待续期剧')], chineseVariety: [] },
+    { observedKeys: new Set(['seen1']) });
+  assert.ok(searched.includes('待续期剧'));
+  assert.equal(searched.includes('已观测剧'), false, 'a card the catalog already observed this run is not searched again');
+});
+
+test('TMDB variety discovery rejects derivative compilations and does not count TMDB genre names as light evidence', () => {
+  const { helpers } = loadHelpers();
+  const accept = helpers.TMDB_VARIETY_DISCOVERY.accept;
+  const base = { title: '新综艺', mediaType: '综艺', regional: '大陆', year: 2026, contentType: '脱口秀·喜剧', description: '', score: 0, playCount: 0 };
+  assert.equal(accept({ ...base, title: 'sketch合集·纯享版' }), false);
+  assert.equal(accept(base), false, 'genre names generated from TMDB categories are not evidence of a light show');
+  assert.equal(accept({ ...base, description: '爆笑游戏真人秀' }), true);
+  assert.equal(accept({ ...base, tmdbRating: 7.5 }), true);
 });

@@ -1501,12 +1501,14 @@ function observedYfspSearchShow(found) {
   }, yfspDomainOfHost(new URL(found.url).hostname));
 }
 
-async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000 } = {}) {
+async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000, observedKeys = new Set() } = {}) {
   const shows = new Map();
   const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
     category, matched: new Set(),
+    // 本轮分类列表或首页已经观测到的卡片不必再搜，名额留给其余卡片续期。
     targets: (previous[category] || [])
-      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)))
+      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)) &&
+        !observedKeys.has(yfspPlayKey(safeOutputUrl(show.yfspUrl))))
       .sort((a, b) => searchFallbackDueAt(a) - searchFallbackDueAt(b) ||
         safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
       .slice(0, 30),
@@ -1547,10 +1549,14 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
 
 async function discoverIndependentYfspCandidates(queue, liveShows, attempts) {
   const deadline = Date.now() + 12000;
-  const candidates = queue.filter(item => item.state === 'pending' && item.season === 1)
+  // 来源是中文站，只用含中日韩文字的名称搜索（TVmaze 的英文名几乎不可能与中文标题相同）；
+  // 同一候选 3 天内不重复搜索。
+  const hasCjk = text => /[\p{Script=Han}\p{Script=Hangul}]/u.test(String(text || ''));
+  const candidates = queue.filter(item => item.state === 'pending' && item.season === 1 &&
+      [item.title, ...(item.titleAliases || [])].some(hasCjk) && !(Date.now() - (attempts[item.id] || 0) < 3 * DAY_MS))
     .sort((a, b) => (attempts[a.id] || 0) - (attempts[b.id] || 0)).slice(0, 4);
   for (const item of candidates) {
-    const titles = [...new Set([item.title, ...item.titleAliases])];
+    const titles = [...new Set([item.title, ...(item.titleAliases || [])])].filter(hasCjk);
     for (const title of titles.slice(0, 2)) {
       if (Date.now() >= deadline) return;
       attempts[item.id] = Date.now();
@@ -3002,7 +3008,7 @@ async function main() {
   });
   const searchSnapshot = homepageHealthy
     ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, categoryCoverage: [] }
-    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
+    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems, observedKeys: new Set(liveShows.keys()) });
   for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
   noteYfspKeySpace(prevShows);
   // 首页或分类列表任一健康即为主来源健康；搜索回退仍照常为未出现在列表里的已收录卡片续期。
@@ -4732,6 +4738,8 @@ const TMDB_KDRAMA_DISCOVERY = Object.freeze({
 });
 
 // TMDB 收录国产综艺的热度普遍偏低，门槛相应放低；综艺没有 AI 收录门，因此只收轻松向或高分的新节目。
+const TMDB_VARIETY_DERIVATIVE_TITLE = /纯享|合集|精编|加更|花絮|陪看|彩蛋|未播|超前|会员版/u;
+
 const TMDB_VARIETY_DISCOVERY = Object.freeze({
   label: '综艺', mediaType: '综艺', type: 5, category: 'variety', countries: ['CN', 'KR'],
   query: 'with_origin_country=CN%7CKR&with_genres=10764%7C10767',
@@ -4741,7 +4749,10 @@ const TMDB_VARIETY_DISCOVERY = Object.freeze({
   minPopularity: 3, maxNew: 5,
   accept: show => {
     if (VarietyExclude.some(keyword => show.title.includes(keyword)) || scoreVariety(show) < 0) return false;
-    const text = `${show.contentType} ${show.title} ${sourceDescriptionForScoring(show)}`;
+    // 剪辑合集、纯享版等衍生条目不是独立节目。
+    if (TMDB_VARIETY_DERIVATIVE_TITLE.test(show.title)) return false;
+    // contentType 由 TMDB 类型名生成，“脱口秀/喜剧”本身就在轻松关键词里，不能用来证明节目轻松。
+    const text = `${show.title} ${sourceDescriptionForScoring(show)}`;
     return VarietyFunnyKeywords.some(keyword => text.includes(keyword)) || boundedScore(show.tmdbRating) >= 7;
   },
   score: show => scoreVariety(show),
@@ -4848,7 +4859,8 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
     const t = `${s.contentType} ${s.title}`.toLowerCase();
     const isFunny = VarietyFunnyKeywords.some(kw => t.includes(kw));
     const hasFunnyHost = VarietyHighWeightHosts.some(h => (s.actor || '').includes(h));
-    const pass = s.score >= minSc2 || s.playCount >= minPl2 || (isFunny && s.playCount >= 5000) || hasFunnyHost;
+    // 轻松类型的低播放量放宽只给当年节目；旧节目仍须达到评分或播放量门槛。
+    const pass = s.score >= minSc2 || s.playCount >= minPl2 || (isFunny && s.year >= CURRENT_YEAR && s.playCount >= 5000) || hasFunnyHost;
     if (pass) {
       s.recommendScore = scoreVariety(s);
       s.category = 'variety';
