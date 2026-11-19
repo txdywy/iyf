@@ -372,7 +372,10 @@ export function buildKoreanHotList(catalog, evidence, signals, generatedAt) {
   for (const [id, item] of titleEntries) {
     if (item.excluded) continue;
     const matches = catalog.filter(show => matchesReference(show, item));
-    const show = matches.length === 1 ? matches[0] : item.card && {
+    // 只在榜单出现时，前端按 hot: 卡片的片名+年份记录标记；进入目录后带上这些旧键，标记跟着节目走。
+    const hotMarkKeys = [`id:hot:${id}`, `${item.title}|${item.year || ''}`];
+    const show = matches.length === 1 ? { ...matches[0],
+      legacyMarkKeys: [...new Set([...hotMarkKeys, ...(matches[0].legacyMarkKeys || [])])].slice(0, 32) } : item.card && {
       ...item.card, id: `hot:${id}`, title: item.title, titleAliases: item.aliases,
       year: item.year, mediaType: '电视剧', regional: '韩国', lang: '韩语', primaryUrlSource: 'official',
       broadcast: broadcastFor(item, validAirings(signals?.airings).find(row => row.id === item.tvmazeId && row.season === 1)),

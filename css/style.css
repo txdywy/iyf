@@ -174,13 +174,19 @@ a:hover { color: var(--pink); }
   -ms-overflow-style: none;
 }
 
+/* 宽屏九个分类一行放得下，不再为溢出箭头预留右侧空白。 */
+@media (min-width: 1200px) {
+  .tabs .container { padding-right: 20px; }
+}
+
 .tabs .container::-webkit-scrollbar {
   display: none;
 }
 
+/* 桌面左右内边距收紧到 14px，1200px 以上九个分类一行放得下。 */
 .tab {
   min-height: 44px;
-  padding: 10px 20px;
+  padding: 10px 14px;
   border: none;
   background: transparent;
   color: var(--text-dim);
@@ -633,6 +639,12 @@ a:hover { color: var(--pink); }
 
 .badge-score {
   background: rgba(253,203,110,0.9);
+  color: #1a1a24;
+}
+
+/* 周榜名次：金底深字，明暗海报上都清楚。 */
+.badge-rank {
+  background: #f5c542;
   color: #1a1a24;
 }
 
