@@ -112,12 +112,19 @@ test('homepage health requires live coverage in both recommendation categories',
   assert.equal(helpers.isHomepageHealthy(baseline), true, 'three observations from each category satisfy the category floor');
 });
 
-test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', () => {
-  const { helpers } = loadHelpers();
+test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', async () => {
+  // 内联夹具：不依赖已提交数据里是否仍保留这张旧卡片；已提交数据的错误链接由 validate-data.mjs 拦截。
+  const { helpers } = loadHelpers({ fetchImpl: async () => response([
+    { id: '26954787', title: '奔跑吧，防弹！', sub_title: 'Run BTS!', year: '2019' },
+  ]) });
   assert.equal(helpers.titleMatches('BTS综艺年代记', 'Run BTS!'), false);
-  const shows = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
-  const show = shows.chineseVariety.find(item => item.id === 'gME4Wj46fvE');
-  assert.ok(show);
+  assert.equal(helpers.titleMatches('BTS综艺年代记', '奔跑吧，防弹！'), false);
+  const fixture = {
+    id: 'gME4Wj46fvE', title: 'BTS综艺年代记', year: 2019, mediaType: '综艺', regional: '韩国', category: 'variety',
+    yfspUrl: 'https://www.yfsp.tv/play/gME4Wj46fvE', coverImg: 'https://static.yfsp.tv/upload/video/bts.gif',
+  };
+  assert.equal(await helpers.searchDoubanSubject({ ...fixture }), null, 'Run BTS must not become this show\'s Douban subject');
+  const show = helpers.normalizeOutputShow({ ...fixture });
   assert.equal(show.primaryUrl, show.yfspUrl);
   assert.equal(show.url, show.yfspUrl);
   assert.equal(show.primaryUrlSource, 'yfsp');
@@ -1842,10 +1849,24 @@ function seasonCache(overrides = {}) {
 }
 
 test('real same-season title spellings retain one identity and reusable cache without merging other identities', () => {
-  const data = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
-  const cache = JSON.parse(readFileSync(join(root, 'data/image_cache.json'), 'utf8'));
-  const original = data.chineseVariety.find(show => show.title === '只要有空第5季');
-  assert.ok(original, 'exercise the currently published show');
+  // 内联取自真实卡片与封面缓存的身份字段，避免测试依赖已提交数据仍发布这一季。
+  const original = {
+    id: 'mTmMCoTFAX1', title: '只要有空第5季', mediaType: '综艺', regional: '韩国', year: 2026,
+    category: 'variety', yfspUrl: 'https://www.kubb.tv/play/mTmMCoTFAX1',
+    coverImg: 'https://image.tmdb.org/t/p/original/4dtjaMd4BLRVh6b1VrrhLNFwd8t.jpg', coverSource: 'tmdb',
+    tmdbUrl: 'https://www.themoviedb.org/tv/247805/season/5', tmdbId: 247805, tmdbSeriesId: 247805, tmdbSeasonNumber: 5,
+    doubanUrl: 'https://movie.douban.com/subject/38556429/', imdbUrl: 'https://www.imdb.com/title/tt34460456/',
+  };
+  const cache = { [original.id]: {
+    title: '只要有空第5季', year: 2026, mediaType: '综艺',
+    url: 'https://image.tmdb.org/t/p/original/4dtjaMd4BLRVh6b1VrrhLNFwd8t.jpg', source: 'tmdb', version: 16,
+    query: 'season-direct:247805:5', matchedTitle: '只要有空第 5 季', matchedSeriesTitle: '只要有空',
+    tmdbId: 247805, tmdbUrl: 'https://www.themoviedb.org/tv/247805/season/5', tmdbSeriesId: 247805,
+    tmdbSeasonId: 531901, tmdbSeasonNumber: 5,
+    doubanUrl: 'https://movie.douban.com/subject/38556429/', wikipediaUrl: '', imdbUrl: 'https://www.imdb.com/title/tt34460456/',
+    wikidataId: 'Q137916151', cachedAt: '2026-09-01T14:32:37.938Z',
+    doubanId: '38556429', doubanMatchedTitle: '只要有空 第五季', doubanMatchedSeasonNumber: 5,
+  } };
   const variant = { ...original, id: 'changed-source-id', title: '只要有空5' };
   const { helpers } = loadHelpers();
   assert.equal(helpers.sameShowIdentity(original, variant), true);

@@ -174,7 +174,9 @@ export async function deployCloudflare({
   let lastFailures = ['verification deadline expired before a complete polling round'];
   let previousFailureSummary = '';
   let onlyDigestMismatches = false;
+  let round = 0;
   while (now() < deadline) {
+    round++;
     const readyOrigins = new Set();
     let digestMismatches = 0;
     const check = async (origin, item) => {
@@ -235,6 +237,9 @@ export async function deployCloudflare({
       break;
     }
     if (!lastFailures.length) {
+      // 触发后第一轮就完全一致，说明线上原本就是这些字节（例如跳过抓取的运行），新构建不可能这么快完成。
+      // 这只证明线上内容正确，不能证明本次 Hook 触发的构建成功；以 notice 标明，避免误读为构建已验收。
+      if (round === 1) log('::notice::线上内容已与产物一致；本次 Cloudflare 构建是否成功无法从内容判断。');
       log(`Cloudflare production matches the validated artifact (lastUpdated: ${lastUpdated}).`);
       return { lastUpdated, files: expected.length, origin: pagesOrigin, verifiedOrigins: [...productionOrigins] };
     }

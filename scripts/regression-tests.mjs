@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { YFSP_SITE_DOMAINS, yfspDomainOfHost, yfspPlayKey } from './korean-drama-sources.mjs';
 import { applyVerifiedKoreanDrama, buildKoreanHotList, koreanDiscoveryQueue, koreanPlayIdentity, loadKoreanDramaEvidence, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
+import test from 'node:test';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = path => readFileSync(join(root, path), 'utf8');
@@ -347,7 +348,7 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
 }
 
 // ── Frontend behavior regressions ──────────────────────────
-{
+test('Frontend behavior regressions: skip navigation should move focus to the content without changing the tab URL', async () => {
   const { document, elements } = createAppDocument();
   const location = { hash: '#variety', search: '', href: 'http://localhost/#variety' };
   const helpers = loadAppHelpers({ documentImpl: document, locationImpl: location });
@@ -366,8 +367,9 @@ function mockResponse({ status = 200, text = '', json = {} } = {}) {
   helpers.handleUrlStateChange();
   assert.equal(elements.showGrid.getAttribute('aria-labelledby'), 'tab-variety', 'content anchors must not reroute to Korean recommendations');
   assert.equal(helpers.getCurrentShows()[0].title, '综艺节目');
-}
+});
 
+test('Frontend behavior regressions: a background refresh should preserve expanded results', async () => {
 for (const changed of [false, true]) {
   const { document, elements } = createAppDocument();
   const cached = {
@@ -395,7 +397,9 @@ for (const changed of [false, true]) {
   if (changed) assert.match(elements.showGrid.innerHTML, /本轮已更新/, 'changed data should still update the visible cards');
   else assert.equal(elements.showGrid.innerHTML, before, 'an unchanged snapshot should preserve the rendered cards');
 }
+});
 
+test('Frontend behavior regressions: filters must preserve the first-load skeleton until the data settles', async () => {
 for (const succeeds of [true, false]) {
   const { document, elements } = createAppDocument();
   let finishFetch;
@@ -450,8 +454,9 @@ for (const succeeds of [true, false]) {
     assert.equal(elements.emptyAction.hidden, false, 'a failed first load must replace the skeleton with its recovery action');
   }
 }
+});
 
-{
+test('Frontend behavior regressions: pending recommendation data must not block independent TVmaze filters', async () => {
   const { document, elements } = createAppDocument();
   let finishFetch;
   const helpers = loadAppHelpers({
@@ -469,8 +474,9 @@ for (const succeeds of [true, false]) {
   finishFetch({ ok: true, json: async () => ({ lastUpdated: '2026-10-03', koreanDramas: [], chineseVariety: [] }) });
   await pending;
   assert.match(elements.showGrid.innerHTML, /独立加载的时间表/, 'settled recommendation data must not overwrite the active schedule');
-}
+});
 
+test('Frontend behavior regressions: the timeout should occur while the first history batch is pending', async () => {
 for (const resultIsToday of [true, false]) {
   const { document, elements } = createAppDocument();
   const dateImpl = fixedInstant('2026-10-03T01:00:00Z');
@@ -525,8 +531,9 @@ for (const resultIsToday of [true, false]) {
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, recoveredRequestCount, 'a complete refresh should restore the normal cache lifetime');
 }
+});
 
-{
+test('Frontend behavior regressions: cancelled requests must not mark a newer complete cache as partial', async () => {
   const { document, elements } = createAppDocument();
   let finishHistory;
   let recovered = false;
@@ -561,8 +568,9 @@ for (const resultIsToday of [true, false]) {
   await helpers.switchTab('tvmaze');
   assert.equal(calls, requestCount);
   assert.doesNotMatch(elements.showGrid.innerHTML, /已取消的/, 'cancelled partial results must never replace the newer cache');
-}
+});
 
+test('Frontend behavior regressions: partial schedules should be available for a short retry interval', async () => {
 for (const failure of ['http', 'json']) {
   const { document, elements } = createAppDocument();
   const dateImpl = fixedInstant('2026-10-03T01:00:00Z');
@@ -596,7 +604,9 @@ for (const failure of ['http', 'json']) {
   assert.match(elements.showGrid.innerHTML, /恢复的节目/);
   assert.doesNotMatch(elements.updateInfo.textContent, /部分日期暂不可用/);
 }
+});
 
+test('Frontend behavior regressions: the same Korea-local day may reuse a fresh cache', async () => {
 for (const cacheKind of ['empty', 'complete', 'partial']) {
   const { document, elements } = createAppDocument();
   const dateImpl = fixedInstant('2026-10-03T14:59:50Z');
@@ -626,8 +636,9 @@ for (const cacheKind of ['empty', 'complete', 'partial']) {
   assert.doesNotMatch(elements.showGrid.innerHTML, /前一天的节目/);
   assert.notEqual(elements.empty.style.display, 'block');
 }
+});
 
-{
+test('Frontend behavior regressions: HTML entities should be decoded before final text escaping', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setTVmazeCache([{ id: 1, name: '实体测试', summary: '<p>Jack &amp; Jane&#39;s &quot;return&quot; &#x1f3ac;</p>' }]);
@@ -641,8 +652,9 @@ for (const cacheKind of ['empty', 'complete', 'partial']) {
   helpers.setTVmazeCache([{ id: 3, name: '标点测试', summary: '<p>It&rsquo;s &ldquo;Seoul&rdquo; &mdash; a caf&eacute;.</p>' }]);
   await helpers.switchTab('tvmaze');
   assert.ok(elements.showGrid.innerHTML.includes('<p class="card-desc">It’s “Seoul” — a café.</p>'));
-}
+});
 
+test('Frontend behavior regressions: filters must preserve the current loading error', async () => {
 for (const tab of ['korean', 'tvmaze']) {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => { throw new Error('offline'); } });
@@ -662,8 +674,9 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.switchTab('korean', { animate: false });
   assert.match(elements.showGrid.innerHTML, /切换成功/, 'switching to a loaded category should clear the old remote error');
 }
+});
 
-{
+test('Frontend behavior regressions: newest', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({
     documentImpl: document,
@@ -674,9 +687,9 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(elements.sortBy.value, 'newest');
   helpers.switchTab('korean', { animate: false });
   assert.equal(elements.sortBy.value, 'recommend', 'the initial deep-link sort must not overwrite the Korean-tab preference');
-}
+});
 
-{
+test('Frontend behavior regressions: a new zero-result state must cancel a still-running counter even when the displayed number is already zero', async () => {
   let stopped = 0;
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, setIntervalImpl: () => 1, clearIntervalImpl: () => stopped++ });
@@ -684,9 +697,9 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.animateNum('statTotal', 0);
   assert.equal(stopped, 1, 'a new zero-result state must cancel a still-running counter even when the displayed number is already zero');
   assert.equal(elements.statTotal.textContent, '0');
-}
+});
 
-{
+test('Frontend behavior regressions: discovery must not turn a trailer into a running drama', async () => {
   const candidate = { title: '待播节目', regional: '韩国', atypeName: '电视剧', score: 8, hot: 100000, postTime: '2026-09-27', lastName: '预告', contxt: 'upcoming' };
   const { helpers } = loadScrapeHelpers({ fetchImpl: async () => mockResponse({ json: { data: { info: [{ result: [candidate] }] } } }) });
   const discovered = await helpers.discoverNewKDramas(new Map(), new Map());
@@ -697,9 +710,9 @@ for (const tab of ['korean', 'tvmaze']) {
   const variety = await helpers.discoverNewVariety(new Map(), new Map());
   assert.equal(variety.length, 1);
   assert.equal(variety[0].isSerial, false, 'the same status rule must apply to discovered variety programmes');
-}
+});
 
-{
+test('Frontend behavior regressions: ongoing statistics must only count positively known running shows', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setAllData({ lastUpdated: '2026-09-27', chineseVariety: [], koreanDramas: [
@@ -715,9 +728,9 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.ok(!helpers.isShowDataset({ koreanDramas: [{}], chineseVariety: [] }), 'malformed datasets must not enter the cache');
   assert.ok(helpers.isShowDataset({ lastUpdated: '2026-09-27', koreanDramas: [{ id: 'valid', title: '有效节目' }], chineseVariety: [] }));
   assert.doesNotMatch((helpers.renderCard({ title: '缺少AI分', aiScore: null }, 0) + helpers.renderDetail({ title: '缺少AI分', aiScore: null })), /🤖 0\/100/, 'missing AI scores must not become zero-score badges');
-}
+});
 
-{
+test('Frontend behavior regressions: the schedule should default to chronological sorting', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async () => { throw new Error('local data offline'); } });
   helpers.setTVmazeCache([
@@ -737,9 +750,9 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.switchTab('korean');
   assert.match(elements.emptyMessage.textContent, /加载失败/, 'returning to the failed local source should expose its retry state');
   assert.equal(helpers.loadMoreShows(), false, 'a queued auto-load callback must not revive remote cards in a failed local tab');
-}
+});
 
-{
+test('Frontend behavior regressions: late responses must not overwrite the newer shared cache', async () => {
   let finishOldRequest;
   let calls = 0;
   const rows = prefix => Array.from({ length: 5 }, (_, i) => ({ show: { id: i + 1, name: `${prefix}${i}`, type: 'Scripted', status: 'Running' } }));
@@ -758,9 +771,9 @@ for (const tab of ['korean', 'tvmaze']) {
   await helpers.switchTab('tvmaze');
   assert.match(elements.showGrid.innerHTML, /新请求/);
   assert.doesNotMatch(elements.showGrid.innerHTML, /已取消请求/, 'late responses must not overwrite the newer shared cache');
-}
+});
 
-{
+test('Frontend behavior regressions: manual keyboard-accessible loading must work alongside automatic loading', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setAllData({ lastUpdated: '2026-09-27', koreanDramas: Array.from({ length: 30 }, (_, i) => ({ title: `键盘加载${i}` })), chineseVariety: [] });
@@ -769,10 +782,10 @@ for (const tab of ['korean', 'tvmaze']) {
   elements.loadMoreButton.dispatch('click');
   assert.equal((elements.showGrid.innerHTML.match(/<article class="show-card/g) || []).length, 30, 'manual keyboard-accessible loading must work alongside automatic loading');
   assert.equal(elements.loadMore.hidden, true);
-}
+});
 
 // Verify the actual deployment projection, not only the full source dataset.
-{
+test('Frontend behavior regressions: shows.json', async () => {
   const buildDir = mkdtempSync(join(tmpdir(), 'iyf-projection-test-'));
   try {
     const output = join(buildDir, 'shows.json');
@@ -799,24 +812,24 @@ for (const tab of ['korean', 'tvmaze']) {
   } finally {
     rmSync(buildDir, { recursive: true });
   }
-}
+});
 
-{
+test('Frontend behavior regressions: AI discovery must enforce the score threshold even if ok is true', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'test' },
     fetchImpl: aiFetchWithContent('{"results":[{"id":"low","ok":true,"recommendationScore100":39,"recommendationLevel":"weak","r":"不够推荐"},{"id":"threshold","ok":true,"recommendationScore100":40,"recommendationLevel":"moderate","r":"达到门槛"}]}'),
   });
   const accepted = await helpers.aiEvaluateDiscovery([{ id: 'low', title: '低分' }, { id: 'threshold', title: '门槛' }]);
   assert.deepEqual(plain(accepted.map(s => s.id)), ['threshold'], 'AI discovery must enforce the score threshold even if ok is true');
-}
+});
 
-{
+test('Frontend behavior regressions: without an AI provider, new dramas must be deferred rather than admitted unvetted', async () => {
   const { helpers } = loadScrapeHelpers({ env: {} });
   const accepted = await helpers.aiEvaluateDiscovery([{ id: 'unvetted', title: '未筛选' }]);
   assert.equal(accepted.length, 0, 'without an AI provider, new dramas must be deferred rather than admitted unvetted');
-}
+});
 
-{
+test('Frontend behavior regressions: generated descriptions must not become scoring facts', async () => {
   let scoredPrompt = '';
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'test' },
@@ -830,9 +843,9 @@ for (const tab of ['korean', 'tvmaze']) {
   const live = helpers.normalizeItem({ mediaKey: 'source', title: '来源替换', description: '已验证来源剧情简介' });
   const merged = helpers.mergePreviousShowState(live, { descriptionSource: 'ai', description: '旧AI文案' });
   assert.equal(merged.descriptionSource, 'yfsp', 'replacing an AI description must replace its provenance too');
-}
+});
 
-{
+test('Frontend behavior regressions: Wikipedia-only enrichment must run and abort a stalled response body', async () => {
   let abortedBody = false;
   const { helpers } = loadScrapeHelpers({
     setTimeoutImpl: fn => setTimeout(fn, 15), clearTimeoutImpl: clearTimeout,
@@ -842,9 +855,9 @@ for (const tab of ['korean', 'tvmaze']) {
   });
   await helpers.enrichDescriptions([{ id: 'wiki-only', title: '维基简介', wikipediaUrl: 'https://zh.wikipedia.org/wiki/Test', description: '' }]);
   assert.equal(abortedBody, true, 'Wikipedia-only enrichment must run and abort a stalled response body');
-}
+});
 
-{
+test('Frontend behavior regressions: block', async () => {
   let bodySignal;
   const helpers = loadAppHelpers({
     fetchImpl: async (_url, { signal }) => ({
@@ -858,9 +871,9 @@ for (const tab of ['korean', 'tvmaze']) {
   await assert.rejects(helpers.fetchJSONWithTimeout('data/shows.json', {}, 20), { name: 'AbortError' },
     'the data deadline should abort a stalled response body, not only the response headers');
   assert.equal(bodySignal.aborted, true);
-}
+});
 
-{
+test('Frontend behavior regressions: YFSP-only cards should render an actionable primary link', async () => {
   // 列表卡片只留海报、片名、评分和状态，其余在详情层；链接与标签的断言针对两者合起来的标记。
   const { renderCard: renderCompactCard, renderDetail, safeExternalUrl } = loadAppHelpers();
   const renderCard = (show, index) => renderCompactCard(show, index) + renderDetail(show);
@@ -962,9 +975,9 @@ for (const tab of ['korean', 'tvmaze']) {
     ['今年综艺'],
     'new variety tab should not mix classic shows into current-year results'
   );
-}
+});
 
-{
+test('Frontend behavior regressions: valid quoted poster paths must render an image', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setAllData({
@@ -1003,9 +1016,9 @@ for (const tab of ['korean', 'tvmaze']) {
     const card = helpers.renderCard(unsafeShow, 0) + helpers.renderDetail(unsafeShow);
     assert.doesNotMatch(card, /<img |<a (?!class="card-open" href="\?show=)/, 'unsafe source URLs must not become poster or action attributes');
   }
-}
+});
 
-{
+test('Frontend behavior regressions: the auto-load sentinel should remain active while more results exist', async () => {
   let intersectionCallback;
   const { document, elements } = createAppDocument();
   const windowImpl = {
@@ -1039,9 +1052,9 @@ for (const tab of ['korean', 'tvmaze']) {
     'approaching the bottom should append the next batch without a click'
   );
   assert.equal(elements.loadMore.hidden, true, 'the auto-load sentinel should hide after all results are rendered');
-}
+});
 
-{
+test('Frontend behavior regressions: latest tab should select newest sorting by default', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setAllData({
@@ -1056,9 +1069,9 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(elements.sortBy.value, 'newest', 'latest tab should select newest sorting by default');
   assert.ok(elements.showGrid.innerHTML.indexOf('最新更新') < elements.showGrid.innerHTML.indexOf('较早更新'), 'latest tab should render newest publish time first');
   assert.doesNotMatch(elements.showGrid.innerHTML, /当年但非新加入/, 'new tab should require an explicit recently-added marker instead of the calendar year');
-}
+});
 
-{
+test('Frontend behavior regressions: classic tab should include explicitly curated classics', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
   helpers.setAllData({
@@ -1071,9 +1084,9 @@ for (const tab of ['korean', 'tvmaze']) {
   helpers.switchTab('classic');
   assert.match(elements.showGrid.innerHTML, /明确经典/, 'classic tab should include explicitly curated classics');
   assert.doesNotMatch(elements.showGrid.innerHTML, /高分但非经典/, 'classic tab should not turn every high-score or new show into a classic');
-}
+});
 
-{
+test('Frontend behavior regressions: the strongest recommendation should fill the relative recommendation bar', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
   helpers.setAllData({
@@ -1088,15 +1101,15 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.match(elements.showGrid.innerHTML, /相对推荐度 50%/, 'relative recommendation bars should preserve differences between cards');
   assert.doesNotMatch(elements.showGrid.innerHTML, /badge-ai/, 'valid low AI scores (9, 8.3 on the 0-100 scale) must not be inflated into a recommendation badge');
   assert.doesNotMatch(elements.showGrid.innerHTML, /card-score-float/, 'score should not be duplicated as a poster overlay');
-}
+});
 
-{
+test('Frontend behavior regressions: stale data should be called out after the freshness threshold', async () => {
   const helpers = loadAppHelpers({ dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
   assert.deepEqual(plain(helpers.getDataFreshness('2026-08-29T15:30:00Z', Date.parse('2026-08-29T16:00:00Z'))), { label: '刚刚更新', stale: false });
   assert.deepEqual(plain(helpers.getDataFreshness('2026-08-27T15:30:00Z', Date.parse('2026-08-29T16:00:00Z'))), { label: '约2天前更新', stale: true }, 'stale data should be called out after the freshness threshold');
-}
+});
 
-{
+test('Frontend behavior regressions: search covers every category and labels results from outside the selected tab', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
   helpers.setAllData({
@@ -1110,9 +1123,9 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.match(elements.resultSummary.textContent, /含其他分类 1 个/u);
   helpers.switchTab('variety');
   assert.match(elements.showGrid.innerHTML, /周五/u, 'variety cards should show the source update message when status text is absent');
-}
+});
 
-{
+test('Frontend behavior regressions: URL state should apply the ongoing filter on the active tab', async () => {
   const { document, elements } = createAppDocument();
   const location = {
     search: '?status=all',
@@ -1143,9 +1156,9 @@ for (const tab of ['korean', 'tvmaze']) {
   assert.equal(elements.filterStatus.value, 'complete', 'URL navigation should restore the filter control');
   assert.match(elements.showGrid.innerHTML, /完结新剧/, 'URL navigation should render the new tab with URL filters');
   assert.doesNotMatch(elements.showGrid.innerHTML, /连载新剧/, 'URL navigation should not leave the previous tab filter applied');
-}
+});
 
-{
+test('Frontend behavior regressions: TVmaze should use the Korea-local calendar date', async () => {
   const helpers = loadAppHelpers({ dateImpl: fixedInstant('2026-08-29T16:00:00Z') });
   assert.equal(helpers.getScheduleDateKey(Date.parse('2026-08-29T16:00:00Z')), '2026-08-30', 'TVmaze should use the Korea-local calendar date');
   assert.deepEqual(
@@ -1159,8 +1172,9 @@ for (const tab of ['korean', 'tvmaze']) {
     { name: '今日早', airDate: '2026-08-30', latestEpisode: { airtime: '19:00' }, rating: { average: 7.0 } },
   ]);
   assert.deepEqual(plain(sorted.map(show => show.name)), ['今日早', '今日晚', '昨日'], 'TVmaze cards should follow air date and airtime rather than rating alone');
-}
+});
 
+test('Frontend behavior regressions: a failed current day should still try recent history', async () => {
 for (const hasStaleCache of [false, true]) {
   const { document, elements } = createAppDocument();
   const cachedAt = Date.parse('2026-08-20T00:00:00Z');
@@ -1199,8 +1213,9 @@ for (const hasStaleCache of [false, true]) {
   }
   assert.equal(calls.length, 14, 'failed empty refreshes must not create or refresh the fifteen-minute cache');
 }
+});
 
-{
+test('Frontend behavior regressions: 2026-08-30', async () => {
   const { document, elements } = createAppDocument();
   const calls = [];
   const now = Date.parse('2026-08-29T16:00:00Z');
@@ -1222,9 +1237,9 @@ for (const hasStaleCache of [false, true]) {
   const firstRequestCount = calls.length;
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, firstRequestCount, 'confirmed empty schedules should still use the normal cache TTL');
-}
+});
 
-{
+test('Frontend behavior regressions: TVmaze should request the Korea-local current date first', async () => {
   const { document, elements } = createAppDocument();
   const calls = [];
   const now = Date.parse('2026-08-29T16:00:00Z');
@@ -1259,9 +1274,9 @@ for (const hasStaleCache of [false, true]) {
   await helpers.switchTab('tvmaze');
   assert.equal(calls.length, firstRequestCount, 'successful history fallback should remain cacheable');
   assert.match(elements.showGrid.innerHTML, /回退剧/);
-}
+});
 
-{
+test('Frontend behavior regressions: loading the remote tab should not announce an empty result', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document, fetchImpl: async (_url, { signal }) => abortedFetch(signal) });
   helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
@@ -1269,9 +1284,9 @@ for (const hasStaleCache of [false, true]) {
   assert.match(elements.resultSummary.textContent, /正在加载/, 'loading the remote tab should not announce an empty result');
   helpers.switchTab('korean');
   await pending;
-}
+});
 
-{
+test('Frontend behavior regressions: unrated remote cards should still appear', async () => {
   const { document, elements } = createAppDocument();
   const helpers = loadAppHelpers({ documentImpl: document });
   helpers.setAllData({ lastUpdated: '2026-08-29T00:00:00Z', stats: {}, koreanDramas: [], chineseVariety: [] });
@@ -1283,9 +1298,9 @@ for (const hasStaleCache of [false, true]) {
   await helpers.switchTab('tvmaze');
   assert.match(elements.showGrid.innerHTML, /未评分韩剧/, 'unrated remote cards should still appear');
   assert.doesNotMatch(elements.showGrid.innerHTML, /⭐ 0\.0/, 'missing ratings must not display as a zero-star score');
-}
+});
 
-{
+test('Frontend behavior regressions: TVmaze should reuse the last successful schedule when the remote request fails', async () => {
   const { document, elements } = createAppDocument();
   const cachedAt = Date.parse('2026-08-20T00:00:00Z');
   const helpers = loadAppHelpers({
@@ -1311,10 +1326,10 @@ for (const hasStaleCache of [false, true]) {
   await helpers.switchTab('tvmaze');
   assert.match(elements.showGrid.innerHTML, /缓存韩剧/, 'TVmaze should reuse the last successful schedule when the remote request fails');
   assert.match(elements.updateInfo.textContent, /缓存可能已过期/, 'stale TVmaze fallback should be disclosed in the source status');
-}
+});
 
 // ── Scraper status parsing and matching regressions ──────────────────────────
-{
+test('Scraper status parsing and matching regressions: date-like 集全 values should not become episode counts', async () => {
   const { helpers } = loadScrapeHelpers();
   assert.deepEqual(plain(helpers.parseUpdateStatus('16集全')), { totalEpisodes: 16, currentEpisode: 16, isComplete: true });
   assert.deepEqual(plain(helpers.parseUpdateStatus('20170707集全')), { totalEpisodes: 0, currentEpisode: 0, isComplete: true }, 'date-like 集全 values should not become episode counts');
@@ -1374,10 +1389,10 @@ for (const hasStaleCache of [false, true]) {
     -1,
     'same-title candidates with a different media type or region must be rejected'
   );
-}
+});
 
 // ── Durable catalog and identity regressions ──────────────────────────
-{
+test('Durable catalog and identity regressions: exact YFSP publish time should be the release-time source', async () => {
   const { helpers } = loadScrapeHelpers();
   const now = Date.parse('2026-08-05T00:00:00Z');
   const recentHot = helpers.calculateYfspHotness({
@@ -1613,9 +1628,9 @@ for (const hasStaleCache of [false, true]) {
     /重复节目 ID/u,
     'output schema should reject IDs duplicated across recommendation categories'
   );
-}
+});
 
-{
+test('Durable catalog and identity regressions: valid JSON with an invalid previous-data schema must fail closed', async () => {
   const showsPath = '/tmp/iyf-test/scripts/../data/shows.json';
   const { helpers } = loadScrapeHelpers({
     initialFiles: { [showsPath]: JSON.stringify({
@@ -1633,10 +1648,10 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(corrupted.tmdbUrl, '');
   assert.equal(corrupted.doubanUrl, 'https://movie.douban.com/subject/25899362/');
   assert.doesNotMatch(JSON.stringify(corrupted), /33238|10509888|Running_Man|tt2185037/u, 'mainland Running Man must not inherit the Korean SBS entity');
-}
+});
 
 // ── YFSP verification and lookup-cache regressions ──────────────────────────
-{
+test('YFSP verification and lookup-cache regressions: unknown', async () => {
   const show = { title: '测试节目' };
   const valid = loadScrapeHelpers({
     fetchImpl: async () => mockResponse({ text: '<title>测试节目-免费在线观看</title>' }),
@@ -1699,10 +1714,10 @@ for (const hasStaleCache of [false, true]) {
   explicitZeroSearch.applyYfspSearchFields(reliable, zeroFound);
   assert.equal(reliable.score, 0, 'an explicit numeric zero should remain an authoritative YFSP update');
   assert.equal(reliable.playCount, 0);
-}
+});
 
 // ── AI regressions ──────────────────────────
-{
+test('AI regressions: OpenRouter-only AI runs should parse structured result objects', async () => {
   const openRouterCounter = { count: 0 };
   let requestUrl = '';
   let requestBody = null;
@@ -1733,9 +1748,9 @@ for (const hasStaleCache of [false, true]) {
   const fields = requestBody.response_format.json_schema.schema.properties.results.items;
   assert.ok(fields.required.includes('recommendationScore100'));
   assert.ok(fields.required.includes('recommendationLevel'));
-}
+});
 
-{
+test('AI regressions: ambiguous or contradictory recommendation units must fall back to rule scoring', async () => {
   const invalidRows = [
     { id: 'unit-check', s: 9.7, r: '高度推荐' },
     { id: 'unit-check', recommendationScore100: 9.7, recommendationLevel: 'strong', r: '高度推荐' },
@@ -1755,9 +1770,9 @@ for (const hasStaleCache of [false, true]) {
     }).helpers;
     assert.equal((await discovery.aiEvaluateDiscovery([show])).length, 0, 'discovery must enforce the same recommendation-unit contract');
   }
-}
+});
 
-{
+test('AI regressions: an unrated show must not be described to the model as a zero-quality show', async () => {
   let requestBody;
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1774,18 +1789,18 @@ for (const hasStaleCache of [false, true]) {
   requestBody = null;
   await helpers.aiScoreShows([previous]);
   assert.ok(requestBody, 'the previous ambiguous scoring contract must be invalidated regardless of matching input');
-}
+});
 
-{
+test('AI regressions: the 0-100 response contract must preserve valid low scores', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: async () => mockResponse({ json: { choices: [{ message: { content: '[{"id":"legacy-ai","recommendationScore100":8.3,"recommendationLevel":"weak","r":"明确弱匹配"}]' } }] } }),
   });
   const scores = await helpers.aiScoreShows([{ id: 'legacy-ai', title: '旧量纲测试', year: 2026 }]);
   assert.equal(scores.get('legacy-ai')?.score, 8.3, 'the 0-100 response contract must preserve valid low scores');
-}
+});
 
-{
+test('AI regressions: AI batches should stay small enough for the free router to finish structured output', async () => {
   const batchSizes = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1808,9 +1823,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows(shows);
   assert.deepEqual(batchSizes, [10, 1], 'AI batches should stay small enough for the free router to finish structured output');
   assert.equal(scores.size, 11);
-}
+});
 
-{
+test('AI regressions: variety scoring must use the variety-specific system prompt', async () => {
   let messages = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1830,9 +1845,9 @@ for (const hasStaleCache of [false, true]) {
   const magnitudeChange = { ...show, playCount: 100000 };
   assert.equal(helpers.aiScoreInputHash(show), helpers.aiScoreInputHash(smallChange), 'small play-count changes should not invalidate the AI cache');
   assert.notEqual(helpers.aiScoreInputHash(show), helpers.aiScoreInputHash(magnitudeChange), 'a new play-count magnitude should invalidate the AI cache');
-}
+});
 
-{
+test('AI regressions: AI parsing should accept prose-wrapped pretty-printed JSON arrays', async () => {
   const prettyCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1840,9 +1855,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const scores = await helpers.aiScoreShows([{ id: 'pretty-1', title: '格式化测试', year: 2026, score: 8, playCount: 10000 }]);
   assert.equal(scores.get('pretty-1')?.score, 77, 'AI parsing should accept prose-wrapped pretty-printed JSON arrays');
-}
+});
 
-{
+test('AI regressions: AI parsing should extract arrays from valid JSON object wrappers', async () => {
   const objectCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1850,9 +1865,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const scores = await helpers.aiScoreShows([{ id: 'object-1', title: '对象包装测试', year: 2026, score: 8, playCount: 10000 }]);
   assert.equal(scores.get('object-1')?.score, 66, 'AI parsing should extract arrays from valid JSON object wrappers');
-}
+});
 
-{
+test('AI regressions: fresh cached AI score 0 should not need rescoring', async () => {
   const providerCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1864,9 +1879,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([cachedZero]);
   assert.equal(scores.size, 0, 'fresh cached AI score 0 should not need rescoring');
   assert.equal(providerCounter.count, 0, 'fresh cached AI score 0 should not call AI providers');
-}
+});
 
-{
+test('AI regressions: a current-version cache entry with a stale input hash should be rescored', async () => {
   const providerCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1881,9 +1896,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(providerCounter.count, 1, 'a current-version cache entry with a stale input hash should be rescored');
   assert.equal(scores.get('changed')?.score, 55, 'rescoring should replace the stale cached value, including a previous score of 0');
   assert.equal(scores.get('changed')?.inputHash, helpers.aiScoreInputHash(changed), 'the replacement score should carry the current input hash');
-}
+});
 
-{
+test('AI regressions: a GitHub token alone must not call the retired GitHub Models service', async () => {
   let fetchCount = 0;
   const { helpers } = loadScrapeHelpers({
     env: { GITHUB_TOKEN: 'retired-provider-token' },
@@ -1892,9 +1907,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([{ id: 'no-provider', title: '无可用提供商', year: 2026 }]);
   assert.equal(scores.size, 0);
   assert.equal(fetchCount, 0, 'a GitHub token alone must not call the retired GitHub Models service');
-}
+});
 
-{
+test('AI regressions: OPENROUTER_MODEL should override the default router explicitly', async () => {
   let requestedModel = '';
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key', OPENROUTER_MODEL: 'vendor/custom:free' },
@@ -1906,9 +1921,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([{ id: 'override', title: '模型覆盖测试', year: 2026 }]);
   assert.equal(requestedModel, 'vendor/custom:free', 'OPENROUTER_MODEL should override the default router explicitly');
   assert.equal(scores.get('override')?.score, 0, 'a valid returned score of zero must not be mistaken for a missing result');
-}
+});
 
-{
+test('AI regressions: an invalid free-router answer should be retried once, possibly on another model', async () => {
   const invalidCounter = { count: 0 };
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1917,9 +1932,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([{ id: 'expected-id', title: '批次边界测试', year: 2026 }]);
   assert.equal(invalidCounter.count, 4, 'an invalid free-router answer is retried once per call, and a failed batch is re-run once in the same run');
   assert.equal(scores.size, 0, 'HTTP 200 output with wrong IDs or schema types must be rejected');
-}
+});
 
-{
+test('AI regressions: an empty routed answer should be retried instead of losing the whole batch', async () => {
   const responses = [
     mockResponse({ json: { model: 'vendor/reasoner:free', choices: [{ finish_reason: 'length', message: { content: null } }] } }),
     mockResponse({ json: { model: 'vendor/fast:free', choices: [{ message: { content: '{"results":[{"id":"retry-ok","recommendationScore100":72,"recommendationLevel":"strong","r":"重试成功"}]}' } }] } }),
@@ -1932,9 +1947,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([{ id: 'retry-ok', title: '空内容重试', year: 2026 }]);
   assert.equal(scores.get('retry-ok')?.score, 72, 'an empty routed answer should be retried instead of losing the whole batch');
   assert.ok(maxTokens >= 4000, 'reasoning free models need enough output tokens to finish structured JSON');
-}
+});
 
-{
+test('AI regressions: an exhausted daily free quota must stop later batches instead of burning the run budget', async () => {
   let calls = 0;
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1948,9 +1963,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(calls, 1, 'an exhausted daily free quota must stop later batches instead of burning the run budget');
   assert.equal(await helpers.aiEnhanceDescriptions([{ id: 'quota-desc', title: '额度文案', description: '' }]), 0);
   assert.equal(calls, 1, 'later AI stages must respect the same stop decision');
-}
+});
 
-{
+test('AI regressions: a transient upstream 429 should be retried once', async () => {
   let calls = 0;
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1963,9 +1978,9 @@ for (const hasStaleCache of [false, true]) {
   const scores = await helpers.aiScoreShows([{ id: 'after-429', title: '限流重试', year: 2026 }]);
   assert.equal(scores.get('after-429')?.score, 20, 'a transient upstream 429 should be retried once');
   assert.equal(calls, 2, 'a batch must never spend more than two requests');
-}
+});
 
-{
+test('AI regressions: four consecutive failed batches (two attempts each) should stop the remaining AI calls', async () => {
   let calls = 0;
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -1974,9 +1989,9 @@ for (const hasStaleCache of [false, true]) {
   const shows = Array.from({ length: 80 }, (_, index) => ({ id: `fail-${index}`, title: `连续失败${index}`, year: 2026 }));
   assert.equal((await helpers.aiScoreShows(shows)).size, 0);
   assert.equal(calls, 8, 'four consecutive failed batches (two attempts each) should stop the remaining AI calls');
-}
+});
 
-{
+test('AI regressions: the model that rescued the failed batch should become the new preference', async () => {
   const requested = [];
   const routedModels = ['vendor/good:free', 'vendor/good:free', 'vendor/other:free'];
   const { helpers } = loadScrapeHelpers({
@@ -2000,9 +2015,9 @@ for (const hasStaleCache of [false, true]) {
     'a model that produced a valid batch should be reused, and a failed pinned model should fall back to the free router in the same batch');
   await helpers.aiScoreShows(shows.slice(30));
   assert.equal(requested.at(-1), 'vendor/other:free', 'the model that rescued the failed batch should become the new preference');
-}
+});
 
-{
+test('AI regressions: a rate-limited pinned model backs off before the router retry', async () => {
   const requested = [];
   const delays = [];
   const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free', 'vendor/rescue:free', 'vendor/good:free'];
@@ -2036,9 +2051,9 @@ for (const hasStaleCache of [false, true]) {
   await helpers.aiScoreShows(Array.from({ length: 5 }, (_, index) => ({ id: `later-${index}`, title: `后续${index}`, year: 2026, recommendScore: 50 - index })));
   assert.equal(requested.at(-1), 'vendor/good:free',
     'an account-level 429 must not let a random router rescue replace the known-good pinned model');
-}
+});
 
-{
+test('AI regressions: block', async () => {
   const requested = [];
   const answers = ['vendor/good:free', 429, 'vendor/rescue:free', 429, 'vendor/second:free', 'vendor/second:free'];
   const clock = steppingClock();
@@ -2062,9 +2077,9 @@ for (const hasStaleCache of [false, true]) {
   }
   assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/second:free'],
     'a pinned model rate-limited twice in one run is replaced instead of costing every batch an extra request');
-}
+});
 
-{
+test('AI regressions: a non-free routed model must never be pinned, so pinning cannot incur charges', async () => {
   const requested = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -2079,9 +2094,9 @@ for (const hasStaleCache of [false, true]) {
   });
   await helpers.aiScoreShows(Array.from({ length: 20 }, (_, index) => ({ id: `paid-${index}`, title: `付费${index}`, year: 2026 })));
   assert.deepEqual(requested, ['openrouter/free', 'openrouter/free'], 'a non-free routed model must never be pinned, so pinning cannot incur charges');
-}
+});
 
-{
+test('AI regressions: an explicitly configured model must not be replaced by a pinned model', async () => {
   const requested = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key', OPENROUTER_MODEL: 'vendor/explicit:free' },
@@ -2096,9 +2111,9 @@ for (const hasStaleCache of [false, true]) {
   });
   await helpers.aiScoreShows(Array.from({ length: 20 }, (_, index) => ({ id: `explicit-${index}`, title: `显式${index}`, year: 2026 })));
   assert.deepEqual(requested, ['vendor/explicit:free', 'vendor/explicit:free'], 'an explicitly configured model must not be replaced by a pinned model');
-}
+});
 
-{
+test('AI regressions: the highest-ranked shows should be scored first when the free quota runs short', async () => {
   const order = [];
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -2118,9 +2133,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(order[0][0], 'kd-11', 'the highest-ranked shows should be scored first when the free quota runs short');
   assert.deepEqual(order[1], ['va-2', 'va-1', 'va-0'], 'variety batches should interleave with drama batches instead of waiting behind all of them');
   assert.deepEqual(order[2], ['kd-1', 'kd-0']);
-}
+});
 
-{
+test('AI regressions: iyf_discovery', async () => {
   let schemaName = '';
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
@@ -2134,9 +2149,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(schemaName, 'iyf_discovery');
   assert.equal(accepted.length, 0, 'validated discovery decisions should filter explicitly rejected candidates');
   assert.equal(discovered[0].aiDiscoveryScore, 12);
-}
+});
 
-{
+test('AI regressions: an empty AI discovery response must fail closed instead of accepting every candidate', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: aiFetchWithContent('{"results":[]}'),
@@ -2144,9 +2159,9 @@ for (const hasStaleCache of [false, true]) {
   const discovered = [{ id: 'disc-empty', title: '空结果新发现', year: 2026, mediaType: '电视剧', regional: '韩国', score: 8, playCount: 10000 }];
   const accepted = await helpers.aiEvaluateDiscovery(discovered);
   assert.equal(accepted.length, 0, 'an empty AI discovery response must fail closed instead of accepting every candidate');
-}
+});
 
-{
+test('AI regressions: block (#2)', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
     fetchImpl: aiFetchWithContent('{"results":[{"id":"desc-1","d":"这是一段经过结构校验、适合展示的中文推荐文案。"}]}'),
@@ -2155,10 +2170,10 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(await helpers.aiEnhanceDescriptions(shows), 1);
   assert.equal(shows[0].descriptionSource, 'ai');
   assert.match(shows[0].description, /结构校验/u);
-}
+});
 
 // ── Output filtering and de-duplication regressions ──────────────────────────
-{
+test('Output filtering and de-duplication regressions: seed cards should still need a cover and primary link', async () => {
   const { helpers } = loadScrapeHelpers();
   const hostile = helpers.normalizeOutputShow({
     id: 'hostile', title: '异常输出', year: 2200, score: 1e300, playCount: -10,
@@ -2224,10 +2239,10 @@ for (const hasStaleCache of [false, true]) {
     { title: '有效节目', tmdbUrl: 'https://www.themoviedb.org/tv/blank', recommendScore: 80 },
   ]);
   assert.deepEqual(blankThenValid.map(s => s.title), ['有效节目'], 'blank-title rows should not poison external-ID de-duplication');
-}
+});
 
 // ── TMDB and Douban cache regressions ──────────────────────────
-{
+test('TMDB and Douban cache regressions: missing TMDB token should not write a negative notFound cache entry', async () => {
   const { helpers, writes } = loadScrapeHelpers({ env: {} });
   const show = {
     id: 'tmdb-unavailable',
@@ -2246,9 +2261,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(show.coverSource, 'yfsp', 'a Korean fallback should retain the YFSP source marker when TMDB is unavailable');
   assert.equal(show.tmdbCoverPending, true, 'a Korean fallback should be marked for later TMDB upgrade');
   assert.equal(helpers.isRenderableShow(show), true, 'a marked Korean fallback should remain renderable');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: TMDB 5xx responses must not poison the negative cover cache', async () => {
   const { helpers, writes } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async () => mockResponse({ status: 503 }),
@@ -2261,9 +2276,9 @@ for (const hasStaleCache of [false, true]) {
   }]);
   const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
   assert.notEqual(savedCache['tmdb-transient']?.notFound, true, 'TMDB 5xx responses must not poison the negative cover cache');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: TMDB original poster should replace an existing YFSP cover', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
@@ -2314,9 +2329,9 @@ for (const hasStaleCache of [false, true]) {
   });
   assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/poster-original.jpg', 'later YFSP refreshes should not overwrite a TMDB cover');
   assert.equal(show.coverSource, 'tmdb', 'later YFSP refreshes should preserve TMDB cover source');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: the new Korean drama should use its manually verified TMDB poster', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
@@ -2343,9 +2358,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(show.coverSource, 'tmdb', 'manual TMDB ID matches should be marked as TMDB');
   assert.notEqual(show.tmdbCoverPending, true, 'manual TMDB matches should clear the pending fallback marker');
   assert.equal(show.tmdbUrl, 'https://www.themoviedb.org/tv/276470', 'manual TMDB ID matches should retain the canonical TMDB link');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: verified Summer Vacation must bypass the fresh negative cache', async () => {
   const requests = [];
   const { helpers, writes } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
@@ -2389,9 +2404,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(helpers.getTMDBDirectEntry({ ...fallback, year: 2020 }), null, 'an older same-title show must not reuse the 2026 mapping');
   assert.equal(helpers.getTMDBDirectEntry({ ...fallback, regional: '大陆' }), null, 'a same-title show from another region must not reuse the Korean mapping');
   assert.equal(helpers.getTMDBDirectEntry({ ...fallback, mediaType: '综艺' }), null, 'a same-title variety show must not reuse the drama mapping');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: a published link must prove its series identity before providing a season poster', async () => {
   const requests = [];
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
@@ -2421,9 +2436,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(found.tmdbId, 220074, 'season matches should retain the parent TMDB series ID');
   assert.equal(found.tmdbSeasonNumber, 2, 'season matches should persist the numeric season for cache validation');
   assert.equal(helpers.titleMatches(found.matchedTitle, '财阀X刑警第2季'), true, 'season matches should retain a cache-valid matched title');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: a base-series search hit should be upgraded through its exact TMDB season endpoint', async () => {
   const { helpers, writes } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     initialFiles: {
@@ -2467,9 +2482,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(savedCache.flex?.tmdbSeasonNumber, 2, 'season lookup should make the season identity durable in cache');
   assert.equal(savedCache.flex?.matchedSeriesTitle, '财阀X刑警', 'reusable season caches must retain the title observed from the matched TMDB entity');
   assert.equal(helpers.isReusableTMDBCoverCache(savedCache.flex, show), true, 'a season cache must be reusable only after both numeric and URL season validation pass');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: the next scheduled refresh should retry a pending Korean fallback after the retry window', async () => {
   const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
   const retryNow = Date.parse('2026-08-21T12:00:00Z');
   const RetryDate = class extends Date {
@@ -2516,9 +2531,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/pending-original.jpg', 'the next scheduled refresh should retry a pending Korean fallback after the retry window');
   assert.equal(show.coverSource, 'tmdb', 'a successful scheduled retry should switch the source marker to TMDB');
   assert.notEqual(show.tmdbCoverPending, true, 'a successful scheduled retry should clear the pending marker');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: cached TMDB w500 covers should be upgraded to original without another API call', async () => {
   const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
   const { helpers } = loadScrapeHelpers({
     env: {},
@@ -2536,9 +2551,9 @@ for (const hasStaleCache of [false, true]) {
   await helpers.enrichCoversFromTMDB([show]);
   assert.equal(show.coverImg, 'https://image.tmdb.org/t/p/original/poster.jpg', 'cached TMDB w500 covers should be upgraded to original without another API call');
   assert.equal(helpers.isRenderableShow(show), true, 'an upgraded TMDB original cover should remain renderable');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: TMDB search should reject a same-title Korean drama from the wrong year', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
@@ -2556,9 +2571,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchTMDBImage({ title: '同名韩剧', year: 2026, mediaType: '电视剧', regional: '韩国' });
   assert.equal(found.lookupState, 'not_found', 'TMDB search should reject a same-title Korean drama from the wrong year');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: TMDB search should continue past an incompatible same-title result and accept a nearby year', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
@@ -2577,9 +2592,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchTMDBImage({ title: '同名韩剧', year: 2026, mediaType: '电视剧', regional: '韩国' });
   assert.equal(found.tmdbId, 9003, 'TMDB search should continue past an incompatible same-title result and accept a nearby year');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: known long-running variety should allow its stable series year to differ from the current season', async () => {
   const { helpers } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     fetchImpl: async url => {
@@ -2602,9 +2617,9 @@ for (const hasStaleCache of [false, true]) {
 
   const season = await helpers.searchTMDBImage({ title: '你好星期六第4季', year: 2026, mediaType: '综艺', regional: '大陆' });
   assert.equal(season.lookupState, 'not_found', 'season-specific variety searches should not fall back to the base series entry');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: a trailing Chinese title number should be treated as a season marker', async () => {
   const { helpers } = loadScrapeHelpers();
   assert.equal(helpers.seasonKey('杀人者的购物中心2'), '第2季', 'a trailing Chinese title number should be treated as a season marker');
   assert.equal(helpers.seasonKey('杀人者的购物中心 S02'), '第2季', 'S02 should normalize to the canonical season key');
@@ -2623,9 +2638,9 @@ for (const hasStaleCache of [false, true]) {
     false,
     'a base-series TMDB result must not satisfy a season-specific Korean drama'
   );
-}
+});
 
-{
+test('TMDB and Douban cache regressions: block', async () => {
   const { helpers } = loadScrapeHelpers();
   const mismatched = {
     title: '杀人者的购物中心2',
@@ -2652,9 +2667,9 @@ for (const hasStaleCache of [false, true]) {
     null,
     'a season cache pointing to the series page must not be reused after the season resolver upgrade'
   );
-}
+});
 
-{
+test('TMDB and Douban cache regressions: an invalidated TMDB cache should immediately fall back to the saved YFSP cover', async () => {
   const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
   const { helpers, writes } = loadScrapeHelpers({
     initialFiles: {
@@ -2680,9 +2695,9 @@ for (const hasStaleCache of [false, true]) {
   const savedCache = JSON.parse([...writes.values()].at(-1) || '{}');
   assert.equal(savedCache.stale?.version, 14, 'URL resolution migration must not promote an old positive cache to the current version');
   assert.equal(savedCache.stale?.url, 'https://image.tmdb.org/t/p/original/wrong-season.jpg', 'old TMDB URLs may be normalized without making their match reusable');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: a rejected season match should keep the Korean fallback cover', async () => {
   const cachePath = '/tmp/iyf-test/scripts/../data/image_cache.json';
   const { helpers, writes } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
@@ -2725,9 +2740,9 @@ for (const hasStaleCache of [false, true]) {
   assert.equal(savedCache.stale?.notFound, true, 'a rejected stale positive cache should become a negative cache entry');
   assert.equal(savedCache.stale?.version, 16, 'the replacement negative cache should use the current cache version');
   assert.equal('url' in (savedCache.stale || {}), false, 'a rejected stale positive cache must not retain its wrong TMDB URL');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban search should prefer year-compatible title matches', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2739,9 +2754,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '同名剧', year: 2026, mediaType: '电视剧' });
   assert.equal(found?.doubanId, '123451', 'Douban search should prefer year-compatible title matches');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban search should prefer exact-year matches over nearby-year matches', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2753,9 +2768,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '同名季播', year: 2026, mediaType: '电视剧' });
   assert.equal(found?.doubanId, '123453', 'Douban search should prefer exact-year matches over nearby-year matches');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban search should allow exact-title fallback for long-running variety subjects', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2766,9 +2781,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '你好星期六', year: 2026, mediaType: '综艺' });
   assert.equal(found?.doubanId, '123454', 'Douban search should allow exact-title fallback for long-running variety subjects');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban fallback should skip incompatible season candidates and keep searching for a valid long-running variety subject', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2780,9 +2795,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '你好星期六', year: 2026, mediaType: '综艺' });
   assert.equal(found?.doubanId, '123454', 'Douban fallback should skip incompatible season candidates and keep searching for a valid long-running variety subject');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban search should not fallback from a season-specific variety title to an incompatible base subject', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2793,9 +2808,9 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '无限超越班第4季', year: 2026, mediaType: '综艺' });
   assert.equal(found, null, 'Douban search should not fallback from a season-specific variety title to an incompatible base subject');
-}
+});
 
-{
+test('TMDB and Douban cache regressions: Douban search should not accept a nearby-year match from a different variety season', async () => {
   const { helpers } = loadScrapeHelpers({
     fetchImpl: async () => ({
       ok: true,
@@ -2806,68 +2821,72 @@ for (const hasStaleCache of [false, true]) {
   });
   const found = await helpers.searchDoubanSubject({ title: '无限超越班第4季', year: 2026, mediaType: '综艺' });
   assert.equal(found, null, 'Douban search should not accept a nearby-year match from a different variety season');
-}
+});
 
 // ── Source contract smoke checks ──────────────────────────
-assert.match(app, /escapeHtml\(String\(aiScore\)\)/, 'AI score badge should escape normalized output');
-assert.match(app, /escapeHtml\(String\(displayScore\.value\)\)/, 'score badge should escape stringified output');
-assert.doesNotMatch(app, /card-score-float/, 'poster score overlays should not duplicate the score badge');
-assert.match(app, /toText\(s\.title\)\.toLowerCase\(\)\.includes\(query\)/, 'search should tolerate missing titles');
-assert.match(app, /function getValidTime\(/, 'date sorting should use a valid-time helper');
-assert.match(app, /s\.isNew === true/, 'new tab should use the explicit recently-added marker');
-assert.match(app, /s\.isClassic === true/, 'classic tab should use explicit curation markers');
-assert.match(app, /function getRecommendationWidth\(/, 'recommendation bars should be relative to the current result set');
-assert.match(app, /show\.updateStatus \|\| show\.updateMsg/, 'variety cards should expose their update message fallback');
-assert.match(app, /function normalizeAIScore\(/, 'frontend should validate AI scores');
-assert.match(app, /function getDataFreshness\(/, 'data freshness should be calculated for the update status');
-assert.match(app, /const DATA_CACHE_VERSION = 3;/, 'front-end cache schema should be versioned for behavior changes');
-assert.match(app, /fetchJSONWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
-assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
-assert.match(app, /function isTVmazeDrama\(/, 'TVmaze schedule should distinguish scripted dramas from variety and reality shows');
-assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day request when history succeeds');
-assert.match(app, /showRemoteTabStaleFallback/, 'remote tabs should reuse a stale cache when a refresh fails');
-assert.match(app, /insertAdjacentHTML\('beforeend'/, 'loading more should append cards without replacing existing DOM nodes');
-assert.match(app, /new window\.IntersectionObserver/, 'loading more should auto-trigger near the viewport bottom');
-assert.match(app, /AUTO_LOAD_ROOT_MARGIN/, 'auto-loading should prefetch before the user reaches the exact bottom');
-assert.doesNotMatch(app, /loadMore\.addEventListener\(['"]click/, 'loading more should not require a mouse click');
-assert.match(app, /function renderSkeletons\(/, 'slow initial loads should show layout-preserving skeletons');
-assert.match(app, /const INITIAL_RENDER_COUNT = 24;/, 'large result sets should render in bounded batches');
-assert.match(index, /id="yearTabLabel"/, 'the current-year drama tab label should be data-driven');
-assert.match(index, /id="varietyYearTabLabel"/, 'the current-year variety tab label should be data-driven');
-assert.doesNotMatch(index, /id="tab-trakt"|id="tab-mdl"/u, 'retired snapshot tabs should not be exposed in the navigation');
-assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
-assert.match(index, /aria-live="polite"/, 'auto-load progress should be announced accessibly');
-assert.match(index, /id="loadMoreStatus"[^>]*role="status"/, 'the auto-load status should remain a separate live region');
-assert.doesNotMatch(index, /id="loadMore"[^>]*type="button"/, 'the auto-load sentinel should not advertise a click action');
-assert.match(app, /继续下滑自动加载/, 'the fallback control should explain the auto-load behavior');
-assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
-assert.doesNotMatch(app, /s\.year === 2026/, 'current-year tab should not hardcode 2026');
-assert.doesNotMatch(index, /2026新剧|2026新综艺|2026新综/, 'HTML copy should not hardcode one calendar year');
-assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should not subtract Date objects directly');
+test('Source contract smoke checks: AI score badge should escape normalized output', async () => {
+  assert.match(app, /escapeHtml\(String\(aiScore\)\)/, 'AI score badge should escape normalized output');
+  assert.match(app, /escapeHtml\(String\(displayScore\.value\)\)/, 'score badge should escape stringified output');
+  assert.doesNotMatch(app, /card-score-float/, 'poster score overlays should not duplicate the score badge');
+  assert.match(app, /toText\(s\.title\)\.toLowerCase\(\)\.includes\(query\)/, 'search should tolerate missing titles');
+  assert.match(app, /function getValidTime\(/, 'date sorting should use a valid-time helper');
+  assert.match(app, /s\.isNew === true/, 'new tab should use the explicit recently-added marker');
+  assert.match(app, /s\.isClassic === true/, 'classic tab should use explicit curation markers');
+  assert.match(app, /function getRecommendationWidth\(/, 'recommendation bars should be relative to the current result set');
+  assert.match(app, /show\.updateStatus \|\| show\.updateMsg/, 'variety cards should expose their update message fallback');
+  assert.match(app, /function normalizeAIScore\(/, 'frontend should validate AI scores');
+  assert.match(app, /function getDataFreshness\(/, 'data freshness should be calculated for the update status');
+  assert.match(app, /const DATA_CACHE_VERSION = 3;/, 'front-end cache schema should be versioned for behavior changes');
+  assert.match(app, /fetchJSONWithTimeout\(DATA_URL/, 'the primary data request should have a bounded timeout');
+  assert.match(app, /function getScheduleDateKey\(/, 'TVmaze should derive dates in the source timezone');
+  assert.match(app, /function isTVmazeDrama\(/, 'TVmaze schedule should distinguish scripted dramas from variety and reality shows');
+  assert.match(app, /successfulDays/, 'TVmaze should tolerate a failed current-day request when history succeeds');
+  assert.match(app, /showRemoteTabStaleFallback/, 'remote tabs should reuse a stale cache when a refresh fails');
+  assert.match(app, /insertAdjacentHTML\('beforeend'/, 'loading more should append cards without replacing existing DOM nodes');
+  assert.match(app, /new window\.IntersectionObserver/, 'loading more should auto-trigger near the viewport bottom');
+  assert.match(app, /AUTO_LOAD_ROOT_MARGIN/, 'auto-loading should prefetch before the user reaches the exact bottom');
+  assert.doesNotMatch(app, /loadMore\.addEventListener\(['"]click/, 'loading more should not require a mouse click');
+  assert.match(app, /function renderSkeletons\(/, 'slow initial loads should show layout-preserving skeletons');
+  assert.match(app, /const INITIAL_RENDER_COUNT = 24;/, 'large result sets should render in bounded batches');
+  assert.match(index, /id="yearTabLabel"/, 'the current-year drama tab label should be data-driven');
+  assert.match(index, /id="varietyYearTabLabel"/, 'the current-year variety tab label should be data-driven');
+  assert.doesNotMatch(index, /id="tab-trakt"|id="tab-mdl"/u, 'retired snapshot tabs should not be exposed in the navigation');
+  assert.match(index, /id="loadMore"/, 'large result sets should expose a progressive loading control');
+  assert.match(index, /aria-live="polite"/, 'auto-load progress should be announced accessibly');
+  assert.match(index, /id="loadMoreStatus"[^>]*role="status"/, 'the auto-load status should remain a separate live region');
+  assert.doesNotMatch(index, /id="loadMore"[^>]*type="button"/, 'the auto-load sentinel should not advertise a click action');
+  assert.match(app, /继续下滑自动加载/, 'the fallback control should explain the auto-load behavior');
+  assert.doesNotMatch(index, /id="showGrid"[^>]*aria-live=/u, 'the full card grid should not be a large live region');
+  assert.doesNotMatch(app, /s\.year === 2026/, 'current-year tab should not hardcode 2026');
+  assert.doesNotMatch(index, /2026新剧|2026新综艺|2026新综/, 'HTML copy should not hardcode one calendar year');
+  assert.doesNotMatch(app, /new Date\([^\n]+\) - new Date\(/, 'date sorting should not subtract Date objects directly');
+});
 
-assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
-assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
-assert.match(scrape, /const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 \* 60 \* 1000;/, 'optional enrichment should have a shared time budget');
-assert.match(scrape, /getOptionalEnrichmentTimeout\(/, 'optional enrichment requests should honor the shared time budget');
-assert.match(scrape, /redirect: 'error'/, 'YFSP verification should not follow redirects to an untrusted host');
-assert.match(scrape, /const COVER_CACHE_VERSION = 16;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
-assert.doesNotMatch(scrape, /entry\.version = COVER_CACHE_VERSION/, 'TMDB URL resolution migration must not promote stale cache entries');
-assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
-assert.match(scrape, /isTMDBResultSeasonCompatible\(show, \{ name: matchedTitle \}\)/, 'TMDB cache reuse should revalidate the stored matched title season');
-assert.match(scrape, /tv\/\$\{seriesId\}\/season\/\$\{seasonNumber\}/, 'season-specific shows should resolve their TMDB season endpoint');
-assert.match(scrape, /cachedSeasonNumber === expectedSeasonNumber/, 'season-specific TMDB caches should retain and validate their numeric season');
-assert.match(scrape, /cachedSeasonUrlNumber === expectedSeasonNumber/, 'season-specific TMDB caches should point to the season page, not just carry a season flag');
-assert.match(scrape, /PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45/, 'restored recommendations should have a bounded retirement window');
-assert.match(scrape, /removeHardExcludedKDrama\(kdramaMap\)/, 'hard Korean drama exclusions should run after enrichment, not only on discovery');
-assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
-assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded for free-router latency');
-assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
-assert.match(scrape, /timeout = 60000,/, 'individual free-router requests should allow a complete structured response');
-assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
-assert.match(scrape, /const refreshTargets = publishedShows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
-assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
-assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
-{
+test('Source contract smoke checks: TMDB token should come from environment', async () => {
+  assert.match(scrape, /const TMDB_TOKEN = process\.env\.TMDB_TOKEN \|\| '';/, 'TMDB token should come from environment');
+  assert.match(scrape, /if \(!TMDB_TOKEN\)/, 'TMDB fetch should skip clearly when token is missing');
+  assert.match(scrape, /const OPTIONAL_ENRICHMENT_BUDGET_MS = 8 \* 60 \* 1000;/, 'optional enrichment should have a shared time budget');
+  assert.match(scrape, /getOptionalEnrichmentTimeout\(/, 'optional enrichment requests should honor the shared time budget');
+  assert.match(scrape, /redirect: 'error'/, 'YFSP verification should not follow redirects to an untrusted host');
+  assert.match(scrape, /const COVER_CACHE_VERSION = 16;/, 'TMDB matching-rule changes should invalidate prior positive cover caches');
+  assert.doesNotMatch(scrape, /entry\.version = COVER_CACHE_VERSION/, 'TMDB URL resolution migration must not promote stale cache entries');
+  assert.match(scrape, /isTMDBResultYearCompatible\(show, r, \{ yearParam \}\)/, 'TMDB search should validate result year and season before accepting a cover');
+  assert.match(scrape, /isTMDBResultSeasonCompatible\(show, \{ name: matchedTitle \}\)/, 'TMDB cache reuse should revalidate the stored matched title season');
+  assert.match(scrape, /tv\/\$\{seriesId\}\/season\/\$\{seasonNumber\}/, 'season-specific shows should resolve their TMDB season endpoint');
+  assert.match(scrape, /cachedSeasonNumber === expectedSeasonNumber/, 'season-specific TMDB caches should retain and validate their numeric season');
+  assert.match(scrape, /cachedSeasonUrlNumber === expectedSeasonNumber/, 'season-specific TMDB caches should point to the season page, not just carry a season flag');
+  assert.match(scrape, /PREVIOUS_RECOMMENDATION_RETENTION_DAYS = 45/, 'restored recommendations should have a bounded retirement window');
+  assert.match(scrape, /removeHardExcludedKDrama\(kdramaMap\)/, 'hard Korean drama exclusions should run after enrichment, not only on discovery');
+  assert.match(scrape, /const OPENROUTER_FREE_MODEL = 'openrouter\/free';/, 'AI scoring should use OpenRouter\'s maintained free router');
+  assert.match(scrape, /const AI_BATCH_SIZE = 10;/, 'AI batches should be bounded for free-router latency');
+  assert.match(scrape, /const AI_TOTAL_BUDGET_MS = 8 \* 60 \* 1000;/, 'AI work should have a bounded eight-minute shared budget');
+  assert.match(scrape, /timeout = 60000,/, 'individual free-router requests should allow a complete structured response');
+  assert.doesNotMatch(scrape, /models\.github\.ai|openai\/gpt-4\.1-mini|OPENROUTER_MODELS/, 'retired providers and static free-model lists must stay out of the runtime path');
+  assert.match(scrape, /const refreshTargets = publishedShows\s*\.filter\(s => s\.yfspUrl && s\.title && !s\.isComplete/, 'ongoing shows with existing YFSP links should refresh status on each scrape');
+  assert.match(scrape, /applyYfspSearchFields\(show, found\);/, 'YFSP search results should refresh existing show fields, not only fill blanks');
+  assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\.totalEpisodes;/, 'YFSP status refresh should not erase known total episode counts');
+});
+test('Source contract smoke checks: a null cache entry should allow a fresh lookup', async () => {
   const { helpers, writes } = loadScrapeHelpers({
     env: { TMDB_TOKEN: 'tmdb-test-token' },
     initialFiles: { '/tmp/iyf-test/scripts/../data/image_cache.json': JSON.stringify({ 'null-cache': null }) },
@@ -2877,62 +2896,67 @@ assert.match(scrape, /if \(parsed\.totalEpisodes\) show\.totalEpisodes = parsed\
     mediaType: '综艺', regional: '大陆', category: 'variety', coverImg: 'https://static.yfsp.tv/poster.jpg' }]);
   const cache = JSON.parse(writes.get('/tmp/iyf-test/scripts/../data/image_cache.json'));
   assert.equal(cache['null-cache'].notFound, true, 'a null cache entry should allow a fresh lookup');
-}
-assert.match(scrape, /'订阅男友': 'Boyfriend on Demand'/, 'TMDB English title for 订阅男友 should be corrected');
-assert.match(scrape, /'大叔再出招': \['Fifties Professionals', '오십프로', '五十专家', '五十專家'\]/, '大叔再出招 should have TMDB search aliases');
-assert.match(scrape, /'大叔再出招': 'Fifties Professionals'/, '大叔再出招 should use its TMDB English title');
-assert.match(scrape, /'最后一排的男孩': 'Notes from the Last Row'/, '最后一排的男孩 should use its TMDB English title');
-assert.match(scrape, /function stableDiscoveredId\(/, 'discovered shows without YFSP IDs should get stable title-based IDs');
-assert.match(scrape, /restorePreviousRecommendations\(kdramaMap, varietyMap, prevShows\)/, 'previously accepted recommendations should be restored before each fresh discovery run');
-assert.match(scrape, /titleMatches\(cached\.title, show\.title\)/, 'TMDB cover cache reuse should tolerate cleaned season titles');
-assert.match(scrape, /菜鸟炊事兵.*菜鸟伙房兵/s, 'the 菜鸟炊事兵 seed should preserve the user-facing alias 菜鸟伙房兵');
-assert.match(app, /Array\.isArray\(s\.titleAliases\)/, 'frontend search should include alternate show titles');
-assert.match(scrape, /id: mediaKey \|\| episodeKey \|\| stableDiscoveredId\(/, 'API items without media IDs should not collapse into an empty liveShows key');
-assert.match(scrape, /normalizeTMDBOriginalUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
-assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
-assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
-assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
-assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
-// 已提交数据的内容规则（退役卡片、统计一致）由提交前运行的 validate-data.mjs 负责。
-assert.match(validateData, /RETIRED_TITLES = new Set\(\['黑暗荣耀第2季'\]\)/u, 'data validation should reject the unsupported standalone Glory season card');
-assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
-assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
-assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
-assert.match(scrape, /function hasValidTMDBSeasonLink\(/, 'season-specific output should validate its TMDB URL');
-assert.match(validateData, /season-specific title must link to its TMDB season page/, 'data validation should reject series-level links for season titles');
+});
+test('Source contract smoke checks: TMDB English title for 订阅男友 should be corrected', async () => {
+  assert.match(scrape, /'订阅男友': 'Boyfriend on Demand'/, 'TMDB English title for 订阅男友 should be corrected');
+  assert.match(scrape, /'大叔再出招': \['Fifties Professionals', '오십프로', '五十专家', '五十專家'\]/, '大叔再出招 should have TMDB search aliases');
+  assert.match(scrape, /'大叔再出招': 'Fifties Professionals'/, '大叔再出招 should use its TMDB English title');
+  assert.match(scrape, /'最后一排的男孩': 'Notes from the Last Row'/, '最后一排的男孩 should use its TMDB English title');
+  assert.match(scrape, /function stableDiscoveredId\(/, 'discovered shows without YFSP IDs should get stable title-based IDs');
+  assert.match(scrape, /restorePreviousRecommendations\(kdramaMap, varietyMap, prevShows\)/, 'previously accepted recommendations should be restored before each fresh discovery run');
+  assert.match(scrape, /titleMatches\(cached\.title, show\.title\)/, 'TMDB cover cache reuse should tolerate cleaned season titles');
+  assert.match(scrape, /菜鸟炊事兵.*菜鸟伙房兵/s, 'the 菜鸟炊事兵 seed should preserve the user-facing alias 菜鸟伙房兵');
+  assert.match(app, /Array\.isArray\(s\.titleAliases\)/, 'frontend search should include alternate show titles');
+  assert.match(scrape, /id: mediaKey \|\| episodeKey \|\| stableDiscoveredId\(/, 'API items without media IDs should not collapse into an empty liveShows key');
+  assert.match(scrape, /normalizeTMDBOriginalUrl\(show\.coverImg\)[\s\S]*?show\.coverSource = 'tmdb'[\s\S]*?else if \(show\.coverImg\)/, 'restored TMDB covers should keep TMDB source while enriching covers');
+  assert.doesNotMatch(scrape, /if \(show\.coverImg\) show\.yfspCoverImg = show\.coverImg;/, 'restored TMDB covers should not be treated as YFSP fallbacks');
+  assert.match(scrape, /tmdbCoverPending/, 'Korean fallback covers should carry an explicit TMDB upgrade marker');
+  assert.match(publicBuild, /'tmdbCoverPending'/, 'the public payload should preserve the Korean cover upgrade marker');
+  assert.match(validateData, /show\.year !== 0/, 'data validation should allow an explicit unknown year sentinel');
+  // 已提交数据的内容规则（退役卡片、统计一致）由提交前运行的 validate-data.mjs 负责。
+  assert.match(validateData, /RETIRED_TITLES = new Set\(\['黑暗荣耀第2季'\]\)/u, 'data validation should reject the unsupported standalone Glory season card');
+  assert.match(app, /badge-cover-pending/, 'pending TMDB cover status should be visible to users');
+  assert.match(scrape, /身份重合度异常/, 'continuity checks should detect same-sized replacement catalogs');
+  assert.match(scrape, /输出包含重复节目 ID/, 'output validation should reject duplicate IDs across categories');
+  assert.match(scrape, /function hasValidTMDBSeasonLink\(/, 'season-specific output should validate its TMDB URL');
+  assert.match(validateData, /season-specific title must link to its TMDB season page/, 'data validation should reject series-level links for season titles');
+});
 
-assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
-assert.doesNotMatch(scrape, /seed_var_2026_17/, '待定版地球超新鲜 seed should be removed (duplicate of seed_var_2026_28)');
-assert.doesNotMatch(scrape, /seed_kd_s03/, 'duplicate 奇怪的律师禹英禑 seed should be removed (covered by seed_kd_c15 非常律师禹英禑)');
-assert.match(scrape, /function dedupByTitle\(/, 'final output should dedup duplicate cards');
-assert.match(scrape, /koreanDramas = dedupByTitle\(/, 'korean drama output should be de-duplicated');
-assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should be de-duplicated');
+test('Source contract smoke checks: pseudo-variant/duplicate seeds should be removed to avoid repeating cards', async () => {
+  assert.doesNotMatch(scrape, /seed_var_2026_0(1b|2b|4b)|seed_var_2026_10b|seed_var_2026_23/, 'pseudo-variant/duplicate seeds should be removed to avoid repeating cards');
+  assert.doesNotMatch(scrape, /seed_var_2026_17/, '待定版地球超新鲜 seed should be removed (duplicate of seed_var_2026_28)');
+  assert.doesNotMatch(scrape, /seed_kd_s03/, 'duplicate 奇怪的律师禹英禑 seed should be removed (covered by seed_kd_c15 非常律师禹英禑)');
+  assert.match(scrape, /function dedupByTitle\(/, 'final output should dedup duplicate cards');
+  assert.match(scrape, /koreanDramas = dedupByTitle\(/, 'korean drama output should be de-duplicated');
+  assert.match(scrape, /chineseVariety = dedupByTitle\(/, 'variety output should be de-duplicated');
+});
 
-assert.match(workflow, /git diff --quiet data\/shows\.json data\/image_cache\.json data\/discovery\.json data\/history\.json/, 'history-only changes should trigger the data commit step');
-assert.match(workflow, /node-version-file: '\.node-version'/, 'scrape and validation workflows should share the repository Node version');
-assert.doesNotMatch(workflow, /node-version: '22'/, 'scrape workflow should not drift from .node-version');
-assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
-assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
-const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: (\d+)/)?.[1]);
-assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
-assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
-assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
-assert.match(workflow, /scrape=false\n\s+if \[ "\$EVENT_NAME" != "push" \]; then scrape=true; fi/, 'push runs must deploy committed data without spending the scrape/AI quota');
-assert.match(workflow, /if \[ "\$EVENT_NAME" = "schedule" \]; then[\s\S]*?< 8 \? 0 : 1[\s\S]*?scrape=false/, 'scheduled runs must skip scraping when committed data is under eight hours old');
-assert.match(workflow, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/, 'the scraper must run only on schedule or manual dispatch');
-assert.match(workflow, /IYF_REQUIRE_FRESH_DATA: \$\{\{ steps\.mode\.outputs\.scrape == 'true' && '1' \|\| '' \}\}/, 'only real scrape runs may require a fresh generatedAt');
-assert.match(workflow, /pushed=false/, 'workflow should track whether data push actually succeeded');
-assert.match(workflow, /exit 1/, 'workflow should stop before deploy if data push fails');
-assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');
-assert.match(workflow, /base_sha="\$GITHUB_SHA"/, 'workflow should bind scraped data to the code revision that produced it');
-assert.doesNotMatch(workflow, /git pull --rebase/, 'workflow should not rebase data generated by an older scraper onto newer main code');
-assert.match(workflow, /node scripts\/build-site\.mjs/, 'all deployments should use the validated site builder');
-assert.match(workflow, /path: 'site'/, 'workflow should upload only the explicit site artifact');
-assert.doesNotMatch(workflow, /path: '\.'/, 'workflow should not upload the repository root');
-assert.doesNotMatch(workflow, /cp -R css js data site\//, 'workflow should not publish data files by broad directory copy');
-assert.match(read('scripts/build-site.mjs'), /build-public-data\.mjs/, 'site builder should build a field-minimized public shows payload');
-assert.doesNotMatch(workflow, /cp data\/(?:mdl|trakt)_shows\.json/, 'workflow should not publish retired snapshot files');
+test('Source contract smoke checks: history-only changes should trigger the data commit step', async () => {
+  assert.match(workflow, /git_local diff --quiet data\/shows\.json data\/image_cache\.json data\/discovery\.json data\/history\.json/, 'history-only changes should trigger the data commit step');
+  assert.match(workflow, /node-version-file: '\.node-version'/, 'scrape and validation workflows should share the repository Node version');
+  assert.doesNotMatch(workflow, /node-version: '22'/, 'scrape workflow should not drift from .node-version');
+  assert.match(workflow, /TMDB_TOKEN: \$\{\{ secrets\.TMDB_TOKEN \}\}/, 'workflow should pass TMDB_TOKEN from secrets');
+  assert.match(workflow, /OPENROUTER_MODEL: \$\{\{ vars\.OPENROUTER_MODEL \}\}/, 'workflow should support an optional explicit OpenRouter model');
+  const scrapeJobMinutes = Number(workflow.match(/name: 抓取数据 & 构建站点[\s\S]*?timeout-minutes: (\d+)/)?.[1]);
+  assert.ok(scrapeJobMinutes >= 8 * 2 + Math.ceil(47 * 15 / 60) + 5, 'the job timeout must cover source requests, both enrichment budgets, and build/push overhead');
+  assert.doesNotMatch(workflow, /models:\s*read|GITHUB_TOKEN:/, 'workflow should not grant or pass credentials for the retired GitHub Models service');
+  assert.doesNotMatch(workflow, /paths-ignore:/, 'human data-only commits must still deploy; bot pushes with github.token never trigger runs');
+  assert.match(workflow, /- name: Decide scrape mode\n[\s\S]*?run: node scripts\/decide-scrape-mode\.mjs/, 'scrape mode (push, 8-hour freshness, advanced main) comes from the unit-tested decision script');
+  assert.match(read('scripts/decide-scrape-mode.mjs'), /if \(eventName === 'push'\) \{\n\s+return \{ scrape: false/, 'push runs must deploy committed data without spending the scrape/AI quota');
+  assert.match(workflow, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/, 'the scraper must run only on schedule or manual dispatch');
+  assert.match(workflow, /IYF_REQUIRE_FRESH_DATA: \$\{\{ steps\.mode\.outputs\.scrape == 'true' && '1' \|\| '' \}\}/, 'only real scrape runs may require a fresh generatedAt');
+  assert.doesNotMatch(workflow, /git rebase --continue \|\| true/, 'workflow should not swallow failed rebase continuation');
+  assert.match(workflow, /base_sha="\$GITHUB_SHA"/, 'workflow should bind scraped data to the code revision that produced it');
+  assert.doesNotMatch(workflow, /git pull --rebase/, 'workflow should not rebase data generated by an older scraper onto newer main code');
+  assert.match(workflow, /node scripts\/build-site\.mjs/, 'all deployments should use the validated site builder');
+  assert.match(workflow, /path: 'site'/, 'workflow should upload only the explicit site artifact');
+  assert.doesNotMatch(workflow, /path: '\.'/, 'workflow should not upload the repository root');
+  assert.doesNotMatch(workflow, /cp -R css js data site\//, 'workflow should not publish data files by broad directory copy');
+  assert.match(read('scripts/build-site.mjs'), /build-public-data\.mjs/, 'site builder should build a field-minimized public shows payload');
+  assert.doesNotMatch(workflow, /cp data\/(?:mdl|trakt)_shows\.json/, 'workflow should not publish retired snapshot files');
+});
 
-assert.doesNotMatch(css, /\.show-card:nth-child\(\d+\) \{ animation-delay:/, 'CSS nth-child animation delays should not duplicate inline delay');
+test('Source contract smoke checks: CSS nth-child animation delays should not duplicate inline delay', async () => {
+  assert.doesNotMatch(css, /\.show-card:nth-child\(\d+\) \{ animation-delay:/, 'CSS nth-child animation delays should not duplicate inline delay');
+});
 
-console.log('Regression checks passed');

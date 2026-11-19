@@ -19,8 +19,11 @@ function jobBlock(workflow, name) {
 test('scheduled scrapes keep the primary times and add a later compensation pair', () => {
   assert.match(deploy, /- cron: '23 0,12 \* \* \*'/u);
   assert.match(deploy, /- cron: '47 4,16 \* \* \*'/u);
-  // 补偿计划依赖 8 小时新鲜度跳过，避免同一天重复消耗 AI 配额。
-  assert.match(deploy, /if \[ "\$EVENT_NAME" = "schedule" \]; then/u);
+  // 补偿计划依赖 8 小时新鲜度跳过，避免同一天重复消耗 AI 配额；规则在 decide-scrape-mode 中单测。
+  assert.match(deploy, /- name: Decide scrape mode\n\s+id: mode\n\s+env:\n\s+EVENT_NAME: \$\{\{ github\.event_name \}\}\n(?:\s+#[^\n]*\n)*\s+run: node scripts\/decide-scrape-mode\.mjs\n/u);
+  const scrapeJob = jobBlock(deploy, 'scrape');
+  assert.ok(scrapeJob.indexOf('- name: Decide scrape mode') < scrapeJob.indexOf('- name: Run Scraper'));
+  assert.match(scrapeJob, /- name: Run Scraper\n\s+if: steps\.mode\.outputs\.scrape == 'true'/u);
   assert.doesNotMatch(deploy, /^\s+SCRAPE: /mu, 'scrape mode must come from the decision step output, not a job-level event expression');
 });
 
@@ -33,11 +36,15 @@ test('the shared concurrency group and SHA-pinned actions are preserved', () => 
   }
 });
 
-test('the health job runs after publishing on scheduled and manual runs, even when scraping was skipped', () => {
+test('the health job runs after publishing on scheduled and manual runs and evaluates AI only for this run\'s scrape', () => {
   const health = jobBlock(deploy, 'health');
   assert.match(health, /needs: \[scrape, deploy, deploy-cloudflare\]/u);
   assert.match(health, /always\(\) && !cancelled\(\) && github\.ref == 'refs\/heads\/main' && github\.event_name != 'push'/u);
-  assert.doesNotMatch(health, /needs\.scrape\.outputs\.scrape == 'true'/u);
+  const condition = /\n    if: ([^\n]*)/u.exec(health)?.[1] || '';
+  assert.match(condition, /always\(\)/u);
+  assert.doesNotMatch(condition, /needs\.scrape\.outputs\.scrape/u, 'skip-scrape runs still check snapshot staleness');
+  // AI 停止只属于写出快照的那次抓取；跳过抓取或未发布的运行不能把它重复报告为新失败。
+  assert.match(health, /IYF_SCRAPED_THIS_RUN: \$\{\{ needs\.scrape\.outputs\.scrape == 'true' && needs\.scrape\.outputs\.sha != '' && 'true' \|\| 'false' \}\}/u);
   assert.match(health, /ref: \$\{\{ needs\.scrape\.outputs\.sha \|\| 'main' \}\}/u);
   assert.match(health, /persist-credentials: false/u);
   assert.match(health, /permissions:\n\s+contents: read\n/u);
@@ -54,13 +61,31 @@ test('missing secrets only warn and their values are never echoed', () => {
   assert.doesNotMatch(step, /::error::|exit 1/u);
 });
 
-test('the token-holding commit step retries fetches and disables repository hooks', () => {
-  assert.match(deploy, /git_auth\(\) \{ git -c core\.hooksPath=\/dev\/null -c "http\.https:\/\/github\.com\/\.extraheader=/u);
+test('the token-holding commit step retries fetches and disables repository hooks and fsmonitor', () => {
+  const step = /- name: Commit updated data\n([\s\S]*?)\n\n      - name: /u.exec(deploy)?.[1] || '';
+  assert.match(step, /PUSH_TOKEN: \$\{\{ github\.token \}\}/u);
+  assert.match(step, /git_local\(\) \{ git -c core\.hooksPath=\/dev\/null -c core\.fsmonitor=false "\$@"; \}/u);
+  assert.match(step, /git_auth\(\) \{ git_local -c "http\.https:\/\/github\.com\/\.extraheader=/u);
+  // 写令牌在环境中时，每条 git 命令都必须经过 git_local（或基于它的 git_auth）。
+  const bareGit = step.split('\n').filter(line => /(?:^|[\s(;`$])git\s/u.test(line) && !/git_local\(\) \{ git -c/u.test(line) && !/^\s*#/u.test(line));
+  assert.deepEqual(bareGit, [], 'no git invocation may bypass the hook/fsmonitor guard');
+  assert.match(step, /git_local commit -m/u);
   assert.match(deploy, /fetch_main\(\) \{\n\s+# [^\n]*\n\s+for attempt in 1 2 3; do\n\s+if git_auth fetch --no-tags origin main; then/u);
   assert.doesNotMatch(deploy.replace(/fetch_main\(\) \{[\s\S]*?\n {10}\}/u, ''), /git_auth fetch/u, 'every fetch must use the retry helper');
-  assert.match(deploy, /git -c core\.hooksPath=\/dev\/null commit -m/u);
   assert.doesNotMatch(deploy, /git add -f/u, 'history.json is tracked and no longer ignored');
   assert.doesNotMatch(read('.gitignore'), /^data\/history\.json$/mu);
+});
+
+test('a failed data push stops before publishing and is never swallowed', () => {
+  const step = /- name: Commit updated data\n([\s\S]*?)\n\n      - name: /u.exec(deploy)?.[1] || '';
+  assert.match(step, /pushed=false\n\s+local_sha="\$\(git_local rev-parse HEAD\)"\n\s+for i in 1 2 3; do\n\s+if git_auth push origin HEAD:main; then\n\s+pushed=true/u);
+  assert.match(step, /if \[ "\$pushed" != "true" \]; then\n\s+echo "::error::[^"\n]*"\n\s+exit 1\n\s+fi/u);
+  assert.ok(step.indexOf('exit 1') < step.indexOf('echo "publish=true"'), 'the failure exit precedes the publish output');
+});
+
+test('the Cloudflare job timeout covers the verifier deadline with margin', () => {
+  const minutes = Number(/timeout-minutes: (\d+)/u.exec(jobBlock(deploy, 'deploy-cloudflare'))?.[1]);
+  assert.ok(minutes >= 15, `deploy-cloudflare timeout ${minutes} must exceed the ~11.7 minute worst case`);
 });
 
 test('workflows use the dot reporter and validate every script syntax', () => {
