@@ -60,7 +60,7 @@ function loadHelpers({
         getHomepageCategoryCoverage, isHomepageHealthy,
         seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
         seedDescriptionOf, previousAdoptedSeasons, clearUnverifiedVarietySeasonMetadata,
-        isUsableAIScore, clearStaleAIScore,
+        isUsableAIScore, clearStaleAIScore, rememberFirstPublishTime,
       };
     `;
   vm.createContext(context);
@@ -3991,4 +3991,24 @@ test('an expired but unchanged AI score keeps ranking until a refresh succeeds, 
   assert.equal(show.aiScore, 90);
   assert.equal(helpers.isUsableAIScore({ ...show, aiScoredAt: '2026-10-19T00:00:00Z' }), false, 'older than 30 days is no longer used');
   assert.equal(helpers.isUsableAIScore({ ...show, description: '简介变了。' }), false, 'a changed input invalidates it immediately');
+});
+
+test('premiere-based scoring uses the earliest known release, not the latest episode upload time', () => {
+  const { helpers, setNow } = loadHelpers();
+  setNow('2026-11-19T00:00:00Z');
+  const now = Date.parse('2026-11-19T00:00:00Z');
+  const ongoing = { title: '连载测试剧', year: 2026, isSerial: true, isComplete: false, playCount: 3000000,
+    publishTime: '2026-11-18T19:41:00Z', firstSeenAt: '2026-08-15T00:00:00Z' };
+  const fresh = { ...ongoing, firstSeenAt: '2026-11-18T20:00:00Z' };
+  assert.equal(helpers.kdramaAiringBonus(fresh, now) > helpers.kdramaAiringBonus(ongoing, now), true,
+    'a show seen since August cannot claim a premiere bonus from its newest episode upload');
+  assert.ok(helpers.calculateYfspHotness(ongoing, now).playsPerDay < 50000,
+    'velocity is measured from the first appearance, not from yesterday');
+  const withPremiere = { ...ongoing, broadcast: { premiereDate: '2026-10-10' }, firstSeenAt: '2026-10-11T00:00:00Z' };
+  assert.equal(helpers.kdramaAiringBonus(withPremiere, now), helpers.kdramaAiringBonus({ ...withPremiere, publishTime: '2026-10-10' }, now),
+    'a known premiere date wins over the latest upload time');
+  const remembered = helpers.rememberFirstPublishTime({ publishTime: '2026-11-18T19:41:00Z', firstPublishTime: '2026-09-01T00:00:00Z' }, now);
+  assert.equal(remembered.firstPublishTime, '2026-09-01T00:00:00.000Z', 'the earliest observed upload time is kept');
+  assert.equal(helpers.rememberFirstPublishTime({ publishTime: '2026-01-01T00:00:00' }, now).firstPublishTime, undefined,
+    'a year placeholder is not a release date');
 });

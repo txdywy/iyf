@@ -1813,9 +1813,35 @@ function isYearPlaceholderPublishTime(value) {
   return typeof value === 'string' && YEAR_PLACEHOLDER_PUBLISH_TIME.test(value.trim());
 }
 
+// 来源的 publishTime 实际是“最新一集上架时间”，连载剧每更新一集就往后挪。首播时间取以下各项中最早的：
+// 本次 publishTime、此前观测到的最早值（私有 firstPublishTime）、播出资料的首播日（broadcast.premiereDate）；
+// 首次收录时间 firstSeenAt 只作为上限（节目不可能晚于它首播），不作为“近期首播”加分的依据。
+function exactDateMs(value) {
+  const text = typeof value === 'string' && !isYearPlaceholderPublishTime(value) ? value : '';
+  return /\d{4}-\d{2}/u.test(text) ? Date.parse(text) : NaN;
+}
+
+function earliestKnownPublishMs(show, now = Date.now()) {
+  const candidates = [show?.publishTime, show?.firstPublishTime, show?.broadcast?.premiereDate]
+    .map(exactDateMs).filter(ms => Number.isFinite(ms) && ms <= now);
+  return candidates.length ? Math.min(...candidates) : NaN;
+}
+
+// 记录观测到的最早上架时间，供后续运行在 publishTime 随新集数前移后仍能找回首播。
+function rememberFirstPublishTime(show, now = Date.now()) {
+  const earliest = earliestKnownPublishMs(show, now);
+  if (Number.isFinite(earliest)) show.firstPublishTime = new Date(earliest).toISOString();
+  return show;
+}
+
 function getYfspReleaseInfo(show, now = Date.now()) {
-  const publishTime = typeof show.publishTime === 'string' && !isYearPlaceholderPublishTime(show.publishTime) ? show.publishTime : '';
-  const publishedMs = /\d{4}-\d{2}/u.test(publishTime) ? Date.parse(publishTime) : NaN;
+  const earliest = earliestKnownPublishMs(show, now);
+  const firstSeenMs = comparableTimestamp(show?.firstSeenAt);
+  if (Number.isFinite(earliest)) {
+    if (firstSeenMs && firstSeenMs <= now && firstSeenMs < earliest) return { timestamp: firstSeenMs, source: 'firstSeen' };
+    return { timestamp: earliest, source: 'publishTime' };
+  }
+  const publishedMs = exactDateMs(show.publishTime);
   if (Number.isFinite(publishedMs)) {
     // A future premiere is not an imprecise year-only release. Returning here
     // prevents its pre-release play count from being divided by Jan 1 and
@@ -1847,7 +1873,8 @@ function calculateYfspHotness(show, now = Date.now()) {
     YFSP_HOTNESS.velocityWeight,
     Math.log10(playsPerDay + 1) / YFSP_HOTNESS.velocityLogRange * YFSP_HOTNESS.velocityWeight,
   );
-  const releaseConfidence = release.source === 'publishTime'
+  // 首次收录时间是首播的上限（节目只会更早上线），用它算日均是保守估计，不打折。
+  const releaseConfidence = release.source === 'publishTime' || release.source === 'firstSeen'
     ? 1
     : release.source === 'year'
       ? YFSP_HOTNESS.yearFallbackConfidence
@@ -3608,6 +3635,7 @@ function fullSizeYfspCover(url) {
 
 function normalizeOutputShow(show) {
   repairKnownIdentityCorruption(show);
+  rememberFirstPublishTime(show);
   show.id = safeText(show.id, 200);
   show.title = safeText(show.title, 200);
   for (const [field, limit] of Object.entries({
