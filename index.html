@@ -38,14 +38,14 @@
     <nav class="tabs" aria-label="内容分类">
       <div class="container" role="tablist">
         <button id="tab-korean" class="tab active" data-tab="korean" role="tab" aria-controls="showGrid" aria-selected="true" tabindex="0"><span aria-hidden="true">🇰🇷</span> 韩剧推荐</button>
-        <button id="tab-hot" class="tab" data-tab="hot" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🔥</span> 本周热播</button>
+        <button id="tab-hot" class="tab" data-tab="hot" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">📊</span> 热播周榜</button>
         <button id="tab-year" class="tab" data-tab="year" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🔥</span> <span class="tab-year-label" id="yearTabLabel">今年新剧</span></button>
         <button id="tab-varietyYear" class="tab" data-tab="varietyYear" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">😂</span> <span class="tab-year-label tab-year-label-variety" id="varietyYearTabLabel">今年新综艺</span></button>
         <button id="tab-variety" class="tab" data-tab="variety" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🎬</span> 全部综艺</button>
         <button id="tab-new" class="tab" data-tab="new" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🆕</span> 新近加入</button>
         <button id="tab-classic" class="tab" data-tab="classic" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">🏆</span> 经典必看</button>
         <button id="tab-mine" class="tab" data-tab="mine" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">⭐</span> 我的片单</button>
-        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">📡</span> 韩国电视剧时间表</button>
+        <button id="tab-tvmaze" class="tab" data-tab="tvmaze" role="tab" aria-controls="showGrid" aria-selected="false" tabindex="-1"><span aria-hidden="true">📡</span> 韩剧时间表</button>
       </div>
     </nav>
 
@@ -91,7 +91,8 @@
           </div>
           <button class="filter-toggle" id="filterToggle" type="button" aria-controls="filterControls" aria-expanded="false">筛选与排序</button>
         </div>
-        <div class="quick-filters" id="quickFilters" role="group" aria-label="快捷筛选"></div>
+        <!-- 静态标签与脚本首次写入的固定标签一致，数据到达前占住这一行，避免下方内容跳动。 -->
+        <div class="quick-filters" id="quickFilters" role="group" aria-label="快捷筛选"><button class="chip" type="button" data-chip="playable" aria-pressed="false">可播放</button><button class="chip" type="button" data-chip="ongoing" aria-pressed="false">连载中</button><button class="chip" type="button" data-chip="score8" aria-pressed="false">8 分以上</button></div>
         <div class="filter-meta">
           <span class="result-summary" id="resultSummary" role="status" aria-live="polite"></span>
           <button class="filter-reset" id="resetFilters" type="button" hidden>清除筛选</button>
