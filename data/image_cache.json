@@ -2498,7 +2498,7 @@
     "doubanMatchedTitle": "地球超新鲜 第二季",
     "doubanMatchedSeasonNumber": 2,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.322Z"
+    "externalMetadataCheckedAt": "2026-11-19T20:49:59.575Z"
   },
   "CzWgzZtvLUt": {
     "title": "你为什么要爬山？",
@@ -3131,7 +3131,7 @@
     "doubanMatchedTitle": "极限挑战 第一季",
     "doubanMatchedSeasonNumber": 1,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.248Z"
+    "externalMetadataCheckedAt": "2026-11-19T20:49:59.855Z"
   },
   "BJM8WxBHDeB": {
     "title": "脱口秀和Ta的朋友们第3季",
@@ -7179,7 +7179,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt45246384/",
     "wikidataId": "Q136664062",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.756Z",
+    "externalMetadataCheckedAt": "2026-11-19T20:50:00.090Z",
     "cachedAt": "2026-10-19T18:15:01.759Z",
     "doubanId": "37806882",
     "doubanMatchedTitle": "我的有罪之人",
@@ -7539,7 +7539,7 @@
     "negativeLookupVersion": 2,
     "regional": "欧美",
     "notFound": true,
-    "cachedAt": "2026-11-12T20:09:02.298Z"
+    "cachedAt": "2026-11-19T20:50:01.547Z"
   },
   "yR9Hzn0mkYa": {
     "title": "美食告白记第2季",
@@ -7712,12 +7712,15 @@
     "tmdbId": 318634,
     "tmdbUrl": "https://www.themoviedb.org/tv/318634",
     "cachedAt": "2026-11-07T12:39:10.160Z",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38385205/",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-09T22:32:18.725Z",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt48409766/",
-    "wikidataId": ""
+    "wikidataId": "",
+    "doubanId": "38385205",
+    "doubanMatchedTitle": "解不开的我们",
+    "doubanMatchedSeasonNumber": 0
   },
   "tmdb_tv_298610": {
     "title": "毛骨悚然的恋爱",
@@ -8350,7 +8353,7 @@
     "wikidataId": "Q28972794",
     "cachedAt": "2026-08-23T16:34:04.883Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T02:58:40.275Z"
+    "externalMetadataCheckedAt": "2026-11-19T20:49:59.909Z"
   },
   "yzn9dGD9VPR": {
     "title": "再婚皇后",
@@ -8498,12 +8501,9 @@
     "version": 16,
     "negativeLookupVersion": 2,
     "regional": "韩国",
+    "doubanLookupId": "37469809",
     "notFound": true,
-    "cachedAt": "2026-11-19T07:40:19.828Z",
-    "doubanUrl": "https://movie.douban.com/subject/37469809/",
-    "doubanId": "37469809",
-    "doubanMatchedTitle": "最后一桌",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-11-19T20:50:02.572Z"
   },
   "yRzyBBP6XAu1": {
     "title": "爱情来了",
@@ -8975,7 +8975,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T20:43:30.715Z"
+    "cachedAt": "2026-11-19T20:50:00.829Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -10111,7 +10111,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:11.761Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.329Z"
+    "externalMetadataCheckedAt": "2026-11-19T20:49:59.594Z"
   },
   "YyHhwKvBULB": {
     "title": "风华合伙人",
@@ -10601,7 +10601,7 @@
     "wikidataId": "Q116248040",
     "cachedAt": "2026-08-23T16:34:06.981Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.410Z"
+    "externalMetadataCheckedAt": "2026-11-19T20:49:59.834Z"
   },
   "PhEkI81p2b7": {
     "title": "热烈的告别",
@@ -10712,7 +10712,7 @@
     "negativeLookupVersion": 2,
     "regional": "英国",
     "notFound": true,
-    "cachedAt": "2026-11-12T20:09:01.652Z"
+    "cachedAt": "2026-11-19T20:50:00.832Z"
   },
   "tmdb_tv_326975": {
     "title": "BOSS的甜蜜诱惑",
@@ -11532,5 +11532,25 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-18T20:43:30.181Z",
     "cachedAt": "2026-11-18T20:43:30.184Z"
+  },
+  "1ums5ybljSJ": {
+    "title": "维也纳风云",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/eX6E7u6AicwNsMAZ2lm8zFM8lz2.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "维也纳风云",
+    "matchedTitle": "维也纳风云",
+    "tmdbId": 288120,
+    "tmdbUrl": "https://www.themoviedb.org/tv/288120",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Vienna_Game_(TV_series)",
+    "imdbUrl": "https://www.imdb.com/title/tt31844371/",
+    "wikidataId": "Q125314909",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-19T20:50:00.448Z",
+    "cachedAt": "2026-11-19T20:50:00.452Z"
   }
 }
