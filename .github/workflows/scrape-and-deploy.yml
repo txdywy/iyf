@@ -52,27 +52,10 @@ jobs:
         id: mode
         env:
           EVENT_NAME: ${{ github.event_name }}
-        run: |
-          # push 只构建部署已提交数据；定时与手动运行才抓取。
-          scrape=false
-          if [ "$EVENT_NAME" != "push" ]; then scrape=true; fi
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            # 补偿计划与延迟的主计划可能紧挨着运行；已提交数据足够新时不重复消耗 AI 配额。
-            age_hours="$(node -e '
-              try {
-                const data = JSON.parse(require("node:fs").readFileSync("data/shows.json", "utf8"));
-                const generated = typeof data.generatedAt === "string" ? Date.parse(data.generatedAt) : NaN;
-                const age = (Date.now() - generated) / 3600000;
-                if (Number.isFinite(age) && age >= 0) process.stdout.write(age.toFixed(1));
-              } catch {}
-            ')"
-            if [ -n "$age_hours" ] && node -e 'process.exit(Number(process.argv[1]) < 8 ? 0 : 1)' "$age_hours"; then
-              scrape=false
-              echo "::notice::Committed data was generated ${age_hours}h ago (< 8h); this scheduled run deploys committed data without scraping."
-            fi
-          fi
-          echo "scrape=$scrape" >> "$GITHUB_OUTPUT"
-          echo "Scrape this run: $scrape"
+        # push 只构建部署已提交数据；定时与手动运行才抓取。已提交数据不足 8 小时的定时运行、
+        # 以及 main 已前进的排队运行也不抓取（规则与单元测试见 scripts/decide-scrape-mode.mjs）。
+        # 远端 main 用检出时的无凭据远端读取，网络失败时按原逻辑抓取，不会让任务失败。
+        run: node scripts/decide-scrape-mode.mjs
 
       - name: Run regression tests
         run: node --test --test-reporter=dot
@@ -125,8 +108,9 @@ jobs:
         run: |
           basic="$(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
           echo "::add-mask::$basic"
-          # 持有写令牌期间禁用仓库钩子，避免检出内容在 commit/push 时执行任意代码。
-          git_auth() { git -c core.hooksPath=/dev/null -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" "$@"; }
+          # 持有写令牌期间禁用仓库钩子与 fsmonitor，避免检出内容在 git 命令中执行任意代码。
+          git_local() { git -c core.hooksPath=/dev/null -c core.fsmonitor=false "$@"; }
+          git_auth() { git_local -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $basic" "$@"; }
           base_sha="$GITHUB_SHA"
 
           fetch_main() {
@@ -150,22 +134,22 @@ jobs:
             exit 0
           }
 
-          if ! git diff --quiet data/shows.json data/image_cache.json data/discovery.json data/history.json; then
+          if ! git_local diff --quiet data/shows.json data/image_cache.json data/discovery.json data/history.json; then
             # 抓取和校验耗时较长。若期间 main 已前进，不能把旧抓取器生成的数据
             # rebase 到新 schema 上。
             fetch_main
-            remote_sha="$(git rev-parse origin/main)"
+            remote_sha="$(git_local rev-parse origin/main)"
             if [ "$remote_sha" != "$base_sha" ]; then
               skip_stale "$remote_sha"
             fi
 
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add data/shows.json data/image_cache.json data/discovery.json data/history.json
-            git -c core.hooksPath=/dev/null commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
+            git_local config user.name "github-actions[bot]"
+            git_local config user.email "github-actions[bot]@users.noreply.github.com"
+            git_local add data/shows.json data/image_cache.json data/discovery.json data/history.json
+            git_local commit -m "chore: update show data $(date -u '+%Y-%m-%d %H:%M')"
 
             pushed=false
-            local_sha="$(git rev-parse HEAD)"
+            local_sha="$(git_local rev-parse HEAD)"
             for i in 1 2 3; do
               if git_auth push origin HEAD:main; then
                 pushed=true
@@ -173,7 +157,7 @@ jobs:
               fi
 
               fetch_main
-              remote_sha="$(git rev-parse origin/main)"
+              remote_sha="$(git_local rev-parse origin/main)"
               if [ "$remote_sha" = "$local_sha" ]; then
                 # The server accepted the push but the client lost the response.
                 pushed=true
@@ -193,13 +177,13 @@ jobs:
           else
             # 数据未变时也要确认 main 仍是本次构建的代码，否则 Cloudflare 会构建更新的 main 并与产物不一致。
             fetch_main
-            remote_sha="$(git rev-parse origin/main)"
+            remote_sha="$(git_local rev-parse origin/main)"
             if [ "$remote_sha" != "$base_sha" ]; then
               skip_stale "$remote_sha"
             fi
           fi
           echo "publish=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git_local rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build Pages artifact
         if: steps.commit.outputs.publish == 'true'
@@ -275,7 +259,8 @@ jobs:
     needs: scrape
     if: needs.scrape.outputs.publish == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    # 触发前后的 main 核对、10 分钟验收轮询和产物下载最坏约 11.7 分钟；留出余量。
+    timeout-minutes: 15
     permissions:
       contents: read
       actions: read
