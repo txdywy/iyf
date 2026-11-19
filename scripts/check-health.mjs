@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 // 发布后的数据健康检查：只读取已提交快照，不影响发布本身。
-// 严重问题（来源长期降级、AI 凭据/额度被拒）以 ::error:: 报告并以 1 退出，让定时运行显示为失败；
-// 次要降级（搜索兜底、AI 配额或预算提前停止）只发出 ::warning::。
+// 严重问题（推荐快照超过 48 小时未更新、本轮抓取的 AI 凭据/额度被拒）以 ::error:: 报告并以 1 退出，
+// 让运行显示为失败；次要降级（来源降级但未超时、搜索兜底、AI 配额或预算提前停止、AI 覆盖率塌缩）
+// 只发出 ::warning::。aiRunStatus 只描述写出该快照的那次抓取，因此只在本轮确实抓取并发布时评估，
+// 避免跳过抓取的后续运行把同一次 AI 停止重复报告为新的失败。
 
 import { appendFileSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -13,9 +15,20 @@ export const STALE_SOURCE_MS = 48 * HOUR_MS;
 const PRIMARY_SOURCE_KINDS = new Set(['homepage', 'catalog']);
 const FATAL_AI_STOP_REASONS = new Set(['auth', 'credit']);
 const WARNING_AI_STOP_REASONS = new Set(['quota', 'failures', 'budget']);
+// 应评分节目不少于 4 个且超过一半未拿到新分数时，视为 AI 覆盖率塌缩。
+export const AI_COVERAGE_MIN_DUE = 4;
+export const AI_COVERAGE_MAX_MISSED_RATIO = 0.5;
 
 const isObject = value => value != null && typeof value === 'object' && !Array.isArray(value);
 const parseTime = value => (typeof value === 'string' ? Date.parse(value) : NaN);
+const isCount = value => Number.isInteger(value) && value >= 0;
+
+// 工作流把 needs.scrape 的结果传入：'true' 表示本轮抓取并发布了所检查的快照。
+// 未设置时（本地手动运行）照常评估 AI 状态；其他取值视为本轮未抓取。
+export function parseScrapedThisRun(value) {
+  if (value === undefined) return undefined;
+  return value === 'true';
+}
 
 export function formatAge(ms) {
   if (!Number.isFinite(ms)) return '未知';
@@ -27,7 +40,7 @@ export function formatAge(ms) {
 }
 
 // 纯函数：根据快照与当前时间给出错误、警告与摘要字段。
-export function evaluateHealth(data, { now = Date.now() } = {}) {
+export function evaluateHealth(data, { now = Date.now(), scrapedThisRun } = {}) {
   const errors = [];
   const warnings = [];
   if (!isObject(data)) {
@@ -39,6 +52,7 @@ export function evaluateHealth(data, { now = Date.now() } = {}) {
   const generatedAge = now - parseTime(data.generatedAt);
   const ai = isObject(data.aiRunStatus) ? data.aiRunStatus : null;
   const stopReason = typeof ai?.stopReason === 'string' ? ai.stopReason : '';
+  const evaluateAi = scrapedThisRun !== false;
 
   if (!Number.isFinite(lastUpdatedAge)) {
     errors.push(`来源状态为 ${sourceStatus || '未知'}，且 lastUpdated 无效`);
@@ -52,18 +66,25 @@ export function evaluateHealth(data, { now = Date.now() } = {}) {
       ? '本次来源类型为 search：首页/目录覆盖不足，使用搜索兜底刷新'
       : `来源类型 ${sourceKind || '缺失'} 不是 homepage/catalog`);
   }
-  if (FATAL_AI_STOP_REASONS.has(stopReason)) {
+  if (!evaluateAi) {
+    // 本轮没有调用 AI，快照中的停止原因属于更早的抓取运行，已在那次运行中报告。
+  } else if (FATAL_AI_STOP_REASONS.has(stopReason)) {
     errors.push(`AI 评分因 ${stopReason === 'auth' ? '鉴权失败' : '余额/额度不足'} (${stopReason}) 停止，请检查 OPENROUTER_API_KEY`);
   } else if (WARNING_AI_STOP_REASONS.has(stopReason)) {
     warnings.push(`AI 评分提前停止 (${stopReason})，本次成功 ${Number.isInteger(ai.scored) ? ai.scored : '未知'} 批`);
   } else if (stopReason) {
     warnings.push(`AI 评分停止原因未知 (${stopReason.slice(0, 40)})`);
   }
+  const due = isCount(ai?.due) ? ai.due : null;
+  const missed = isCount(ai?.missed) ? ai.missed : null;
+  if (evaluateAi && due !== null && missed !== null && due >= AI_COVERAGE_MIN_DUE && missed / due > AI_COVERAGE_MAX_MISSED_RATIO) {
+    warnings.push(`AI 覆盖率塌缩：本轮应评分 ${due} 个节目，其中 ${missed} 个未获得新评分（超过一半）`);
+  }
 
   return {
     errors,
     warnings,
-    facts: { sourceStatus, sourceKind, lastUpdatedAge, generatedAge, ai, stopReason },
+    facts: { sourceStatus, sourceKind, lastUpdatedAge, generatedAge, ai, stopReason, due, missed, evaluateAi },
   };
 }
 
@@ -85,7 +106,8 @@ export function renderSummary(data, result) {
     ['搜索兜底（命中 / 目标）', `${count(source.sourceSearchMatched)} / ${count(source.sourceSearchTargets)}`],
     ['韩剧 / 综艺 / 其他', `${count(stats.koreanDramas)} / ${count(stats.chineseVariety)} / ${count(stats.otherDramas)}`],
     ['本轮抓取条目', count(stats.totalScraped)],
-    ['AI 状态', ai ? `停止原因 ${facts.stopReason || '无'}，请求 ${count(ai.requested)}，成功批次 ${count(ai.scored)}` : '未记录'],
+    ['AI 状态', ai ? `停止原因 ${facts.stopReason || '无'}，请求 ${count(ai.requested)}，成功批次 ${count(ai.scored)}${facts.evaluateAi ? '' : '（本轮未抓取，不评估）'}` : '未记录'],
+    ['AI 覆盖（未获新评分 / 应评分）', `${count(facts.missed)} / ${count(facts.due)}`],
     ['lastUpdated', `${cell(source.lastUpdated)}（${formatAge(facts.lastUpdatedAge)}前）`],
     ['generatedAt', `${cell(source.generatedAt)}（${formatAge(facts.generatedAge)}前）`],
   ];
@@ -106,7 +128,7 @@ export function runHealthCheck({ path, now = Date.now(), env = process.env, log 
     error(`::error::无法读取 data/shows.json (${cause?.name || 'Error'})`);
     return 1;
   }
-  const result = evaluateHealth(data, { now });
+  const result = evaluateHealth(data, { now, scrapedThisRun: parseScrapedThisRun(env.IYF_SCRAPED_THIS_RUN) });
   for (const warning of result.warnings) log(`::warning::${warning}`);
   for (const message of result.errors) error(`::error::${message}`);
   if (env.GITHUB_STEP_SUMMARY) appendFileSync(env.GITHUB_STEP_SUMMARY, renderSummary(data, result), 'utf8');

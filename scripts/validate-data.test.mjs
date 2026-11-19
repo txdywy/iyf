@@ -331,6 +331,22 @@ test('scrape freshness starts at this run and identity aliases must be strings',
   assert.match(invalid.stderr, /legacyIds: invalid identity aliases/u);
 });
 
+test('validator type-checks the optional AI coverage counters', () => {
+  for (const extra of [{}, { due: 0, missed: 0 }, { due: 12, missed: 7 }, { due: 3 }]) {
+    const data = dataFixture();
+    data.aiRunStatus = { stopReason: '', requested: 2, scored: 2, ...extra };
+    const result = runValidation(data);
+    assert.equal(result.status, 0, `${JSON.stringify(extra)}: ${result.stderr}`);
+  }
+  for (const extra of [{ due: -1 }, { missed: 1.5 }, { due: '4' }, { due: null }, { due: 2, missed: 3 }]) {
+    const data = dataFixture();
+    data.aiRunStatus = { stopReason: '', requested: 2, scored: 2, ...extra };
+    const result = runValidation(data);
+    assert.equal(result.status, 1, `${JSON.stringify(extra)}: ${result.stdout}`);
+    assert.match(result.stderr, /aiRunStatus\.(?:due|missed)/u);
+  }
+});
+
 test('validator rejects known mismatched links only on the affected title', () => {
   for (const field of ['doubanUrl', 'primaryUrl', 'url']) {
     const data = dataFixture();

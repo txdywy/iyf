@@ -335,3 +335,7 @@ jobs:
 
       - name: Check data health
         run: node scripts/check-health.mjs
+        env:
+          # aiRunStatus 只描述写出快照的那次抓取：只有本轮抓取并发布时才评估 AI 状态，
+          # 跳过抓取或未发布的运行仍检查快照时效，但不重复报告更早运行的 AI 停止。
+          IYF_SCRAPED_THIS_RUN: ${{ needs.scrape.outputs.scrape == 'true' && needs.scrape.outputs.sha != '' && 'true' || 'false' }}

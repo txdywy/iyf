@@ -122,6 +122,15 @@ function validateAiRunStatus(status) {
   for (const field of ['requested', 'scored']) {
     if (!Number.isInteger(status[field]) || status[field] < 0) errors.push(`${label}.${field}: must be a non-negative integer`);
   }
+  // due/missed 是后加的覆盖率计数，旧快照可以没有；出现时必须是非负整数且 missed 不超过 due。
+  for (const field of ['due', 'missed']) {
+    if (status[field] !== undefined && (!Number.isInteger(status[field]) || status[field] < 0)) {
+      errors.push(`${label}.${field}: must be a non-negative integer when present`);
+    }
+  }
+  if (Number.isInteger(status.due) && Number.isInteger(status.missed) && status.missed > status.due) {
+    errors.push(`${label}.missed: must not exceed due`);
+  }
 }
 
 function validateShows(data) {

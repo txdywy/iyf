@@ -33,11 +33,15 @@ test('the shared concurrency group and SHA-pinned actions are preserved', () => 
   }
 });
 
-test('the health job runs after publishing on scheduled and manual runs, even when scraping was skipped', () => {
+test('the health job runs after publishing on scheduled and manual runs and evaluates AI only for this run\'s scrape', () => {
   const health = jobBlock(deploy, 'health');
   assert.match(health, /needs: \[scrape, deploy, deploy-cloudflare\]/u);
   assert.match(health, /always\(\) && !cancelled\(\) && github\.ref == 'refs\/heads\/main' && github\.event_name != 'push'/u);
-  assert.doesNotMatch(health, /needs\.scrape\.outputs\.scrape == 'true'/u);
+  const condition = /\n    if: ([^\n]*)/u.exec(health)?.[1] || '';
+  assert.match(condition, /always\(\)/u);
+  assert.doesNotMatch(condition, /needs\.scrape\.outputs\.scrape/u, 'skip-scrape runs still check snapshot staleness');
+  // AI 停止只属于写出快照的那次抓取；跳过抓取或未发布的运行不能把它重复报告为新失败。
+  assert.match(health, /IYF_SCRAPED_THIS_RUN: \$\{\{ needs\.scrape\.outputs\.scrape == 'true' && needs\.scrape\.outputs\.sha != '' && 'true' \|\| 'false' \}\}/u);
   assert.match(health, /ref: \$\{\{ needs\.scrape\.outputs\.sha \|\| 'main' \}\}/u);
   assert.match(health, /persist-credentials: false/u);
   assert.match(health, /permissions:\n\s+contents: read\n/u);

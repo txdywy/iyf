@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { evaluateHealth, formatAge, renderSummary, runHealthCheck } from './check-health.mjs';
+import { evaluateHealth, formatAge, parseScrapedThisRun, renderSummary, runHealthCheck } from './check-health.mjs';
 
 const NOW = Date.parse('2026-11-08T12:00:00.000Z');
 const HOUR = 60 * 60 * 1000;
@@ -140,4 +140,58 @@ test('CLI runner writes the step summary and exits 1 only on errors', t => {
   const errors = [];
   assert.equal(runHealthCheck({ path, now: NOW, env: {}, log() {}, error: line => errors.push(line) }), 1);
   assert.match(errors[0], /^::error::/u);
+});
+
+test('AI coverage collapse warns only above half of at least four due shows', () => {
+  const ai = extra => snapshot({ aiRunStatus: { stopReason: '', requested: 4, scored: 3, ...extra } });
+  for (const [due, missed] of [[4, 3], [10, 6], [100, 51]]) {
+    const result = evaluateHealth(ai({ due, missed }), { now: NOW, scrapedThisRun: true });
+    assert.deepEqual(result.errors, []);
+    assert.equal(result.warnings.length, 1, `${missed}/${due}`);
+    assert.match(result.warnings[0], new RegExp(`应评分 ${due} 个节目，其中 ${missed} 个`, 'u'));
+  }
+  for (const extra of [{ due: 4, missed: 2 }, { due: 10, missed: 5 }, { due: 3, missed: 3 }, { due: 0, missed: 0 },
+    { due: 10 }, { missed: 9 }, {}, { due: '10', missed: '9' }, { due: -4, missed: -3 }]) {
+    const result = evaluateHealth(ai(extra), { now: NOW, scrapedThisRun: true });
+    assert.deepEqual(result.warnings, [], JSON.stringify(extra));
+    assert.deepEqual(result.errors, [], JSON.stringify(extra));
+  }
+  const data = ai({ due: 8, missed: 6 });
+  const summary = renderSummary(data, evaluateHealth(data, { now: NOW, scrapedThisRun: true }));
+  assert.match(summary, /\| AI 覆盖（未获新评分 \/ 应评分） \| 6 \/ 8 \|/u);
+  assert.match(renderSummary(snapshot(), evaluateHealth(snapshot(), { now: NOW })), /\| AI 覆盖（未获新评分 \/ 应评分） \| — \/ — \|/u);
+});
+
+test('runs that did not scrape keep the staleness check but do not re-report the previous AI run', () => {
+  const data = snapshot({ aiRunStatus: { stopReason: 'auth', requested: 1, scored: 0, due: 20, missed: 20 } });
+  const skipped = evaluateHealth(data, { now: NOW, scrapedThisRun: false });
+  assert.deepEqual(skipped.errors, []);
+  assert.deepEqual(skipped.warnings, []);
+  assert.match(renderSummary(data, skipped), /本轮未抓取，不评估/u);
+
+  const scraped = evaluateHealth(data, { now: NOW, scrapedThisRun: true });
+  assert.equal(scraped.errors.length, 1);
+  assert.equal(scraped.warnings.length, 1, 'coverage collapse is reported alongside the stop reason');
+  assert.equal(evaluateHealth(data, { now: NOW }).errors.length, 1, 'a local run without the workflow signal still evaluates AI');
+
+  const stale = evaluateHealth({ ...data, sourceStatus: 'degraded', lastUpdated: iso(NOW - 72 * HOUR) }, { now: NOW, scrapedThisRun: false });
+  assert.equal(stale.errors.length, 1);
+  assert.match(stale.errors[0], /超过 48 小时/u);
+});
+
+test('the workflow scrape signal is parsed strictly', () => {
+  assert.equal(parseScrapedThisRun(undefined), undefined);
+  assert.equal(parseScrapedThisRun('true'), true);
+  for (const value of ['false', '', 'TRUE', '1']) assert.equal(parseScrapedThisRun(value), false, value);
+});
+
+test('CLI runner reads the scrape signal from the environment', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'iyf-health-env-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const path = join(directory, 'shows.json');
+  writeFileSync(path, JSON.stringify(snapshot({ aiRunStatus: { stopReason: 'credit', requested: 1, scored: 0 } })));
+  const quiet = { log() {}, error() {} };
+  assert.equal(runHealthCheck({ path, now: NOW, env: { IYF_SCRAPED_THIS_RUN: 'false' }, ...quiet }), 0);
+  assert.equal(runHealthCheck({ path, now: NOW, env: { IYF_SCRAPED_THIS_RUN: 'true' }, ...quiet }), 1);
+  assert.equal(runHealthCheck({ path, now: NOW, env: {}, ...quiet }), 1);
 });
