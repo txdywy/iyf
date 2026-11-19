@@ -346,6 +346,22 @@ test('Cloudflare deployment waits until data and both assets match in the same p
   assert.deepEqual(h.waits, [10, 10, 10]);
 });
 
+test('Cloudflare flags a first-round match as unchanged content rather than a verified build', async t => {
+  const NOTICE = '::notice::线上内容已与产物一致；本次 Cloudflare 构建是否成功无法从内容判断。';
+  const unchanged = createHarness(t);
+  await unchanged.run();
+  assert.deepEqual(unchanged.logs.filter(line => line.startsWith('::notice::')), [NOTICE]);
+  assert.ok(unchanged.logs.indexOf(NOTICE) < unchanged.logs.findIndex(line => /production matches/u.test(line)));
+
+  const rebuilt = createHarness(t, {
+    timeoutMs: 100,
+    publicReply: ({ file, poll, body }) => (poll === 0 && file === 'index.html' ? { body: `${body}\n旧版本` } : {}),
+  });
+  await rebuilt.run();
+  assert.equal(rebuilt.logs.includes(NOTICE), false, 'a build observed to change the site needs no notice');
+  assert.match(rebuilt.logs.at(-1), /production matches the validated artifact/u);
+});
+
 test('Cloudflare deployment recovers from a transient verification request failure', async t => {
   const h = createHarness(t, {
     publicReply: ({ file, poll }) => poll === 0 && file === 'data/shows.json' ? { error: new Error('temporary outage') } : {},
