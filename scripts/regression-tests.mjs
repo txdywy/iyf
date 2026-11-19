@@ -42,6 +42,20 @@ function fixedInstant(iso) {
   };
 }
 
+// 可推进的时钟：测试固定模型限流后的冷却窗口。
+function steppingClock(iso = '2026-11-01T00:00:00Z') {
+  let timestamp = Date.parse(iso);
+  const Clock = class SteppingDate extends Date {
+    constructor(...args) {
+      super(...(args.length ? args : [timestamp]));
+    }
+    static now() {
+      return timestamp;
+    }
+  };
+  return { Clock, advance: ms => { timestamp += ms; } };
+}
+
 function instantSetTimeout(fn) {
   fn();
   return 0;
@@ -1901,7 +1915,7 @@ for (const hasStaleCache of [false, true]) {
     fetchImpl: aiFetchWithContent('{"results":[{"id":"wrong-batch-id","recommendationScore100":99,"recommendationLevel":"strong","r":"不应接受"},{"id":"expected-id","recommendationScore100":"99","recommendationLevel":"strong","r":"类型错误"}]}', invalidCounter),
   });
   const scores = await helpers.aiScoreShows([{ id: 'expected-id', title: '批次边界测试', year: 2026 }]);
-  assert.equal(invalidCounter.count, 2, 'an invalid free-router answer should be retried once, possibly on another model');
+  assert.equal(invalidCounter.count, 4, 'an invalid free-router answer is retried once per call, and a failed batch is re-run once in the same run');
   assert.equal(scores.size, 0, 'HTTP 200 output with wrong IDs or schema types must be rejected');
 }
 
@@ -1991,9 +2005,11 @@ for (const hasStaleCache of [false, true]) {
 {
   const requested = [];
   const delays = [];
-  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free', 'vendor/good:free'];
+  const answers = ['vendor/good:free', 'vendor/good', 429, 'vendor/rescue:free', 'vendor/rescue:free', 'vendor/good:free'];
+  const clock = steppingClock();
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
+    dateImpl: clock.Clock,
     setTimeoutImpl: (fn, delay) => { delays.push(delay); fn(); return 0; },
     fetchImpl: async (_url, options) => {
       const body = JSON.parse(options.body);
@@ -2013,6 +2029,10 @@ for (const hasStaleCache of [false, true]) {
   assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'vendor/good:free', 'openrouter/free'],
     'a pinned success reported under a canonical slug keeps the requested free model');
   assert.ok(delays.slice(delayCount).includes(20000), 'a rate-limited pinned model backs off before the router retry');
+  await helpers.aiScoreShows(Array.from({ length: 5 }, (_, index) => ({ id: `soon-${index}`, title: `随后${index}`, year: 2026, recommendScore: 50 - index })));
+  assert.equal(requested.at(-1), 'openrouter/free',
+    'inside the rate-limit window the next batch goes straight to the router instead of hitting the pinned 429 again');
+  clock.advance(61000);
   await helpers.aiScoreShows(Array.from({ length: 5 }, (_, index) => ({ id: `later-${index}`, title: `后续${index}`, year: 2026, recommendScore: 50 - index })));
   assert.equal(requested.at(-1), 'vendor/good:free',
     'an account-level 429 must not let a random router rescue replace the known-good pinned model');
@@ -2021,8 +2041,10 @@ for (const hasStaleCache of [false, true]) {
 {
   const requested = [];
   const answers = ['vendor/good:free', 429, 'vendor/rescue:free', 429, 'vendor/second:free', 'vendor/second:free'];
+  const clock = steppingClock();
   const { helpers } = loadScrapeHelpers({
     env: { OPENROUTER_API_KEY: 'or-test-key' },
+    dateImpl: clock.Clock,
     fetchImpl: async (_url, options) => {
       const body = JSON.parse(options.body);
       requested.push(body.model);
@@ -2036,6 +2058,7 @@ for (const hasStaleCache of [false, true]) {
   });
   for (let batch = 0; batch < 4; batch++) {
     await helpers.aiScoreShows([{ id: `upstream-${batch}`, title: `上游限流${batch}`, year: 2026, recommendScore: 50 }]);
+    clock.advance(61000);
   }
   assert.deepEqual(requested, ['openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/good:free', 'openrouter/free', 'vendor/second:free'],
     'a pinned model rate-limited twice in one run is replaced instead of costing every batch an extra request');

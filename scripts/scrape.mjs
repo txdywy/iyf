@@ -2021,7 +2021,7 @@ async function recalculateExistingData() {
       if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
       if (show.recommendScore < 0) return null;
-      if (isFreshAIScore(show, now)) applyAIRecommendationAdjustment(show);
+      if (isUsableAIScore(show, now)) applyAIRecommendationAdjustment(show);
       else clearStaleAIScore(show);
       return show;
     })
@@ -2069,6 +2069,11 @@ let _aiStopReason = '';
 let _aiStopCode = '';
 let _aiRequestCount = 0;
 let _aiSuccessfulBatches = 0;
+// 本轮需要（重新）评分的节目数，以及运行结束时仍没有拿到新分的数量，供健康检查判断覆盖率。
+let _aiScoreDue = 0;
+let _aiScoreMissed = 0;
+// 固定模型被分钟级限流时，在 retry-after 之前后续批次直接走路由，不再先撞一次 429。
+let _aiPinRestUntil = 0;
 // 免费路由每次随机选择模型；记住最近产出有效批次的具体模型并优先复用，
 // 避免把每日免费请求额度浪费在输出被截断的随机模型上。
 let _aiPreferredModel = '';
@@ -2077,7 +2082,8 @@ let _aiPinnedRateLimits = 0;
 
 function aiRunStatus() {
   const budgetSpent = _aiDeadline > 0 && Date.now() >= _aiDeadline && !_aiStopCode;
-  return { stopReason: _aiStopCode || (budgetSpent ? 'budget' : ''), requested: _aiRequestCount, scored: _aiSuccessfulBatches };
+  return { stopReason: _aiStopCode || (budgetSpent ? 'budget' : ''), requested: _aiRequestCount, scored: _aiSuccessfulBatches,
+    due: _aiScoreDue, missed: _aiScoreMissed };
 }
 
 function resetAIRunState() {
@@ -2088,6 +2094,9 @@ function resetAIRunState() {
   _aiRequestCount = 0;
   _aiSuccessfulBatches = 0;
   _aiPinnedRateLimits = 0;
+  _aiScoreDue = 0;
+  _aiScoreMissed = 0;
+  _aiPinRestUntil = 0;
 }
 
 function setAIPreferredModel(model) {
@@ -2121,7 +2130,7 @@ async function callModelsAPI(messages, {
   const canPin = model === OPENROUTER_FREE_MODEL;
   for (let attempt = 0; attempt < AI_CALL_ATTEMPTS; attempt++) {
     if (Date.now() >= _aiDeadline || _aiStopReason) break;
-    const pinned = canPin && attempt === 0 ? _aiPreferredModel : '';
+    const pinned = canPin && attempt === 0 && Date.now() >= _aiPinRestUntil ? _aiPreferredModel : '';
     const response = await _callEndpoint(OPENROUTER_API, pinned || model, orKey, messages, temperature, timeout, responseSchema);
     if (pinned && (!response || response.retryAfterMs != null)) {
       // 固定模型失败后立即改走免费路由；路由下一次成功会重新选定模型。
@@ -2129,6 +2138,7 @@ async function callModelsAPI(messages, {
       // 同一固定模型再次 429 说明它在上游持续限流，继续固定只会让每批多花一次请求。
       const rateLimited = response?.retryAfterMs != null;
       if (!_aiStopReason && Date.now() < _aiDeadline && (!rateLimited || ++_aiPinnedRateLimits > 1)) _aiPreferredModel = '';
+      if (rateLimited && _aiPreferredModel) _aiPinRestUntil = Date.now() + Math.max(response.retryAfterMs, 60000);
       // 免费额度的分钟级限流通常按账号计算，换路由前同样要先退避，否则唯一的重试也会被限流。
       if (response?.retryAfterMs != null) {
         await sleep(Math.max(0, Math.min(response.retryAfterMs, _aiDeadline - Date.now())));
@@ -2431,8 +2441,19 @@ function isFreshAIScore(show, now = Date.now()) {
   return now - scoredAt >= 0 && now - scoredAt < jitterDays * DAY_MS;
 }
 
+// “该刷新”与“仍可用”分开：输入哈希和版本都没变的旧分在 AI_SCORE_MAX_AGE_DAYS 内继续参与排序，
+// 刷新失败（限流、空回复）时不会让节目突然退回纯规则分、排名大幅跳动。
+const AI_SCORE_MAX_AGE_DAYS = 30;
+
+function isUsableAIScore(show, now = Date.now()) {
+  const scoredAt = Date.parse(show?.aiScoredAt || '');
+  if (!Number.isFinite(scoredAt) || show?.aiScore == null) return false;
+  if (show.aiScoreVersion !== AI_SCORE_CACHE_VERSION || show.aiScoreInputHash !== aiScoreInputHash(show)) return false;
+  return now - scoredAt >= 0 && now - scoredAt < AI_SCORE_MAX_AGE_DAYS * DAY_MS;
+}
+
 function clearStaleAIScore(show) {
-  if (isFreshAIScore(show)) return false;
+  if (isUsableAIScore(show)) return false;
   delete show.aiScore;
   delete show.aiReason;
   delete show.aiScoredAt;
@@ -2448,6 +2469,8 @@ async function aiScoreShows(shows) {
   }
 
   const toScore = shows.filter(show => !isFreshAIScore(show));
+  _aiScoreDue = toScore.length;
+  _aiScoreMissed = 0;
   if (!toScore.length) {
     console.log('  [AI] 所有节目已有当前版本 AI 评分,跳过');
     return new Map();
@@ -2468,8 +2491,7 @@ async function aiScoreShows(shows) {
     for (const list of categoryBatches) if (list[i]) batches.push(list[i]);
   }
 
-  for (const [batchIndex, { category, shows: batch }] of batches.entries()) {
-    if ((_aiDeadline && Date.now() >= _aiDeadline) || _aiStopReason) break;
+  const runBatch = async ({ category, shows: batch }) => {
     const systemPrompt = category === 'variety' ? AI_VARIETY_SCORE_SYSTEM : AI_KDRAMA_SCORE_SYSTEM;
     const items = batch.map(s => ({
       id: safeText(s.id, 200),
@@ -2501,12 +2523,29 @@ async function aiScoreShows(shows) {
         inputHash: aiScoreInputHash(show),
       });
     }
+  };
+  const aiStopped = () => (_aiDeadline && Date.now() >= _aiDeadline) || !!_aiStopReason;
+  for (const [batchIndex, batch] of batches.entries()) {
+    if (aiStopped()) break;
+    await runBatch(batch);
     if (batchIndex < batches.length - 1) await sleep(AI_BATCH_DELAY);
   }
+  // 失败批次在同一轮补跑一次：免费路由每次随机选模型，第一轮的限流或空回复常常换个模型就能成功；
+  // 没有停止原因且预算仍在时才补，额度用尽、鉴权失败或连续失败熔断后不补。
+  const retryShows = ['korean_drama', 'variety'].map(category =>
+    toScore.filter(show => aiScoreCategory(show) === category && !results.has(String(show.id))).sort(byRank));
+  for (const categoryShows of retryShows) {
+    for (let i = 0; i < categoryShows.length && !aiStopped(); i += AI_BATCH_SIZE) {
+      if (i === 0) console.log(`  [AI] 补跑 ${categoryShows.length} 个未返回评分的节目...`);
+      await sleep(AI_BATCH_DELAY);
+      await runBatch({ category: aiScoreCategory(categoryShows[0]), shows: categoryShows.slice(i, i + AI_BATCH_SIZE) });
+    }
+  }
 
-  // 不重试 — 漏掉的剧靠 7 天缓存+下次定时任务自然补上,节省 API 调用
-  const missed = toScore.filter(s => !results.has(s.id));
-  if (missed.length > 0) console.log(`  [AI] ${missed.length} 部未返回评分,下次运行自动补上`);
+  // 仍未拿到新分的节目：哈希未变的旧分继续参与排序（isUsableAIScore），下次运行再刷新。
+  const missed = toScore.filter(s => !results.has(String(s.id)));
+  _aiScoreMissed = missed.length;
+  if (missed.length > 0) console.log(`  [AI] ${missed.length} 部未返回评分（${missed.filter(s => isUsableAIScore(s)).length} 部沿用旧分），下次运行自动补上`);
   console.log(`  [AI] 获取到 ${results.size} 条评分结果`);
   return results;
 }
@@ -3185,14 +3224,14 @@ async function main() {
   let restoredAIScores = 0;
   const allForAI = [...kdramaMap.values(), ...varietyMap.values()];
   for (const show of allForAI) {
-    if (isFreshAIScore(show)) continue;
+    if (isUsableAIScore(show)) continue;
     clearStaleAIScore(show);
     const previous = prevMap.get(show.id);
     if (!previous) continue;
     for (const field of ['aiScore', 'aiReason', 'aiScoredAt', 'aiScoreVersion', 'aiScoreInputHash']) {
       if (Object.hasOwn(previous, field)) show[field] = previous[field];
     }
-    if (isFreshAIScore(show)) restoredAIScores++;
+    if (isUsableAIScore(show)) restoredAIScores++;
     else clearStaleAIScore(show);
   }
   if (restoredAIScores) console.log(`  [AI] 恢复 ${restoredAIScores} 个当前版本评分缓存`);
@@ -3207,8 +3246,8 @@ async function main() {
       show.aiScoreVersion = ai.version;
       show.aiScoreInputHash = ai.inputHash;
     }
-    // 规则分为主体；仅当前输入对应的 AI 分参与调整。
-    if (isFreshAIScore(show)) applyAIRecommendationAdjustment(show);
+    // 规则分为主体；仅当前输入对应的 AI 分参与调整（刷新失败时沿用仍可用的旧分）。
+    if (isUsableAIScore(show)) applyAIRecommendationAdjustment(show);
   }
   if (aiScores.size) console.log(`  [AI] 已为 ${aiScores.size} 个节目更新推荐分`);
 

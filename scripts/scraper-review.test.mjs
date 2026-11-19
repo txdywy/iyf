@@ -60,6 +60,7 @@ function loadHelpers({
         getHomepageCategoryCoverage, isHomepageHealthy,
         seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
         seedDescriptionOf, previousAdoptedSeasons, clearUnverifiedVarietySeasonMetadata,
+        isUsableAIScore, clearStaleAIScore,
       };
     `;
   vm.createContext(context);
@@ -3614,7 +3615,7 @@ test('the paginated catalog is the primary source, fills known cards and stops r
   assert.equal(published.sourceStatus, 'healthy');
   assert.equal(published.sourceKind, 'catalog');
   assert.equal(published.sourceCatalogPages, 2, 'only pages with matching-region rows count as catalog successes');
-  assert.deepEqual(published.aiRunStatus, { stopReason: '', requested: 0, scored: 0 }, 'AI run status is always recorded');
+  assert.deepEqual(published.aiRunStatus, { stopReason: '', requested: 0, scored: 0, due: 0, missed: 0 }, 'AI run status is always recorded');
   assert.equal(published.lastUpdated, '2026-10-29T00:00:00.000Z');
   const filled = published.koreanDramas.find(show => show.title === '目录补链剧');
   assert.equal(filled?.yfspUrl, 'https://www.kubb.tv/play/fill77', 'a catalog observation supplies the missing play link');
@@ -3976,4 +3977,18 @@ test('Twisted Tie aliases publish one playable card without breaking either titl
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, year: 2027 }]).length, 2);
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, title: '解不开的我们第2季' }]).length, 2);
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, tmdbUrl: 'https://www.themoviedb.org/tv/42' }]).length, 2);
+});
+
+test('an expired but unchanged AI score keeps ranking until a refresh succeeds, and is dropped after 30 days or on input change', () => {
+  const { helpers, setNow } = loadHelpers();
+  setNow('2026-11-19T00:00:00Z');
+  const show = { id: 'ai-keep', title: '保留旧分测试', year: 2026, contentType: '爱情', description: '一段来源简介。', aiScore: 90,
+    aiReason: '旧理由', aiScoreVersion: helpers.AI_SCORE_CACHE_VERSION, aiScoredAt: '2026-11-09T00:00:00Z' };
+  show.aiScoreInputHash = helpers.aiScoreInputHash(show);
+  assert.equal(helpers.isFreshAIScore(show), false, 'ten days old is due for a refresh');
+  assert.equal(helpers.isUsableAIScore(show), true, 'but still usable for ranking if the refresh fails');
+  assert.equal(helpers.clearStaleAIScore(show), false);
+  assert.equal(show.aiScore, 90);
+  assert.equal(helpers.isUsableAIScore({ ...show, aiScoredAt: '2026-10-19T00:00:00Z' }), false, 'older than 30 days is no longer used');
+  assert.equal(helpers.isUsableAIScore({ ...show, description: '简介变了。' }), false, 'a changed input invalidates it immediately');
 });
