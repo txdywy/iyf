@@ -1350,7 +1350,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:15.261Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:54.150Z"
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.389Z"
   },
   "V58UNe249y7": {
     "title": "李栋旭想做脱口秀",
@@ -1519,7 +1519,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:14.409Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:54.090Z"
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.349Z"
   },
   "WWxULgJcilB": {
     "title": "机智的露营生活",
@@ -1576,7 +1576,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:15.175Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:54.129Z"
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.419Z"
   },
   "9oo4bay48uO": {
     "title": "美食告白记",
@@ -1991,7 +1991,7 @@
     "doubanMatchedTitle": "一路向海的少年",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:54.103Z"
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.365Z"
   },
   "J9EtZ3teEe6": {
     "title": "我的偶像总裁",
@@ -2131,7 +2131,7 @@
     "doubanMatchedTitle": "伦敦合伙人",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:54.089Z"
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.348Z"
   },
   "ibi0Ecsy8Q0": {
     "title": "姐姐快醒醒",
@@ -7234,7 +7234,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt32561473/",
     "wikidataId": "",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T03:02:55.259Z",
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.407Z",
     "cachedAt": "2026-10-21T03:02:55.261Z",
     "doubanId": "37814643",
     "doubanMatchedTitle": "令人心动的offer 第八季",
@@ -11640,5 +11640,125 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-20T13:39:43.362Z",
     "cachedAt": "2026-11-20T13:39:43.366Z"
+  },
+  "78jX6k9mTo5": {
+    "title": "继续营业中",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/h3NltxoQ0s4mUQZ3fc7Iy1mKvh4.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "继续营业中",
+    "matchedTitle": "继续营业中",
+    "tmdbId": 342697,
+    "tmdbUrl": "https://www.themoviedb.org/tv/342697",
+    "doubanUrl": "https://movie.douban.com/subject/38568101/",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-20T22:50:52.658Z",
+    "cachedAt": "2026-11-20T22:50:52.661Z",
+    "doubanId": "38568101",
+    "doubanMatchedTitle": "继续营业中",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "LiDagylr6BM": {
+    "title": "声生不息·天涯共此时",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "大陆",
+    "notFound": true,
+    "cachedAt": "2026-11-20T22:50:53.162Z",
+    "doubanUrl": "https://movie.douban.com/subject/37816820/",
+    "doubanId": "37816820",
+    "doubanMatchedTitle": "声生不息·天涯共此时",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "eZ1gMNzY6jV": {
+    "title": "罪蓝之路",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "其它",
+    "url": "https://image.tmdb.org/t/p/original/cQ8pU9IimyWiLqP0e0qZqtktbma.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "罪蓝之路",
+    "matchedTitle": "罪蓝之路",
+    "tmdbId": 300523,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300523",
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%BD%AA%E8%97%8D%E4%B9%8B%E8%B7%AF",
+    "imdbUrl": "https://www.imdb.com/title/tt38336631/",
+    "wikidataId": "Q137848943",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-20T22:50:53.357Z",
+    "cachedAt": "2026-11-20T22:50:53.360Z"
+  },
+  "Wfnz1aVqKUD": {
+    "title": "黄蜂第4季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/fW8ZDhrle0t6gQ0FSrIMWqVhbMl.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:117488:4",
+    "matchedTitle": "黄蜂第 4 季",
+    "matchedSeriesTitle": "黄蜂",
+    "tmdbId": 117488,
+    "tmdbUrl": "https://www.themoviedb.org/tv/117488/season/4",
+    "tmdbSeriesId": 117488,
+    "tmdbSeasonId": 469273,
+    "tmdbSeasonNumber": 4,
+    "doubanUrl": "",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%BB%83%E8%9C%82_(%E9%9B%BB%E8%A6%96%E5%8A%87)",
+    "imdbUrl": "https://www.imdb.com/title/tt11041332/",
+    "wikidataId": "Q106830311",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-20T22:50:53.644Z",
+    "cachedAt": "2026-11-20T22:50:53.647Z"
+  },
+  "WvG3hbz5aN6": {
+    "title": "好搭档2",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/1nphpj85QKPMIF4w2LVFy5YsXh0.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "season-direct:243761:2",
+    "matchedTitle": "好搭档第 2 季",
+    "matchedSeriesTitle": "好搭档",
+    "tmdbId": 243761,
+    "tmdbUrl": "https://www.themoviedb.org/tv/243761/season/2",
+    "tmdbSeriesId": 243761,
+    "tmdbSeasonId": 449545,
+    "tmdbSeasonNumber": 2,
+    "doubanUrl": "https://movie.douban.com/subject/37172392/",
+    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E5%A5%BD%E6%90%AD%E6%A1%A3",
+    "imdbUrl": "https://www.imdb.com/title/tt32840498/",
+    "wikidataId": "Q124749480",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-20T22:50:53.692Z",
+    "cachedAt": "2026-11-20T22:50:53.695Z",
+    "doubanId": "37172392",
+    "doubanMatchedTitle": "好搭档2",
+    "doubanMatchedSeasonNumber": 2
+  },
+  "VBfTXD3PyeJ": {
+    "title": "波西·杰克逊第3季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "欧美",
+    "notFound": true,
+    "cachedAt": "2026-11-20T22:50:53.839Z"
   }
 }

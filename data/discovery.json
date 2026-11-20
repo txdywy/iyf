@@ -4188,13 +4188,13 @@
     ]
   },
   "2026-11-20": {
-    "timestamp": "2026-11-20T13:39:41.898Z",
-    "totalFound": 7,
+    "timestamp": "2026-11-20T22:50:51.747Z",
+    "totalFound": 10,
     "shows": [
       {
         "title": "医到孤岛爱上你",
         "score": 7.1,
-        "playCount": 451564,
+        "playCount": 451605,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -4206,7 +4206,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167713,
+        "playCount": 167724,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -4218,11 +4218,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 99892,
+        "playCount": 100819,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到39",
+        "updateStatus": "更新到40",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -4242,7 +4242,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21970,
+        "playCount": 21977,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -4274,6 +4274,42 @@
         "contentType": "",
         "mediaType": "综艺",
         "regional": "韩国"
+      },
+      {
+        "title": "好搭档2",
+        "score": 0,
+        "playCount": 4795,
+        "year": 2026,
+        "actor": "张娜拉,金惠奫,朴海镇,表志勋",
+        "source": "api_index",
+        "updateStatus": "更新到01",
+        "contentType": "剧情",
+        "mediaType": "电视剧",
+        "regional": "韩国"
+      },
+      {
+        "title": "声生不息·天涯共此时",
+        "score": 0,
+        "playCount": 9470,
+        "year": 2026,
+        "actor": "何炅,李莎旻子,任贤齐,徐洁儿,陈楚生,万妮达,毛不易,欧阳娜娜,刘耀文,蔡琴,张信哲,周传雄,胡海泉,吕建忠,大张伟,郁可唯,魏如昀,曾沛慈,许飞,孙盛希,尤长靖",
+        "source": "api_index",
+        "updateStatus": "更新到20261120(第1期下)",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
+      },
+      {
+        "title": "继续营业中",
+        "score": 0,
+        "playCount": 1545,
+        "year": 2026,
+        "actor": "娄艺潇,蒋依依,郜思雯,曹恩齐,高至霆,李振宁,刘彰,成果,李宸旭,张一铎,张集骏,黄小蕾",
+        "source": "api_index",
+        "updateStatus": "更新到20261120",
+        "contentType": "真人秀",
+        "mediaType": "综艺",
+        "regional": "大陆"
       }
     ]
   }
