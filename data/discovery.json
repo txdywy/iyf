@@ -4079,13 +4079,13 @@
     ]
   },
   "2026-11-19": {
-    "timestamp": "2026-11-19T07:40:15.897Z",
+    "timestamp": "2026-11-19T20:49:59.001Z",
     "totalFound": 9,
     "shows": [
       {
         "title": "医到孤岛爱上你",
         "score": 7.1,
-        "playCount": 451378,
+        "playCount": 451467,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -4097,7 +4097,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167676,
+        "playCount": 167693,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -4121,11 +4121,11 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 96340,
+        "playCount": 97706,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
-        "updateStatus": "更新到38",
+        "updateStatus": "更新到39",
         "contentType": "剧情",
         "mediaType": "电视剧",
         "regional": "韩国"
@@ -4145,7 +4145,7 @@
       {
         "title": "碰撞搜查线第2季",
         "score": 0,
-        "playCount": 31418,
+        "playCount": 35936,
         "year": 2026,
         "actor": "李民基,郭善英,许成泰,李浩哲,崔玟熙",
         "source": "api_index",
@@ -4157,7 +4157,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21949,
+        "playCount": 21954,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -4181,7 +4181,7 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10858,
+        "playCount": 10859,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
