@@ -4188,13 +4188,13 @@
     ]
   },
   "2026-11-20": {
-    "timestamp": "2026-11-20T02:23:18.175Z",
+    "timestamp": "2026-11-20T13:39:41.898Z",
     "totalFound": 7,
     "shows": [
       {
         "title": "医到孤岛爱上你",
         "score": 7.1,
-        "playCount": 451478,
+        "playCount": 451564,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -4206,7 +4206,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167694,
+        "playCount": 167713,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -4218,7 +4218,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 98592,
+        "playCount": 99892,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -4242,7 +4242,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 21957,
+        "playCount": 21970,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
