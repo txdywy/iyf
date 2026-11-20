@@ -2959,4 +2959,3 @@ test('Source contract smoke checks: history-only changes should trigger the data
 test('Source contract smoke checks: CSS nth-child animation delays should not duplicate inline delay', async () => {
   assert.doesNotMatch(css, /\.show-card:nth-child\(\d+\) \{ animation-delay:/, 'CSS nth-child animation delays should not duplicate inline delay');
 });
-
