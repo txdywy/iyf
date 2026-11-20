@@ -732,6 +732,8 @@ function discoveryRecordIdentityKey(show) {
 
 const TITLE_ALIAS_MAP = {
   '解不开的我们': ['解不開的我們', '扭曲的领带', '扭曲的領帶', 'Twisted Tie', '비틀린 넥타이'],
+  // 同一部剧：来源译名《最后一桌》，TMDB 中文名《最后的餐桌》（316702，维基《最後一桌》）。
+  '最后一桌': ['最後一桌', '最后的餐桌', '最後的餐桌', 'The Last Table'],
   '最后一排的男孩': ['Notes from the Last Row'],
   '大叔再出招': ['Fifties Professionals', '오십프로', '五十专家', '五十專家'],
   '背着善宰跑': ['背着善在跑吧', '背着善宰跑吧', 'Lovely Runner'],
@@ -1499,12 +1501,14 @@ function observedYfspSearchShow(found) {
   }, yfspDomainOfHost(new URL(found.url).hostname));
 }
 
-async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000 } = {}) {
+async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000, observedKeys = new Set() } = {}) {
   const shows = new Map();
   const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
     category, matched: new Set(),
+    // 本轮分类列表或首页已经观测到的卡片不必再搜，名额留给其余卡片续期。
     targets: (previous[category] || [])
-      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)))
+      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)) &&
+        !observedKeys.has(yfspPlayKey(safeOutputUrl(show.yfspUrl))))
       .sort((a, b) => searchFallbackDueAt(a) - searchFallbackDueAt(b) ||
         safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
       .slice(0, 30),
@@ -1545,10 +1549,14 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
 
 async function discoverIndependentYfspCandidates(queue, liveShows, attempts) {
   const deadline = Date.now() + 12000;
-  const candidates = queue.filter(item => item.state === 'pending' && item.season === 1)
+  // 来源是中文站，只用含中日韩文字的名称搜索（TVmaze 的英文名几乎不可能与中文标题相同）；
+  // 同一候选 3 天内不重复搜索。
+  const hasCjk = text => /[\p{Script=Han}\p{Script=Hangul}]/u.test(String(text || ''));
+  const candidates = queue.filter(item => item.state === 'pending' && item.season === 1 &&
+      [item.title, ...(item.titleAliases || [])].some(hasCjk) && !(Date.now() - (attempts[item.id] || 0) < 3 * DAY_MS))
     .sort((a, b) => (attempts[a.id] || 0) - (attempts[b.id] || 0)).slice(0, 4);
   for (const item of candidates) {
-    const titles = [...new Set([item.title, ...item.titleAliases])];
+    const titles = [...new Set([item.title, ...(item.titleAliases || [])])].filter(hasCjk);
     for (const title of titles.slice(0, 2)) {
       if (Date.now() >= deadline) return;
       attempts[item.id] = Date.now();
@@ -1813,9 +1821,35 @@ function isYearPlaceholderPublishTime(value) {
   return typeof value === 'string' && YEAR_PLACEHOLDER_PUBLISH_TIME.test(value.trim());
 }
 
+// 来源的 publishTime 实际是“最新一集上架时间”，连载剧每更新一集就往后挪。首播时间取以下各项中最早的：
+// 本次 publishTime、此前观测到的最早值（私有 firstPublishTime）、播出资料的首播日（broadcast.premiereDate）；
+// 首次收录时间 firstSeenAt 只作为上限（节目不可能晚于它首播），不作为“近期首播”加分的依据。
+function exactDateMs(value) {
+  const text = typeof value === 'string' && !isYearPlaceholderPublishTime(value) ? value : '';
+  return /\d{4}-\d{2}/u.test(text) ? Date.parse(text) : NaN;
+}
+
+function earliestKnownPublishMs(show, now = Date.now()) {
+  const candidates = [show?.publishTime, show?.firstPublishTime, show?.broadcast?.premiereDate]
+    .map(exactDateMs).filter(ms => Number.isFinite(ms) && ms <= now);
+  return candidates.length ? Math.min(...candidates) : NaN;
+}
+
+// 记录观测到的最早上架时间，供后续运行在 publishTime 随新集数前移后仍能找回首播。
+function rememberFirstPublishTime(show, now = Date.now()) {
+  const earliest = earliestKnownPublishMs(show, now);
+  if (Number.isFinite(earliest)) show.firstPublishTime = new Date(earliest).toISOString();
+  return show;
+}
+
 function getYfspReleaseInfo(show, now = Date.now()) {
-  const publishTime = typeof show.publishTime === 'string' && !isYearPlaceholderPublishTime(show.publishTime) ? show.publishTime : '';
-  const publishedMs = /\d{4}-\d{2}/u.test(publishTime) ? Date.parse(publishTime) : NaN;
+  const earliest = earliestKnownPublishMs(show, now);
+  const firstSeenMs = comparableTimestamp(show?.firstSeenAt);
+  if (Number.isFinite(earliest)) {
+    if (firstSeenMs && firstSeenMs <= now && firstSeenMs < earliest) return { timestamp: firstSeenMs, source: 'firstSeen' };
+    return { timestamp: earliest, source: 'publishTime' };
+  }
+  const publishedMs = exactDateMs(show.publishTime);
   if (Number.isFinite(publishedMs)) {
     // A future premiere is not an imprecise year-only release. Returning here
     // prevents its pre-release play count from being divided by Jan 1 and
@@ -1847,7 +1881,8 @@ function calculateYfspHotness(show, now = Date.now()) {
     YFSP_HOTNESS.velocityWeight,
     Math.log10(playsPerDay + 1) / YFSP_HOTNESS.velocityLogRange * YFSP_HOTNESS.velocityWeight,
   );
-  const releaseConfidence = release.source === 'publishTime'
+  // 首次收录时间是首播的上限（节目只会更早上线），用它算日均是保守估计，不打折。
+  const releaseConfidence = release.source === 'publishTime' || release.source === 'firstSeen'
     ? 1
     : release.source === 'year'
       ? YFSP_HOTNESS.yearFallbackConfidence
@@ -2021,7 +2056,7 @@ async function recalculateExistingData() {
       if (Object.hasOwn(show, 'aiScore')) show.aiScore = normalizeAIScore(show.aiScore);
       show.recommendScore = scoreFn(show, now);
       if (show.recommendScore < 0) return null;
-      if (isFreshAIScore(show, now)) applyAIRecommendationAdjustment(show);
+      if (isUsableAIScore(show, now)) applyAIRecommendationAdjustment(show);
       else clearStaleAIScore(show);
       return show;
     })
@@ -2069,6 +2104,11 @@ let _aiStopReason = '';
 let _aiStopCode = '';
 let _aiRequestCount = 0;
 let _aiSuccessfulBatches = 0;
+// 本轮需要（重新）评分的节目数，以及运行结束时仍没有拿到新分的数量，供健康检查判断覆盖率。
+let _aiScoreDue = 0;
+let _aiScoreMissed = 0;
+// 固定模型被分钟级限流时，在 retry-after 之前后续批次直接走路由，不再先撞一次 429。
+let _aiPinRestUntil = 0;
 // 免费路由每次随机选择模型；记住最近产出有效批次的具体模型并优先复用，
 // 避免把每日免费请求额度浪费在输出被截断的随机模型上。
 let _aiPreferredModel = '';
@@ -2077,7 +2117,8 @@ let _aiPinnedRateLimits = 0;
 
 function aiRunStatus() {
   const budgetSpent = _aiDeadline > 0 && Date.now() >= _aiDeadline && !_aiStopCode;
-  return { stopReason: _aiStopCode || (budgetSpent ? 'budget' : ''), requested: _aiRequestCount, scored: _aiSuccessfulBatches };
+  return { stopReason: _aiStopCode || (budgetSpent ? 'budget' : ''), requested: _aiRequestCount, scored: _aiSuccessfulBatches,
+    due: _aiScoreDue, missed: _aiScoreMissed };
 }
 
 function resetAIRunState() {
@@ -2088,6 +2129,9 @@ function resetAIRunState() {
   _aiRequestCount = 0;
   _aiSuccessfulBatches = 0;
   _aiPinnedRateLimits = 0;
+  _aiScoreDue = 0;
+  _aiScoreMissed = 0;
+  _aiPinRestUntil = 0;
 }
 
 function setAIPreferredModel(model) {
@@ -2121,7 +2165,7 @@ async function callModelsAPI(messages, {
   const canPin = model === OPENROUTER_FREE_MODEL;
   for (let attempt = 0; attempt < AI_CALL_ATTEMPTS; attempt++) {
     if (Date.now() >= _aiDeadline || _aiStopReason) break;
-    const pinned = canPin && attempt === 0 ? _aiPreferredModel : '';
+    const pinned = canPin && attempt === 0 && Date.now() >= _aiPinRestUntil ? _aiPreferredModel : '';
     const response = await _callEndpoint(OPENROUTER_API, pinned || model, orKey, messages, temperature, timeout, responseSchema);
     if (pinned && (!response || response.retryAfterMs != null)) {
       // 固定模型失败后立即改走免费路由；路由下一次成功会重新选定模型。
@@ -2129,6 +2173,7 @@ async function callModelsAPI(messages, {
       // 同一固定模型再次 429 说明它在上游持续限流，继续固定只会让每批多花一次请求。
       const rateLimited = response?.retryAfterMs != null;
       if (!_aiStopReason && Date.now() < _aiDeadline && (!rateLimited || ++_aiPinnedRateLimits > 1)) _aiPreferredModel = '';
+      if (rateLimited && _aiPreferredModel) _aiPinRestUntil = Date.now() + Math.max(response.retryAfterMs, 60000);
       // 免费额度的分钟级限流通常按账号计算，换路由前同样要先退避，否则唯一的重试也会被限流。
       if (response?.retryAfterMs != null) {
         await sleep(Math.max(0, Math.min(response.retryAfterMs, _aiDeadline - Date.now())));
@@ -2431,8 +2476,19 @@ function isFreshAIScore(show, now = Date.now()) {
   return now - scoredAt >= 0 && now - scoredAt < jitterDays * DAY_MS;
 }
 
+// “该刷新”与“仍可用”分开：输入哈希和版本都没变的旧分在 AI_SCORE_MAX_AGE_DAYS 内继续参与排序，
+// 刷新失败（限流、空回复）时不会让节目突然退回纯规则分、排名大幅跳动。
+const AI_SCORE_MAX_AGE_DAYS = 30;
+
+function isUsableAIScore(show, now = Date.now()) {
+  const scoredAt = Date.parse(show?.aiScoredAt || '');
+  if (!Number.isFinite(scoredAt) || show?.aiScore == null) return false;
+  if (show.aiScoreVersion !== AI_SCORE_CACHE_VERSION || show.aiScoreInputHash !== aiScoreInputHash(show)) return false;
+  return now - scoredAt >= 0 && now - scoredAt < AI_SCORE_MAX_AGE_DAYS * DAY_MS;
+}
+
 function clearStaleAIScore(show) {
-  if (isFreshAIScore(show)) return false;
+  if (isUsableAIScore(show)) return false;
   delete show.aiScore;
   delete show.aiReason;
   delete show.aiScoredAt;
@@ -2448,6 +2504,8 @@ async function aiScoreShows(shows) {
   }
 
   const toScore = shows.filter(show => !isFreshAIScore(show));
+  _aiScoreDue = toScore.length;
+  _aiScoreMissed = 0;
   if (!toScore.length) {
     console.log('  [AI] 所有节目已有当前版本 AI 评分,跳过');
     return new Map();
@@ -2468,8 +2526,7 @@ async function aiScoreShows(shows) {
     for (const list of categoryBatches) if (list[i]) batches.push(list[i]);
   }
 
-  for (const [batchIndex, { category, shows: batch }] of batches.entries()) {
-    if ((_aiDeadline && Date.now() >= _aiDeadline) || _aiStopReason) break;
+  const runBatch = async ({ category, shows: batch }) => {
     const systemPrompt = category === 'variety' ? AI_VARIETY_SCORE_SYSTEM : AI_KDRAMA_SCORE_SYSTEM;
     const items = batch.map(s => ({
       id: safeText(s.id, 200),
@@ -2501,12 +2558,29 @@ async function aiScoreShows(shows) {
         inputHash: aiScoreInputHash(show),
       });
     }
+  };
+  const aiStopped = () => (_aiDeadline && Date.now() >= _aiDeadline) || !!_aiStopReason;
+  for (const [batchIndex, batch] of batches.entries()) {
+    if (aiStopped()) break;
+    await runBatch(batch);
     if (batchIndex < batches.length - 1) await sleep(AI_BATCH_DELAY);
   }
+  // 失败批次在同一轮补跑一次：免费路由每次随机选模型，第一轮的限流或空回复常常换个模型就能成功；
+  // 没有停止原因且预算仍在时才补，额度用尽、鉴权失败或连续失败熔断后不补。
+  const retryShows = ['korean_drama', 'variety'].map(category =>
+    toScore.filter(show => aiScoreCategory(show) === category && !results.has(String(show.id))).sort(byRank));
+  for (const categoryShows of retryShows) {
+    for (let i = 0; i < categoryShows.length && !aiStopped(); i += AI_BATCH_SIZE) {
+      if (i === 0) console.log(`  [AI] 补跑 ${categoryShows.length} 个未返回评分的节目...`);
+      await sleep(AI_BATCH_DELAY);
+      await runBatch({ category: aiScoreCategory(categoryShows[0]), shows: categoryShows.slice(i, i + AI_BATCH_SIZE) });
+    }
+  }
 
-  // 不重试 — 漏掉的剧靠 7 天缓存+下次定时任务自然补上,节省 API 调用
-  const missed = toScore.filter(s => !results.has(s.id));
-  if (missed.length > 0) console.log(`  [AI] ${missed.length} 部未返回评分,下次运行自动补上`);
+  // 仍未拿到新分的节目：哈希未变的旧分继续参与排序（isUsableAIScore），下次运行再刷新。
+  const missed = toScore.filter(s => !results.has(String(s.id)));
+  _aiScoreMissed = missed.length;
+  if (missed.length > 0) console.log(`  [AI] ${missed.length} 部未返回评分（${missed.filter(s => isUsableAIScore(s)).length} 部沿用旧分），下次运行自动补上`);
   console.log(`  [AI] 获取到 ${results.size} 条评分结果`);
   return results;
 }
@@ -2934,7 +3008,7 @@ async function main() {
   });
   const searchSnapshot = homepageHealthy
     ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, categoryCoverage: [] }
-    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems });
+    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems, observedKeys: new Set(liveShows.keys()) });
   for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
   noteYfspKeySpace(prevShows);
   // 首页或分类列表任一健康即为主来源健康；搜索回退仍照常为未出现在列表里的已收录卡片续期。
@@ -3185,14 +3259,14 @@ async function main() {
   let restoredAIScores = 0;
   const allForAI = [...kdramaMap.values(), ...varietyMap.values()];
   for (const show of allForAI) {
-    if (isFreshAIScore(show)) continue;
+    if (isUsableAIScore(show)) continue;
     clearStaleAIScore(show);
     const previous = prevMap.get(show.id);
     if (!previous) continue;
     for (const field of ['aiScore', 'aiReason', 'aiScoredAt', 'aiScoreVersion', 'aiScoreInputHash']) {
       if (Object.hasOwn(previous, field)) show[field] = previous[field];
     }
-    if (isFreshAIScore(show)) restoredAIScores++;
+    if (isUsableAIScore(show)) restoredAIScores++;
     else clearStaleAIScore(show);
   }
   if (restoredAIScores) console.log(`  [AI] 恢复 ${restoredAIScores} 个当前版本评分缓存`);
@@ -3207,8 +3281,8 @@ async function main() {
       show.aiScoreVersion = ai.version;
       show.aiScoreInputHash = ai.inputHash;
     }
-    // 规则分为主体；仅当前输入对应的 AI 分参与调整。
-    if (isFreshAIScore(show)) applyAIRecommendationAdjustment(show);
+    // 规则分为主体；仅当前输入对应的 AI 分参与调整（刷新失败时沿用仍可用的旧分）。
+    if (isUsableAIScore(show)) applyAIRecommendationAdjustment(show);
   }
   if (aiScores.size) console.log(`  [AI] 已为 ${aiScores.size} 个节目更新推荐分`);
 
@@ -3569,6 +3643,7 @@ function fullSizeYfspCover(url) {
 
 function normalizeOutputShow(show) {
   repairKnownIdentityCorruption(show);
+  rememberFirstPublishTime(show);
   show.id = safeText(show.id, 200);
   show.title = safeText(show.title, 200);
   for (const [field, limit] of Object.entries({
@@ -4663,6 +4738,8 @@ const TMDB_KDRAMA_DISCOVERY = Object.freeze({
 });
 
 // TMDB 收录国产综艺的热度普遍偏低，门槛相应放低；综艺没有 AI 收录门，因此只收轻松向或高分的新节目。
+const TMDB_VARIETY_DERIVATIVE_TITLE = /纯享|合集|精编|加更|花絮|陪看|彩蛋|未播|超前|会员版/u;
+
 const TMDB_VARIETY_DISCOVERY = Object.freeze({
   label: '综艺', mediaType: '综艺', type: 5, category: 'variety', countries: ['CN', 'KR'],
   query: 'with_origin_country=CN%7CKR&with_genres=10764%7C10767',
@@ -4672,7 +4749,10 @@ const TMDB_VARIETY_DISCOVERY = Object.freeze({
   minPopularity: 3, maxNew: 5,
   accept: show => {
     if (VarietyExclude.some(keyword => show.title.includes(keyword)) || scoreVariety(show) < 0) return false;
-    const text = `${show.contentType} ${show.title} ${sourceDescriptionForScoring(show)}`;
+    // 剪辑合集、纯享版等衍生条目不是独立节目。
+    if (TMDB_VARIETY_DERIVATIVE_TITLE.test(show.title)) return false;
+    // contentType 由 TMDB 类型名生成，“脱口秀/喜剧”本身就在轻松关键词里，不能用来证明节目轻松。
+    const text = `${show.title} ${sourceDescriptionForScoring(show)}`;
     return VarietyFunnyKeywords.some(keyword => text.includes(keyword)) || boundedScore(show.tmdbRating) >= 7;
   },
   score: show => scoreVariety(show),
@@ -4779,7 +4859,8 @@ async function discoverNewVariety(liveShows, varietyMap, knownBeforeRun = variet
     const t = `${s.contentType} ${s.title}`.toLowerCase();
     const isFunny = VarietyFunnyKeywords.some(kw => t.includes(kw));
     const hasFunnyHost = VarietyHighWeightHosts.some(h => (s.actor || '').includes(h));
-    const pass = s.score >= minSc2 || s.playCount >= minPl2 || (isFunny && s.playCount >= 5000) || hasFunnyHost;
+    // 轻松类型的低播放量放宽只给当年节目；旧节目仍须达到评分或播放量门槛。
+    const pass = s.score >= minSc2 || s.playCount >= minPl2 || (isFunny && s.year >= CURRENT_YEAR && s.playCount >= 5000) || hasFunnyHost;
     if (pass) {
       s.recommendScore = scoreVariety(s);
       s.category = 'variety';
@@ -5419,6 +5500,7 @@ function simplifyTitleForSearch(title = '') {
 // 已知标题 → TMDB ID 直接映射,跳过搜索(搜索命中率低的中文/韩文标题)
 const TMDB_ID_MAP = {
   '解不开的我们': { id: 318634, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
+  '最后一桌': { id: 316702, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // 日韩合拍，TMDB 登记为日本剧（中文名《莓好遇见你》），按地区和中文名都匹配不到。
   '爱上草莓的季节': { id: 305551, kind: 'tv', year: 2026, regional: '韩国', mediaType: '电视剧' },
   // TMDB 中文名《BOSS的甜蜜诱惑》（보스의 노골적 취향），与来源译名无共同词。

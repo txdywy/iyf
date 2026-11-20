@@ -60,6 +60,7 @@ function loadHelpers({
         getHomepageCategoryCoverage, isHomepageHealthy,
         seedSeasonOf, findLiveTitleMatch, sameSeedShowIdentity, isTruncatedDescription, isWikipediaBroadcastLede,
         seedDescriptionOf, previousAdoptedSeasons, clearUnverifiedVarietySeasonMetadata,
+        isUsableAIScore, clearStaleAIScore, rememberFirstPublishTime, TMDB_VARIETY_DISCOVERY,
       };
     `;
   vm.createContext(context);
@@ -111,12 +112,19 @@ test('homepage health requires live coverage in both recommendation categories',
   assert.equal(helpers.isHomepageHealthy(baseline), true, 'three observations from each category satisfy the category floor');
 });
 
-test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', () => {
-  const { helpers } = loadHelpers();
+test('BTS Variety Chronicle cannot fall back to Run BTS and its published link stays on YFSP', async () => {
+  // 内联夹具：不依赖已提交数据里是否仍保留这张旧卡片；已提交数据的错误链接由 validate-data.mjs 拦截。
+  const { helpers } = loadHelpers({ fetchImpl: async () => response([
+    { id: '26954787', title: '奔跑吧，防弹！', sub_title: 'Run BTS!', year: '2019' },
+  ]) });
   assert.equal(helpers.titleMatches('BTS综艺年代记', 'Run BTS!'), false);
-  const shows = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
-  const show = shows.chineseVariety.find(item => item.id === 'gME4Wj46fvE');
-  assert.ok(show);
+  assert.equal(helpers.titleMatches('BTS综艺年代记', '奔跑吧，防弹！'), false);
+  const fixture = {
+    id: 'gME4Wj46fvE', title: 'BTS综艺年代记', year: 2019, mediaType: '综艺', regional: '韩国', category: 'variety',
+    yfspUrl: 'https://www.yfsp.tv/play/gME4Wj46fvE', coverImg: 'https://static.yfsp.tv/upload/video/bts.gif',
+  };
+  assert.equal(await helpers.searchDoubanSubject({ ...fixture }), null, 'Run BTS must not become this show\'s Douban subject');
+  const show = helpers.normalizeOutputShow({ ...fixture });
   assert.equal(show.primaryUrl, show.yfspUrl);
   assert.equal(show.url, show.yfspUrl);
   assert.equal(show.primaryUrlSource, 'yfsp');
@@ -1743,6 +1751,8 @@ test('a complete all-503 run preserves published source descriptions and dynamic
   let checked = 0;
   for (const category of ['koreanDramas', 'chineseVariety']) {
     for (const old of previous[category]) {
+      // 上一轮仍是两张卡、但已被别名认定为同一部剧的，合并后只保留其中一张的文案。
+      if (previous[category].some(other => other !== old && helpers.sameShowIdentity(other, old))) continue;
       const current = published[category].find(show => helpers.sameShowIdentity(show, old));
       if (!current) continue; // The existing retirement window still applies to old non-seed recommendations.
       if (old.description && ['yfsp', 'tmdb', 'wikipedia'].includes(old.descriptionSource)) {
@@ -1839,10 +1849,24 @@ function seasonCache(overrides = {}) {
 }
 
 test('real same-season title spellings retain one identity and reusable cache without merging other identities', () => {
-  const data = JSON.parse(readFileSync(join(root, 'data/shows.json'), 'utf8'));
-  const cache = JSON.parse(readFileSync(join(root, 'data/image_cache.json'), 'utf8'));
-  const original = data.chineseVariety.find(show => show.title === '只要有空第5季');
-  assert.ok(original, 'exercise the currently published show');
+  // 内联取自真实卡片与封面缓存的身份字段，避免测试依赖已提交数据仍发布这一季。
+  const original = {
+    id: 'mTmMCoTFAX1', title: '只要有空第5季', mediaType: '综艺', regional: '韩国', year: 2026,
+    category: 'variety', yfspUrl: 'https://www.kubb.tv/play/mTmMCoTFAX1',
+    coverImg: 'https://image.tmdb.org/t/p/original/4dtjaMd4BLRVh6b1VrrhLNFwd8t.jpg', coverSource: 'tmdb',
+    tmdbUrl: 'https://www.themoviedb.org/tv/247805/season/5', tmdbId: 247805, tmdbSeriesId: 247805, tmdbSeasonNumber: 5,
+    doubanUrl: 'https://movie.douban.com/subject/38556429/', imdbUrl: 'https://www.imdb.com/title/tt34460456/',
+  };
+  const cache = { [original.id]: {
+    title: '只要有空第5季', year: 2026, mediaType: '综艺',
+    url: 'https://image.tmdb.org/t/p/original/4dtjaMd4BLRVh6b1VrrhLNFwd8t.jpg', source: 'tmdb', version: 16,
+    query: 'season-direct:247805:5', matchedTitle: '只要有空第 5 季', matchedSeriesTitle: '只要有空',
+    tmdbId: 247805, tmdbUrl: 'https://www.themoviedb.org/tv/247805/season/5', tmdbSeriesId: 247805,
+    tmdbSeasonId: 531901, tmdbSeasonNumber: 5,
+    doubanUrl: 'https://movie.douban.com/subject/38556429/', wikipediaUrl: '', imdbUrl: 'https://www.imdb.com/title/tt34460456/',
+    wikidataId: 'Q137916151', cachedAt: '2026-09-01T14:32:37.938Z',
+    doubanId: '38556429', doubanMatchedTitle: '只要有空 第五季', doubanMatchedSeasonNumber: 5,
+  } };
   const variant = { ...original, id: 'changed-source-id', title: '只要有空5' };
   const { helpers } = loadHelpers();
   assert.equal(helpers.sameShowIdentity(original, variant), true);
@@ -3614,7 +3638,7 @@ test('the paginated catalog is the primary source, fills known cards and stops r
   assert.equal(published.sourceStatus, 'healthy');
   assert.equal(published.sourceKind, 'catalog');
   assert.equal(published.sourceCatalogPages, 2, 'only pages with matching-region rows count as catalog successes');
-  assert.deepEqual(published.aiRunStatus, { stopReason: '', requested: 0, scored: 0 }, 'AI run status is always recorded');
+  assert.deepEqual(published.aiRunStatus, { stopReason: '', requested: 0, scored: 0, due: 0, missed: 0 }, 'AI run status is always recorded');
   assert.equal(published.lastUpdated, '2026-10-29T00:00:00.000Z');
   const filled = published.koreanDramas.find(show => show.title === '目录补链剧');
   assert.equal(filled?.yfspUrl, 'https://www.kubb.tv/play/fill77', 'a catalog observation supplies the missing play link');
@@ -3976,4 +4000,73 @@ test('Twisted Tie aliases publish one playable card without breaking either titl
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, year: 2027 }]).length, 2);
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, title: '解不开的我们第2季' }]).length, 2);
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, tmdbUrl: 'https://www.themoviedb.org/tv/42' }]).length, 2);
+});
+
+test('an expired but unchanged AI score keeps ranking until a refresh succeeds, and is dropped after 30 days or on input change', () => {
+  const { helpers, setNow } = loadHelpers();
+  setNow('2026-11-19T00:00:00Z');
+  const show = { id: 'ai-keep', title: '保留旧分测试', year: 2026, contentType: '爱情', description: '一段来源简介。', aiScore: 90,
+    aiReason: '旧理由', aiScoreVersion: helpers.AI_SCORE_CACHE_VERSION, aiScoredAt: '2026-11-09T00:00:00Z' };
+  show.aiScoreInputHash = helpers.aiScoreInputHash(show);
+  assert.equal(helpers.isFreshAIScore(show), false, 'ten days old is due for a refresh');
+  assert.equal(helpers.isUsableAIScore(show), true, 'but still usable for ranking if the refresh fails');
+  assert.equal(helpers.clearStaleAIScore(show), false);
+  assert.equal(show.aiScore, 90);
+  assert.equal(helpers.isUsableAIScore({ ...show, aiScoredAt: '2026-10-19T00:00:00Z' }), false, 'older than 30 days is no longer used');
+  assert.equal(helpers.isUsableAIScore({ ...show, description: '简介变了。' }), false, 'a changed input invalidates it immediately');
+});
+
+test('premiere-based scoring uses the earliest known release, not the latest episode upload time', () => {
+  const { helpers, setNow } = loadHelpers();
+  setNow('2026-11-19T00:00:00Z');
+  const now = Date.parse('2026-11-19T00:00:00Z');
+  const ongoing = { title: '连载测试剧', year: 2026, isSerial: true, isComplete: false, playCount: 3000000,
+    publishTime: '2026-11-18T19:41:00Z', firstSeenAt: '2026-08-15T00:00:00Z' };
+  const fresh = { ...ongoing, firstSeenAt: '2026-11-18T20:00:00Z' };
+  assert.equal(helpers.kdramaAiringBonus(fresh, now) > helpers.kdramaAiringBonus(ongoing, now), true,
+    'a show seen since August cannot claim a premiere bonus from its newest episode upload');
+  assert.ok(helpers.calculateYfspHotness(ongoing, now).playsPerDay < 50000,
+    'velocity is measured from the first appearance, not from yesterday');
+  const withPremiere = { ...ongoing, broadcast: { premiereDate: '2026-10-10' }, firstSeenAt: '2026-10-11T00:00:00Z' };
+  assert.equal(helpers.kdramaAiringBonus(withPremiere, now), helpers.kdramaAiringBonus({ ...withPremiere, publishTime: '2026-10-10' }, now),
+    'a known premiere date wins over the latest upload time');
+  const remembered = helpers.rememberFirstPublishTime({ publishTime: '2026-11-18T19:41:00Z', firstPublishTime: '2026-09-01T00:00:00Z' }, now);
+  assert.equal(remembered.firstPublishTime, '2026-09-01T00:00:00.000Z', 'the earliest observed upload time is kept');
+  assert.equal(helpers.rememberFirstPublishTime({ publishTime: '2026-01-01T00:00:00' }, now).firstPublishTime, undefined,
+    'a year placeholder is not a release date');
+});
+
+test('The Table aliases collapse the TMDB-named card into the playable source card', () => {
+  const { helpers } = loadHelpers();
+  const metadata = { id: 'tmdb_tv_316702', title: '最后的餐桌', year: 2026, mediaType: '电视剧', regional: '韩国',
+    tmdbUrl: 'https://www.themoviedb.org/tv/316702', recommendScore: 98 };
+  const source = { id: 'zdCuQmsq2YC', title: '最后一桌', year: 2026, mediaType: '电视剧', regional: '韩国',
+    yfspUrl: 'https://www.kubb.tv/play/zdCuQmsq2YC', recommendScore: 80 };
+  const result = helpers.dedupByTitle([{ ...metadata }, { ...source }]);
+  assert.deepEqual(Array.from(result, show => show.id), [source.id]);
+  assert.ok(result[0].titleAliases.includes(metadata.title));
+  assert.ok(Array.from(result[0].legacyIds).includes(metadata.id), 'old share links and marks of the TMDB card keep working');
+});
+
+test('the search fallback skips cards already observed this run', async () => {
+  const searched = [];
+  const { helpers } = loadHelpers({ fetchImpl: async url => {
+    searched.push(new URL(url).searchParams.get('tags'));
+    return response({ data: { info: [{ result: [] }] } });
+  } });
+  const card = (key, title) => ({ id: key, title, mediaType: '电视剧', regional: '韩国', year: 2026, yfspUrl: `https://www.kubb.tv/play/${key}` });
+  await helpers.fetchSearchSnapshot({ koreanDramas: [card('seen1', '已观测剧'), card('todo1', '待续期剧')], chineseVariety: [] },
+    { observedKeys: new Set(['seen1']) });
+  assert.ok(searched.includes('待续期剧'));
+  assert.equal(searched.includes('已观测剧'), false, 'a card the catalog already observed this run is not searched again');
+});
+
+test('TMDB variety discovery rejects derivative compilations and does not count TMDB genre names as light evidence', () => {
+  const { helpers } = loadHelpers();
+  const accept = helpers.TMDB_VARIETY_DISCOVERY.accept;
+  const base = { title: '新综艺', mediaType: '综艺', regional: '大陆', year: 2026, contentType: '脱口秀·喜剧', description: '', score: 0, playCount: 0 };
+  assert.equal(accept({ ...base, title: 'sketch合集·纯享版' }), false);
+  assert.equal(accept(base), false, 'genre names generated from TMDB categories are not evidence of a light show');
+  assert.equal(accept({ ...base, description: '爆笑游戏真人秀' }), true);
+  assert.equal(accept({ ...base, tmdbRating: 7.5 }), true);
 });

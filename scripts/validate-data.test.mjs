@@ -37,7 +37,7 @@ function dataFixture(counts = {}) {
 }
 
 // 执行真实 CLI，临时根目录保持它的 scripts/../data 文件定位契约。
-function runValidation(data, env = {}) {
+function runValidation(data, env = {}, files = {}) {
   const fixtureRoot = mkdtempSync(join(tmpdir(), 'iyf-validator-test-'));
   try {
     const fixtureScripts = join(fixtureRoot, 'scripts');
@@ -49,8 +49,9 @@ function runValidation(data, env = {}) {
     const showsPath = join(fixtureData, 'shows.json');
     const source = typeof data === 'string' ? data : JSON.stringify(data);
     writeFileSync(showsPath, source);
-    for (const file of ['image_cache.json', 'discovery.json']) {
-      writeFileSync(join(fixtureData, file), '{}');
+    for (const file of ['image_cache.json', 'discovery.json', 'history.json']) {
+      const content = files[file] ?? '{}';
+      writeFileSync(join(fixtureData, file), typeof content === 'string' ? content : JSON.stringify(content));
     }
     const result = spawnSync(process.execPath, [validator], {
       cwd: fixtureRoot,
@@ -328,4 +329,70 @@ test('scrape freshness starts at this run and identity aliases must be strings',
   assert.equal(invalid.status, 1);
   assert.match(invalid.stderr, /publicId: invalid identity/u);
   assert.match(invalid.stderr, /legacyIds: invalid identity aliases/u);
+});
+
+test('validator type-checks the optional AI coverage counters', () => {
+  for (const extra of [{}, { due: 0, missed: 0 }, { due: 12, missed: 7 }, { due: 3 }]) {
+    const data = dataFixture();
+    data.aiRunStatus = { stopReason: '', requested: 2, scored: 2, ...extra };
+    const result = runValidation(data);
+    assert.equal(result.status, 0, `${JSON.stringify(extra)}: ${result.stderr}`);
+  }
+  for (const extra of [{ due: -1 }, { missed: 1.5 }, { due: '4' }, { due: null }, { due: 2, missed: 3 }]) {
+    const data = dataFixture();
+    data.aiRunStatus = { stopReason: '', requested: 2, scored: 2, ...extra };
+    const result = runValidation(data);
+    assert.equal(result.status, 1, `${JSON.stringify(extra)}: ${result.stdout}`);
+    assert.match(result.stderr, /aiRunStatus\.(?:due|missed)/u);
+  }
+});
+
+test('validator rejects known mismatched links only on the affected title', () => {
+  for (const field of ['doubanUrl', 'primaryUrl', 'url']) {
+    const data = dataFixture();
+    Object.assign(data.chineseVariety[0], { title: 'BTS综艺年代记', [field]: 'https://movie.douban.com/subject/26954787/' });
+    const result = runValidation(data);
+    assert.equal(result.status, 1, `${field}: ${result.stdout}`);
+    assert.ok(result.stderr.includes(`chineseVariety[0].${field}: known mismatched link`), result.stderr);
+  }
+  const other = dataFixture();
+  other.chineseVariety[0].doubanUrl = 'https://movie.douban.com/subject/26954787/';
+  assert.equal(runValidation(other).status, 0, 'another title may legitimately use that subject');
+});
+
+function historyEntry(overrides = {}) {
+  return {
+    timestamp: '2026-11-18T12:00:00.000Z', koreanDramasCount: 64, chineseVarietyCount: 119,
+    topKoreanDramas: ['甲', '乙'], topVariety: [], ...overrides,
+  };
+}
+
+test('validator checks the structure written by saveHistory', () => {
+  const ok = runValidation(dataFixture(), {}, { 'history.json': { '2026-11-18': historyEntry() } });
+  assert.equal(ok.status, 0, ok.stderr);
+  const thirty = Object.fromEntries(Array.from({ length: 30 }, (_, index) => {
+    const day = new Date(Date.UTC(2026, 9, 1 + index)).toISOString().slice(0, 10);
+    return [day, historyEntry({ timestamp: `${day}T01:00:00.000Z` })];
+  }));
+  assert.equal(runValidation(dataFixture(), {}, { 'history.json': thirty }).status, 0);
+
+  const cases = [
+    ['[]', /history\.json: root must be an object/u],
+    ['{broken', /history\.json: invalid JSON/u],
+    [{ ...thirty, '2026-12-31': historyEntry() }, /at most 30 days/u],
+    [{ latest: historyEntry() }, /key must be a YYYY-MM-DD date/u],
+    [{ '2026-02-30': historyEntry() }, /key must be a YYYY-MM-DD date/u],
+    [{ '2026-11-18': null }, /must be an object/u],
+    [{ '2026-11-18': historyEntry({ timestamp: 'yesterday' }) }, /timestamp: must be a valid timestamp/u],
+    [{ '2026-11-18': historyEntry({ koreanDramasCount: -1 }) }, /koreanDramasCount: must be a non-negative integer/u],
+    [{ '2026-11-18': historyEntry({ chineseVarietyCount: '119' }) }, /chineseVarietyCount: must be a non-negative integer/u],
+    [{ '2026-11-18': historyEntry({ topVariety: ['a', 'b', 'c', 'd', 'e', 'f'] }) }, /topVariety: must be at most 5/u],
+    [{ '2026-11-18': historyEntry({ topKoreanDramas: [1] }) }, /topKoreanDramas: must be at most 5/u],
+    [{ '2026-11-18': historyEntry({ topKoreanDramas: undefined }) }, /topKoreanDramas: must be at most 5/u],
+  ];
+  for (const [history, pattern] of cases) {
+    const result = runValidation(dataFixture(), {}, { 'history.json': history });
+    assert.equal(result.status, 1, `${JSON.stringify(history).slice(0, 80)}: ${result.stdout}`);
+    assert.match(result.stderr, pattern);
+  }
 });

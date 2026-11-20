@@ -100,5 +100,5 @@ GitHub Pages 发布后同样核对备用地址的首页、CSS、JS、公开数�
 
 - **保留现有发布方式。** Cloudflare Pages 通过已配置的 `CLOUDFLARE_DEPLOY_HOOK` 从 `main` 重新构建。Actions 的 `cloudflare-pages` 产物用于线上比对。以近期成功运行的触发和验收步骤判断 Hook 是否可用。更换发布方式、Secret、生产分支或域名属于发布迁移，需先确认平台配置、凭据权限和回退步骤。
 - **让产物与提交对应。** `ARTIFACT_SHA` 来自构建前的最终提交，定时抓取可能在工作流启动后提交新数据。保留共用的 `pages` 并发组，避免发布流程重叠。触发前发现 `main` 已前进则跳过旧产物。触发后只有超时时仅剩内容摘要差异且 `main` 已前进，才将旧产物记为被取代。Hook、网络、HTTP、文件类型、缓存或安全响应头异常仍须报错。
-- **区分发布与抓取。** 推送到 `main` 时用已提交数据构建。已提交 `generatedAt` 不足 8 小时的定时运行同样只构建部署。只有实际抓取的定时或手动运行才要求本轮 `generatedAt` 更新。`lastUpdated` 记录最近一次健康快照。首页来源判为健康时，韩剧和综艺须在本轮首页抓取结果中各有至少 3 条。来源降级时保留原快照时间并发出告警。
-- **按线上证据验收。** 修改发布链路后，用 Node.js 22 运行 `node --test` 和 `node scripts/build-site.mjs`，再核对生产工作流中 Cloudflare 双域名与 GitHub Pages 备用站都记录了产物匹配。被取代的运行没有验收该产物。已验收的参考提交为 `1b58bbe`。[发布记录 #533](https://github.com/txdywy/iyf/actions/runs/42363599726)
+- **区分发布与抓取。** 推送到 `main` 时用已提交数据构建。已提交 `generatedAt` 不足 8 小时的定时运行同样只构建部署。抓取前用无凭据远端读取 `origin/main`，已前进时同样不抓取；读取失败按原逻辑抓取（`scripts/decide-scrape-mode.mjs`）。只有实际抓取的定时或手动运行才要求本轮 `generatedAt` 更新。`lastUpdated` 记录最近一次健康快照。首页来源判为健康时，韩剧和综艺须在本轮首页抓取结果中各有至少 3 条。来源降级时保留原快照时间并发出告警。发布后的健康检查对每次非推送运行检查 `lastUpdated` 是否超过 48 小时；AI 停止原因与覆盖率只在本轮实际抓取并发布时评估，跳过抓取的运行不重复报告。
+- **按线上证据验收。** 修改发布链路后，用 Node.js 22 运行 `node --test` 和 `node scripts/build-site.mjs`，再核对生产工作流中 Cloudflare 双域名与 GitHub Pages 备用站都记录了产物匹配。被取代的运行没有验收该产物。触发后首轮即匹配时会提示“本次 Cloudflare 构建是否成功无法从内容判断”，这类运行只证明线上内容正确，不能作为 Hook 构建可用的证据。已验收的参考提交为 `1b58bbe`。[发布记录 #533](https://github.com/txdywy/iyf/actions/runs/42363599726)

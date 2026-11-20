@@ -134,10 +134,17 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     console, document, location, URL, URLSearchParams, AbortController, Date, fetch: fetchImpl,
     setTimeout, clearTimeout, setInterval, clearInterval,
     window: view,
-    history: { replaceState(state, unused, path) {
-      const url = new URL(path, location.href);
-      Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
-    } },
+    history: {
+      pushes: 0,
+      replaceState(state, unused, path) {
+        const url = new URL(path, location.href);
+        Object.assign(location, { href: url.href, search: url.search, hash: url.hash });
+      },
+      pushState(state, unused, path) {
+        this.pushes++;
+        this.replaceState(state, unused, path);
+      },
+    },
     localStorage: {
       get length() { return otherStorage.size; },
       key: index => [...otherStorage.keys()][index],
@@ -162,7 +169,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
     };
   })();`), context, { timeout: 1000 });
   return {
-    helpers: context.helpers, elements: Object.fromEntries(elements), document, view, location,
+    helpers: context.helpers, elements: Object.fromEntries(elements), document, view, location, history: context.history, tabs,
     getSavedData: () => savedData, getCacheWrites: () => cacheWrites, otherStorage,
   };
 }
@@ -879,7 +886,7 @@ for (const change of ['link-replaced', 'programme-removed', 'all-results-removed
     assert.equal(document.activeElement, target);
     assert.equal(target.tabIndex, -1);
     if (change !== 'all-results-removed') assert.equal(target.getBoundingClientRect().top, 0);
-    else assert.match(elements.resultSummary.textContent, /没有符合/u);
+    else assert.equal(elements.resultSummary.textContent, '当前分类暂无内容', 'no active filter, so the summary stays neutral');
   });
 }
 
@@ -1472,6 +1479,10 @@ test('the schedule tab hides recommendation-only sorts and filters and restores 
   assert.equal(option('status', 'complete').hidden, false);
   assert.equal(elements.playableFilterGroup.hidden, false);
   assert.equal(elements.filterPlayable.checked, true);
+  assert.equal(elements.filterStatus.value, 'complete', 'the hidden status filter is restored like the playable filter');
+  assert.equal(elements.showGrid.children.length, 0, 'the playable and complete filters apply again outside the schedule');
+  elements.filterStatus.value = 'all';
+  elements.filterStatus.dispatch('change');
   assert.equal(elements.showGrid.children.length, 1, 'the playable filter applies again outside the schedule');
 });
 
@@ -1726,4 +1737,127 @@ test('independent tabs save marks and removals without replacing another show', 
   tabs[0].setMark('id:first', 'seen');
   assert.equal(reloaded().getShowMark({ id: 'first' }), '');
   assert.equal(reloaded().getShowMark({ id: 'second' }), 'want');
+});
+
+function hotSnapshot() {
+  const data = snapshot(2);
+  data.koreanHot = {
+    weekStart: '2026-11-09', weekEnd: '2026-11-15',
+    shows: [{ id: 'hot:only', title: '榜单新剧', year: 2026, mediaType: '电视剧', regional: '韩国',
+      hotEvidence: [{ source: 'Netflix 全球非英语榜', url: 'https://www.netflix.com/tudum/top10/tv-non-english?week=2026-11-15', rank: 3 }] }],
+  };
+  return data;
+}
+
+test('marks on a hot-list-only show follow it into the catalogue and unlisted marks are counted', () => {
+  const storage = new Map([['iyf:mark:v2:id:hot:only', JSON.stringify({ kind: 'seen', at: 50 })]]);
+  const first = createApp(undefined, null, Date.now(), storage);
+  first.helpers.setAllData(hotSnapshot());
+  const hotShow = { id: 'hot:only', title: '榜单新剧', year: 2026 };
+  assert.equal(first.helpers.getMarkKey(hotShow), '榜单新剧|2026', 'a hot-only card is keyed by title and year');
+  assert.equal(first.helpers.getShowMark(hotShow), 'seen', 'an old hot: key migrates to the stable key');
+
+  // 进入目录后片名不同：周榜副本带着旧键迁移；下榜后片名相同时按片名+年份迁移。
+  const renamed = hotSnapshot();
+  const catalogue = { id: 'real-1', title: '榜单新剧（韩版）', year: 2026 };
+  renamed.koreanDramas.push(catalogue);
+  renamed.koreanHot.shows = [{ ...catalogue, legacyMarkKeys: ['id:hot:only', '榜单新剧|2026'], hotEvidence: renamed.koreanHot.shows[0].hotEvidence }];
+  const second = createApp(undefined, null, Date.now(), storage);
+  second.helpers.setAllData(renamed);
+  assert.equal(second.helpers.getShowMark(catalogue), 'seen');
+  second.helpers.switchTab('mine', { animate: false });
+  assert.match(second.elements.showGrid.innerHTML, /榜单新剧（韩版）/u);
+
+  const third = createApp(undefined, null, Date.now(), storage);
+  third.helpers.setAllData(snapshot(2));
+  third.helpers.switchTab('mine', { animate: false });
+  assert.match(third.elements.emptyMessage.textContent, /^1 个已标记节目暂不在当前推荐里/u);
+  assert.equal(third.elements.resultSummary.textContent, '1 个已标记节目暂不在当前推荐里');
+  third.helpers.setMark('id:show-0', 'want');
+  third.helpers.applyFilters();
+  assert.match(third.elements.resultSummary.textContent, /显示 1 个推荐结果 · 另有 1 个已标记节目暂不在当前推荐里/u);
+});
+
+test('an empty personal list without filters has a neutral summary', () => {
+  const { helpers, elements } = createApp();
+  helpers.setAllData(snapshot(2));
+  helpers.switchTab('mine', { animate: false });
+  assert.equal(elements.resultSummary.textContent, '片单里还没有节目');
+  assert.match(elements.emptyMessage.textContent, /还没有标记节目/u);
+});
+
+test('the weekly hot tab shows chart ranks, the chart period and accessible compact evidence links', () => {
+  const { helpers, elements } = createApp();
+  const data = hotSnapshot();
+  helpers.setAllData(data);
+  helpers.switchTab('hot', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /<span class="badge badge-rank">第3<span class="sr-only">/u);
+  assert.match(elements.resultSummary.textContent, /榜期 2026-11-09 至 2026-11-15/u);
+  const detail = helpers.renderDetail(data.koreanHot.shows[0]);
+  assert.doesNotMatch(detail, /class="card-action"[^>]*>Netflix/u, 'evidence is not a heavy full-width button');
+  assert.match(detail, /<a class="card-link"[^>]*>Netflix 全球非英语榜 第 3<span class="sr-only">：榜单新剧（新窗口）<\/span><\/a>/u);
+  helpers.switchTab('korean', { animate: false });
+  assert.doesNotMatch(elements.showGrid.innerHTML, /badge-rank/u, 'ranks only appear in the weekly chart');
+});
+
+test('arrow keys move between tabs without adding history entries while clicks still push', () => {
+  const client = createApp();
+  const { helpers, tabs, history, location } = client;
+  helpers.setAllData(snapshot(2));
+  helpers.bindTabs();
+  helpers.switchTab('korean', { animate: false });
+  for (let step = 0; step < 4; step++) {
+    const current = tabs.find(tab => location.hash === `#${tab.dataset.tab}`);
+    current.dispatch('keydown', { key: 'ArrowRight', preventDefault() {} });
+  }
+  assert.equal(location.hash, '#new');
+  assert.equal(history.pushes, 0);
+  tabs[0].dispatch('click');
+  assert.equal(history.pushes, 1);
+  assert.equal(location.hash, '#korean');
+});
+
+test('an unknown shared show is dropped from the address once data has loaded', async () => {
+  const client = createApp(async () => ({ ok: true, json: async () => snapshot(2) }));
+  const { helpers, location, document } = client;
+  const { dialog } = detailDialog(client);
+  const notice = document.createElement();
+  notice.hidden = true;
+  const getElementById = document.getElementById;
+  document.getElementById = id => id === 'detailNotice' ? notice : getElementById(id);
+  helpers.bindDetail();
+  location.search = '?show=missing';
+  await helpers.loadData();
+  assert.equal(dialog.open, false);
+  assert.equal(notice.hidden, false, 'the notice explains the missing show once');
+  assert.equal(location.search, '', 'show= is removed so later tabs do not repeat the notice');
+  helpers.switchTab('variety');
+  assert.equal(notice.hidden, true, 'the next tab change hides the notice');
+});
+
+test('closing a deep-linked detail sheet moves focus out of the hidden dialog', () => {
+  const client = createApp();
+  const { helpers, document, location } = client;
+  const { dialog } = detailDialog(client);
+  helpers.setAllData(snapshot(2));
+  helpers.bindDetail();
+  helpers.switchTab('korean', { animate: false });
+  location.search = '?show=show-1';
+  helpers.syncDetailFromUrl();
+  assert.equal(dialog.open, true);
+  const closeButton = document.createElement();
+  dialog.children.push(closeButton);
+  closeButton.focus();
+  dialog.close();
+  assert.equal(document.activeElement, document.getElementById('tab-korean'), 'focus never stays on the hidden close button');
+  assert.equal(location.search, '');
+});
+
+test('the static quick-filter row matches the first scripted chips so the layout does not shift', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const staticChips = html.match(/<div class="quick-filters" id="quickFilters"[^>]*>([\s\S]*?)<\/div>/u)?.[1];
+  const { helpers, elements } = createApp();
+  helpers.setAllData(snapshot(2));
+  helpers.updateQuickFilters();
+  assert.equal(staticChips, elements.quickFilters.innerHTML);
 });
