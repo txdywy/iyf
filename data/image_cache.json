@@ -1390,42 +1390,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-21T07:26:41.096Z"
   },
-  "o4fF4eqSycO": {
-    "title": "我们的宿舍·归心季",
-    "year": 2026,
-    "mediaType": "综艺",
-    "url": "https://image.tmdb.org/t/p/original/fujnoKdxgHa4mjpqvRAt9Yv9Dkq.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "我们的宿舍·归心季",
-    "matchedTitle": "我们的宿舍",
-    "tmdbId": 294253,
-    "tmdbUrl": "https://www.themoviedb.org/tv/294253",
-    "doubanUrl": "https://movie.douban.com/subject/37816918/",
-    "wikipediaUrl": "",
-    "imdbUrl": "",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:14.659Z"
-  },
-  "seed_var_2026_28": {
-    "title": "地球超新鲜",
-    "year": 2026,
-    "mediaType": "综艺",
-    "url": "https://image.tmdb.org/t/p/original/olnV8BefOFnj3U3qcvlYdylAzDq.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "地球超新鲜",
-    "matchedTitle": "地球超新鲜",
-    "tmdbId": 296202,
-    "tmdbUrl": "https://www.themoviedb.org/tv/296202",
-    "doubanUrl": "https://movie.douban.com/subject/37090502/",
-    "wikipediaUrl": "",
-    "imdbUrl": "",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:11.664Z",
-    "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T18:15:01.322Z"
-  },
   "seed_var_2026_30": {
     "title": "天才厨人",
     "year": 2026,
@@ -1500,7 +1464,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.486Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.859Z"
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.335Z"
   },
   "n9bKfrF0nqE": {
     "title": "一起露营吧",
@@ -1538,7 +1502,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.313Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.766Z"
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.258Z"
   },
   "mLBFI69K9T2": {
     "title": "EXO的爬梯子世界旅行",
@@ -1557,7 +1521,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.597Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.861Z"
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.438Z"
   },
   "zbSYqIao0pB": {
     "title": "露营俱乐部",
@@ -1616,25 +1580,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-10-22T16:30:35.586Z"
   },
-  "J5wDjxiILn9": {
-    "title": "快乐老家",
-    "year": 2026,
-    "mediaType": "综艺",
-    "url": "https://image.tmdb.org/t/p/original/aj6DJhgZrUUcEniJjdyc8gGARBt.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "快乐老家",
-    "matchedTitle": "快乐老家",
-    "tmdbId": 326406,
-    "tmdbUrl": "https://www.themoviedb.org/tv/326406",
-    "doubanUrl": "https://movie.douban.com/subject/38531729/",
-    "wikipediaUrl": "",
-    "imdbUrl": "",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:05.473Z",
-    "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-19T02:58:40.230Z"
-  },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
     "year": 2026,
@@ -1676,40 +1621,6 @@
     "externalMetadataState": "unknown",
     "externalMetadataCheckedAt": "2026-11-17T08:38:43.758Z"
   },
-  "zPGDvwJlzVc": {
-    "title": "灿如繁星",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/jE6xuxwLUojZ2k80rKbv73frWsv.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "灿如繁星",
-    "matchedTitle": "灿如繁星",
-    "tmdbId": 285143,
-    "tmdbUrl": "https://www.themoviedb.org/tv/285143",
-    "doubanUrl": "https://movie.douban.com/subject/36466246/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt36596650/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.236Z"
-  },
-  "2aEAXYC9gdB": {
-    "title": "野狗骨头",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/ixwG1ECra9rSTuRCql81mkMoLVO.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "野狗骨头",
-    "matchedTitle": "野狗骨头",
-    "tmdbId": 291392,
-    "tmdbUrl": "https://www.themoviedb.org/tv/291392",
-    "doubanUrl": "https://movie.douban.com/subject/36618951/",
-    "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E9%87%8E%E7%8B%97%E9%AA%A8%E5%A4%B4",
-    "imdbUrl": "https://www.imdb.com/title/tt36979936/",
-    "wikidataId": "Q137908255",
-    "cachedAt": "2026-08-23T16:34:21.444Z"
-  },
   "d8cPi6no7w6": {
     "title": "孤单又灿烂的神：鬼怪十周年特辑",
     "year": 2026,
@@ -1728,23 +1639,6 @@
     "cachedAt": "2026-08-23T16:34:14.175Z",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T17:59:51.557Z"
-  },
-  "qlJO5c9gXNA": {
-    "title": "百花杀",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/sWdiop8BQwODB6tVOMeTfi0XHE3.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "百花杀",
-    "matchedTitle": "百花杀",
-    "tmdbId": 286506,
-    "tmdbUrl": "https://www.themoviedb.org/tv/286506",
-    "doubanUrl": "https://movie.douban.com/subject/36889962/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt36204806/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.328Z"
   },
   "ihZeoA7mtc6": {
     "title": "公寓黑风暴",
@@ -1825,23 +1719,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:07.240Z"
   },
-  "G3D93jBLAY4": {
-    "title": "这一秒过火",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/4e1ycw3hY6aAtUGIsLOk80gTobn.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "这一秒过火",
-    "matchedTitle": "这一秒过火",
-    "tmdbId": 289139,
-    "tmdbUrl": "https://www.themoviedb.org/tv/289139",
-    "doubanUrl": "https://movie.douban.com/subject/37096230/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37443650/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.407Z"
-  },
   "oXwdZAFJsY2": {
     "title": "宇宙帮帮忙",
     "year": 2026,
@@ -1878,41 +1755,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.426Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.766Z"
-  },
-  "dhMKaymTa1B": {
-    "title": "御廷谣",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/v8Giwuf0l0XKoD29kWb9RSxiYku.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "御廷谣",
-    "matchedTitle": "御廷谣",
-    "tmdbId": 295599,
-    "tmdbUrl": "https://www.themoviedb.org/tv/295599",
-    "doubanUrl": "https://movie.douban.com/subject/35691844/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37937929/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.296Z"
-  },
-  "vEQ16j241LF": {
-    "title": "九门",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/bkyBY4EYv1htCkgmgVNfVrJ7qqW.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "九门",
-    "matchedTitle": "九门",
-    "tmdbId": 271016,
-    "tmdbUrl": "https://www.themoviedb.org/tv/271016",
-    "doubanUrl": "https://movie.douban.com/subject/26811535/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37118307/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:20.285Z"
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.256Z"
   },
   "DdYQPGILmRE": {
     "title": "我们的排练",
@@ -2083,23 +1926,6 @@
     "doubanMatchedTitle": "财阀X刑警 第二季",
     "doubanMatchedSeasonNumber": 2
   },
-  "s8mQNa4EKGF": {
-    "title": "花开锦绣",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/erj7cX8aa1jndO9HlmoyRcJNLQL.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "花开锦绣",
-    "matchedTitle": "花开锦绣",
-    "tmdbId": 287496,
-    "tmdbUrl": "https://www.themoviedb.org/tv/287496",
-    "doubanUrl": "https://movie.douban.com/subject/36810153/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt31886947/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.202Z"
-  },
   "NjvfTz4MVG6": {
     "title": "披荆斩棘",
     "year": 2026,
@@ -2109,7 +1935,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:04.023Z"
+    "cachedAt": "2026-11-21T19:30:30.460Z"
   },
   "RhJUnSac02F": {
     "title": "伦敦合伙人",
@@ -2153,7 +1979,7 @@
     "doubanMatchedTitle": "姐姐快醒醒",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.810Z"
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.338Z"
   },
   "tjCN3OyJCq7": {
     "title": "脱口秀和Ta的朋友们",
@@ -2262,23 +2088,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-09T06:54:30.139Z"
   },
-  "aN4jOCt4jgE": {
-    "title": "藏锋",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/t0fGmHkylAIDQvG3AtqQk0IpDBa.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "藏锋",
-    "matchedTitle": "藏锋",
-    "tmdbId": 280133,
-    "tmdbUrl": "https://www.themoviedb.org/tv/280133",
-    "doubanUrl": "https://movie.douban.com/subject/35653123/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt36277135/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.069Z"
-  },
   "BVjGYk8aZ20": {
     "title": "不想睡的星期五",
     "year": 2026,
@@ -2322,40 +2131,6 @@
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:07.285Z"
-  },
-  "zZaL9Ghq0I9": {
-    "title": "蝉",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/ilpjaXnJOpPvQZDXNAvdFagmXkX.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "蝉",
-    "matchedTitle": "蝉",
-    "tmdbId": 285250,
-    "tmdbUrl": "https://www.themoviedb.org/tv/285250",
-    "doubanUrl": "https://movie.douban.com/subject/37252177/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt35964684/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-23T16:34:21.150Z"
-  },
-  "Foxy1hYRzRm": {
-    "title": "极昼血祭",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/bPlCqGAMcgwhAA4xFKlkMX7N5Oz.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "极昼血祭",
-    "matchedTitle": "极昼血祭",
-    "tmdbId": 303351,
-    "tmdbUrl": "https://www.themoviedb.org/tv/303351",
-    "doubanUrl": "https://movie.douban.com/subject/37645071/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt38553367/",
-    "wikidataId": "Q136404689",
-    "cachedAt": "2026-08-23T16:34:20.445Z"
   },
   "QnSyyKFjixv": {
     "title": "欲望的陷阱",
@@ -2509,7 +2284,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:04.118Z"
+    "cachedAt": "2026-11-21T19:30:30.649Z"
   },
   "TIzKdBNLp73": {
     "title": "姐姐当家第2季",
@@ -3324,7 +3099,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:07.400Z"
+    "cachedAt": "2026-11-21T19:30:34.077Z"
   },
   "Q8jNTFG8D0D": {
     "title": "嘴强王者脱口秀之夜",
@@ -3335,7 +3110,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:08.739Z"
+    "cachedAt": "2026-11-21T19:30:35.213Z"
   },
   "zEjyzWmh7Yn1": {
     "title": "花儿与少年露营季",
@@ -3346,7 +3121,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.723Z"
+    "cachedAt": "2026-11-21T19:30:33.392Z"
   },
   "seed_var_c01": {
     "title": "奔跑吧兄弟",
@@ -3394,7 +3169,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.754Z"
+    "cachedAt": "2026-11-21T19:30:33.818Z"
   },
   "Og4jU9KaJEE": {
     "title": "脱口秀大会第4季",
@@ -3431,7 +3206,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:08.057Z"
+    "cachedAt": "2026-11-21T19:30:34.528Z"
   },
   "jy1atKKMRqK": {
     "title": "超棒的我们第2季",
@@ -3492,7 +3267,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:07.415Z"
+    "cachedAt": "2026-11-21T19:30:34.192Z"
   },
   "sPVy0ETHyT9": {
     "title": "星期三是音乐节目",
@@ -3503,7 +3278,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:08.079Z"
+    "cachedAt": "2026-11-21T19:30:34.748Z"
   },
   "uuVXeTESwn9": {
     "title": "天籁与少年",
@@ -3562,7 +3337,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:02.733Z"
+    "cachedAt": "2026-11-21T19:30:32.434Z"
   },
   "PY2vdH89zyu": {
     "title": "脱口秀跨年",
@@ -3573,7 +3348,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.041Z"
+    "cachedAt": "2026-11-21T19:30:32.480Z"
   },
   "lmmd6J82Xd3": {
     "title": "母胎单身恋爱大作战第2季",
@@ -3632,7 +3407,7 @@
     "negativeLookupVersion": 2,
     "regional": "香港",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:07.528Z"
+    "cachedAt": "2026-11-21T19:30:34.513Z"
   },
   "EgY2XLj7aM8": {
     "title": "中国音乐公告牌",
@@ -3643,7 +3418,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:08.208Z"
+    "cachedAt": "2026-11-21T19:30:34.880Z"
   },
   "ocC6RzyLhZZ": {
     "title": "一站到底少年季第2季",
@@ -3675,7 +3450,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.845Z"
+    "cachedAt": "2026-11-21T19:30:33.160Z"
   },
   "gME4Wj46fvE": {
     "title": "BTS综艺年代记",
@@ -3686,47 +3461,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:09.700Z"
-  },
-  "OABoPAZFr60": {
-    "title": "哈达克一家第2季",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/9mrgXEzAOkmewRJI4Tui8bXtcdZ.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "season-direct:231751:2",
-    "matchedTitle": "哈达克一家第 2 季",
-    "tmdbId": 231751,
-    "tmdbUrl": "https://www.themoviedb.org/tv/231751/season/2",
-    "tmdbSeriesId": 231751,
-    "tmdbSeasonId": 516491,
-    "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
-    "wikipediaUrl": "https://en.wikipedia.org/wiki/The_Hardacres",
-    "imdbUrl": "https://www.imdb.com/title/tt28489780/",
-    "wikidataId": "Q124251312",
-    "cachedAt": "2026-08-23T16:34:21.948Z"
-  },
-  "2xYoMtUF0rD": {
-    "title": "谜探路德维希第2季",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/6YiZBZv6Qvdyz4i52iJT9qfGKPp.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "season-direct:243360:2",
-    "matchedTitle": "谜探路德维希第 2 季",
-    "tmdbId": 243360,
-    "tmdbUrl": "https://www.themoviedb.org/tv/243360/season/2",
-    "tmdbSeriesId": 243360,
-    "tmdbSeasonId": 476569,
-    "tmdbSeasonNumber": 2,
-    "doubanUrl": "",
-    "wikipediaUrl": "https://en.wikipedia.org/wiki/Ludwig_(2024_TV_series)",
-    "imdbUrl": "https://www.imdb.com/title/tt27846061/",
-    "wikidataId": "Q124251270",
-    "cachedAt": "2026-08-23T16:34:22.950Z"
+    "cachedAt": "2026-11-21T19:30:36.745Z"
   },
   "giKxhDloej5": {
     "title": "赴海",
@@ -4312,7 +4047,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:03.269Z"
+    "cachedAt": "2026-11-21T19:30:29.977Z"
   },
   "J4QxzT12jIA": {
     "title": "朱丽叶与朱丽叶",
@@ -4837,7 +4572,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:03.932Z"
+    "cachedAt": "2026-11-21T19:30:30.451Z"
   },
   "s8YNDsGXayH": {
     "title": "怪物：丽兹·波顿的故事",
@@ -4943,7 +4678,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:02.061Z"
+    "cachedAt": "2026-11-21T19:30:29.081Z"
   },
   "2JYYXdy9ED1": {
     "title": "黑帮领地第2季",
@@ -5155,7 +4890,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:04.088Z"
+    "cachedAt": "2026-11-21T19:30:30.428Z"
   },
   "BUpUVtG7v57": {
     "title": "找春天",
@@ -7323,11 +7058,11 @@
     "tmdbId": 285625,
     "tmdbUrl": "https://www.themoviedb.org/tv/285625",
     "doubanUrl": "https://movie.douban.com/subject/36675942/",
-    "wikipediaUrl": "",
+    "wikipediaUrl": "https://en.wikipedia.org/wiki/Small_Town_Remedy",
     "imdbUrl": "https://www.imdb.com/title/tt38715296/",
-    "wikidataId": "",
+    "wikidataId": "Q137168367",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:11.525Z",
+    "externalMetadataCheckedAt": "2026-11-21T19:30:27.543Z",
     "cachedAt": "2026-10-21T16:30:11.527Z",
     "doubanId": "36675942",
     "doubanMatchedTitle": "小城良方",
@@ -7577,7 +7312,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:08.756Z"
+    "cachedAt": "2026-11-21T19:30:35.425Z"
   },
   "tmdb_tv_279246": {
     "title": "再婚皇后",
@@ -7880,7 +7615,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:02.037Z"
+    "cachedAt": "2026-11-21T19:30:28.402Z"
   },
   "4Sp6bBGune6": {
     "title": "折月亮",
@@ -8982,7 +8717,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-21T07:26:41.940Z"
+    "cachedAt": "2026-11-21T19:30:28.411Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -9221,7 +8956,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:04.622Z"
+    "cachedAt": "2026-11-21T19:30:31.101Z"
   },
   "Xib0YarNcO1": {
     "title": "不能笑的孤独粉丝见面会",
@@ -9272,7 +9007,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:05.363Z"
+    "cachedAt": "2026-11-21T19:30:31.796Z"
   },
   "xmjX1nXMLGB": {
     "title": "秘密朋友俱乐部",
@@ -9387,7 +9122,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:05.418Z"
+    "cachedAt": "2026-11-21T19:30:31.775Z"
   },
   "Kn1WxywM9DV": {
     "title": "怪奇谜案限时破",
@@ -9398,7 +9133,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:04.790Z"
+    "cachedAt": "2026-11-21T19:30:31.332Z"
   },
   "2YZTyJBPN46": {
     "title": "天下面包",
@@ -9409,7 +9144,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:05.286Z"
+    "cachedAt": "2026-11-21T19:30:31.790Z"
   },
   "NJQC0N8nyk0": {
     "title": "请回答1988十周年",
@@ -9488,7 +9223,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.162Z"
+    "cachedAt": "2026-11-21T19:30:33.502Z"
   },
   "jCoMLwbqHP9": {
     "title": "这样对吗第2季",
@@ -9499,7 +9234,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:06.648Z"
+    "cachedAt": "2026-11-21T19:30:32.700Z"
   },
   "1b4kqKMYioC": {
     "title": "校园接送恋曲",
@@ -9672,7 +9407,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-18T07:44:03.443Z"
+    "cachedAt": "2026-11-21T19:30:29.776Z"
   },
   "y0hpQ1rPGp3": {
     "title": "死亡之花",
@@ -11780,5 +11515,36 @@
     "doubanId": "37172429",
     "doubanMatchedTitle": "罪蓝之路",
     "doubanMatchedSeasonNumber": 0
+  },
+  "mJZeNEdwke2": {
+    "title": "奔跑吧大湾区篇",
+    "year": 2026,
+    "mediaType": "综艺",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "大陆",
+    "notFound": true,
+    "cachedAt": "2026-11-21T19:30:28.395Z"
+  },
+  "sXjU7fyNXh6": {
+    "title": "罪兽之法",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/9anIbazZJUteF9FLvdSsISJcNNq.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "罪兽之法",
+    "matchedTitle": "罪兽之法",
+    "tmdbId": 332839,
+    "tmdbUrl": "https://www.themoviedb.org/tv/332839",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt44079238/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-21T19:30:35.040Z",
+    "cachedAt": "2026-11-21T19:30:35.043Z"
   }
 }
