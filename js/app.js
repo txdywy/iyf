@@ -60,6 +60,7 @@
   const SEARCH_PLACEHOLDER = '搜索全部韩剧和综艺的剧名/演员…';
   const SEARCH_PLACEHOLDER_SCHEDULE = '搜索时间表中的剧名…';
   let allData = null;
+  let _hotAvailabilityUnconfirmed = false;
   let _dataLoadFailed = false;
   let _dataLoadNotice = '';
   let _dataRequestVersion = 0;
@@ -116,10 +117,12 @@
     bindBackToTop();
     window.addEventListener('storage', event => {
       if (event.key !== null && event.key !== MARKS_KEY && event.key !== HIDE_SEEN_KEY && !event.key.startsWith(MARK_ENTRY_PREFIX)) return;
+      const readingState = captureReadingState();
       _marks = loadMarks();
       migrateMarks();
       resetRenderedShows();
       applyFilters(false, { preserveVisibleCount: true });
+      restoreReadingState(readingState);
       const dialog = getDetailDialog();
       for (const button of dialog?.querySelectorAll?.('.card-mark') || []) {
         button.setAttribute('aria-pressed', String(button.dataset.mark === getShowMark(_detailShow)));
@@ -137,6 +140,7 @@
     const cached = readCachedData();
     let renderedFromCache = false;
     _dataLoadFailed = false;
+    _hotAvailabilityUnconfirmed = true;
     _dataLoadNotice = cached ? ' · 正在后台更新' : '';
 
     try {
@@ -167,13 +171,14 @@
       const unchanged = allData && JSON.stringify(data) === JSON.stringify(allData);
       // 内容相同的响应沿用原快照对象，后续筛选仍能保留已渲染卡片。
       allData = unchanged ? allData : data;
+      _hotAvailabilityUnconfirmed = false;
       migrateMarks();
       _dataLoadFailed = false;
       _dataLoadNotice = '';
       updateYearTabLabels();
       if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
       // 同一快照无需重建卡片，保留阅读位置与当前焦点；近期确认过的缓存也无需重写。
-      if (unchanged && renderedFromCache) {
+      if (unchanged && renderedFromCache && (activeTabName !== 'hot' || hasHotList())) {
         if (!(Date.now() - cached.cachedAt < DATA_CACHE_REFRESH_AFTER_MS)) saveDataCache(data);
         syncDetailFromUrl(readUrlState(), { settled: true });
         return;
@@ -193,13 +198,14 @@
       restoreScrollMemory();
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
+      _dataLoadFailed = true;
       if (renderedFromCache) {
         _dataLoadNotice = ' · 网络更新失败，展示本地缓存';
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
-        syncDetailFromUrl(readUrlState(), { settled: true });
+        if (activeTabName === 'hot' && !hasHotList()) applyFilters(false, { preserveVisibleCount: true });
+        syncDetailFromUrl();
         return;
       }
-      _dataLoadFailed = true;
       if (REMOTE_TAB_LABELS[activeTabName]) return;
       showDataLoadError();
     }
@@ -433,9 +439,13 @@
     const varietyYearLabel = document.getElementById('varietyYearTabLabel');
     if (yearLabel) yearLabel.textContent = `${year} 新剧`;
     if (varietyYearLabel) varietyYearLabel.textContent = `${year} 新综艺`;
-    // 没有可核实的周榜时整个标签不出现。
+    updateHotTabVisibility();
+  }
+
+  function updateHotTabVisibility() {
+    // 没有可核实的周榜时隐藏标签，正在访问的周榜链接可等待网络确认。
     const hotTab = document.getElementById('tab-hot');
-    if (hotTab) hotTab.hidden = !hasHotList();
+    if (hotTab) hotTab.hidden = !hasHotList() && !(_hotAvailabilityUnconfirmed && activeTabName === 'hot');
   }
 
   function hasHotList() {
@@ -672,7 +682,7 @@
   function switchTab(tab, { syncUrl = true, animate = true, rememberSort = true, preserveVisibleCount = false, scrollToTab = true, pushHistory = false, remoteDelay = 0 } = {}) {
     tab = normalizeTabName(tab);
     // 周榜缺失时旧链接回到韩剧推荐，并改写地址，避免停在已隐藏的标签上。
-    if (tab === 'hot' && !hasHotList()) {
+    if (tab === 'hot' && !_hotAvailabilityUnconfirmed && !hasHotList()) {
       tab = 'korean';
       syncUrl = true;
       pushHistory = false;
@@ -681,6 +691,7 @@
     const sortSelect = document.getElementById('sortBy');
     if (rememberSort && sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
     activeTabName = tab;
+    updateHotTabVisibility();
     if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
     updateTabSpecificControls();
     if (syncUrl) syncUrlState({ push: pushHistory });
@@ -760,7 +771,8 @@
 
     currentShows = shows;
     // 类型来自上一个标签；新标签里没有这个类型时清除，避免切过去就是空结果。
-    if (_genreFilter && !shows.some(show => getShowGenres(show).includes(_genreFilter))) {
+    const awaitingChart = tab === 'hot' && _hotAvailabilityUnconfirmed && !hasHotList();
+    if (_genreFilter && !awaitingChart && !shows.some(show => getShowGenres(show).includes(_genreFilter))) {
       _genreFilter = '';
       if (syncUrl) syncUrlState();
     }
@@ -1086,7 +1098,11 @@
       resetRenderedShows();
       updateLoadMore(0, 0);
       // 由筛选造成的空结果直接提供清除操作，避免用户回到顶部寻找按钮。
-      if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
+      if (activeTabName === 'hot' && _hotAvailabilityUnconfirmed && !hasHotList()) {
+        if (_dataLoadFailed) setEmptyState('热播周榜加载失败，请检查网络后重试。', '重试', loadData);
+        else setEmptyState('正在加载热播周榜…');
+      }
+      else if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
       else if (activeTabName === 'mine') {
         const unlisted = countUnlistedMarks();
         setEmptyState(unlisted
@@ -1572,7 +1588,7 @@
 
   // ── 看过 / 想看 ──────────────────────────────────────
   function loadMarks(fallback) {
-    const marks = { want: Object.create(null), seen: Object.create(null), hideSeen: false };
+    const marks = { want: Object.create(null), seen: Object.create(null), removed: Object.create(null), hideSeen: false };
     try {
       if (typeof localStorage === 'undefined') return fallback || marks;
       let stored;
@@ -1595,8 +1611,7 @@
         let entry;
         try { entry = JSON.parse(localStorage.getItem(storageKey)); } catch { continue; }
         if (!entry || !Number.isFinite(entry.at) || (entry.kind !== '' && !MARK_KINDS.includes(entry.kind))) continue;
-        for (const kind of MARK_KINDS) delete marks[kind][key];
-        if (entry.kind) marks[entry.kind][key] = entry.at;
+        recordMark(marks, key, entry);
       }
     } catch {
       return fallback || marks;
@@ -1604,11 +1619,20 @@
     return marks;
   }
 
-  function saveMark(key, kind, at = Date.now()) {
+  function recordMark(marks, key, entry) {
+    for (const kind of MARK_KINDS) delete marks[kind][key];
+    delete marks.removed[key];
+    if (entry.kind) marks[entry.kind][key] = entry.at;
+    else if (!entry.migrated) marks.removed[key] = entry;
+  }
+
+  function saveMark(key, kind, at = Date.now(), migrated = false) {
+    const entry = { kind, at, ...(kind ? {} : migrated ? { migrated: true } : { cleared: true }) };
+    recordMark(_marks, key, entry);
     try {
       if (typeof localStorage === 'undefined') return;
       // 空标记遮住 v1 中已取消的记录。分开存储避免不同标签页写回整张片单。
-      localStorage.setItem(MARK_ENTRY_PREFIX + key, JSON.stringify({ kind, at }));
+      localStorage.setItem(MARK_ENTRY_PREFIX + key, JSON.stringify(entry));
     } catch {
       // 隐私模式下标记只在本次访问有效。
     }
@@ -1643,7 +1667,7 @@
 
   function migrateMarks() {
     const owners = new Map();
-    // 周榜里的目录节目带着它在榜时的 hot: 旧键，一并作为迁移来源。
+    // 旧版周榜副本也可能保存有目录卡片缺少的旧键。
     for (const show of [...getAllRecommendationShows(), ...(allData?.koreanHot?.shows || []).filter(show => !isHotOnlyShow(show))]) {
       const key = getMarkKey(show);
       const legacyIds = Array.isArray(show.legacyIds) ? show.legacyIds : [];
@@ -1655,18 +1679,18 @@
     }
     for (const [alias, key] of owners) {
       if (!key) continue;
-      const candidates = MARK_KINDS.flatMap(kind => [alias, key]
-        .filter(entry => entry in _marks[kind])
-        .map(entry => ({ kind, entry, time: _marks[kind][entry] })));
+      const candidates = [key, alias].flatMap(entry => {
+        const records = MARK_KINDS.filter(kind => entry in _marks[kind])
+          .map(kind => ({ kind, entry, at: _marks[kind][entry] }));
+        const removed = _marks.removed[entry];
+        // 旧格式未区分用户取消与迁移清理，只在正式键上采用旧格式的取消时间。
+        if (removed && (entry === key || removed.cleared === true)) records.push({ ...removed, entry });
+        return records;
+      });
       if (!candidates.some(candidate => candidate.entry === alias)) continue;
-      const latest = candidates.sort((a, b) => b.time - a.time)[0];
-      for (const kind of MARK_KINDS) {
-        delete _marks[kind][alias];
-        delete _marks[kind][key];
-      }
-      _marks[latest.kind][key] = latest.time;
-      saveMark(key, latest.kind, latest.time);
-      saveMark(alias, '');
+      const latest = candidates.sort((a, b) => b.at - a.at || Number(Boolean(a.kind)) - Number(Boolean(b.kind)))[0];
+      if (latest.entry === alias) saveMark(key, latest.kind, latest.at);
+      saveMark(alias, '', latest.at, true);
     }
   }
 
@@ -1688,18 +1712,13 @@
     if (!key) return '';
     _marks = loadMarks(_marks);
     const next = key in _marks[kind] ? '' : kind;
-    for (const other of MARK_KINDS) delete _marks[other][key];
     if (next) {
       // 超出上限时淘汰最早的标记。
       const keys = Object.keys(_marks[next]);
       if (keys.length >= MARKS_MAX_ENTRIES) {
         keys.sort((a, b) => _marks[next][a] - _marks[next][b]).slice(0, keys.length - MARKS_MAX_ENTRIES + 1)
-          .forEach(oldKey => {
-            delete _marks[next][oldKey];
-            saveMark(oldKey, '');
-          });
+          .forEach(oldKey => saveMark(oldKey, ''));
       }
-      _marks[next][key] = Date.now();
     }
     saveMark(key, next);
     return next;
@@ -2124,12 +2143,14 @@
   }
 
   function getNewestSortTime(show) {
-    const sourceDate = /^\d{4}-01-01T00:00:00(?:\.0+)?$/u.test(show?.publishTime || '') ? '' : show?.publishTime;
-    const premiere = show?.broadcast?.premiereDate || sourceDate;
-    const value = activeTabName === 'new'
-      ? (show?.firstSeenAt || show?.scrapedAt || premiere || show?.airDate || show?.year)
-      : (premiere || show?.airDate || show?.year);
-    return getValidTime(value);
+    const sourceTimes = [show?.firstPublishTime, show?.publishTime]
+      .filter(value => typeof value === 'string' && /\d{4}-\d{2}/u.test(value) &&
+        !/^\d{4}-01-01(?:[T ]00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)?)?$/u.test(value.trim()))
+      .map(value => Date.parse(value));
+    const releaseTimes = [...sourceTimes, Date.parse(show?.broadcast?.premiereDate)].filter(Number.isFinite);
+    const joined = activeTabName === 'new' && (show?.firstSeenAt || show?.scrapedAt);
+    if (joined) return getValidTime(joined);
+    return releaseTimes.length ? Math.min(...releaseTimes) : getValidTime(show?.airDate || show?.year);
   }
 
   function toFiniteNumber(value, fallback = 0) {
@@ -2198,7 +2219,7 @@
     const booleanFields = ['isComplete', 'isSerial', 'isClassic', 'isNew', 'tmdbCoverPending'];
     const textFields = [
       'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor', 'description', 'descriptionSource',
-      'coverImg', 'publishTime', 'airDate', 'firstSeenAt', 'scrapedAt', 'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrl',
+      'coverImg', 'publishTime', 'firstPublishTime', 'airDate', 'firstSeenAt', 'scrapedAt', 'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrl',
       'primaryUrlSource', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl',
     ];
     // 网络和本地缓存共用渲染契约；可选字段允许缺省/null，结构值不能进入隐式数值或字符串转换。

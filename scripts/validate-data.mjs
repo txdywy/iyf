@@ -16,7 +16,7 @@ const PUBLIC_CATEGORIES = new Set(['koreanDramas', 'chineseVariety']);
 const BOOLEAN_FIELDS = ['isComplete', 'isSerial', 'isClassic', 'isAutoDiscovered', 'isNew', 'tmdbCoverPending'];
 const TEXT_FIELDS = [
   'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
-  'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
+  'description', 'descriptionSource', 'publishTime', 'firstPublishTime', 'firstSeenAt', 'scrapedAt',
   'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
 ];
 const URL_FIELDS = ['coverImg', 'yfspCoverImg', 'primaryUrl', 'url', 'yfspUrl', 'tmdbUrl', 'doubanUrl', 'wikipediaUrl', 'imdbUrl'];
@@ -282,7 +282,8 @@ function validateHistory(path) {
   if (days.length > HISTORY_MAX_DAYS) errors.push(`${path}: must keep at most ${HISTORY_MAX_DAYS} days`);
   for (const day of days) {
     const label = `${path}[${JSON.stringify(day.slice(0, 20))}]`;
-    if (!/^\d{4}-\d{2}-\d{2}$/u.test(day) || new Date(`${day}T00:00:00Z`).toISOString().slice(0, 10) !== day) {
+    const dayTime = Date.parse(`${day}T00:00:00Z`);
+    if (!/^\d{4}-\d{2}-\d{2}$/u.test(day) || !Number.isFinite(dayTime) || new Date(dayTime).toISOString().slice(0, 10) !== day) {
       errors.push(`${label}: key must be a YYYY-MM-DD date`);
     }
     const entry = history[day];

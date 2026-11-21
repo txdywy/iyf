@@ -315,6 +315,33 @@ test('Cloudflare reports bad headers even when the response bytes differ and mai
   assert.ok(h.logs.every(message => !message.includes('superseded')));
 });
 
+test('Cloudflare carries forward unresolved resource errors when a newer homepage blocks resource checks', async t => {
+  const h = createHarness(t, { publicReply: ({ origin, file, poll, body }) => {
+    if (poll === 0 && file === 'robots.txt' && origin === CANONICAL_ORIGIN) return { status: 503 };
+    if (poll > 0 && file === 'index.html') return { body: `${body}\nnewer build` };
+  } });
+  let mainReads = 0;
+  await assert.rejects(h.run({
+    artifactSha: ARTIFACT_SHA,
+    readMainSha: async () => ++mainReads === 1 ? ARTIFACT_SHA : NEWER_MAIN_SHA,
+  }), /iyf\.hackx64\.eu\.org robots\.txt: HTTP 503/u);
+  assert.equal(mainReads, 1);
+});
+
+test('Cloudflare allows supersession once a subsequent resource check clears the HTTP error', async t => {
+  const h = createHarness(t, { publicReply: ({ origin, file, poll, body }) => {
+    if (file === 'robots.txt' && origin === CANONICAL_ORIGIN) {
+      return poll === 0 ? { status: 503 } : { body: `${body}\nnewer version` };
+    }
+  } });
+  let mainReads = 0;
+  const result = await h.run({
+    artifactSha: ARTIFACT_SHA,
+    readMainSha: async () => ++mainReads === 1 ? ARTIFACT_SHA : NEWER_MAIN_SHA,
+  });
+  assert.equal(result.superseded, true);
+});
+
 test('Cloudflare deployment never requests future assets while either homepage still serves the old build', async t => {
   let prematureAssetRequest = false;
   const h = createHarness(t, {

@@ -155,14 +155,25 @@ function broadcastFor(item, row) {
   };
 }
 
+function withHotIdentity(show, id, item) {
+  if (!item.card || item.excluded) return show;
+  const legacyId = `hot:${id}`;
+  return {
+    ...show,
+    legacyIds: [...new Set([legacyId, ...(show.legacyIds || [])])].slice(0, 32),
+    legacyMarkKeys: [...new Set([`id:${legacyId}`, `${item.title}|${item.year}`, ...(show.legacyMarkKeys || [])])].slice(0, 32),
+  };
+}
+
 export function applyVerifiedKoreanDrama(show, evidence, signals) {
-  const item = Object.values(evidence.titles).find(candidate => matchesReference(show, candidate));
+  const [id, item] = Object.entries(evidence.titles).find(([, candidate]) => matchesReference(show, candidate)) || [];
   const row = matchAiring(show, validAirings(signals?.airings), item);
   const broadcast = broadcastFor(item, row);
   if (!item && !broadcast) return show;
   return {
-    ...show,
-    ...(item ? { titleAliases: [...new Set([...(Array.isArray(show.titleAliases) ? show.titleAliases : []), ...item.aliases])].slice(0, 20) } : {}),
+    ...(item ? withHotIdentity(show, id, item) : show),
+    ...(item ? { titleAliases: [...new Set([item.title, ...item.aliases, ...(show.titleAliases || [])])]
+      .filter(alias => alias !== show.title).slice(0, 20) } : {}),
     ...(item?.description ? { description: item.description, descriptionSource: 'verified' } : {}),
     ...(item?.contentType ? { contentType: item.contentType } : {}),
     ...(broadcast ? { broadcast } : {}),
@@ -372,10 +383,7 @@ export function buildKoreanHotList(catalog, evidence, signals, generatedAt) {
   for (const [id, item] of titleEntries) {
     if (item.excluded) continue;
     const matches = catalog.filter(show => matchesReference(show, item));
-    // 只在榜单出现时，前端按 hot: 卡片的片名+年份记录标记；进入目录后带上这些旧键，标记跟着节目走。
-    const hotMarkKeys = [`id:hot:${id}`, `${item.title}|${item.year || ''}`];
-    const show = matches.length === 1 ? { ...matches[0],
-      legacyMarkKeys: [...new Set([...hotMarkKeys, ...(matches[0].legacyMarkKeys || [])])].slice(0, 32) } : item.card && {
+    const show = matches.length === 1 ? withHotIdentity(matches[0], id, item) : item.card && {
       ...item.card, id: `hot:${id}`, title: item.title, titleAliases: item.aliases,
       year: item.year, mediaType: '电视剧', regional: '韩国', lang: '韩语', primaryUrlSource: 'official',
       broadcast: broadcastFor(item, validAirings(signals?.airings).find(row => row.id === item.tvmazeId && row.season === 1)),

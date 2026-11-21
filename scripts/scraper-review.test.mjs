@@ -3795,7 +3795,8 @@ test('a season adopted from the live catalog survives the snapshot restore with 
   const previous = [{ id: 'seed_var_t', seedId: 'seed_var_t', title: '回归综艺', year: 2026, mediaType: '综艺', regional: '大陆',
     category: 'variety', coverImg: 'https://image.tmdb.org/t/p/original/series.jpg', coverSource: 'tmdb',
     tmdbUrl: 'https://www.themoviedb.org/tv/123', tmdbId: 123, primaryUrl: 'https://www.themoviedb.org/tv/123',
-    description: '种子文案', descriptionSource: 'tmdb', lastLiveAt: '2026-11-01T00:00:00Z' }];
+    description: '种子文案', descriptionSource: 'tmdb', lastLiveAt: '2026-11-01T00:00:00Z',
+    publishTime: '2024-05-10T00:00:00Z', firstPublishTime: '2024-05-01T00:00:00Z' }];
   helpers.restorePreviousCategory(map, previous, 'variety', '综艺', helpers.scoreVariety, 'disc_var');
   const out = [...map.values()][0];
   assert.equal(map.size, 1);
@@ -3805,6 +3806,7 @@ test('a season adopted from the live catalog survives the snapshot restore with 
   assert.equal(out.tmdbUrl, undefined, 'a series-level TMDB link cannot describe the season card');
   assert.equal(out.coverImg, 'https://static.kubb.tv/L4.jpg');
   assert.match(out.yfspUrl, /\/play\/L4$/u);
+  assert.equal(helpers.rememberFirstPublishTime(out).firstPublishTime, new Date(match.publishTime).toISOString());
 });
 
 test('live adoption never steps back to an older season or picks a stale season for an unadopted seed', () => {
@@ -4002,6 +4004,40 @@ test('Twisted Tie aliases publish one playable card without breaking either titl
   assert.equal(helpers.dedupByTitle([{ ...metadata }, { ...source, tmdbUrl: 'https://www.themoviedb.org/tv/42' }]).length, 2);
 });
 
+test('an unverified playable alias cannot merge groups with conflicting TMDB identities', () => {
+  const { helpers } = loadHelpers();
+  const base = { year: 2026, mediaType: '电视剧', regional: '韩国' };
+  const first = { ...base, id: 'known-1', title: '扭曲的领带', tmdbUrl: 'https://www.themoviedb.org/tv/318634' };
+  const second = { ...base, id: 'known-2', title: '解不开的我们', tmdbUrl: 'https://www.themoviedb.org/tv/42' };
+  const bridge = { ...base, id: 'unverified', title: '비틀린 넥타이', yfspUrl: 'https://www.kubb.tv/play/unverified' };
+  const input = [first, second, bridge];
+  const result = helpers.dedupByTitle(input.map(show => ({ ...show })));
+  assert.deepEqual(Array.from(result, show => show.id), input.map(show => show.id));
+  assert.ok(result.every(show => !show.legacyIds));
+
+  for (const order of [[first, bridge, second], [bridge, second, first]]) {
+    const retained = helpers.dedupByTitle(order.map(show => ({ ...show })));
+    assert.deepEqual(Array.from(retained, show => show.id), order.map(show => show.id), 'known conflicting identities are considered before ambiguous aliases');
+  }
+  const merged = helpers.dedupByTitle([{ ...first }, { ...bridge }]);
+  assert.equal(merged[0].id, bridge.id);
+  assert.equal(merged[0].tmdbSeriesId, 318634);
+  const afterReload = helpers.dedupByTitle([...JSON.parse(JSON.stringify(merged)), { ...second }]);
+  assert.deepEqual(Array.from(afterReload, show => show.id), [bridge.id, second.id], 'identity survives the published snapshot');
+});
+
+test('snapshot restore keeps distinct TMDB cards and each card’s own public identity', () => {
+  const { helpers } = loadHelpers({ date: '2026-11-21T00:00:00Z' });
+  const base = { year: 2026, mediaType: '电视剧', regional: '韩国', lastLiveAt: '2026-11-20T00:00:00Z' };
+  const first = { ...base, id: 'known-1', title: '扭曲的领带', tmdbUrl: 'https://www.themoviedb.org/tv/318634' };
+  const second = { ...base, id: 'known-2', title: '解不开的我们', tmdbUrl: 'https://www.themoviedb.org/tv/42', publicId: 'second-public-id' };
+  const map = new Map([[second.id, { ...second }]]);
+  helpers.restorePreviousCategory(map, [first, second], 'korean_drama', '电视剧', () => 100, 'disc_kd');
+  assert.equal(map.get(second.id).publicId, second.publicId);
+  assert.equal(map.get(first.id)?.tmdbUrl, first.tmdbUrl);
+  assert.ok(!(map.get(second.id).legacyIds || []).includes(first.id));
+});
+
 test('an expired but unchanged AI score keeps ranking until a refresh succeeds, and is dropped after 30 days or on input change', () => {
   const { helpers, setNow } = loadHelpers();
   setNow('2026-11-19T00:00:00Z');
@@ -4048,17 +4084,56 @@ test('The Table aliases collapse the TMDB-named card into the playable source ca
   assert.ok(Array.from(result[0].legacyIds).includes(metadata.id), 'old share links and marks of the TMDB card keep working');
 });
 
-test('the search fallback skips cards already observed this run', async () => {
-  const searched = [];
+test('the search fallback credits verified observations from both categories without requerying them', async () => {
+  const previous = searchSnapshotFixture(16);
+  const observedShows = new Map(Object.values(previous).flatMap(group => group.slice(0, 10).map(show => [show.id, show])));
+  const byTitle = new Map(Object.values(previous).flat().map(show => [show.title, show]));
+  const searched = new Set();
   const { helpers } = loadHelpers({ fetchImpl: async url => {
-    searched.push(new URL(url).searchParams.get('tags'));
-    return response({ data: { info: [{ result: [] }] } });
+    const show = byTitle.get(new URL(url).searchParams.get('tags'));
+    searched.add(show.id);
+    return searchSnapshotResponse(show);
   } });
-  const card = (key, title) => ({ id: key, title, mediaType: '电视剧', regional: '韩国', year: 2026, yfspUrl: `https://www.kubb.tv/play/${key}` });
-  await helpers.fetchSearchSnapshot({ koreanDramas: [card('seen1', '已观测剧'), card('todo1', '待续期剧')], chineseVariety: [] },
-    { observedKeys: new Set(['seen1']) });
-  assert.ok(searched.includes('待续期剧'));
-  assert.equal(searched.includes('已观测剧'), false, 'a card the catalog already observed this run is not searched again');
+  const result = await helpers.fetchSearchSnapshot(previous, { observedShows });
+  assert.equal(result.healthy, true);
+  assert.equal(result.coveredItems, 32);
+  assert.equal(result.shows.size, 12);
+  assert.deepEqual(Array.from(result.categoryCoverage, group => group.matched), [16, 16]);
+  assert.equal(searched.size, 12);
+  assert.ok([...searched].every(id => !observedShows.has(id)));
+
+  const [id, show] = [...observedShows][0];
+  observedShows.set(id, { ...show, regional: '大陆' });
+  const mismatch = await helpers.fetchSearchSnapshot(previous, { observedShows });
+  assert.equal(mismatch.shows.size, 13, 'a reused ID from another region does not count as the same observation');
+  assert.ok(searched.has(id));
+});
+
+test('search fallback rejects a reused source ID at the health threshold', async () => {
+  const previous = searchSnapshotFixture(15);
+  const observedShows = new Map(Object.values(previous).flat().map(show => [show.id, show]));
+  const show = previous.koreanDramas[0];
+  observedShows.set(show.id, { ...show, title: '完全无关的旧剧', year: 2022 });
+  let searches = 0;
+  const { helpers } = loadHelpers({ fetchImpl: async () => {
+    searches++;
+    return searchSnapshotResponse(null);
+  } });
+  const result = await helpers.fetchSearchSnapshot(previous, { observedShows });
+  assert.equal(result.healthy, false);
+  assert.equal(result.coveredItems, 29);
+  assert.ok(searches > 0);
+});
+
+test('crediting observed shows does not raise the previous per-category coverage threshold', async () => {
+  const previous = searchSnapshotFixture(50);
+  const observedShows = new Map(Object.values(previous).flatMap(group => group.slice(0, 20).map(show => [show.id, show])));
+  const { helpers } = loadHelpers({ fetchImpl: async () => searchSnapshotResponse(null) });
+  const result = await helpers.fetchSearchSnapshot(previous, { minimumItems: 100, observedShows });
+  assert.equal(result.healthy, true);
+  assert.equal(result.coveredItems, 40);
+  assert.equal(result.requiredItems, 36);
+  assert.deepEqual(Array.from(result.categoryCoverage, group => group.required), [18, 18]);
 });
 
 test('TMDB variety discovery rejects derivative compilations and does not count TMDB genre names as light evidence', () => {

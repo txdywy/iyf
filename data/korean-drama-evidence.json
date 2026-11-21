@@ -107,8 +107,9 @@
     },
     "final-table": {
       "title": "Final Table",
-      "aliases": ["파이널 테이블", "最终餐桌"],
+      "aliases": ["파이널 테이블", "最终餐桌", "最后的餐桌", "最後一桌", "最後的餐桌"],
       "year": 2026,
+      "tmdbId": 316702,
       "tvmazeId": 91448,
       "card": { "actor": "安孝燮,洪华妍,张律,郑幼贞", "contentType": "美食·竞技·剧情", "description": "几位厨师在料理比赛中碰面，他们对一顿好饭的不同理解，也成了彼此较量的一部分。", "coverImg": "https://static.tvmaze.com/uploads/images/original_untouched/646/1617487.jpg", "primaryUrl": "https://tv.jtbc.co.kr/finaltable" },
       "broadcast": { "premiereDate": "2026-10-24", "status": "airing", "checkedOn": "2026-11-07", "sourceUrl": "https://tv.jtbc.co.kr/trailer/pr10011969/pm10072397/vo10949978/view" }
