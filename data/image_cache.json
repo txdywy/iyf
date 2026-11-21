@@ -999,7 +999,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.115Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.771Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.069Z"
   },
   "2P1Uv59abn6": {
     "title": "脱口秀小会",
@@ -1018,7 +1018,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.202Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.844Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.071Z"
   },
   "seed_var_2026_01": {
     "title": "奔跑吧第10季",
@@ -1274,7 +1274,7 @@
     "wikidataId": "Q15895086",
     "cachedAt": "2026-08-23T16:34:15.441Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.862Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.179Z"
   },
   "isyLQyASOyy0": {
     "title": "喜剧总动员",
@@ -1388,7 +1388,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:16.211Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.915Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.096Z"
   },
   "o4fF4eqSycO": {
     "title": "我们的宿舍·归心季",
@@ -2194,7 +2194,7 @@
     "wikidataId": "Q61743417",
     "cachedAt": "2026-08-23T16:34:15.913Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.898Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.178Z"
   },
   "OKPtdhLPVB5": {
     "title": "大哥小助理",
@@ -2216,7 +2216,7 @@
     "doubanMatchedTitle": "大哥小助理",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-21T16:30:07.702Z"
+    "externalMetadataCheckedAt": "2026-11-21T07:26:41.057Z"
   },
   "MF7xh9xdeI7": {
     "title": "加油！汪汪",
@@ -8982,7 +8982,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-20T13:39:43.791Z"
+    "cachedAt": "2026-11-21T07:26:41.940Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -11760,5 +11760,25 @@
     "regional": "欧美",
     "notFound": true,
     "cachedAt": "2026-11-20T22:50:53.839Z"
+  },
+  "tmdb_tv_300523": {
+    "title": "罪蓝之路",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/cQ8pU9IimyWiLqP0e0qZqtktbma.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:300523",
+    "matchedTitle": "罪蓝之路",
+    "tmdbId": 300523,
+    "tmdbUrl": "https://www.themoviedb.org/tv/300523",
+    "cachedAt": "2026-11-21T07:26:29.785Z",
+    "doubanUrl": "https://movie.douban.com/subject/37172429/",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-21T07:26:29.785Z",
+    "doubanId": "37172429",
+    "doubanMatchedTitle": "罪蓝之路",
+    "doubanMatchedSeasonNumber": 0
   }
 }
