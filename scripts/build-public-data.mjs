@@ -15,7 +15,7 @@ const source = JSON.parse(readFileSync(join(root, 'data', 'shows.json'), 'utf8')
 const PUBLIC_SHOW_FIELDS = [
   'id', 'seedId', 'publicId', 'legacyIds', 'legacyMarkKeys', 'title', 'titleAliases', 'mediaType', 'regional', 'lang', 'year',
   'score', 'tmdbRating', 'playCount', 'recommendScore', 'aiScore', 'aiReason',
-  'contentType', 'actor', 'description', 'descriptionSource', 'coverImg', 'publishTime',
+  'contentType', 'actor', 'description', 'descriptionSource', 'coverImg', 'publishTime', 'firstPublishTime',
   'firstSeenAt', 'scrapedAt', 'lastLiveAt', 'updateMsg',
   'updateStatus', 'totalEpisodes', 'currentEpisode', 'isComplete', 'isSerial',
   'isClassic', 'isNew', 'primaryUrl', 'primaryUrlSource',

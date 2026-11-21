@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildKoreanHotList, koreanPlayIdentity, loadKoreanDramaEvidence, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
+import { applyVerifiedKoreanDrama, buildKoreanHotList, koreanPlayIdentity, loadKoreanDramaEvidence, updateKoreanPlayObservations } from './korean-drama-sources.mjs';
 
 test('same-week Netflix evidence appears once when the complete feed replaces a pinned chart', () => {
   const evidence = loadKoreanDramaEvidence();
@@ -33,4 +33,24 @@ test('weekly charts show paired observations for a current Kubb playback link', 
   const signals = { plays: { series: [{ at: from, count: 10, identity }, { at: to, count: 40, identity }] } };
   const chart = buildKoreanHotList([show], evidence, signals, to);
   assert.deepEqual(chart.shows.find(item => item.id === show.id).recentPlays, { count: 30, from, to });
+});
+
+test('Final Table keeps chart aliases and old watchlist keys in the regular catalogue after leaving the chart', () => {
+  const evidence = loadKoreanDramaEvidence();
+  evidence.charts = evidence.charts.map(chart => {
+    const { 'final-table': removed, ...ranks } = chart.ranks;
+    return { ...chart, ranks };
+  });
+  const row = { id: 'zdCuQmsq2YC', title: '最后一桌', year: 2026, publicId: 'tmdb_tv_316702',
+    tmdbUrl: 'https://www.themoviedb.org/tv/316702', yfspUrl: 'https://www.kubb.tv/play/zdCuQmsq2YC' };
+  const catalog = applyVerifiedKoreanDrama(row, evidence, {});
+  assert.equal(catalog.publicId, row.publicId);
+  assert.ok(catalog.titleAliases.includes('Final Table'));
+  assert.ok(catalog.titleAliases.includes('最后的餐桌'));
+  assert.ok(catalog.legacyIds.includes('hot:final-table'));
+  assert.ok(catalog.legacyMarkKeys.includes('Final Table|2026'));
+  const chart = buildKoreanHotList([catalog], evidence, {}, '2026-11-20T00:00:00Z');
+  assert.ok(!chart.shows.some(show => show.id === row.id));
+  const other = { ...row, tmdbUrl: 'https://www.themoviedb.org/tv/42' };
+  assert.equal(applyVerifiedKoreanDrama(other, evidence, {}).legacyIds, undefined);
 });

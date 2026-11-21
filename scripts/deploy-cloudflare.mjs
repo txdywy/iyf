@@ -175,22 +175,22 @@ export async function deployCloudflare({
   let previousFailureSummary = '';
   let onlyDigestMismatches = false;
   let round = 0;
+  const unresolvedFailures = new Map();
   while (now() < deadline) {
     round++;
     const readyOrigins = new Set();
-    let digestMismatches = 0;
-    const check = async (origin, item) => {
-      const label = `${origin} ${item.file}`;
+    const verify = async (origin, item) => {
+      const failure = reason => ({ reason });
       let signal;
       try {
         const remaining = deadline - now();
-        if (remaining <= 0) return `${label}: verification deadline expired`;
+        if (remaining <= 0) return failure('verification deadline expired');
         signal = AbortSignal.timeout(Math.min(25_000, Math.ceil(remaining)));
         const response = await fetchImpl(`${origin}${item.path}`, { signal, cache: 'no-store', redirect: 'manual' });
         if (response.status !== item.status) {
           // 轮询期间旧部署会持续返回非预期状态；释放未读正文，避免连接堆积到截止时间。
           await response.body?.cancel?.().catch(() => {});
-          return `${label}: HTTP ${response.status} (expected ${item.status})`;
+          return failure(`HTTP ${response.status} (expected ${item.status})`);
         }
         const digest = hash(Buffer.from(await response.arrayBuffer()));
         if (item.file === 'index.html' && digest === item.digest) readyOrigins.add(origin);
@@ -215,13 +215,19 @@ export async function deployCloudflare({
           }
         }
         // 内容不同的响应也必须先判定响应头，避免将响应头故障归为单纯的版本差异。
-        if (failedHeaders.length) return `${label}: missing or invalid headers (${failedHeaders.join(', ')})`;
+        if (failedHeaders.length) return failure(`missing or invalid headers (${failedHeaders.join(', ')})`);
         if (digest !== item.digest) {
-          digestMismatches++;
-          return `${label}: content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})`;
+          return { digestMismatch: true, reason: `content hash mismatch (expected ${item.digest.slice(0, 12)}, received ${digest.slice(0, 12)})` };
         }
         return null;
-      } catch (error) { return `${label}: ${requestFailure(error, signal)}`; }
+      } catch (error) { return failure(requestFailure(error, signal)); }
+    };
+    const check = async (origin, item) => {
+      const label = `${origin} ${item.file}`;
+      const result = await verify(origin, item);
+      if (result && !result.digestMismatch) unresolvedFailures.set(label, `${label}: ${result.reason}`);
+      else unresolvedFailures.delete(label);
+      return result?.digestMismatch ? `${label}: ${result.reason}` : null;
     };
     // 先确认两个域名的首页都已切到本次版本，避免在旧部署上提前请求未来的资源地址。
     const homepage = expected.find(item => item.file === 'index.html');
@@ -230,8 +236,10 @@ export async function deployCloudflare({
       ...homeChecks,
       ...await Promise.all(productionOrigins.flatMap(origin => expected.filter(item => item !== homepage).map(item => check(origin, item)))),
     ];
-    lastFailures = checks.filter(Boolean);
-    onlyDigestMismatches = digestMismatches > 0 && digestMismatches === lastFailures.length;
+    const digestFailures = checks.filter(Boolean);
+    // 首页切换版本后可能暂不复查资源；仍保留这些资源上次确认的 HTTP 或响应头故障。
+    lastFailures = [...digestFailures, ...[...unresolvedFailures.values()].sort()];
+    onlyDigestMismatches = digestFailures.length > 0 && unresolvedFailures.size === 0;
     if (now() >= deadline) {
       if (!lastFailures.length) lastFailures = ['matching files arrived after the verification deadline'];
       break;

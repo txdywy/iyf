@@ -158,7 +158,7 @@ function createApp(fetchImpl = async () => { throw new Error('unexpected fetch')
   });
   vm.runInContext(app.replace(/\}\)\(\);\s*$/u, `
     globalThis.helpers = {
-      loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
+      init, loadData, switchTab, applyFilters, bindTabs, bindFilters, bindContentNavigation, bindLoadMore, loadMoreShows, getDataFreshness,
       toFiniteNumber, safeExternalUrl, escapeHtml, formatVarietyStatus, renderCard, isShowDataset, handleUrlStateChange,
       bindCardActions, bindQuickFilters, updateQuickFilters, getShowMark, setMark, getMarkKey,
       renderDetail, openDetail, syncDetailFromUrl, bindDetail, getDetailShareUrl, toggleCardMark, findShowById,
@@ -1798,6 +1798,92 @@ test('the weekly hot tab shows chart ranks, the chart period and accessible comp
   assert.match(detail, /<a class="card-link"[^>]*>Netflix 全球非英语榜 第 3<span class="sr-only">：榜单新剧（新窗口）<\/span><\/a>/u);
   helpers.switchTab('korean', { animate: false });
   assert.doesNotMatch(elements.showGrid.innerHTML, /badge-rank/u, 'ranks only appear in the weekly chart');
+});
+
+test('an offline cache miss preserves the weekly tab and show link until the network resolves them', async () => {
+  const data = hotSnapshot();
+  const show = data.koreanHot.shows[0];
+  let offline = true;
+  const client = createApp(async () => {
+    if (offline) throw new Error('offline');
+    return { ok: true, json: async () => data };
+  }, snapshot(2));
+  const { dialog, content } = detailDialog(client);
+  const { helpers, location, elements } = client;
+  Object.assign(location, { href: 'https://example.test/?show=hot%3Aonly#hot', search: '?show=hot%3Aonly', hash: '#hot' });
+  await helpers.init();
+  assert.equal(location.hash, '#hot');
+  assert.equal(location.search, '?show=hot%3Aonly');
+  assert.equal(dialog.open, false);
+
+  offline = false;
+  await helpers.loadData();
+  assert.equal(location.hash, '#hot');
+  assert.ok(elements.showGrid.innerHTML.includes(show.title));
+  assert.equal(dialog.open, true);
+  assert.ok(content.innerHTML.includes(show.title));
+});
+
+test('an unchanged network response confirms when an old hot link should fall back', async () => {
+  const data = snapshot(2);
+  const client = createApp(async () => ({ ok: true, json: async () => structuredClone(data) }), data);
+  Object.assign(client.location, { href: 'https://example.test/#hot', hash: '#hot' });
+  await client.helpers.init();
+  assert.equal(client.location.hash, '#korean');
+  assert.match(client.elements.showGrid.innerHTML, /剧目0/u);
+});
+
+test('a later-discovered watchlist alias cannot undo a canonical removal', () => {
+  const data = snapshot(2);
+  const show = data.koreanDramas[0];
+  const aliasKey = 'iyf:mark:v2:id:hot:old';
+  const canonicalKey = `iyf:mark:v2:id:${show.id}`;
+  const storage = new Map([[aliasKey, JSON.stringify({ kind: 'want', at: 50 })],
+    [canonicalKey, JSON.stringify({ kind: '', at: 100 })]]);
+  show.legacyIds = ['hot:old'];
+  const { helpers } = createApp(undefined, null, Date.now(), storage);
+  helpers.setAllData(data);
+  assert.equal(helpers.getShowMark(show), '');
+  assert.equal(JSON.parse(storage.get(canonicalKey)).at, 100);
+  assert.equal(JSON.parse(storage.get(aliasKey)).migrated, true);
+
+  storage.set(canonicalKey, JSON.stringify({ kind: 'seen', at: 25 }));
+  const reloaded = createApp(undefined, null, Date.now(), storage);
+  reloaded.helpers.setAllData(data);
+  assert.equal(reloaded.helpers.getShowMark(show), 'seen', 'migration cleanup is never a user removal');
+});
+
+test('watchlist changes in another tab preserve keyboard focus on the same card link', async () => {
+  const data = snapshot(3);
+  const storage = new Map();
+  const { helpers, view, elements, document } = createApp(async () => ({ ok: true, json: async () => data }), null, Date.now(), storage);
+  const listeners = new Map();
+  view.addEventListener = (name, callback) => listeners.set(name, callback);
+  await helpers.init();
+  const grid = elements.showGrid;
+  const focused = grid.children[0].querySelector('a[href]');
+  focused.focus();
+  const key = 'iyf:mark:v2:id:variety';
+  storage.set(key, JSON.stringify({ kind: 'want', at: 100 }));
+  listeners.get('storage')({ key });
+  assert.equal(grid.contains(focused), false);
+  assert.equal(document.activeElement, grid.children[0].querySelector('a[href]'));
+  assert.equal(helpers.getShowMark(data.chineseVariety[0]), 'want');
+});
+
+test('latest release sorts by the earliest known date while recent additions sort by first seen', () => {
+  const { helpers, elements } = createApp();
+  const data = snapshot(2);
+  Object.assign(data.koreanDramas[0], { isNew: true, publishTime: '2026-11-20T19:41:00Z',
+    firstPublishTime: '2026-11-13T00:00:00Z', firstSeenAt: '2026-11-20T00:00:00Z' });
+  Object.assign(data.koreanDramas[1], { isNew: true, publishTime: '2026-11-18', firstSeenAt: '2026-11-18T00:00:00Z' });
+  helpers.setAllData(data);
+  helpers.switchTab('korean', { animate: false });
+  elements.sortBy.value = 'newest';
+  helpers.applyFilters();
+  assert.match(elements.showGrid.innerHTML, /剧目1[\s\S]*剧目0/u);
+  helpers.switchTab('new', { animate: false });
+  assert.match(elements.showGrid.innerHTML, /剧目0[\s\S]*剧目1/u);
 });
 
 test('arrow keys move between tabs without adding history entries while clicks still push', () => {

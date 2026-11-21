@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const optionalTextFields = [
   'mediaType', 'regional', 'lang', 'aiReason', 'contentType', 'actor',
-  'description', 'descriptionSource', 'publishTime', 'firstSeenAt', 'scrapedAt',
+  'description', 'descriptionSource', 'publishTime', 'firstPublishTime', 'firstSeenAt', 'scrapedAt',
   'lastLiveAt', 'updateMsg', 'updateStatus', 'primaryUrlSource', 'coverSource',
 ];
 
@@ -382,6 +382,7 @@ test('validator checks the structure written by saveHistory', () => {
     [{ ...thirty, '2026-12-31': historyEntry() }, /at most 30 days/u],
     [{ latest: historyEntry() }, /key must be a YYYY-MM-DD date/u],
     [{ '2026-02-30': historyEntry() }, /key must be a YYYY-MM-DD date/u],
+    [{ '2026-13-01': historyEntry() }, /key must be a YYYY-MM-DD date/u],
     [{ '2026-11-18': null }, /must be an object/u],
     [{ '2026-11-18': historyEntry({ timestamp: 'yesterday' }) }, /timestamp: must be a valid timestamp/u],
     [{ '2026-11-18': historyEntry({ koreanDramasCount: -1 }) }, /koreanDramasCount: must be a non-negative integer/u],

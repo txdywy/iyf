@@ -1018,7 +1018,7 @@ function applyLiveFields(seedShow, liveMatch) {
   if (seedSeasonOf(seedShow, liveMatch.title, seedShow.mediaType || liveMatch.mediaType)) {
     if (boundedYear(liveMatch.year)) merged.year = boundedYear(liveMatch.year);
     rememberPublishedIdentity(merged, seedShow);
-    clearUnverifiedVarietySeasonMetadata(merged, liveMatch.coverImg);
+    clearUnverifiedVarietySeasonMetadata(merged, liveMatch);
   }
   const curatedSeedFields = ['title', 'actor', 'contentType', 'regional', 'lang', 'year']
     .filter(field => field === 'year' ? boundedYear(seedShow[field]) : safeText(seedShow[field]).length > 0);
@@ -1230,7 +1230,7 @@ function mergePreviousShowState(current, previous) {
   return merged;
 }
 
-function clearUnverifiedVarietySeasonMetadata(show, coverImg) {
+function clearUnverifiedVarietySeasonMetadata(show, seasonSource) {
   const season = seasonNumberFromTitle(show.title);
   if (Number(show.doubanMatchedSeasonNumber) !== season ||
       !show.doubanMatchedTitle || !haveCompatibleTitleSeasons(show.title, show.doubanMatchedTitle)) {
@@ -1243,7 +1243,10 @@ function clearUnverifiedVarietySeasonMetadata(show, coverImg) {
     delete show.descriptionWikipediaVariant;
   }
   for (const field of ['tmdbUrl', 'tmdbId', 'tmdbSeriesId', 'tmdbSeasonNumber', 'tmdbCoverPending']) delete show[field];
-  const sourceCover = safeOutputUrl(fullSizeYfspCover(coverImg));
+  show.publishTime = seasonSource.publishTime || '';
+  delete show.firstPublishTime;
+  if (seasonSource.firstPublishTime) show.firstPublishTime = seasonSource.firstPublishTime;
+  const sourceCover = safeOutputUrl(fullSizeYfspCover(seasonSource.coverImg));
   show.coverImg = sourceCover;
   show.yfspCoverImg = sourceCover;
   if (sourceCover) show.coverSource = 'yfsp';
@@ -1293,7 +1296,7 @@ function restorePreviousCategory(targetMap, previous, category, mediaType, score
       merged.id = current.id;
       merged.title = current.title;
       merged.year = current.year;
-      clearUnverifiedVarietySeasonMetadata(merged, current.coverImg);
+      clearUnverifiedVarietySeasonMetadata(merged, current);
       if (current.description && current.descriptionSource === 'yfsp') {
         merged.description = current.description;
         merged.descriptionSource = 'yfsp';
@@ -1501,23 +1504,30 @@ function observedYfspSearchShow(found) {
   }, yfspDomainOfHost(new URL(found.url).hostname));
 }
 
-async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000, observedKeys = new Set() } = {}) {
+async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Date.now() + 90000, observedShows = new Map() } = {}) {
   const shows = new Map();
-  const groups = ['koreanDramas', 'chineseVariety'].map(category => ({
-    category, matched: new Set(),
+  const groups = ['koreanDramas', 'chineseVariety'].map(category => {
+    const covered = new Set();
+    const pending = new Map();
     // 本轮分类列表或首页已经观测到的卡片不必再搜，名额留给其余卡片续期。
-    targets: (previous[category] || [])
-      .filter(show => safeText(show?.title) && yfspPlayKey(safeOutputUrl(show.yfspUrl)) &&
-        !observedKeys.has(yfspPlayKey(safeOutputUrl(show.yfspUrl))))
+    for (const show of previous[category] || []) {
+      const key = yfspPlayKey(safeOutputUrl(show?.yfspUrl));
+      if (!key || !safeText(show.title)) continue;
+      const observed = observedShows.get(key);
+      if (observed && observed.mediaType === show.mediaType && observed.regional === show.regional && sameShowIdentity(show, observed)) {
+        covered.add(key);
+      } else if (!pending.has(key)) {
+        pending.set(key, show);
+      }
+    }
+    const targets = [...pending].filter(([key]) => !covered.has(key)).map(([, show]) => show)
       .sort((a, b) => searchFallbackDueAt(a) - searchFallbackDueAt(b) ||
         safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
-      .slice(0, 30),
-  }));
-  for (const group of groups) {
-    group.minimumMatches = group.targets.length
-      ? Math.min(group.targets.length, Math.max(3, Math.ceil(group.targets.length * 0.6)))
-      : 0;
-  }
+      .slice(0, 30);
+    const targetCount = covered.size + targets.length;
+    const minimumMatches = Math.min(targetCount, Math.max(3, Math.ceil(targetCount * 0.6)));
+    return { category, covered, targets, targetCount, minimumMatches };
+  });
   const attainableCoverage = groups.reduce((total, group) => total + group.minimumMatches, 0);
   const minimumFallbackFloor = Math.min(30, minimumItems);
   const requiredItems = Math.max(minimumFallbackFloor, Math.min(minimumItems, attainableCoverage));
@@ -1531,20 +1541,21 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
     if (Date.now() >= deadline || !found?.url || found.mediaType !== show.mediaType || found.regional !== show.regional) return;
     const observed = observedYfspSearchShow(found);
     shows.set(observed.id, mergeLiveSnapshots(shows.get(observed.id), observed));
-    group.matched.add(observed.id);
+    group.covered.add(observed.id);
     await sleep(Math.max(0, Math.min(YFSP_SEARCH_DELAY, deadline - Date.now())));
   });
   // 至少要求 30 条；超过可达总量的历史比例门槛按分类覆盖下限收敛。
-  const healthy = groups.every(group => group.targets.length > 0 && group.matched.size >= group.minimumMatches) &&
-    shows.size >= requiredItems;
+  const coveredItems = new Set(groups.flatMap(group => [...group.covered])).size;
+  const healthy = groups.every(group => group.targetCount > 0 && group.covered.size >= group.minimumMatches) &&
+    coveredItems >= requiredItems;
   const categoryCoverage = groups.map(group => ({
     category: group.category,
-    matched: group.matched.size,
-    targetCount: group.targets.length,
+    matched: group.covered.size,
+    targetCount: group.targetCount,
     required: group.minimumMatches,
   }));
-  console.log(`  搜索回退命中 ${shows.size}/${requiredItems} 条最低覆盖（检索目标 ${targets.length} 部；韩剧 ${groups[0].matched.size}/${groups[0].targets.length}，综艺 ${groups[1].matched.size}/${groups[1].targets.length}），${healthy ? '来源健康' : '覆盖不足，保留快照时间'}`);
-  return { shows, healthy, targetCount: targets.length, requiredItems, categoryCoverage };
+  console.log(`  搜索回退覆盖 ${coveredItems}/${requiredItems} 条（搜索命中 ${shows.size}/${targets.length}；韩剧 ${groups[0].covered.size}/${groups[0].targetCount}，综艺 ${groups[1].covered.size}/${groups[1].targetCount}），${healthy ? '来源健康' : '覆盖不足，保留快照时间'}`);
+  return { shows, healthy, targetCount: targets.length, requiredItems, coveredItems, categoryCoverage };
 }
 
 async function discoverIndependentYfspCandidates(queue, liveShows, attempts) {
@@ -1822,7 +1833,7 @@ function isYearPlaceholderPublishTime(value) {
 }
 
 // 来源的 publishTime 实际是“最新一集上架时间”，连载剧每更新一集就往后挪。首播时间取以下各项中最早的：
-// 本次 publishTime、此前观测到的最早值（私有 firstPublishTime）、播出资料的首播日（broadcast.premiereDate）；
+// 本次 publishTime、此前观测到的最早值（firstPublishTime）、播出资料的首播日（broadcast.premiereDate）；
 // 首次收录时间 firstSeenAt 只作为上限（节目不可能晚于它首播），不作为“近期首播”加分的依据。
 function exactDateMs(value) {
   const text = typeof value === 'string' && !isYearPlaceholderPublishTime(value) ? value : '';
@@ -1830,8 +1841,8 @@ function exactDateMs(value) {
 }
 
 function earliestKnownPublishMs(show, now = Date.now()) {
-  const candidates = [show?.publishTime, show?.firstPublishTime, show?.broadcast?.premiereDate]
-    .map(exactDateMs).filter(ms => Number.isFinite(ms) && ms <= now);
+  const sourceTimes = [show?.publishTime, show?.firstPublishTime].map(exactDateMs);
+  const candidates = [...sourceTimes, Date.parse(show?.broadcast?.premiereDate)].filter(ms => Number.isFinite(ms) && ms <= now);
   return candidates.length ? Math.min(...candidates) : NaN;
 }
 
@@ -3007,8 +3018,8 @@ async function main() {
     minimumPages: minimumHealthyPages, minimumItems: minimumHealthyItems,
   });
   const searchSnapshot = homepageHealthy
-    ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, categoryCoverage: [] }
-    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems, observedKeys: new Set(liveShows.keys()) });
+    ? { shows: new Map(), healthy: false, targetCount: 0, requiredItems: 0, coveredItems: 0, categoryCoverage: [] }
+    : await fetchSearchSnapshot(prevShows, { minimumItems: minimumHealthyItems, observedShows: liveShows });
   for (const [id, observed] of searchSnapshot.shows) liveShows.set(id, mergeLiveSnapshots(liveShows.get(id), observed));
   noteYfspKeySpace(prevShows);
   // 首页或分类列表任一健康即为主来源健康；搜索回退仍照常为未出现在列表里的已收录卡片续期。
@@ -3018,7 +3029,7 @@ async function main() {
     const fallbackCoverage = searchSnapshot.categoryCoverage
       .map(group => `${group.category === 'koreanDramas' ? '韩剧' : '综艺'} ${group.matched}/${group.targetCount}（需 ${group.required}）`)
       .join('，') || '未执行';
-    console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，首页 ${homepageItemCount}/${minimumHealthyItems} 条，韩剧 ${homepageCategoryCounts.koreanDramas}/3，综艺 ${homepageCategoryCounts.chineseVariety}/3，搜索回退 ${searchSnapshot.shows.size}/${searchSnapshot.requiredItems} 条；${fallbackCoverage}），将保留上一版快照时间和缺失分类`);
+    console.warn(`  [WARN] 核心数据源健康度不足（HTTP ${successfulPages}/${totalRequestedPages} 页，有效 ${meaningfulPages} 页，首页 ${homepageItemCount}/${minimumHealthyItems} 条，韩剧 ${homepageCategoryCounts.koreanDramas}/3，综艺 ${homepageCategoryCounts.chineseVariety}/3，搜索回退覆盖 ${searchSnapshot.coveredItems}/${searchSnapshot.requiredItems} 条；${fallbackCoverage}），将保留上一版快照时间和缺失分类`);
   }
 
   const koreanSignals = await koreanSignalsRequest;
@@ -3561,12 +3572,9 @@ function shouldDedupByExternal(a, b) {
 }
 
 function sameExplicitAliasEdition(a, b) {
-  if (!a.mediaType || !a.regional || !a.year || a.mediaType !== b.mediaType ||
-      a.regional !== b.regional || a.year !== b.year || seasonKey(a.title) !== seasonKey(b.title) ||
-      !areExplicitTitleAliases(a.title, b.title)) return false;
-  const aTmdb = knownTMDBSeriesId(a);
-  const bTmdb = knownTMDBSeriesId(b);
-  return !aTmdb || !bTmdb || aTmdb === bTmdb;
+  return !!(a.mediaType && a.regional && a.year && a.mediaType === b.mediaType &&
+    a.regional === b.regional && a.year === b.year && seasonKey(a.title) === seasonKey(b.title) &&
+    areExplicitTitleAliases(a.title, b.title));
 }
 
 function dedupByTitle(list) {
@@ -3588,12 +3596,18 @@ function dedupByTitle(list) {
     if (newestYear && boundedYear(show.year) < newestYear) continue;
     const title = (show.title || '').trim();
     if (!title) continue;
+    const tmdbId = extractTMDBSeriesId(show.tmdbUrl) || Number(show.tmdbSeriesId) || knownTMDBSeriesId(show);
     const keys = externalIdentityKeys(show);
-    const duplicates = [...groups].filter(([, members]) => members.some(member =>
+    const matches = [...groups].filter(([, group]) => group.members.some(member =>
       (edition && edition === editionKey(member) && show.year === member.year) ||
       sameExplicitAliasEdition(member, show) ||
       (shouldDedupByExternal(member, show) && externalIdentityKeys(member).some(key => keys.includes(key)))));
-    if (!duplicates.length && [...groups.keys()].some(item => item.title.trim() === title)) continue;
+    const matchesByTmdb = new Set(matches.map(([, group]) => group.tmdbId).filter(Boolean));
+    // 缺少 TMDB 身份的卡片不能把两个已确认是不同剧集的组串在一起。
+    const duplicates = tmdbId
+      ? matches.filter(([, group]) => !group.tmdbId || group.tmdbId === tmdbId)
+      : matchesByTmdb.size > 1 ? [] : matches;
+    if (!matches.length && [...groups.keys()].some(item => item.title.trim() === title)) continue;
     const candidates = [...duplicates.map(([winner]) => winner), show].sort((a, b) => positions.get(a) - positions.get(b));
     const winner = candidates.find(item => yfspPlayKey(safeOutputUrl(item.yfspUrl))) || candidates[0];
     for (const previous of candidates) {
@@ -3608,7 +3622,10 @@ function dedupByTitle(list) {
       winner.legacyMarkKeys = [...new Set(marks)].slice(0, 32);
       groups.delete(previous);
     }
-    groups.set(winner, [...duplicates.flatMap(([, members]) => members), show]);
+    groups.set(winner, {
+      members: [...duplicates.flatMap(([, group]) => group.members), show],
+      tmdbId: tmdbId || duplicates.find(([, group]) => group.tmdbId)?.[1].tmdbId || 0,
+    });
   }
   // 输入已按推荐分排序；按原顺序输出保留的卡片。
   return list.filter(show => groups.has(show));
@@ -3922,7 +3939,7 @@ async function enrichMissingYfspLinks(shows) {
         show.title = found.title;
         if (seasonYear) show.year = seasonYear;
         rememberPublishedIdentity(show, previousIdentity);
-        clearUnverifiedVarietySeasonMetadata(show, found.coverImg);
+        clearUnverifiedVarietySeasonMetadata(show, found);
         attachLinkFields(show, found.url, show.doubanUrl);
       }
       matched++;
