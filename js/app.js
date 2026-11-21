@@ -198,13 +198,14 @@
       restoreScrollMemory();
     } catch (e) {
       if (requestVersion !== _dataRequestVersion) return;
+      _dataLoadFailed = true;
       if (renderedFromCache) {
         _dataLoadNotice = ' · 网络更新失败，展示本地缓存';
         if (!REMOTE_TAB_LABELS[activeTabName]) updateInfo();
+        if (activeTabName === 'hot' && !hasHotList()) applyFilters(false, { preserveVisibleCount: true });
         syncDetailFromUrl();
         return;
       }
-      _dataLoadFailed = true;
       if (REMOTE_TAB_LABELS[activeTabName]) return;
       showDataLoadError();
     }
@@ -438,7 +439,11 @@
     const varietyYearLabel = document.getElementById('varietyYearTabLabel');
     if (yearLabel) yearLabel.textContent = `${year} 新剧`;
     if (varietyYearLabel) varietyYearLabel.textContent = `${year} 新综艺`;
-    // 没有可核实的周榜时整个标签不出现。
+    updateHotTabVisibility();
+  }
+
+  function updateHotTabVisibility() {
+    // 没有可核实的周榜时隐藏标签，正在访问的周榜链接可等待网络确认。
     const hotTab = document.getElementById('tab-hot');
     if (hotTab) hotTab.hidden = !hasHotList() && !(_hotAvailabilityUnconfirmed && activeTabName === 'hot');
   }
@@ -686,6 +691,7 @@
     const sortSelect = document.getElementById('sortBy');
     if (rememberSort && sortSelect?.value) _tabSortPreferences.set(activeTabName, sortSelect.value);
     activeTabName = tab;
+    updateHotTabVisibility();
     if (sortSelect) sortSelect.value = _tabSortPreferences.get(tab) || DEFAULT_SORT_BY_TAB[tab] || 'recommend';
     updateTabSpecificControls();
     if (syncUrl) syncUrlState({ push: pushHistory });
@@ -765,7 +771,8 @@
 
     currentShows = shows;
     // 类型来自上一个标签；新标签里没有这个类型时清除，避免切过去就是空结果。
-    if (_genreFilter && !shows.some(show => getShowGenres(show).includes(_genreFilter))) {
+    const awaitingChart = tab === 'hot' && _hotAvailabilityUnconfirmed && !hasHotList();
+    if (_genreFilter && !awaitingChart && !shows.some(show => getShowGenres(show).includes(_genreFilter))) {
       _genreFilter = '';
       if (syncUrl) syncUrlState();
     }
@@ -1091,7 +1098,11 @@
       resetRenderedShows();
       updateLoadMore(0, 0);
       // 由筛选造成的空结果直接提供清除操作，避免用户回到顶部寻找按钮。
-      if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
+      if (activeTabName === 'hot' && _hotAvailabilityUnconfirmed && !hasHotList()) {
+        if (_dataLoadFailed) setEmptyState('热播周榜加载失败，请检查网络后重试。', '重试', loadData);
+        else setEmptyState('正在加载热播周榜…');
+      }
+      else if (hasActiveResultFilters()) setEmptyState('😢 暂无符合当前条件的推荐', '清除筛选', () => resetFilters({ focusSearch: true }));
       else if (activeTabName === 'mine') {
         const unlisted = countUnlistedMarks();
         setEmptyState(unlisted

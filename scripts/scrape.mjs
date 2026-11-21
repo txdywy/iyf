@@ -1107,6 +1107,9 @@ function sameShowIdentity(a, b) {
   if (!a?.title || !b?.title) return false;
   if (a.mediaType && b.mediaType && a.mediaType !== b.mediaType) return false;
   if (a.regional && b.regional && a.regional !== b.regional) return false;
+  const aTmdb = showTMDBSeriesIdentity(a);
+  const bTmdb = showTMDBSeriesIdentity(b);
+  if (aTmdb && bTmdb && aTmdb !== bTmdb) return false;
   const aSeason = seasonKey(a.title);
   const bSeason = seasonKey(b.title);
   if (aSeason && bSeason && aSeason !== bSeason) return false;
@@ -1514,7 +1517,8 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
       const key = yfspPlayKey(safeOutputUrl(show?.yfspUrl));
       if (!key || !safeText(show.title)) continue;
       const observed = observedShows.get(key);
-      if (observed && observed.mediaType === show.mediaType && observed.regional === show.regional && sameShowIdentity(show, observed)) {
+      if (observed && observed.mediaType === show.mediaType && observed.regional === show.regional &&
+        titleMatches(show.title, observed.title) && haveCompatibleTitleSeasons(show.title, observed.title) && isYearCompatible(show, observed)) {
         covered.add(key);
       } else if (!pending.has(key)) {
         pending.set(key, show);
@@ -1525,7 +1529,9 @@ async function fetchSearchSnapshot(previous, { minimumItems = 30, deadline = Dat
         safeText(a.title, 200).localeCompare(safeText(b.title, 200), 'zh-CN'))
       .slice(0, 30);
     const targetCount = covered.size + targets.length;
-    const minimumMatches = Math.min(targetCount, Math.max(3, Math.ceil(targetCount * 0.6)));
+    // 计入已观测条目后仍沿用每类最多 30 个样本的健康门槛。
+    const sampleSize = Math.min(30, targetCount);
+    const minimumMatches = Math.min(sampleSize, Math.max(3, Math.ceil(sampleSize * 0.6)));
     return { category, covered, targets, targetCount, minimumMatches };
   });
   const attainableCoverage = groups.reduce((total, group) => total + group.minimumMatches, 0);
@@ -3577,6 +3583,11 @@ function sameExplicitAliasEdition(a, b) {
     areExplicitTitleAliases(a.title, b.title));
 }
 
+function showTMDBSeriesIdentity(show) {
+  const seriesId = extractTMDBSeriesId(show.tmdbUrl) || Number(show.tmdbSeriesId) || knownTMDBSeriesId(show);
+  return Number.isSafeInteger(seriesId) && seriesId > 0 ? seriesId : 0;
+}
+
 function dedupByTitle(list) {
   // 新版已经通过收录门禁后，同名旧版不能仅凭更高分占住卡片。
   // 先找出同地区/类型的最新年度版本，再按原推荐分顺序去重。
@@ -3590,13 +3601,17 @@ function dedupByTitle(list) {
   }
   const groups = new Map();
   const positions = new Map(list.map((show, index) => [show, index]));
-  for (const show of list) {
+  const tmdbIds = new Map(list.map(show => [show, showTMDBSeriesIdentity(show)]));
+  // 先建立有明确身份的组；原有索引仍决定每组胜出卡片和输出顺序。
+  const known = list.filter(show => tmdbIds.get(show));
+  const unknown = list.filter(show => !tmdbIds.get(show));
+  for (const show of [...known, ...unknown]) {
     const edition = editionKey(show);
     const newestYear = newestEditions.get(edition);
     if (newestYear && boundedYear(show.year) < newestYear) continue;
     const title = (show.title || '').trim();
     if (!title) continue;
-    const tmdbId = extractTMDBSeriesId(show.tmdbUrl) || Number(show.tmdbSeriesId) || knownTMDBSeriesId(show);
+    const tmdbId = tmdbIds.get(show);
     const keys = externalIdentityKeys(show);
     const matches = [...groups].filter(([, group]) => group.members.some(member =>
       (edition && edition === editionKey(member) && show.year === member.year) ||
@@ -3622,10 +3637,10 @@ function dedupByTitle(list) {
       winner.legacyMarkKeys = [...new Set(marks)].slice(0, 32);
       groups.delete(previous);
     }
-    groups.set(winner, {
-      members: [...duplicates.flatMap(([, group]) => group.members), show],
-      tmdbId: tmdbId || duplicates.find(([, group]) => group.tmdbId)?.[1].tmdbId || 0,
-    });
+    const groupTmdbId = tmdbId || duplicates.find(([, group]) => group.tmdbId)?.[1].tmdbId || 0;
+    // 播放卡片胜出时保留已确认的剧集身份，供下一轮恢复和去重使用。
+    if (groupTmdbId && !tmdbIds.get(winner)) winner.tmdbSeriesId = groupTmdbId;
+    groups.set(winner, { members: [...duplicates.flatMap(([, group]) => group.members), show], tmdbId: groupTmdbId });
   }
   // 输入已按推荐分排序；按原顺序输出保留的卡片。
   return list.filter(show => groups.has(show));
