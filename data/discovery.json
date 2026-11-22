@@ -4418,13 +4418,13 @@
     ]
   },
   "2026-11-22": {
-    "timestamp": "2026-11-22T07:07:59.258Z",
-    "totalFound": 7,
+    "timestamp": "2026-11-22T19:51:46.495Z",
+    "totalFound": 8,
     "shows": [
       {
         "title": "医到孤岛爱上你",
         "score": 7.1,
-        "playCount": 451797,
+        "playCount": 451908,
         "year": 2026,
         "actor": "李宰旭,辛睿恩,洪民基,李秀敬",
         "source": "api_index",
@@ -4436,7 +4436,7 @@
       {
         "title": "逆转",
         "score": 3.9,
-        "playCount": 167776,
+        "playCount": 167806,
         "year": 2026,
         "actor": "徐智慧,高洙,金栽经,姜泳锡",
         "source": "api_index",
@@ -4448,7 +4448,7 @@
       {
         "title": "妈妈发疯了",
         "score": 0,
-        "playCount": 104003,
+        "playCount": 104720,
         "year": 2026,
         "actor": "郑敏儿,金亨奎,金姬贞,姜京宪",
         "source": "api_index",
@@ -4459,8 +4459,8 @@
       },
       {
         "title": "好搭档2",
-        "score": 8.3,
-        "playCount": 36704,
+        "score": 8.5,
+        "playCount": 47554,
         "year": 2026,
         "actor": "张娜拉,金惠奫,朴海镇,表志勋",
         "source": "api_index",
@@ -4472,7 +4472,7 @@
       {
         "title": "摩登音乐秀",
         "score": 3.8,
-        "playCount": 22005,
+        "playCount": 22011,
         "year": 2018,
         "actor": "臧鸿飞,ice,满舒克,马俊,阿肆,彭坦",
         "source": "search",
@@ -4496,13 +4496,25 @@
       {
         "title": "我的音乐老师，你好",
         "score": 3.3,
-        "playCount": 10862,
+        "playCount": 10864,
         "year": 2020,
         "actor": "尹度玹,金在奂,刘载焕]",
         "source": "search",
         "updateStatus": "02集全",
         "contentType": "",
         "mediaType": "综艺",
+        "regional": "韩国"
+      },
+      {
+        "title": "方糖之声",
+        "score": 0,
+        "playCount": 8570,
+        "year": 2026,
+        "actor": "",
+        "source": "api_index",
+        "updateStatus": "10集全",
+        "contentType": "同性",
+        "mediaType": "电视剧",
         "regional": "韩国"
       }
     ]

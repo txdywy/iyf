@@ -3717,7 +3717,7 @@
     "doubanMatchedTitle": "四手联弹，两首奏鸣曲",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.733Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.238Z"
   },
   "UkroxXO6h27": {
     "title": "书虫侦探第2季",
@@ -4243,7 +4243,7 @@
     "doubanMatchedTitle": "深渊无间",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T03:05:25.156Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.086Z"
   },
   "fZ8AnzO9dB9": {
     "title": "最后目击",
@@ -4302,7 +4302,7 @@
     "doubanMatchedTitle": "中头奖还是要上班",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T03:05:25.346Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.288Z"
   },
   "sOHxTQWGYuF": {
     "title": "冬城猎凶",
@@ -4324,7 +4324,7 @@
     "doubanMatchedTitle": "冬城猎凶",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T03:05:25.195Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.095Z"
   },
   "yP3ZRGAT5tT": {
     "title": "天赐娘子·小镖师",
@@ -4363,7 +4363,7 @@
     "doubanMatchedTitle": "打歌2025",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T03:05:25.233Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.126Z"
   },
   "ZJKnyszyp2j1": {
     "title": "兰香如故",
@@ -4385,7 +4385,7 @@
     "doubanMatchedTitle": "兰香如故",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T03:05:25.278Z"
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.134Z"
   },
   "3NHhqMNCDG9": {
     "title": "可以爱吗",
@@ -8700,7 +8700,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-22T07:08:01.309Z"
+    "cachedAt": "2026-11-22T19:51:48.016Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -11529,5 +11529,45 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-21T19:30:35.040Z",
     "cachedAt": "2026-11-21T19:30:35.043Z"
+  },
+  "lowCEmtSuv3": {
+    "title": "方糖之声",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/6zCGcUmAT9IoyBbZY7aKCd6al7f.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "方糖之声",
+    "matchedTitle": "方糖之声",
+    "tmdbId": 322051,
+    "tmdbUrl": "https://www.themoviedb.org/tv/322051",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt49856079/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.505Z",
+    "cachedAt": "2026-11-22T19:51:47.507Z"
+  },
+  "ybYrVSq7mWH": {
+    "title": "戈登档案",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/yLgl70D5Up0MlvBWP2MJTLAbFAF.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "戈登档案",
+    "matchedTitle": "戈登档案",
+    "tmdbId": 340280,
+    "tmdbUrl": "https://www.themoviedb.org/tv/340280",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt41559886/",
+    "wikidataId": "Q141805540",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-22T19:51:47.570Z",
+    "cachedAt": "2026-11-22T19:51:47.573Z"
   }
 }
