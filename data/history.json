@@ -1,23 +1,4 @@
 {
-  "2026-10-23": {
-    "timestamp": "2026-10-23T16:26:56.748Z",
-    "koreanDramasCount": 64,
-    "chineseVarietyCount": 119,
-    "topKoreanDramas": [
-      "孤单又灿烂的神-鬼怪",
-      "背着善宰跑",
-      "21世纪大君夫人",
-      "订阅男友",
-      "菜鸟炊事兵"
-    ],
-    "topVariety": [
-      "现在就出发",
-      "青春环游记",
-      "哈哈哈哈哈",
-      "欢乐喜剧人",
-      "德云斗笑社"
-    ]
-  },
   "2026-10-24": {
     "timestamp": "2026-10-24T15:20:36.118Z",
     "koreanDramasCount": 64,
@@ -552,6 +533,25 @@
   },
   "2026-11-21": {
     "timestamp": "2026-11-21T19:31:19.261Z",
+    "koreanDramasCount": 120,
+    "chineseVarietyCount": 165,
+    "topKoreanDramas": [
+      "我的有罪之人",
+      "恋爱充电中",
+      "百日谎言",
+      "我的完美秘书",
+      "背着善在跑吧"
+    ],
+    "topVariety": [
+      "欢乐喜剧人",
+      "青春环游记第5季",
+      "奔跑吧兄弟",
+      "欢乐喜剧人第4季",
+      "哈哈哈哈哈第6季"
+    ]
+  },
+  "2026-11-22": {
+    "timestamp": "2026-11-22T07:08:44.396Z",
     "koreanDramasCount": 120,
     "chineseVarietyCount": 165,
     "topKoreanDramas": [

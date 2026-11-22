@@ -1331,7 +1331,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:20.088Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.598Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.500Z"
   },
   "1oyEv3SQ2I5": {
     "title": "搞笑艺家人",
@@ -1369,7 +1369,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:17.715Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T03:01:28.964Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.413Z"
   },
   "G15iDgiJy3J": {
     "title": "百川综艺季",
@@ -1559,7 +1559,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:18.565Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.585Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.419Z"
   },
   "jYWMjbpslLB": {
     "title": "感性露营",
@@ -1578,7 +1578,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:18.998Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.586Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.492Z"
   },
   "LErmLemeAf0": {
     "title": "金特务：本色回归",
@@ -1998,7 +1998,7 @@
     "wikidataId": "",
     "cachedAt": "2026-08-23T16:34:19.725Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.596Z",
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.491Z",
     "doubanId": "36742889",
     "doubanMatchedTitle": "脱口秀和Ta的朋友们",
     "doubanMatchedSeasonNumber": 0
@@ -2064,7 +2064,7 @@
     "doubanMatchedTitle": "加油！汪汪",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.583Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.416Z"
   },
   "72TcoWWd4k5": {
     "title": "我剩下的恋爱",
@@ -2929,7 +2929,7 @@
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:35.867Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.596Z",
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.491Z",
     "doubanId": "37817070",
     "doubanMatchedTitle": "脱口秀和Ta的朋友们 第三季",
     "doubanMatchedSeasonNumber": 3
@@ -3062,7 +3062,7 @@
     "doubanMatchedTitle": "脱口秀和Ta的朋友们 第二季",
     "doubanMatchedSeasonNumber": 2,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-22T16:30:35.596Z"
+    "externalMetadataCheckedAt": "2026-11-22T07:08:00.491Z"
   },
   "WuTfGtF5AyJ": {
     "title": "喜剧总动员第2季",
@@ -3462,23 +3462,6 @@
     "regional": "韩国",
     "notFound": true,
     "cachedAt": "2026-11-21T19:30:36.745Z"
-  },
-  "giKxhDloej5": {
-    "title": "赴海",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/kKEzUe4QNyosVf03fmcE9OZ5Xxi.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "赴海",
-    "matchedTitle": "赴海",
-    "tmdbId": 331312,
-    "tmdbUrl": "https://www.themoviedb.org/tv/331312",
-    "doubanUrl": "",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt44359833/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-24T00:59:49.372Z"
   },
   "ZtfEK54FC70": {
     "title": "舞蹈新风暴",
@@ -8717,7 +8700,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-21T19:30:28.411Z"
+    "cachedAt": "2026-11-22T07:08:01.309Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
