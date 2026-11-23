@@ -2563,7 +2563,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:20.655Z"
+    "cachedAt": "2026-11-23T07:54:33.520Z"
   },
   "seed_var_2026_11": {
     "title": "五十公里桃花坞第6季",
@@ -2622,7 +2622,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:20.641Z"
+    "cachedAt": "2026-11-23T07:54:33.645Z"
   },
   "seed_var_2026_15": {
     "title": "快乐再出发第2季",
@@ -2657,7 +2657,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:21.444Z"
+    "cachedAt": "2026-11-23T07:54:34.191Z"
   },
   "seed_var_2026_18": {
     "title": "向往的生活第8季",
@@ -2754,7 +2754,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:22.435Z"
+    "cachedAt": "2026-11-23T07:54:34.935Z"
   },
   "seed_var_2026_24": {
     "title": "披荆斩棘的哥哥",
@@ -2880,7 +2880,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:22.441Z"
+    "cachedAt": "2026-11-23T07:54:35.486Z"
   },
   "seed_var_c02": {
     "title": "极限挑战第一季",
@@ -3429,7 +3429,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:20.048Z"
+    "cachedAt": "2026-11-23T07:54:32.282Z"
   },
   "RYE0AHtUFX5": {
     "title": "跨界喜剧王",
@@ -3472,7 +3472,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:19.425Z"
+    "cachedAt": "2026-11-23T07:54:31.629Z"
   },
   "Oq4Z8GUXr47": {
     "title": "金色",
@@ -3624,7 +3624,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:19.450Z"
+    "cachedAt": "2026-11-23T07:54:31.672Z"
   },
   "wkooR40Eji0": {
     "title": "鼠惑",
@@ -4424,7 +4424,7 @@
     "doubanMatchedTitle": "不是你的恋爱",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.641Z"
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.623Z"
   },
   "NwapzvnT6O5": {
     "title": "云雀叫天录",
@@ -4611,7 +4611,7 @@
     "doubanMatchedTitle": "一瓯春",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.494Z"
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.317Z"
   },
   "yYYmTiDexWI": {
     "title": "假面美颜",
@@ -4650,7 +4650,7 @@
     "doubanMatchedTitle": "挑情丑闻",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.629Z"
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.594Z"
   },
   "mqwnJqgiwU7": {
     "title": "梦想改造家",
@@ -4859,7 +4859,7 @@
     "wikidataId": "",
     "cachedAt": "2026-09-22T16:09:20.430Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.535Z",
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.318Z",
     "doubanId": "36640239",
     "doubanMatchedTitle": "法医秦明之龙番往事",
     "doubanMatchedSeasonNumber": 0
@@ -4963,7 +4963,7 @@
     "doubanMatchedTitle": "我不是大师",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.684Z"
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.588Z"
   },
   "QKceP7uTNz9": {
     "title": "娃娃",
@@ -5073,7 +5073,7 @@
     "doubanMatchedTitle": "潜入你心",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-23T16:20:30.744Z"
+    "externalMetadataCheckedAt": "2026-11-23T07:54:30.776Z"
   },
   "TpafUxh0a39": {
     "title": "嫌疑爱人",
@@ -8242,13 +8242,16 @@
     "matchedTitle": "爱情来了",
     "tmdbId": 310326,
     "tmdbUrl": "https://www.themoviedb.org/tv/310326",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/38223443/",
     "wikipediaUrl": "",
     "imdbUrl": "https://www.imdb.com/title/tt43643492/",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.257Z",
-    "cachedAt": "2026-11-08T04:47:08.259Z"
+    "cachedAt": "2026-11-08T04:47:08.259Z",
+    "doubanId": "38223443",
+    "doubanMatchedTitle": "爱情来了",
+    "doubanMatchedSeasonNumber": 0
   },
   "EpK6UTbpgT6": {
     "title": "现在不是出轨的问题",
@@ -8262,13 +8265,16 @@
     "matchedTitle": "现在不是出轨的问题",
     "tmdbId": 301418,
     "tmdbUrl": "https://www.themoviedb.org/tv/301418",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37501131/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E7%8F%BE%E5%9C%A8%E4%B8%8D%E6%98%AF%E5%A4%96%E9%81%87%E7%9A%84%E5%95%8F%E9%A1%8C",
     "imdbUrl": "https://www.imdb.com/title/tt41785451/",
     "wikidataId": "Q140573545",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.323Z",
-    "cachedAt": "2026-11-08T04:47:08.325Z"
+    "cachedAt": "2026-11-08T04:47:08.325Z",
+    "doubanId": "37501131",
+    "doubanMatchedTitle": "现在不是出轨的问题",
+    "doubanMatchedSeasonNumber": 0
   },
   "02AxbVJ5IhD": {
     "title": "共感细胞",
@@ -8345,13 +8351,16 @@
     "matchedTitle": "明天也要上班！",
     "tmdbId": 289763,
     "tmdbUrl": "https://www.themoviedb.org/tv/289763",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37335462/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%98%8E%E5%A4%A9%E4%B8%8A%E7%8F%AD%E8%A6%8B%EF%BC%81",
     "imdbUrl": "https://www.imdb.com/title/tt38960812/",
     "wikidataId": "Q135815592",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-08T04:47:08.649Z",
-    "cachedAt": "2026-11-08T04:47:08.651Z"
+    "cachedAt": "2026-11-08T04:47:08.651Z",
+    "doubanId": "37335462",
+    "doubanMatchedTitle": "明天也要上班！",
+    "doubanMatchedSeasonNumber": 0
   },
   "0bnt3n2KVH1": {
     "title": "铁拳教育",
@@ -8451,13 +8460,16 @@
     "matchedTitle": "Notes from the Last Row",
     "tmdbId": 286360,
     "tmdbUrl": "https://www.themoviedb.org/tv/286360",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37249356/",
     "wikipediaUrl": "https://zh.wikipedia.org/wiki/%E6%9C%AB%E8%A1%8C%E6%89%8B%E8%A8%98",
     "imdbUrl": "https://www.imdb.com/title/tt36270432/",
     "wikidataId": "Q137836165",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-17T15:50:42.921Z",
-    "cachedAt": "2026-11-17T15:50:42.925Z"
+    "cachedAt": "2026-11-17T15:50:42.925Z",
+    "doubanId": "37249356",
+    "doubanMatchedTitle": "最后一排的男孩",
+    "doubanMatchedSeasonNumber": 0
   },
   "EXt1RKOcYc7": {
     "title": "蔚蓝之春",
@@ -8700,7 +8712,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-22T19:51:48.016Z"
+    "cachedAt": "2026-11-23T07:54:31.639Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -9248,7 +9260,7 @@
     "negativeLookupVersion": 2,
     "regional": "泰国",
     "notFound": true,
-    "cachedAt": "2026-11-15T21:21:46.992Z"
+    "cachedAt": "2026-11-23T07:54:34.325Z"
   },
   "B3aTjg72S7B": {
     "title": "槲寄生谋杀案第3季",
@@ -10237,7 +10249,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:19.447Z"
+    "cachedAt": "2026-11-23T07:54:32.252Z"
   },
   "tmdb_tv_326901": {
     "title": "崩溃爬山趣",
@@ -10348,13 +10360,16 @@
     "matchedTitle": "热烈的告别",
     "tmdbId": 299764,
     "tmdbUrl": "https://www.themoviedb.org/tv/299764",
-    "doubanUrl": "",
+    "doubanUrl": "https://movie.douban.com/subject/37151882/",
     "wikipediaUrl": "",
     "imdbUrl": "",
     "wikidataId": "",
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-12T20:09:00.954Z",
-    "cachedAt": "2026-11-12T20:09:00.957Z"
+    "cachedAt": "2026-11-12T20:09:00.957Z",
+    "doubanId": "37151882",
+    "doubanMatchedTitle": "热烈的告别",
+    "doubanMatchedSeasonNumber": 0
   },
   "BxG48T4JvM0": {
     "title": "趁热打铁",
@@ -10539,7 +10554,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:20.682Z"
+    "cachedAt": "2026-11-23T07:54:32.964Z"
   },
   "Bd8c3zCGqNO": {
     "title": "王牌对王牌第9季",
@@ -10784,11 +10799,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T02:23:21.932Z",
-    "doubanUrl": "https://movie.douban.com/subject/36613769/",
-    "doubanId": "36613769",
-    "doubanMatchedTitle": "大侦探 第九季",
-    "doubanMatchedSeasonNumber": 9
+    "cachedAt": "2026-11-23T07:54:33.003Z"
   },
   "byqCZxdnyGZ": {
     "title": "文武",
