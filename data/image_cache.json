@@ -2218,7 +2218,7 @@
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:33.469Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.796Z",
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.379Z",
     "doubanId": "37814254",
     "doubanMatchedTitle": "一饭封神2",
     "doubanMatchedSeasonNumber": 2
@@ -2307,7 +2307,7 @@
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:33.374Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.696Z",
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.378Z",
     "doubanId": "37561356",
     "doubanMatchedTitle": "姐姐当家2",
     "doubanMatchedSeasonNumber": 2
@@ -2336,7 +2336,7 @@
     "doubanMatchedTitle": "密室大逃脱 第八季",
     "doubanMatchedSeasonNumber": 8,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.884Z"
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.421Z"
   },
   "7euCZd6epLB": {
     "title": "心动的信号第9季",
@@ -2362,7 +2362,7 @@
     "doubanMatchedTitle": "心动的信号 第九季",
     "doubanMatchedSeasonNumber": 9,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.844Z"
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.587Z"
   },
   "ysN7YxFD5u2": {
     "title": "喜剧之王单口季第3季",
@@ -3474,52 +3474,6 @@
     "notFound": true,
     "cachedAt": "2026-11-23T07:54:31.629Z"
   },
-  "Oq4Z8GUXr47": {
-    "title": "金色",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/k8qxAoprJ616KZq8k597WjrLm9z.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "金色",
-    "matchedTitle": "金色",
-    "tmdbId": 294487,
-    "tmdbUrl": "https://www.themoviedb.org/tv/294487",
-    "doubanUrl": "https://movie.douban.com/subject/37325370/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt37437772/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-25T12:38:01.605Z",
-    "doubanId": "37325370",
-    "doubanMatchedTitle": "金色"
-  },
-  "YKHYc3bW6nD": {
-    "title": "烟灰",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/fwCzHbxVuS4hyAdsY9if5zd91AO.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "烟灰",
-    "matchedTitle": "烟灰",
-    "tmdbId": 317314,
-    "tmdbUrl": "https://www.themoviedb.org/tv/317314",
-    "doubanUrl": "",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt44302417/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-25T12:38:01.634Z"
-  },
-  "qytLLRLd01N": {
-    "title": "丁香花开的兽道第2季",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "source": "tmdb",
-    "version": 16,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-25T12:38:02.794Z"
-  },
   "0ILVDSzjEcE": {
     "title": "月下之影",
     "year": 2026,
@@ -3985,7 +3939,7 @@
     "doubanMatchedTitle": "花儿与少年 第八季",
     "doubanMatchedSeasonNumber": 8,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.923Z"
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.592Z"
   },
   "bBuoUk82FM8": {
     "title": "乱世爱疾",
@@ -5277,7 +5231,7 @@
     "doubanMatchedTitle": "向内一公里",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T03:01:28.699Z"
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.380Z"
   },
   "jjcFwPIDvtB": {
     "title": "溺爱男友养成法",
@@ -8712,7 +8666,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-23T07:54:31.639Z"
+    "cachedAt": "2026-11-24T00:05:19.411Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -11402,11 +11356,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-20T22:50:53.162Z",
-    "doubanUrl": "https://movie.douban.com/subject/37816820/",
-    "doubanId": "37816820",
-    "doubanMatchedTitle": "声生不息·天涯共此时",
-    "doubanMatchedSeasonNumber": 0
+    "cachedAt": "2026-11-24T00:05:19.397Z"
   },
   "eZ1gMNzY6jV": {
     "title": "罪蓝之路",
@@ -11580,5 +11530,50 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-22T19:51:47.570Z",
     "cachedAt": "2026-11-22T19:51:47.573Z"
+  },
+  "NUTcwtiHg83": {
+    "title": "代考风暴",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/gCQCh9Si3ucHMuvUk0e62pPAgxS.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "代考风暴",
+    "matchedTitle": "代考风暴",
+    "tmdbId": 303552,
+    "tmdbUrl": "https://www.themoviedb.org/tv/303552",
+    "doubanUrl": "https://movie.douban.com/subject/37441663/",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt50164002/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-24T00:05:18.896Z",
+    "cachedAt": "2026-11-24T00:05:18.899Z",
+    "doubanId": "37441663",
+    "doubanMatchedTitle": "代考风暴",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "jCDy6KMy6XI": {
+    "title": "妈祖在人间",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "台湾",
+    "notFound": true,
+    "cachedAt": "2026-11-24T00:05:19.402Z"
+  },
+  "BkBx2qATiQD": {
+    "title": "诺森伯兰谜案",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "英国",
+    "notFound": true,
+    "cachedAt": "2026-11-24T00:05:19.525Z"
   }
 }
