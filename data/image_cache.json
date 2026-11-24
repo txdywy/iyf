@@ -2437,7 +2437,7 @@
     "doubanMatchedTitle": "你好时光 第二季",
     "doubanMatchedSeasonNumber": 2,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:20.337Z"
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.247Z"
   },
   "seed_var_2026_09": {
     "title": "青春环游记第5季",
@@ -3474,63 +3474,6 @@
     "notFound": true,
     "cachedAt": "2026-11-23T07:54:31.629Z"
   },
-  "0ILVDSzjEcE": {
-    "title": "月下之影",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/9NZSU41prwdI4yPQbT9Dw6j16ed.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "月下之影",
-    "matchedTitle": "月下之影",
-    "tmdbId": 307433,
-    "tmdbUrl": "https://www.themoviedb.org/tv/307433",
-    "doubanUrl": "https://movie.douban.com/subject/37871584/",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt39044683/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-26T01:00:58.930Z",
-    "doubanId": "37871584",
-    "doubanMatchedTitle": "月下之影"
-  },
-  "XZuPu6xIn59": {
-    "title": "光点",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/q4Edk1Hg0cOqS8hxJizucnXwgmQ.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "光点",
-    "matchedTitle": "光点",
-    "tmdbId": 323447,
-    "tmdbUrl": "https://www.themoviedb.org/tv/323447",
-    "doubanUrl": "https://movie.douban.com/subject/38488155/",
-    "wikipediaUrl": "https://en.wikipedia.org/wiki/Nour_(Thai_TV_series)",
-    "imdbUrl": "https://www.imdb.com/title/tt43035122/",
-    "wikidataId": "Q140672987",
-    "cachedAt": "2026-08-26T01:00:59.302Z",
-    "doubanId": "38488155",
-    "doubanMatchedTitle": "光点"
-  },
-  "XuRDAP2NmsE": {
-    "title": "踮起脚尖",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/Amo8TyKaRBk5iMJVFOcwfLTEMsX.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "踮起脚尖",
-    "matchedTitle": "踮起脚尖",
-    "tmdbId": 286617,
-    "tmdbUrl": "https://www.themoviedb.org/tv/286617",
-    "doubanUrl": "https://movie.douban.com/subject/37235098/",
-    "wikipediaUrl": "https://en.wikipedia.org/wiki/Tip_Toe_(TV_series)",
-    "imdbUrl": "https://www.imdb.com/title/tt35768911/",
-    "wikidataId": "Q136341307",
-    "cachedAt": "2026-08-26T01:00:59.641Z",
-    "doubanId": "37235098",
-    "doubanMatchedTitle": "踮起脚尖"
-  },
   "cSkj5qCMT7F": {
     "title": "早春晴朗",
     "year": 2026,
@@ -3751,7 +3694,7 @@
     "wikidataId": "",
     "cachedAt": "2026-10-01T14:32:37.726Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:20.305Z"
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.248Z"
   },
   "p0TRQmFE2yU": {
     "title": "囧徒之预演告别",
@@ -5311,7 +5254,7 @@
     "doubanMatchedTitle": "现在就出发 第四季",
     "doubanMatchedSeasonNumber": 4,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:20.575Z"
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.374Z"
   },
   "9YWxqdtyNZJ": {
     "title": "法医温特",
@@ -5685,7 +5628,7 @@
     "doubanMatchedTitle": "猎人杀",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:20.366Z"
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.253Z"
   },
   "qEjO1zggwBK": {
     "title": "爱上草莓的季节",
@@ -6935,7 +6878,7 @@
     "imdbUrl": "",
     "wikidataId": "",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:22.286Z",
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.263Z",
     "cachedAt": "2026-10-24T15:17:22.289Z"
   },
   "1J0cPZSt1p4": {
@@ -6961,7 +6904,7 @@
     "imdbUrl": "",
     "wikidataId": "",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-24T15:17:22.947Z",
+    "externalMetadataCheckedAt": "2026-11-24T10:07:17.269Z",
     "cachedAt": "2026-10-24T15:17:22.950Z"
   },
   "I7cmwjzTV0H": {
@@ -9681,7 +9624,7 @@
     "negativeLookupVersion": 2,
     "regional": "欧美",
     "notFound": true,
-    "cachedAt": "2026-11-17T08:09:26.322Z"
+    "cachedAt": "2026-11-24T10:07:18.689Z"
   },
   "mQHI6vThtpE": {
     "title": "妈妈朋友的儿子",
@@ -11575,5 +11518,19 @@
     "regional": "英国",
     "notFound": true,
     "cachedAt": "2026-11-24T00:05:19.525Z"
+  },
+  "tmdb_tv_342270": {
+    "title": "魔鬼的计谋：B计划",
+    "year": 2026,
+    "mediaType": "综艺",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/uKmUjxTaiNSMsIZBsGymWGhYHza.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:342270",
+    "matchedTitle": "魔鬼的计谋：B计划",
+    "tmdbId": 342270,
+    "tmdbUrl": "https://www.themoviedb.org/tv/342270",
+    "cachedAt": "2026-11-24T10:07:15.033Z"
   }
 }
