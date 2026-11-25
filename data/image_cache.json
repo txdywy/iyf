@@ -1619,7 +1619,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-17T08:38:43.758Z"
+    "externalMetadataCheckedAt": "2026-11-25T08:52:06.991Z"
   },
   "d8cPi6no7w6": {
     "title": "孤单又灿烂的神：鬼怪十周年特辑",
@@ -2247,7 +2247,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-17T08:38:43.990Z"
+    "externalMetadataCheckedAt": "2026-11-25T08:52:07.056Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -3473,25 +3473,6 @@
     "regional": "大陆",
     "notFound": true,
     "cachedAt": "2026-11-23T07:54:31.629Z"
-  },
-  "g6BeScVd2F5": {
-    "title": "醒来",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/4fKwBMS8Gj6uJRbLzeNn5JNY54M.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "醒来",
-    "matchedTitle": "醒来",
-    "tmdbId": 289761,
-    "tmdbUrl": "https://www.themoviedb.org/tv/289761",
-    "doubanUrl": "https://movie.douban.com/subject/36126289/",
-    "wikipediaUrl": "",
-    "imdbUrl": "",
-    "wikidataId": "",
-    "cachedAt": "2026-08-27T06:55:51.189Z",
-    "doubanId": "36126289",
-    "doubanMatchedTitle": "醒来"
   },
   "w9BV2AZ6tr9": {
     "title": "我家那闺女",
@@ -6086,7 +6067,7 @@
     "wikidataId": "",
     "cachedAt": "2026-10-12T20:49:32.315Z",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-25T15:27:17.285Z",
+    "externalMetadataCheckedAt": "2026-11-25T08:52:06.900Z",
     "doubanId": "38930903",
     "doubanMatchedTitle": "听，谁在唱歌2",
     "doubanMatchedSeasonNumber": 2
@@ -6114,7 +6095,7 @@
     "imdbUrl": "",
     "wikidataId": "",
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-25T15:27:27.023Z",
+    "externalMetadataCheckedAt": "2026-11-25T08:52:07.406Z",
     "cachedAt": "2026-10-25T15:27:27.025Z"
   },
   "e2rCXFzJUz2": {
@@ -6297,7 +6278,7 @@
     "doubanMatchedTitle": "心动制造所",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
-    "externalMetadataCheckedAt": "2026-10-25T15:27:17.424Z"
+    "externalMetadataCheckedAt": "2026-11-25T08:52:07.302Z"
   },
   "Yxz2Wgu67C2": {
     "title": "警之光第4季",
@@ -8609,7 +8590,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt39837101/",
     "wikidataId": "Q137008661",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-17T08:09:25.052Z",
+    "externalMetadataCheckedAt": "2026-11-25T08:52:06.978Z",
     "cachedAt": "2026-11-08T04:47:10.678Z"
   },
   "5k6LypC7hgD": {
@@ -9060,7 +9041,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-17T08:38:43.990Z",
+    "externalMetadataCheckedAt": "2026-11-25T08:52:07.056Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
