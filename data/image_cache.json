@@ -8571,7 +8571,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-24T22:37:51.485Z"
+    "cachedAt": "2026-11-25T21:51:10.815Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -11106,8 +11106,11 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/341236",
     "cachedAt": "2026-11-18T07:43:58.809Z",
     "doubanUrl": "",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-18T07:43:58.809Z"
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-25T21:51:10.048Z",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": ""
   },
   "MUVpjiLcze1": {
     "title": "宝珠",
@@ -11525,5 +11528,36 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-24T22:37:57.154Z",
     "cachedAt": "2026-11-24T22:37:57.158Z"
+  },
+  "cHHP71bAz8R": {
+    "title": "心机",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "台湾",
+    "url": "https://image.tmdb.org/t/p/original/c21X6t9OBvDISLvu8OKsacVDq1.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "心机",
+    "matchedTitle": "心机",
+    "tmdbId": 325519,
+    "tmdbUrl": "https://www.themoviedb.org/tv/325519",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt51199819/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-25T21:51:10.559Z",
+    "cachedAt": "2026-11-25T21:51:10.563Z"
+  },
+  "emDNajOrGIE": {
+    "title": "银翼杀手2099",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "欧美",
+    "notFound": true,
+    "cachedAt": "2026-11-25T21:51:11.325Z"
   }
 }
