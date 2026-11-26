@@ -3539,23 +3539,6 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-18T07:44:00.828Z"
   },
-  "RyVTvXkCVS1": {
-    "title": "接招吧！制作人",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/l0gTWERX7OPS4pGU9arcVLwDJu7.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "接招吧！制作人",
-    "matchedTitle": "接招吧！制作人",
-    "tmdbId": 201596,
-    "tmdbUrl": "https://www.themoviedb.org/tv/201596",
-    "doubanUrl": "",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt43595727/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-28T21:41:02.320Z"
-  },
   "tSF109Gz7IM": {
     "title": "四手联弹，两首奏鸣曲",
     "year": 2026,
@@ -7116,7 +7099,7 @@
     "negativeLookupVersion": 2,
     "regional": "欧美",
     "notFound": true,
-    "cachedAt": "2026-11-19T20:50:01.547Z"
+    "cachedAt": "2026-11-26T21:44:35.170Z"
   },
   "yR9Hzn0mkYa": {
     "title": "美食告白记第2季",
@@ -8571,7 +8554,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-25T21:51:10.815Z"
+    "cachedAt": "2026-11-26T21:44:34.483Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -10319,7 +10302,7 @@
     "negativeLookupVersion": 2,
     "regional": "英国",
     "notFound": true,
-    "cachedAt": "2026-11-19T20:50:00.832Z"
+    "cachedAt": "2026-11-26T21:44:34.490Z"
   },
   "tmdb_tv_326975": {
     "title": "BOSS的甜蜜诱惑",
@@ -11599,5 +11582,56 @@
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-26T08:38:29.446Z",
     "cachedAt": "2026-11-26T08:38:29.450Z"
+  },
+  "uxKvmXGc52C": {
+    "title": "朝九晚六",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/3kDdxXirDJwfQEmm0FbxuW9PtCM.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "discover:310209",
+    "matchedTitle": "朝九晚六",
+    "tmdbId": 310209,
+    "tmdbUrl": "https://www.themoviedb.org/tv/310209",
+    "cachedAt": "2026-11-26T08:38:13.394Z",
+    "doubanUrl": "https://movie.douban.com/subject/38190046/",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-26T08:38:13.394Z",
+    "doubanId": "38190046",
+    "doubanMatchedTitle": "朝九晚六",
+    "doubanMatchedSeasonNumber": 0
+  },
+  "Fi3zKLfhEi7": {
+    "title": "冬季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "韩国",
+    "url": "https://image.tmdb.org/t/p/original/qU5YGpS9I0vRBfu0ulk8w1UKiBO.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "冬季",
+    "matchedTitle": "冬季",
+    "tmdbId": 322052,
+    "tmdbUrl": "https://www.themoviedb.org/tv/322052",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-26T21:44:34.001Z",
+    "cachedAt": "2026-11-26T21:44:34.005Z"
+  },
+  "cNLtJKllpPA": {
+    "title": "狩猎之妻第2季",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "source": "tmdb",
+    "version": 16,
+    "negativeLookupVersion": 2,
+    "regional": "欧美",
+    "notFound": true,
+    "cachedAt": "2026-11-26T21:44:35.052Z"
   }
 }
