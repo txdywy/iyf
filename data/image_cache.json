@@ -1619,7 +1619,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-26T08:38:26.597Z"
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.152Z"
   },
   "d8cPi6no7w6": {
     "title": "孤单又灿烂的神：鬼怪十周年特辑",
@@ -2247,7 +2247,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-26T08:38:26.765Z"
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.201Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -3506,16 +3506,6 @@
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-09T06:54:29.878Z"
-  },
-  "7QqV64Xt5Y9": {
-    "title": "人生复本第2季",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "source": "tmdb",
-    "version": 16,
-    "negativeLookupVersion": 2,
-    "notFound": true,
-    "cachedAt": "2026-08-29T05:21:11.806Z"
   },
   "oFXGVHy4TzD": {
     "title": "夏季",
@@ -8554,7 +8544,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-26T21:44:34.483Z"
+    "cachedAt": "2026-11-27T08:49:40.972Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -8573,7 +8563,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt39837101/",
     "wikidataId": "Q137008661",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-26T08:38:26.774Z",
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.204Z",
     "cachedAt": "2026-11-08T04:47:10.678Z"
   },
   "5k6LypC7hgD": {
@@ -9024,7 +9014,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-26T08:38:26.765Z",
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.201Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -11247,7 +11237,7 @@
     "negativeLookupVersion": 2,
     "regional": "大陆",
     "notFound": true,
-    "cachedAt": "2026-11-24T00:05:19.397Z"
+    "cachedAt": "2026-11-27T08:49:40.968Z"
   },
   "eZ1gMNzY6jV": {
     "title": "罪蓝之路",
@@ -11597,11 +11587,14 @@
     "tmdbUrl": "https://www.themoviedb.org/tv/310209",
     "cachedAt": "2026-11-26T08:38:13.394Z",
     "doubanUrl": "https://movie.douban.com/subject/38190046/",
-    "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-26T08:38:13.394Z",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.149Z",
     "doubanId": "38190046",
     "doubanMatchedTitle": "朝九晚六",
-    "doubanMatchedSeasonNumber": 0
+    "doubanMatchedSeasonNumber": 0,
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt41743360/",
+    "wikidataId": ""
   },
   "Fi3zKLfhEi7": {
     "title": "冬季",
@@ -11633,5 +11626,25 @@
     "regional": "欧美",
     "notFound": true,
     "cachedAt": "2026-11-26T21:44:35.052Z"
+  },
+  "Me0INN26TJ5": {
+    "title": "风生水起",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "大陆",
+    "url": "https://image.tmdb.org/t/p/original/lCbDJ40vDTRtiokIKDNiMluzekm.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "风生水起",
+    "matchedTitle": "风生水起",
+    "tmdbId": 339341,
+    "tmdbUrl": "https://www.themoviedb.org/tv/339341",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-27T08:49:40.466Z",
+    "cachedAt": "2026-11-27T08:49:40.470Z"
   }
 }
