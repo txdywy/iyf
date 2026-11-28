@@ -1619,7 +1619,7 @@
     "doubanMatchedTitle": "说唱巅峰对决2026",
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T08:49:40.152Z"
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.049Z"
   },
   "d8cPi6no7w6": {
     "title": "孤单又灿烂的神：鬼怪十周年特辑",
@@ -2247,7 +2247,7 @@
     "doubanMatchedTitle": "只要有空 第五季",
     "doubanMatchedSeasonNumber": 5,
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T08:49:40.201Z"
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.119Z"
   },
   "SEDOoKbOa95": {
     "title": "地球超新鲜第2季",
@@ -3550,23 +3550,6 @@
     "doubanMatchedSeasonNumber": 0,
     "externalMetadataState": "complete",
     "externalMetadataCheckedAt": "2026-11-22T19:51:47.238Z"
-  },
-  "oeZYjDcJdd6": {
-    "title": "狂热先生",
-    "year": 2026,
-    "mediaType": "电视剧",
-    "url": "https://image.tmdb.org/t/p/original/gWhpC5H6qFFSjuSxMHg4RlDZRVR.jpg",
-    "source": "tmdb",
-    "version": 16,
-    "query": "狂热先生",
-    "matchedTitle": "狂热先生",
-    "tmdbId": 284825,
-    "tmdbUrl": "https://www.themoviedb.org/tv/284825",
-    "doubanUrl": "",
-    "wikipediaUrl": "",
-    "imdbUrl": "https://www.imdb.com/title/tt35932166/",
-    "wikidataId": "",
-    "cachedAt": "2026-08-30T15:56:08.420Z"
   },
   "hqT6bkT5zmU": {
     "title": "不眠第3季",
@@ -8524,7 +8507,7 @@
     "negativeLookupVersion": 2,
     "regional": "韩国",
     "notFound": true,
-    "cachedAt": "2026-11-27T21:28:44.100Z"
+    "cachedAt": "2026-11-28T20:21:34.038Z"
   },
   "4Fef75t6pzN": {
     "title": "神与律师事务所",
@@ -8543,7 +8526,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt39837101/",
     "wikidataId": "Q137008661",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T08:49:40.204Z",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.120Z",
     "cachedAt": "2026-11-08T04:47:10.678Z"
   },
   "5k6LypC7hgD": {
@@ -8994,7 +8977,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt34460456/",
     "wikidataId": "Q137916151",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T08:49:40.201Z",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.119Z",
     "cachedAt": "2026-11-08T04:47:14.892Z"
   },
   "GcAlVVQRGUC": {
@@ -11659,7 +11642,7 @@
     "imdbUrl": "https://www.imdb.com/title/tt11218290/",
     "wikidataId": "Q123601571",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T21:28:44.665Z",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.142Z",
     "cachedAt": "2026-11-27T21:28:44.668Z"
   },
   "ApezcELDLFP": {
@@ -11683,7 +11666,47 @@
     "imdbUrl": "https://www.imdb.com/title/tt31867638/",
     "wikidataId": "Q125783410",
     "externalMetadataState": "unknown",
-    "externalMetadataCheckedAt": "2026-11-27T21:28:44.673Z",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.213Z",
     "cachedAt": "2026-11-27T21:28:44.675Z"
+  },
+  "ypZB2CynllG": {
+    "title": "急症最前线",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "欧美",
+    "url": "https://image.tmdb.org/t/p/original/oFoT6GRACWN9X6fFvtCys0ViDUl.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "急症最前线",
+    "matchedTitle": "急症最前线",
+    "tmdbId": 338930,
+    "tmdbUrl": "https://www.themoviedb.org/tv/338930",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt36951910/",
+    "wikidataId": "",
+    "externalMetadataState": "complete",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.519Z",
+    "cachedAt": "2026-11-28T20:21:33.522Z"
+  },
+  "sOP7bzODOL9": {
+    "title": "死神恋人",
+    "year": 2026,
+    "mediaType": "电视剧",
+    "regional": "泰国",
+    "url": "https://image.tmdb.org/t/p/original/gRgazIll6vcrnCCVR3AyiJYO47w.jpg",
+    "source": "tmdb",
+    "version": 16,
+    "query": "死神恋人",
+    "matchedTitle": "死神恋人",
+    "tmdbId": 312580,
+    "tmdbUrl": "https://www.themoviedb.org/tv/312580",
+    "doubanUrl": "",
+    "wikipediaUrl": "",
+    "imdbUrl": "https://www.imdb.com/title/tt39443954/",
+    "wikidataId": "Q139972319",
+    "externalMetadataState": "unknown",
+    "externalMetadataCheckedAt": "2026-11-28T20:21:33.545Z",
+    "cachedAt": "2026-11-28T20:21:33.547Z"
   }
 }
